@@ -4,6 +4,22 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v1.11.0 — 2026-05-15
+**Bigger word library + always-on silliness (no toggle required)**
+- All 7 kid-tier word pools expanded 12 → 18 options. New picks include:
+  - **pet:** octopus, hedgehog, axolotl, llama, sloth, koala
+  - **color:** tomato red, lemon yellow, watermelon pink, mint green, sunset orange, midnight blue
+  - **food:** spaghetti, popcorn, hot dogs, pancakes, cupcakes, french fries
+  - **place:** treehouse, lighthouse, carnival, aquarium, planetarium, bakery
+  - **creature:** vampire, fairy, dinosaur, detective, time traveler, royal jester
+  - **move:** shimmied, wobbled, marched, stomped, danced, sprinted
+  - **mood:** cozy, suspiciously polite, professionally confused, ridiculously cheerful, sleepy, jubilant
+- New SILLY_THINGS auto-inject pool — every kid story now drops a random absurd object as a parenthetical aside ("a sock with strong opinions", "a slightly haunted spoon", "a tiny philosophical mushroom", etc.). Stories stay silly even when Extra Silly mode is OFF.
+- SOUND_PG expanded 12 → 18 (added POOF, ZINK, PLOP, YIKES, BANG, WHEE) so the same SPLAT/BOING doesn't repeat as often.
+- Fixed emoji duplicate in kid/food: grilled cheese 🧀 → 🥪 (was duplicating nachos 🧀).
+
+---
+
 ## v1.10.0 — 2026-05-15
 **Sidekicks: friends and siblings in the story**
 - New welcome step after age: "Anyone you want in the story?"

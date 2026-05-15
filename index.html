@@ -847,6 +847,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v1.11.0', title: 'Bigger word library + always-on silliness',
+    detail: 'Kid tier expanded from 12 → 18 options per round (octopus, pancakes, planetarium, professionally confused, etc.). Every kid story now also injects a random absurd object as a parenthetical aside — no toggle required.' },
   { v: 'v1.10.0', title: 'Friends & siblings in the story',
     detail: 'New welcome step lets you add up to 3 sidekicks. One gets a cameo line in every story.' },
   { v: 'v1.9.1',  title: 'Emoji audit — churros, bounce, firefly + 11 more',
@@ -855,8 +857,6 @@ const RELEASE_NOTES = [
     detail: 'Potty mode now adds 2 visible picker rounds. All 8 kid templates rewritten with sharper rhythm and dialogue.' },
   { v: 'v1.8.0',  title: 'Kid stories rewritten + potty toggle',
     detail: 'Stories now have proper structure (setup → escalation → callback → big payoff). New BODY/SOUND humor pools.' },
-  { v: 'v1.7.0',  title: 'Karaoke word highlighting',
-    detail: 'Words illuminate as the narrator reads them, synced to ElevenLabs audio.' },
 ];
 
 function showWhatsNew() {
@@ -989,14 +989,37 @@ function buildStory(name, picks, age) {
   );
 
   const rawPick = arr => arr[Math.floor(Math.random() * arr.length)];
-  // pick auto-corrects articles AND injects a sidekick cameo when the result is a story object.
+  // pick auto-corrects articles, injects an absurd silly object (kid tier only),
+  // and adds a sidekick cameo when the result is a story object.
   const pick = arr => {
     const r = rawPick(arr);
     if (r && typeof r === 'object' && Array.isArray(r.paragraphs)) {
-      const story = { title: fixArticles(r.title), paragraphs: r.paragraphs.map(fixArticles) };
-      return injectSidekick(story);
+      let story = { title: fixArticles(r.title), paragraphs: r.paragraphs.map(fixArticles) };
+      if (t === 'kid') story = injectSillyThing(story);
+      story = injectSidekick(story);
+      return story;
     }
     return r;
+  };
+
+  // Always-on silly object injection — adds a random absurd item as a parenthetical aside in P2 or P3.
+  // Makes every kid story baseline-weird without depending on potty toggle.
+  const injectSillyThing = (story) => {
+    if (!Array.isArray(SILLY_THINGS) || SILLY_THINGS.length === 0) return story;
+    const thing = rawPick(SILLY_THINGS);
+    const Cap = thing.charAt(0).toUpperCase() + thing.slice(1);
+    const asides = [
+      ` Also nearby: ${thing}. Just sitting there. Not helping.`,
+      ` ${Cap} was also there. Nobody knew why.`,
+      ` Off in the corner, ${thing} watched everything carefully.`,
+      ` Important note: ${thing} was right there the whole time.`,
+      ` ${Cap} had been there for hours. As ${thing}s often are.`,
+    ];
+    const aside = rawPick(asides);
+    const targetIdx = 1 + Math.floor(Math.random() * 2); // P2 or P3
+    const updated = story.paragraphs.slice();
+    updated[targetIdx] = updated[targetIdx] + aside;
+    return { title: story.title, paragraphs: updated };
   };
 
   // Sidekick cameo — one random sibling/friend from state.sidekicks lands a single sentence

@@ -4,15 +4,33 @@
    Story template logic lives in index.html (buildStory).
    ================================================================ */
 
-const APP_VERSION = 'v1.10.0';
+const APP_VERSION = 'v1.11.0';
 
 /* Auto-injected vocabulary for the kid tier — chosen randomly inside buildStory when the user
    didn't pick body/sound from a round. PG pools are used by default. _HOT pools activate when
    pottyMode is on. Stays bounded: PG = school-safe, HOT = Captain-Underpants tier (no real swears). */
 const BODY_PG  = ['toot', 'burp', 'wedgie', 'stinky sock', 'smelly shoe', 'hiccup', 'sneeze', 'snort', 'drool', 'snore', 'armpit', 'belly button'];
 const BODY_HOT = ['fart', 'poop', 'butt', 'pee', 'booger', 'snot rocket', 'underpants', 'stinky armpit', 'swamp foot', 'nostril', 'toilet', 'wedgie'];
-const SOUND_PG  = ['SPLAT', 'BOING', 'PFFT', 'WUMP', 'FWOOSH', 'KERPLUNK', 'BLORP', 'SQUISH', 'HONK', 'BWAH', 'BLARP', 'WAFLOOP'];
+const SOUND_PG  = ['SPLAT', 'BOING', 'PFFT', 'WUMP', 'FWOOSH', 'KERPLUNK', 'BLORP', 'SQUISH', 'HONK', 'BWAH', 'BLARP', 'WAFLOOP', 'POOF', 'ZINK', 'PLOP', 'YIKES', 'BANG', 'WHEE'];
 const SOUND_HOT = ['PFFFFART', 'BTHHHPP', 'PLOPP', 'FAAAARP', 'TOOOT', 'PARP', 'BLEEEEH', 'SCHPLAT', 'GLOOP', 'KAFOOM', 'BWAHAHA', 'SQUOMP'];
+
+/* Always-on absurd objects for kid-tier stories — never gated by pottyMode, never user-picked.
+   One gets injected as a parenthetical aside per kid story so every story has a baseline of
+   weird without needing the toggle. Phrases are noun-phrases that fit "Also there: X." */
+const SILLY_THINGS = [
+  'a sock with strong opinions',
+  'a slightly haunted spoon',
+  'a confused calculator',
+  'a polite-looking rock',
+  'a very tall jellybean',
+  'a deeply offended pillow',
+  'a suspiciously cheerful toothbrush',
+  'a tiny philosophical mushroom',
+  'a mysteriously friendly hat',
+  'a slightly damp sticker',
+  'a yo-yo with attitude',
+  'a sock puppet that knows things',
+];
 
 /* Pickable round options for kid tier — surfaced ONLY when pottyMode is on so the toggle has
    an immediate, visible effect on the selection flow. Each option pairs a word with an emoji
@@ -50,13 +68,13 @@ const WORD_BANK = {
     { cat: 'weather', label: 'Choose the weather', options: [{w:'sunny',    e:'☀️'}, {w:'snowy',     e:'❄️'}, {w:'windy',   e:'🌬️'}, {w:'rainy',   e:'🌧️'}, {w:'cloudy',    e:'☁️'}, {w:'foggy',   e:'🌫️'}, {w:'stormy',   e:'⛈️'}, {w:'frosty',    e:'🌨️'}, {w:'breezy',   e:'🍃'}, {w:'misty',    e:'🌁'}, {w:'thundery', e:'⚡'}, {w:'glittery', e:'✨'}] },
   ],
   kid: [
-    { cat: 'pet',     label: 'Pick your sidekick',   options: [{w:'dragon',    e:'🐲'}, {w:'panda',     e:'🐼'}, {w:'parrot',    e:'🦜'}, {w:'tiger',     e:'🐯'}, {w:'penguin',   e:'🐧'}, {w:'falcon',    e:'🦅'}, {w:'wolf',      e:'🐺'}, {w:'otter',     e:'🦦'}, {w:'lynx',      e:'🐱'}, {w:'fennec fox',e:'🦊'}, {w:'unicorn',   e:'🦄'}, {w:'capybara',  e:'🦫'}] },
-    { cat: 'color',   label: 'Pick a color',          options: [{w:'purple',    e:'🟣'}, {w:'rainbow',   e:'🌈'}, {w:'golden',    e:'🥇'}, {w:'scarlet',   e:'🔴'}, {w:'silver',    e:'🥈'}, {w:'teal',      e:'🦚'}, {w:'neon',      e:'💚'}, {w:'pitch black',e:'🖤'}, {w:'electric blue',e:'⚡'},{w:'moss green', e:'🌿'}, {w:'burnt orange',e:'🍊'},{w:'rose gold',  e:'🌸'}] },
-    { cat: 'food',    label: 'Pick a snack',           options: [{w:'tacos',     e:'🌮'}, {w:'donuts',    e:'🍩'}, {w:'nachos',    e:'🧀'}, {w:'sushi',     e:'🍣'}, {w:'waffles',   e:'🧇'}, {w:'pizza',     e:'🍕'}, {w:'ramen',     e:'🍜'}, {w:'burritos',  e:'🌯'}, {w:'dumplings', e:'🥟'}, {w:'ice cream', e:'🍦'}, {w:'pretzels',  e:'🥨'}, {w:'grilled cheese',e:'🧀'}] },
-    { cat: 'place',   label: 'Pick a location',        options: [{w:'jungle',    e:'🌴'}, {w:'castle',    e:'🏰'}, {w:'cavern',    e:'🕳️'}, {w:'forest',    e:'🌲'}, {w:'meadow',    e:'🌾'}, {w:'canyon',    e:'🏞️'}, {w:'volcano',   e:'🌋'}, {w:'labyrinth', e:'🌀'}, {w:'shipwreck', e:'⚓'}, {w:'glacier',   e:'🧊'}, {w:'rooftop',   e:'🏙️'}, {w:'desert',    e:'🏜️'}] },
-    { cat: 'creature',label: 'Pick a creature',        options: [{w:'robot',     e:'🤖'}, {w:'mermaid',   e:'🧜'}, {w:'wizard',    e:'🧙'}, {w:'pirate',    e:'🏴‍☠️'}, {w:'ninja',     e:'🥷'}, {w:'goblin',    e:'👺'}, {w:'knight',    e:'⚔️'}, {w:'alien',     e:'👽'}, {w:'witch',     e:'🧙‍♀️'}, {w:'giant',    e:'🗿'}, {w:'ghost',     e:'👻'}, {w:'troll',     e:'🧌'}] },
-    { cat: 'move',    label: 'Pick a move',            options: [{w:'zoomed',    e:'⚡'}, {w:'tiptoed',   e:'👣'}, {w:'bounced',   e:'🏀'}, {w:'spun',      e:'🌀'}, {w:'leapt',     e:'🦘'}, {w:'galloped',  e:'🏇'}, {w:'tumbled',   e:'🤸'}, {w:'glided',    e:'🪂'}, {w:'charged',   e:'🐂'}, {w:'crept',     e:'🐛'}, {w:'soared',    e:'🦅'}, {w:'skated',    e:'⛸️'}] },
-    { cat: 'mood',    label: 'Pick a feeling',         options: [{w:'silly',     e:'🤪'}, {w:'sneaky',    e:'🕵️'}, {w:'brave',     e:'🦁'}, {w:'goofy',     e:'🎪'}, {w:'spooky',    e:'👻'}, {w:'grumpy',    e:'😤'}, {w:'wobbly',    e:'🫨'}, {w:'dramatic',  e:'🎭'}, {w:'mysterious',e:'🌙'}, {w:'determined',e:'💪'}, {w:'clumsy',    e:'🤦'}, {w:'legendary', e:'🏆'}] },
+    { cat: 'pet',     label: 'Pick your sidekick',   options: [{w:'dragon',    e:'🐲'}, {w:'panda',     e:'🐼'}, {w:'parrot',    e:'🦜'}, {w:'tiger',     e:'🐯'}, {w:'penguin',   e:'🐧'}, {w:'falcon',    e:'🦅'}, {w:'wolf',      e:'🐺'}, {w:'otter',     e:'🦦'}, {w:'lynx',      e:'🐱'}, {w:'fennec fox',e:'🦊'}, {w:'unicorn',   e:'🦄'}, {w:'capybara',  e:'🦫'}, {w:'octopus',   e:'🐙'}, {w:'hedgehog',  e:'🦔'}, {w:'axolotl',   e:'🐠'}, {w:'llama',     e:'🦙'}, {w:'sloth',     e:'🦥'}, {w:'koala',     e:'🐨'}] },
+    { cat: 'color',   label: 'Pick a color',          options: [{w:'purple',    e:'🟣'}, {w:'rainbow',   e:'🌈'}, {w:'golden',    e:'🥇'}, {w:'scarlet',   e:'🔴'}, {w:'silver',    e:'🥈'}, {w:'teal',      e:'🦚'}, {w:'neon',      e:'💚'}, {w:'pitch black',e:'🖤'}, {w:'electric blue',e:'⚡'},{w:'moss green', e:'🌿'}, {w:'burnt orange',e:'🍊'},{w:'rose gold',  e:'🌸'}, {w:'tomato red', e:'🍅'}, {w:'lemon yellow',e:'🍋'},{w:'watermelon pink',e:'🍉'},{w:'mint green',e:'🍃'},{w:'sunset orange',e:'🌅'},{w:'midnight blue',e:'🌌'}] },
+    { cat: 'food',    label: 'Pick a snack',           options: [{w:'tacos',     e:'🌮'}, {w:'donuts',    e:'🍩'}, {w:'nachos',    e:'🧀'}, {w:'sushi',     e:'🍣'}, {w:'waffles',   e:'🧇'}, {w:'pizza',     e:'🍕'}, {w:'ramen',     e:'🍜'}, {w:'burritos',  e:'🌯'}, {w:'dumplings', e:'🥟'}, {w:'ice cream', e:'🍦'}, {w:'pretzels',  e:'🥨'}, {w:'grilled cheese',e:'🥪'}, {w:'spaghetti', e:'🍝'}, {w:'popcorn',   e:'🍿'}, {w:'hot dogs',  e:'🌭'}, {w:'pancakes',  e:'🥞'}, {w:'cupcakes',  e:'🧁'}, {w:'french fries',e:'🍟'}] },
+    { cat: 'place',   label: 'Pick a location',        options: [{w:'jungle',    e:'🌴'}, {w:'castle',    e:'🏰'}, {w:'cavern',    e:'🕳️'}, {w:'forest',    e:'🌲'}, {w:'meadow',    e:'🌾'}, {w:'canyon',    e:'🏞️'}, {w:'volcano',   e:'🌋'}, {w:'labyrinth', e:'🌀'}, {w:'shipwreck', e:'⚓'}, {w:'glacier',   e:'🧊'}, {w:'rooftop',   e:'🏙️'}, {w:'desert',    e:'🏜️'}, {w:'treehouse', e:'🌳'}, {w:'lighthouse',e:'🗼'}, {w:'carnival',  e:'🎡'}, {w:'aquarium',  e:'🐠'}, {w:'planetarium',e:'🪐'},{w:'bakery',    e:'🥐'}] },
+    { cat: 'creature',label: 'Pick a creature',        options: [{w:'robot',     e:'🤖'}, {w:'mermaid',   e:'🧜'}, {w:'wizard',    e:'🧙'}, {w:'pirate',    e:'🏴‍☠️'}, {w:'ninja',     e:'🥷'}, {w:'goblin',    e:'👺'}, {w:'knight',    e:'⚔️'}, {w:'alien',     e:'👽'}, {w:'witch',     e:'🧙‍♀️'}, {w:'giant',    e:'🗿'}, {w:'ghost',     e:'👻'}, {w:'troll',     e:'🧌'}, {w:'vampire',   e:'🧛'}, {w:'fairy',     e:'🧚'}, {w:'dinosaur',  e:'🦖'}, {w:'detective', e:'🔍'}, {w:'time traveler',e:'⏳'}, {w:'royal jester',e:'🃏'}] },
+    { cat: 'move',    label: 'Pick a move',            options: [{w:'zoomed',    e:'⚡'}, {w:'tiptoed',   e:'👣'}, {w:'bounced',   e:'🏀'}, {w:'spun',      e:'🌀'}, {w:'leapt',     e:'🦘'}, {w:'galloped',  e:'🏇'}, {w:'tumbled',   e:'🤸'}, {w:'glided',    e:'🪂'}, {w:'charged',   e:'🐂'}, {w:'crept',     e:'🐛'}, {w:'soared',    e:'🦅'}, {w:'skated',    e:'⛸️'}, {w:'shimmied',  e:'🎵'}, {w:'wobbled',   e:'🌊'}, {w:'marched',   e:'🥁'}, {w:'stomped',   e:'🦶'}, {w:'danced',    e:'💃'}, {w:'sprinted',  e:'🏃'}] },
+    { cat: 'mood',    label: 'Pick a feeling',         options: [{w:'silly',     e:'🤪'}, {w:'sneaky',    e:'🕵️'}, {w:'brave',     e:'🦁'}, {w:'goofy',     e:'🎪'}, {w:'spooky',    e:'👻'}, {w:'grumpy',    e:'😤'}, {w:'wobbly',    e:'🫨'}, {w:'dramatic',  e:'🎭'}, {w:'mysterious',e:'🌙'}, {w:'determined',e:'💪'}, {w:'clumsy',    e:'🤦'}, {w:'legendary', e:'🏆'}, {w:'cozy',      e:'🥰'}, {w:'suspiciously polite',e:'🎩'},{w:'professionally confused',e:'🤔'},{w:'ridiculously cheerful',e:'🌟'},{w:'sleepy',    e:'😴'}, {w:'jubilant',  e:'🎉'}] },
   ],
   big: [
     { cat: 'pet',     label: 'Pick your companion',   options: [{w:'mischievous fox',         e:'🦊'}, {w:'glittering octopus',     e:'🐙'}, {w:'ancient tortoise',      e:'🐢'}, {w:'bewildered penguin',    e:'🐧'}, {w:'melodramatic cat',      e:'🐱'}, {w:'philosophical owl',     e:'🦉'}, {w:'imperious corgi',       e:'👑'}, {w:'overconfident raccoon', e:'🦝'}, {w:'anxious hedgehog',      e:'🦔'}, {w:'exasperated flamingo',  e:'🦩'}, {w:'suspicious seagull',    e:'🐦'}, {w:'theatrical moth',       e:'🦋'}] },
