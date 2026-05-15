@@ -1427,6 +1427,7 @@ function advanceRound(cat, chosen) {
 
 /* ---- TTS state (lives outside React, shared by both pill + bottom buttons) ---- */
 let ttsUtterance = null;
+let ttsTimers    = [];
 
 function attachStoryHandlers(el) {
   const pill        = el.querySelector('#btn-speak-pill');
@@ -1451,6 +1452,20 @@ function attachStoryHandlers(el) {
   if (btnAgain) btnAgain.addEventListener('click', resetApp);
 }
 
+/* Pick the best available British male voice.
+   Priority: Daniel (Apple — warm, mature), Arthur (Apple/Win11 — authoritative),
+   Google UK English Male (Chrome), any George/en-GB male, any en-GB, any English. */
+function pickBritishVoice() {
+  const vs = window.speechSynthesis.getVoices();
+  return vs.find(v => v.name === 'Daniel')
+      || vs.find(v => v.name === 'Arthur')
+      || vs.find(v => /google uk english male/i.test(v.name))
+      || vs.find(v => /\bgeorge\b/i.test(v.name) && v.lang?.startsWith('en'))
+      || vs.find(v => v.lang === 'en-GB')
+      || vs.find(v => v.lang?.startsWith('en-GB'))
+      || vs.find(v => v.lang?.startsWith('en'));
+}
+
 function speak(el) {
   if (!('speechSynthesis' in window)) {
     alert("Sorry — your browser can't read aloud. Try Chrome or Safari!");
@@ -1459,31 +1474,64 @@ function speak(el) {
   stopSpeaking();
 
   const story = buildStory(state.name, state.picks, state.age);
-  const text  = storyToPlainText(story);
-  const u = new SpeechSynthesisUtterance(text);
-  // Warm British male — deliberately slower than natural for children's read-aloud feel
-  u.rate  = state.age <= 3 ? 0.60 : state.age <= 5 ? 0.67 : state.age <= 7 ? 0.74 : 0.80;
-  u.pitch = 0.88;
-  u.volume = 1;
 
-  const voices = window.speechSynthesis.getVoices();
-  // Priority: Daniel (Apple/Safari), Google UK English Male (Chrome), Arthur (Windows), any en-GB, any en
-  const pref = voices.find(v => v.name === 'Daniel')
-            || voices.find(v => /google uk english male/i.test(v.name))
-            || voices.find(v => /arthur|oliver|james/i.test(v.name))
-            || voices.find(v => v.lang === 'en-GB')
-            || voices.find(v => v.lang && v.lang.startsWith('en'));
-  if (pref) u.voice = pref;
+  // Strip story tokens to plain text for each segment
+  const stripTokens = s => s.replace(/\[(?:name|c|y):([^\]]+)\]/g, '$1');
 
-  u.onstart = () => { state.speaking = true; rerender(); };
-  u.onend   = () => { state.speaking = false; rerender(); };
-  u.onerror = () => { state.speaking = false; rerender(); };
+  // Title first, then each paragraph as its own utterance
+  const segments = [
+    { text: story.title, isTitle: true },
+    ...story.paragraphs.map(p => ({ text: stripTokens(p), isTitle: false })),
+  ];
 
-  ttsUtterance = u;
-  window.speechSynthesis.speak(u);
+  // Slow, deliberate storytelling pace — old narrator, not a speed-reader
+  const baseRate  = state.age <= 3 ? 0.62 : state.age <= 5 ? 0.67 : 0.72;
+  // Low pitch for depth and warmth — the "old man with gravitas" quality
+  const basePitch = 0.76;
+
+  let idx = 0;
+
+  function speakSegment() {
+    if (idx >= segments.length || !state.speaking) return;
+    const seg = segments[idx];
+
+    const u = new SpeechSynthesisUtterance(seg.text);
+    // Title read even slower — a weighted, deliberate opening
+    u.rate   = seg.isTitle ? baseRate * 0.82 : baseRate;
+    u.pitch  = seg.isTitle ? basePitch - 0.04 : basePitch;
+    u.volume = 1;
+
+    const voice = pickBritishVoice();
+    if (voice) u.voice = voice;
+
+    u.onend = () => {
+      if (!state.speaking) return;
+      idx++;
+      if (idx >= segments.length) {
+        state.speaking = false;
+        rerender();
+        return;
+      }
+      // Pause after title: long breath. Between paragraphs: natural story beat.
+      const pause = seg.isTitle ? 1200 : 720;
+      const t = setTimeout(speakSegment, pause);
+      ttsTimers.push(t);
+    };
+
+    u.onerror = () => { state.speaking = false; rerender(); };
+
+    ttsUtterance = u;
+    window.speechSynthesis.speak(u);
+  }
+
+  state.speaking = true;
+  rerender();
+  speakSegment();
 }
 
 function stopSpeaking() {
+  ttsTimers.forEach(t => clearTimeout(t));
+  ttsTimers = [];
   try { window.speechSynthesis.cancel(); } catch (e) {}
   ttsUtterance = null;
 }
