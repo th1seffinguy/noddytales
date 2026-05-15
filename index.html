@@ -1425,9 +1425,100 @@ function advanceRound(cat, chosen) {
   }
 }
 
-/* ---- TTS state (lives outside React, shared by both pill + bottom buttons) ---- */
-let ttsUtterance = null;
-let ttsTimers    = [];
+/* ---- TTSManager: ElevenLabs API + IndexedDB audio cache ---- */
+const TTSManager = (() => {
+  const DB_NAME = 'noddytales-tts';
+  const STORE   = 'audio-cache';
+  let db         = null;
+  let audio      = null;
+  let controller = null;
+
+  function openDB() {
+    if (db) return Promise.resolve(db);
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = e => e.target.result.createObjectStore(STORE);
+      req.onsuccess = e => { db = e.target.result; resolve(db); };
+      req.onerror   = () => reject(req.error);
+    });
+  }
+
+  async function getCached(key) {
+    try {
+      return await new Promise((res, rej) => {
+        const r = db.transaction(STORE, 'readonly').objectStore(STORE).get(key);
+        r.onsuccess = () => res(r.result || null);
+        r.onerror   = () => rej(r.error);
+      });
+    } catch { return null; }
+  }
+
+  async function putCached(key, blob) {
+    try {
+      await new Promise((res, rej) => {
+        const r = db.transaction(STORE, 'readwrite').objectStore(STORE).put(blob, key);
+        r.onsuccess = () => res();
+        r.onerror   = () => rej(r.error);
+      });
+    } catch {}
+  }
+
+  async function hashKey(text) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
+  }
+
+  function setLoading(on) {
+    const pill     = document.querySelector('#btn-speak-pill');
+    const btnSpeak = document.querySelector('#btn-tts-speak');
+    if (pill)     { pill.disabled     = on; if (on) pill.textContent = '⏳'; }
+    if (btnSpeak) { btnSpeak.disabled = on; if (on) btnSpeak.textContent = 'Loading…'; }
+  }
+
+  async function speak(story) {
+    stop();
+    const strip = s => s.replace(/\[(?:name|c|y):([^\]]+)\]/g, '$1');
+    const text  = strip(story.title) + '.\n\n' + story.paragraphs.map(strip).join('\n\n');
+    try {
+      setLoading(true);
+      await openDB();
+      const key  = await hashKey(text);
+      let   blob = await getCached(key);
+      if (!blob) {
+        controller = new AbortController();
+        const res  = await fetch('/api/tts', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ text }),
+          signal:  controller.signal,
+        });
+        if (!res.ok) throw new Error('api-error');
+        blob = await res.blob();
+        await putCached(key, blob);
+      }
+      const url = URL.createObjectURL(blob);
+      audio = new Audio(url);
+      audio.onended = () => { state.speaking = false; rerender(); URL.revokeObjectURL(url); };
+      audio.onerror = () => { state.speaking = false; rerender(); URL.revokeObjectURL(url); };
+      setLoading(false);
+      state.speaking = true;
+      rerender();
+      audio.play();
+    } catch (e) {
+      if (e.name === 'AbortError') return;
+      setLoading(false);
+      state.speaking = false;
+      rerender();
+    }
+  }
+
+  function stop() {
+    if (controller) { try { controller.abort(); } catch {} controller = null; }
+    if (audio)      { try { audio.pause();        } catch {} audio      = null; }
+  }
+
+  return { speak, stop };
+})();
 
 function attachStoryHandlers(el) {
   const pill        = el.querySelector('#btn-speak-pill');
@@ -1436,8 +1527,8 @@ function attachStoryHandlers(el) {
   const btnReadSelf = el.querySelector('#btn-read-myself');
   const btnAgain    = el.querySelector('#btn-play-again');
 
-  const startSpeak = () => speak(el);
-  const stopSpeak  = () => { stopSpeaking(); state.speaking = false; rerender(); };
+  const startSpeak = () => TTSManager.speak(buildStory(state.name, state.picks, state.age));
+  const stopSpeak  = () => { TTSManager.stop(); state.speaking = false; rerender(); };
 
   if (pill) pill.addEventListener('click', () => state.speaking ? stopSpeak() : startSpeak());
   if (btnSpeak) btnSpeak.addEventListener('click', startSpeak);
@@ -1452,92 +1543,8 @@ function attachStoryHandlers(el) {
   if (btnAgain) btnAgain.addEventListener('click', resetApp);
 }
 
-/* Pick the best available British male voice.
-   Priority: Daniel (Apple — warm, mature), Arthur (Apple/Win11 — authoritative),
-   Google UK English Male (Chrome), any George/en-GB male, any en-GB, any English. */
-function pickBritishVoice() {
-  const vs = window.speechSynthesis.getVoices();
-  return vs.find(v => v.name === 'Daniel')
-      || vs.find(v => v.name === 'Arthur')
-      || vs.find(v => /google uk english male/i.test(v.name))
-      || vs.find(v => /\bgeorge\b/i.test(v.name) && v.lang?.startsWith('en'))
-      || vs.find(v => v.lang === 'en-GB')
-      || vs.find(v => v.lang?.startsWith('en-GB'))
-      || vs.find(v => v.lang?.startsWith('en'));
-}
-
-function speak(el) {
-  if (!('speechSynthesis' in window)) {
-    alert("Sorry — your browser can't read aloud. Try Chrome or Safari!");
-    return;
-  }
-  stopSpeaking();
-
-  const story = buildStory(state.name, state.picks, state.age);
-
-  // Strip story tokens to plain text for each segment
-  const stripTokens = s => s.replace(/\[(?:name|c|y):([^\]]+)\]/g, '$1');
-
-  // Title first, then each paragraph as its own utterance
-  const segments = [
-    { text: story.title, isTitle: true },
-    ...story.paragraphs.map(p => ({ text: stripTokens(p), isTitle: false })),
-  ];
-
-  // Slow, deliberate storytelling pace — old narrator, not a speed-reader
-  const baseRate  = state.age <= 3 ? 0.62 : state.age <= 5 ? 0.67 : 0.72;
-  // Low pitch for depth and warmth — the "old man with gravitas" quality
-  const basePitch = 0.76;
-
-  let idx = 0;
-
-  function speakSegment() {
-    if (idx >= segments.length || !state.speaking) return;
-    const seg = segments[idx];
-
-    const u = new SpeechSynthesisUtterance(seg.text);
-    // Title read even slower — a weighted, deliberate opening
-    u.rate   = seg.isTitle ? baseRate * 0.82 : baseRate;
-    u.pitch  = seg.isTitle ? basePitch - 0.04 : basePitch;
-    u.volume = 1;
-
-    const voice = pickBritishVoice();
-    if (voice) u.voice = voice;
-
-    u.onend = () => {
-      if (!state.speaking) return;
-      idx++;
-      if (idx >= segments.length) {
-        state.speaking = false;
-        rerender();
-        return;
-      }
-      // Pause after title: long breath. Between paragraphs: natural story beat.
-      const pause = seg.isTitle ? 1200 : 720;
-      const t = setTimeout(speakSegment, pause);
-      ttsTimers.push(t);
-    };
-
-    u.onerror = () => { state.speaking = false; rerender(); };
-
-    ttsUtterance = u;
-    window.speechSynthesis.speak(u);
-  }
-
-  state.speaking = true;
-  rerender();
-  speakSegment();
-}
-
-function stopSpeaking() {
-  ttsTimers.forEach(t => clearTimeout(t));
-  ttsTimers = [];
-  try { window.speechSynthesis.cancel(); } catch (e) {}
-  ttsUtterance = null;
-}
-
 function resetApp() {
-  stopSpeaking();
+  TTSManager.stop();
   state.screen       = 'welcome';
   state.welcomeStep  = 'name';
   state.name         = '';
