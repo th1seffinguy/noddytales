@@ -661,6 +661,7 @@ const state = {
   rounds: [],
   roundIdx: 0,
   speaking: false,
+  story: null,         // cached buildStory() result — set once on goTo('story'), reused on rerender
 };
 
 // Wire version badge
@@ -1164,7 +1165,7 @@ function renderWords() {
 
 /* ---- Screen 3: Story ---- */
 function renderStory() {
-  const story  = buildStory(state.name, state.picks, state.age);
+  const story  = state.story;
   const spk    = state.speaking;
 
   /* Colorize title words alternating orange/ink */
@@ -1225,7 +1226,7 @@ function goTo(screenName) {
   const tmp = document.createElement('div');
   if (screenName === 'welcome') tmp.innerHTML = renderWelcome();
   else if (screenName === 'words') tmp.innerHTML = renderWords();
-  else if (screenName === 'story') tmp.innerHTML = renderStory();
+  else if (screenName === 'story') { state.story = buildStory(state.name, state.picks, state.age); tmp.innerHTML = renderStory(); }
 
   const next = tmp.firstElementChild;
   next.classList.add('is-hidden');
@@ -1479,45 +1480,33 @@ const TTSManager = (() => {
     stop();
     const strip = s => s.replace(/\[(?:name|c|y):([^\]]+)\]/g, '$1');
     const text  = strip(story.title) + '.\n\n' + story.paragraphs.map(strip).join('\n\n');
-    console.log('[TTS] speak() called, text length:', text.length);
     try {
       setLoading(true);
       await openDB();
-      console.log('[TTS] IndexedDB opened');
       const key  = await hashKey(text);
       let   blob = await getCached(key);
-      console.log('[TTS] cache', blob ? 'HIT' : 'MISS', 'key:', key);
       if (!blob) {
         controller = new AbortController();
-        console.log('[TTS] fetching /api/tts...');
         const res  = await fetch('/api/tts', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({ text }),
           signal:  controller.signal,
         });
-        console.log('[TTS] /api/tts response status:', res.status);
-        if (!res.ok) {
-          const errBody = await res.text().catch(() => '');
-          console.error('[TTS] API error', res.status, errBody);
-          throw new Error('api-error');
-        }
+        if (!res.ok) throw new Error('api-error');
         blob = await res.blob();
-        console.log('[TTS] blob received, size:', blob.size);
         await putCached(key, blob);
       }
       const url = URL.createObjectURL(blob);
       audio = new Audio(url);
       audio.onended = () => { state.speaking = false; rerender(); URL.revokeObjectURL(url); };
-      audio.onerror = e => { console.error('[TTS] audio element error', e); state.speaking = false; rerender(); URL.revokeObjectURL(url); };
+      audio.onerror = () => { state.speaking = false; rerender(); URL.revokeObjectURL(url); };
       setLoading(false);
       state.speaking = true;
       rerender();
-      console.log('[TTS] calling audio.play()...');
-      audio.play().then(() => console.log('[TTS] audio playing')).catch(e => console.error('[TTS] audio.play() rejected:', e));
+      audio.play().catch(() => { state.speaking = false; rerender(); });
     } catch (e) {
       if (e.name === 'AbortError') return;
-      console.error('[TTS] caught error:', e);
       setLoading(false);
       state.speaking = false;
       rerender();
@@ -1539,7 +1528,7 @@ function attachStoryHandlers(el) {
   const btnReadSelf = el.querySelector('#btn-read-myself');
   const btnAgain    = el.querySelector('#btn-play-again');
 
-  const startSpeak = () => TTSManager.speak(buildStory(state.name, state.picks, state.age));
+  const startSpeak = () => TTSManager.speak(state.story);
   const stopSpeak  = () => { TTSManager.stop(); state.speaking = false; rerender(); };
 
   if (pill) pill.addEventListener('click', () => state.speaking ? stopSpeak() : startSpeak());
@@ -1566,6 +1555,7 @@ function resetApp() {
   state.rounds       = [];
   state.roundIdx     = 0;
   state.speaking     = false;
+  state.story        = null;
   goTo('welcome');
 }
 
