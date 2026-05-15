@@ -502,6 +502,8 @@
   .story-body .pop          { color: var(--orange-dark); font-family: 'Fredoka', sans-serif; font-weight: 600; }
   .story-body .pop--yellow  { background: var(--yellow); color: var(--ink); padding: 0 8px; border-radius: 8px; font-family: 'Fredoka', sans-serif; font-weight: 600; }
   .story-body .pop--name    { color: var(--orange-dark); font-family: 'Fredoka', sans-serif; font-weight: 700; }
+  .kw { display: inline; border-radius: 3px; }
+  .kw.is-lit { background: rgba(255,209,102,0.75); }
   .story-end { text-align: center; font-size: 18px; color: var(--ink-soft); margin-top: 8px; }
   .story-toolbar { display: flex; flex-direction: column; gap: 12px; }
   .story-toolbar-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -1734,13 +1736,94 @@ function advanceRound(cat, chosen) {
   }
 }
 
+/* ---- Karaoke: wrap every story word in .kw spans with sequential data-wi indices ---- */
+function wrapStoryWords() {
+  const titleEl = document.querySelector('.story-title');
+  const bodyEl  = document.querySelector('.story-body');
+  if (!bodyEl) return [];
+  const words = [];
+  let wi = 0;
+  function processRoot(root) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const textNodes = [];
+    let node;
+    while ((node = walker.nextNode())) textNodes.push(node);
+    for (const node of textNodes) {
+      const frag = document.createDocumentFragment();
+      node.textContent.split(/(\s+)/).forEach(part => {
+        if (!part) return;
+        if (/^\s+$/.test(part)) {
+          frag.appendChild(document.createTextNode(part));
+        } else if (/[a-zA-Z0-9]/.test(part)) {
+          const span = document.createElement('span');
+          span.className = 'kw';
+          span.dataset.wi = wi++;
+          span.textContent = part;
+          frag.appendChild(span);
+          words.push(part);
+        } else {
+          frag.appendChild(document.createTextNode(part));
+        }
+      });
+      node.parentNode.replaceChild(frag, node);
+    }
+  }
+  if (titleEl) processRoot(titleEl);
+  processRoot(bodyEl);
+  return words;
+}
+
 /* ---- TTSManager: ElevenLabs API + IndexedDB audio cache ---- */
 const TTSManager = (() => {
   const DB_NAME = 'noddytales-tts';
   const STORE   = 'audio-cache';
-  let db         = null;
-  let audio      = null;
-  let controller = null;
+  let db          = null;
+  let audio       = null;
+  let controller  = null;
+  let wordTimings = null;
+  let rafId       = null;
+
+  function buildProportionalTimings(words, duration) {
+    const lens  = words.map(w => Math.max(1, w.replace(/\W/g, '').length));
+    const total = lens.reduce((s, l) => s + l, 0);
+    let t = 0;
+    return lens.map(len => {
+      const d = (len / total) * duration;
+      const entry = { start: t, end: t + d };
+      t += d;
+      return entry;
+    });
+  }
+
+  function startKaraokeRAF() {
+    stopKaraokeRAF();
+    let lastIdx = -1;
+    function tick() {
+      if (!audio || !wordTimings) return;
+      const t  = audio.currentTime;
+      const wt = wordTimings;
+      let idx  = -1;
+      for (let i = 0; i < wt.length; i++) {
+        if (t >= wt[i].start && t < wt[i].end) { idx = i; break; }
+      }
+      if (idx === -1 && wt.length && t >= wt[wt.length - 1].end) idx = wt.length - 1;
+      if (idx !== lastIdx) {
+        if (lastIdx >= 0) document.querySelector(`.kw[data-wi="${lastIdx}"]`)?.classList.remove('is-lit');
+        if (idx     >= 0) document.querySelector(`.kw[data-wi="${idx}"]`)?.classList.add('is-lit');
+        lastIdx = idx;
+      }
+      rafId = requestAnimationFrame(tick);
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function stopKaraokeRAF() {
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  }
+
+  function clearHighlights() {
+    document.querySelectorAll('.kw.is-lit').forEach(el => el.classList.remove('is-lit'));
+  }
 
   function openDB() {
     if (db) return Promise.resolve(db);
@@ -1807,11 +1890,26 @@ const TTSManager = (() => {
       }
       const url = URL.createObjectURL(blob);
       audio = new Audio(url);
-      audio.onended = () => { state.speaking = false; rerender(); URL.revokeObjectURL(url); };
-      audio.onerror = () => { state.speaking = false; rerender(); URL.revokeObjectURL(url); };
+
+      let wordArr = null;
+      audio.onloadedmetadata = () => {
+        if (wordArr && wordArr.length > 0 && audio.duration) {
+          wordTimings = buildProportionalTimings(wordArr, audio.duration);
+        }
+      };
+      audio.onplay  = () => { if (wordTimings) startKaraokeRAF(); };
+      audio.onended = () => { stopKaraokeRAF(); clearHighlights(); state.speaking = false; rerender(); URL.revokeObjectURL(url); };
+      audio.onerror = () => { stopKaraokeRAF(); state.speaking = false; rerender(); URL.revokeObjectURL(url); };
+
       setLoading(false);
       state.speaking = true;
       rerender();
+
+      wordArr = wrapStoryWords();
+      if (audio.readyState >= 1 && audio.duration && wordArr.length > 0) {
+        wordTimings = buildProportionalTimings(wordArr, audio.duration);
+      }
+
       audio.play().catch(() => { state.speaking = false; rerender(); });
     } catch (e) {
       if (e.name === 'AbortError') return;
@@ -1822,8 +1920,11 @@ const TTSManager = (() => {
   }
 
   function stop() {
+    stopKaraokeRAF();
+    clearHighlights();
     if (controller) { try { controller.abort(); } catch {} controller = null; }
     if (audio)      { try { audio.pause();        } catch {} audio      = null; }
+    wordTimings = null;
   }
 
   return { speak, stop };
