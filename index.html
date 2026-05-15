@@ -847,6 +847,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v1.13.0', title: 'Tier-aware joke logic + plural-article fix',
+    detail: 'Each age tier now has its own aside flavor — tot gets "Boop!", big gets "There was a form for this, which made it worse.", tween gets "Nobody had asked." Sidekick cameos dropped to ~60% so they feel earned. Plural foods like "a tacos" now auto-convert to "some tacos".' },
   { v: 'v1.12.0', title: 'Mad Libs comedy categories (Codex peer review)',
     detail: 'Five new auto-injected pools — objects, adverbs, numbers, liquids, fake jobs. Two new kid templates showcase the lift: "Wrong [Liquid] Delivery" and "[Name] Becomes a [Job] by Accident". Existing templates surface the new vocabulary via enriched asides.' },
   { v: 'v1.11.2', title: 'Bug pass from Codex peer review',
@@ -855,8 +857,6 @@ const RELEASE_NOTES = [
     detail: 'Bedtime stories were running too long (60+ seconds). Tighter templates plus a per-tier paragraph cap brought little −29%, kid −16%, big −31%, tween −24%.' },
   { v: 'v1.11.0', title: 'Bigger word library + always-on silliness',
     detail: 'Kid tier expanded 12 → 18 options per round (octopus, pancakes, planetarium, professionally confused, etc.). Every kid story now also injects a random absurd object — no toggle required.' },
-  { v: 'v1.10.0', title: 'Friends & siblings in the story',
-    detail: 'New welcome step lets you add up to 3 sidekicks. One gets a cameo line in every story.' },
 ];
 
 function showWhatsNew() {
@@ -981,12 +981,29 @@ function buildStory(name, picks, age) {
   const FW   = get('freeword', '');
   const FW2  = get('freeword2', '');
 
-  // Fix "a [c:otter]" → "an [c:otter]" and "A [c:alien]" → "An [c:alien]" across all token kinds.
-  // Runs on every picked story so we never serve broken articles, regardless of which token kind precedes.
-  const fixArticles = s => s.replace(
-    /\b([Aa]) (\[(?:name|c|y):)([aeiouAEIOU])/g,
-    (_, art, tok, vow) => (art === 'A' ? 'An' : 'an') + ' ' + tok + vow
-  );
+  // Fix article agreement in templated tokens. Two passes:
+  //   1. "a [c:otter]" → "an [c:otter]"   (vowel-start words)
+  //   2. "a [c:tacos]" → "some [c:tacos]" (plural-looking nouns)
+  // Mass nouns ending in -s (cheese, juice, broth, etc.) are excluded from pass 2 so
+  // "a [c:cheese]" stays "a [c:cheese]".
+  const MASS_NOUN_RE = /(cheese|sushi|broth|juice|tea|jelly|jam|soup|stew|cereal|granola|sauce|honey|gas|ice|rice|bread|toast)\b/i;
+  const fixArticles = s => {
+    // Pass 1: vowel start → an
+    s = s.replace(
+      /\b([Aa]) (\[(?:name|c|y):)([aeiouAEIOU])/g,
+      (_, art, tok, vow) => (art === 'A' ? 'An' : 'an') + ' ' + tok + vow
+    );
+    // Pass 2: plural → some  (must run AFTER pass 1 so vowel+plural still works)
+    s = s.replace(
+      /\b([Aa]) (\[(?:name|c|y):)([^\]]+)\]/g,
+      (match, art, tok, word) => {
+        if (!/s$/i.test(word)) return match;          // not plural-looking
+        if (MASS_NOUN_RE.test(word)) return match;    // mass noun, leave article
+        return (art === 'A' ? 'Some' : 'some') + ' ' + tok + word + ']';
+      }
+    );
+    return s;
+  };
 
   const rawPick = arr => arr[Math.floor(Math.random() * arr.length)];
   // Per-tier paragraph caps — long templates get trimmed so bedtime stories stay short.
@@ -1000,46 +1017,94 @@ function buildStory(name, picks, age) {
     const trimmed = [...ps.slice(0, 2), ...ps.slice(-keepEnd)];
     return { title: story.title, paragraphs: trimmed };
   };
-  // pick auto-corrects articles, trims to length, injects a silly object (kid only),
-  // and adds a sidekick cameo when the result is a story object.
+
+  // Body / sound vocabulary — user-picked rounds (potty mode) take precedence; otherwise auto-pick.
+  // Computed up front so tier asides can reference them.
+  const pickedBody  = get('body',  '');
+  const pickedSound = get('sound', '');
+  const BODY  = pickedBody  || rawPick(state.pottyMode ? BODY_HOT  : BODY_PG);
+  const BODY2 = rawPick(state.pottyMode ? BODY_HOT  : BODY_PG);
+  const SOUND = pickedSound || rawPick(state.pottyMode ? SOUND_HOT : SOUND_PG);
+
+  // Mad Libs-style auto-injected vocabulary (Codex peer review #15). Picked once per story
+  // for use in kid-tier templates AND in the tier-aware aside bank.
+  const OBJ = rawPick(OBJECTS);
+  const ADV = rawPick(ADVERBS);
+  const NUM = rawPick(NUMBERS);
+  const LIQ = rawPick(LIQUIDS);
+  const JOB = rawPick(JOBS);
+
+  // pick auto-corrects articles, trims to length, injects a tier-appropriate aside,
+  // and adds a sidekick cameo (60% of the time when sidekicks exist).
   const pick = arr => {
     const r = rawPick(arr);
     if (r && typeof r === 'object' && Array.isArray(r.paragraphs)) {
       let story = { title: fixArticles(r.title), paragraphs: r.paragraphs.map(fixArticles) };
       story = trimToLimit(story);
-      if (t === 'kid') story = injectSillyThing(story);
+      story = injectTierAside(story);
       story = injectSidekick(story);
       return story;
     }
     return r;
   };
 
-  // Always-on aside injection — drops a brief Mad Libs-style aside in P2 or P3.
-  // Pulls from a mix of SILLY_THINGS, OBJECTS, NUMBERS, LIQUIDS, and JOBS so every story
-  // surfaces some absurd vocabulary even when the template doesn't reference it directly.
-  const injectSillyThing = (story) => {
-    const thing = rawPick(SILLY_THINGS);
-    const asides = [
-      ` (Nearby: ${thing}.)`,
-      ` (${thing.charAt(0).toUpperCase() + thing.slice(1)} watched the whole thing.)`,
+  // Tier-aware aside injection — Codex review #12. Different joke logic per age tier.
+  // Tot: gentle/repetition. Little: tiny-world whimsy. Kid: Mad Libs token mix. Big: bureaucratic
+  // mock-serious. Tween: deadpan internet-voice. Adds one aside to a middle paragraph.
+  const TIER_ASIDES = {
+    tot: [
+      ` Boop!`,
+      ` Heehee.`,
+      ` That was silly.`,
+      ` Everybody blinked twice.`,
+      ` Even the sun smiled.`,
+    ],
+    little: [
+      ` Heehee.`,
+      ` Nobody knew why!`,
+      ` Everybody clapped, just because.`,
+      ` The wind agreed politely.`,
+      ` A small flower nodded along.`,
+    ],
+    kid: [
+      ` (Nearby: ${rawPick(SILLY_THINGS)}.)`,
       ` (Plus ${OBJ}, obviously.)`,
       ` (Carrying ${NUM} of them, somehow.)`,
       ` (Smelled distinctly of ${LIQ}.)`,
       ` (${JOB.charAt(0).toUpperCase() + JOB.slice(1)} took notes.)`,
       ` (Everyone agreed: ${ADV}.)`,
-    ];
-    const aside = rawPick(asides);
+    ],
+    big: [
+      ` A stamp appeared. Nobody had requested one.`,
+      ` This was technically against policy.`,
+      ` There was a form for this, which made it worse.`,
+      ` The hallway filed a complaint.`,
+      ` Procedurally, this was incorrect.`,
+    ],
+    tween: [
+      ` Nobody had asked.`,
+      ` The vending machine had feedback. None of it constructive.`,
+      ` This was, somehow, a vibe.`,
+      ` Iconic.`,
+      ` Plus, like, seventeen group chats lost it.`,
+    ],
+  };
+  const injectTierAside = (story) => {
+    const bank = TIER_ASIDES[t];
+    if (!bank || bank.length === 0) return story;
+    const aside = rawPick(bank);
     const targetIdx = 1 + Math.floor(Math.random() * 2);
     const updated = story.paragraphs.slice();
     updated[targetIdx] = updated[targetIdx] + aside;
     return { title: story.title, paragraphs: updated };
   };
 
-  // Sidekick cameo — one random sibling/friend from state.sidekicks lands a single sentence
-  // appended to a middle paragraph. Different sidekick each generation; no-op when empty.
+  // Sidekick cameo — one random sibling/friend lands a brief cameo line. ~60% frequency so it
+  // feels earned rather than canned (Codex #5 feedback: was 100%, felt grafted on).
   const injectSidekick = (story) => {
     const sks = Array.isArray(state.sidekicks) ? state.sidekicks : [];
     if (sks.length === 0) return story;
+    if (Math.random() > 0.6) return story;
     const sk = rawPick(sks);
     const cameos = [
       ` (Plus [name:${sk}].)`,
@@ -1054,23 +1119,6 @@ function buildStory(name, picks, age) {
     updated[targetIdx] = updated[targetIdx] + cameo;
     return { title: story.title, paragraphs: updated };
   };
-
-  // Body / sound vocabulary — user-picked rounds (potty mode) take precedence; otherwise auto-pick.
-  // BODY2 always auto-picks for variety so the user's chosen word stays the "main" body callback.
-  const pickedBody  = get('body',  '');
-  const pickedSound = get('sound', '');
-  const BODY  = pickedBody  || rawPick(state.pottyMode ? BODY_HOT  : BODY_PG);
-  const BODY2 = rawPick(state.pottyMode ? BODY_HOT  : BODY_PG);
-  const SOUND = pickedSound || rawPick(state.pottyMode ? SOUND_HOT : SOUND_PG);
-
-  // Mad Libs-style auto-injected vocabulary (v1.12.0). Picked once per story for use in
-  // templates as [c:${OBJ}], [c:${ADV}], [c:${NUM}], [c:${LIQ}], [c:${JOB}] tokens AND in the
-  // enriched aside bank for stories that don't reference them directly.
-  const OBJ = rawPick(OBJECTS);
-  const ADV = rawPick(ADVERBS);
-  const NUM = rawPick(NUMBERS);
-  const LIQ = rawPick(LIQUIDS);
-  const JOB = rawPick(JOBS);
 
   if (t === 'tot') {
     return pick([
