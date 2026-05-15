@@ -14,6 +14,7 @@ module.exports = async function handler(req, res) {
       voice_settings: { stability: 0.72, similarity_boost: 0.85, style: 0.4, use_speaker_boost: true },
     }),
   });
+  console.log(`[TTS] chars=${text.length} voice=${voiceId} status=${response.status}`);
   if (!response.ok) return res.status(response.status).json({ error: 'ElevenLabs API error' });
   const buffer = Buffer.from(await response.arrayBuffer());
   res.setHeader('Content-Type', 'audio/mpeg');
