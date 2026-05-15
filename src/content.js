@@ -4,7 +4,7 @@
    Story template logic lives in index.html (buildStory).
    ================================================================ */
 
-const APP_VERSION = 'v1.5.0';
+const APP_VERSION = 'v1.6.0';
 
 /* Binary rounds by tier — each round has 12 options; buildRounds() picks 2 randomly per session */
 const WORD_BANK = {
