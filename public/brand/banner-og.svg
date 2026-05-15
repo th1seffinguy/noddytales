@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bgBanner" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#B8DEAE"></stop>
+      <stop offset="1" stop-color="#9CC994"></stop>
+    </linearGradient>
+    <radialGradient id="sunB" cx="0.4" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#FFE08A"></stop>
+      <stop offset="1" stop-color="#FFD166"></stop>
+    </radialGradient>
+    <filter id="softB"><feGaussianBlur stdDeviation="20"></feGaussianBlur></filter>
+    
+  </defs>
+  <rect width="1200" height="630" fill="url(#bgBanner)"></rect>
+  <circle cx="100" cy="80" r="200" fill="#F4A261" opacity="0.25" filter="url(#softB)"></circle>
+  <circle cx="1100" cy="560" r="180" fill="#FFD166" opacity="0.3" filter="url(#softB)"></circle>
+  <circle cx="80" cy="380" r="6" fill="#FFF8EE"></circle>
+  <circle cx="180" cy="500" r="9" fill="#FFF8EE"></circle>
+  <circle cx="540" cy="120" r="7" fill="#FFF8EE"></circle>
+  <circle cx="640" cy="510" r="6" fill="#FFF8EE"></circle>
+  <circle cx="1140" cy="180" r="10" fill="#FFF8EE"></circle>
+
+  <g transform="translate(80 145)">
+    <rect width="340" height="340" rx="72" fill="#A8D5A2" stroke="#FFF8EE" stroke-width="8"></rect>
+    <circle cx="170" cy="148" r="92" fill="url(#sunB)"></circle>
+    
+    <path d="M 96 113 Q 108 96 134 92 Q 152 92 162 102 Q 144 97 124 100 Q 108 102 96 116 Z" fill="#3D3528"></path>
+    <path d="M 244 113 Q 232 96 206 92 Q 188 92 178 102 Q 196 97 216 100 Q 232 102 244 116 Z" fill="#3D3528"></path>
+    
+    <circle cx="135" cy="148" r="33" fill="#FFF8EE" opacity="0.32" stroke="#3D3528" stroke-width="6"></circle>
+    <circle cx="205" cy="148" r="33" fill="#FFF8EE" opacity="0.32" stroke="#3D3528" stroke-width="6"></circle>
+    <circle cx="135" cy="148" r="9" fill="#3D3528"></circle>
+    <circle cx="205" cy="148" r="9" fill="#3D3528"></circle>
+    <circle cx="138" cy="145" r="2.5" fill="#FFF8EE"></circle>
+    <circle cx="208" cy="145" r="2.5" fill="#FFF8EE"></circle>
+    <path d="M 168 148 Q 170 142 172 148" stroke="#3D3528" stroke-width="5" stroke-linecap="round" fill="none"></path>
+    
+    <ellipse cx="170" cy="188" rx="26" ry="32" fill="#F4A261"></ellipse>
+    <ellipse cx="161" cy="180" rx="6" ry="10" fill="#FFE3C7" opacity="0.6"></ellipse>
+    <ellipse cx="161" cy="206" rx="3" ry="5" fill="#3D3528" opacity="0.4"></ellipse>
+    <ellipse cx="179" cy="206" rx="3" ry="5" fill="#3D3528" opacity="0.4"></ellipse>
+    
+    <ellipse cx="130" cy="232" rx="48" ry="17" fill="#3D3528"></ellipse>
+    <ellipse cx="210" cy="232" rx="48" ry="17" fill="#3D3528"></ellipse>
+    <ellipse cx="170" cy="229" rx="24" ry="12" fill="#3D3528"></ellipse>
+    
+    <circle cx="84" cy="234" r="6" fill="#3D3528"></circle>
+    <circle cx="256" cy="234" r="6" fill="#3D3528"></circle>
+
+    <g transform="translate(170 268) rotate(-3)">
+      <rect x="-110" y="-10" width="220" height="80" rx="10" fill="#3D3528" opacity="0.12"></rect>
+      <rect x="-112" y="-18" width="104" height="80" rx="8" fill="#FFF8EE"></rect>
+      <rect x="8" y="-18" width="104" height="80" rx="8" fill="#FFF8EE"></rect>
+      <rect x="-4" y="-24" width="8" height="92" rx="2" fill="#F4A261"></rect>
+      <rect x="-96" y="-2" width="72" height="6" rx="3" fill="#FFD166"></rect>
+      <rect x="-96" y="14" width="58" height="4" rx="2" fill="#F4A261" opacity="0.45"></rect>
+      <rect x="-96" y="26" width="64" height="4" rx="2" fill="#F4A261" opacity="0.45"></rect>
+      <rect x="24" y="-2" width="72" height="6" rx="3" fill="#FFD166"></rect>
+      <rect x="24" y="14" width="58" height="4" rx="2" fill="#F4A261" opacity="0.45"></rect>
+      <rect x="24" y="26" width="64" height="4" rx="2" fill="#F4A261" opacity="0.45"></rect>
+    </g>
+  </g>
+
+  <text x="480" y="270" class="display" font-size="110" fill="#3D3528">Noddy<tspan fill="#E08A45">Tales</tspan></text>
+  <text x="482" y="340" class="body" font-size="28" fill="#3D3528" letter-spacing="2">SILLY  STORIES,  JUST  FOR  YOU</text>
+
+  <g transform="translate(482 410)">
+    <rect width="220" height="56" rx="28" fill="#FFD166"></rect>
+    <text x="32" y="36" class="display" font-size="22" fill="#3D3528">✨ Pick your words</text>
+  </g>
+  <g transform="translate(720 410)">
+    <rect width="240" height="56" rx="28" fill="#F4A261"></rect>
+    <text x="22" y="36" class="display" font-size="22" fill="#FFF8EE">📖 Hear it read aloud</text>
+  </g>
+  <g transform="translate(482 482)">
+    <rect width="280" height="56" rx="28" fill="#FFF8EE"></rect>
+    <text x="22" y="36" class="display" font-size="22" fill="#3D3528">🎈 Ages 2 – 10</text>
+  </g>
+</svg>

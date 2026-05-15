@@ -4,6 +4,22 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>NoddyTales — Silly Stories Just For You</title>
+
+<!-- Brand icons -->
+<link rel="icon" href="public/brand/favicon.svg" type="image/svg+xml">
+<link rel="icon" type="image/png" sizes="48x48" href="public/brand/favicon-48.png">
+<link rel="icon" type="image/png" sizes="32x32" href="public/brand/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="public/brand/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="public/brand/icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="NoddyTales">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#A8D5A2">
+<meta property="og:image" content="public/brand/banner-og.svg">
+<meta property="og:title" content="NoddyTales — Silly Stories Just For You">
+<meta property="og:description" content="Make a silly personalised story in under 2 minutes.">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
@@ -227,6 +243,83 @@
     transform: translateY(-2px) rotate(-2deg);
   }
   .age-tile.is-selected::before { background: white; opacity: 0.35; }
+  .age-tile.is-locked { opacity: 0.8; }
+  .tile-lock {
+    position: absolute;
+    top: 6px; right: 6px;
+    font-size: 13px;
+    z-index: 2;
+    opacity: 0.7;
+  }
+
+  /* PIN modal overlay */
+  .pin-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(61,53,40,0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .pin-modal {
+    background: var(--cream);
+    border-radius: 28px;
+    padding: 32px 24px 28px;
+    width: 100%;
+    max-width: 320px;
+    text-align: center;
+    box-shadow: 0 24px 48px rgba(61,53,40,0.28);
+  }
+  .pin-modal h3 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0 0 6px;
+    color: var(--ink);
+  }
+  .pin-modal p {
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin: 0 0 20px;
+    line-height: 1.5;
+  }
+  .pin-input {
+    width: 100%;
+    font-size: 28px;
+    font-family: 'Fredoka', sans-serif;
+    text-align: center;
+    letter-spacing: 10px;
+    border: 3px solid var(--cream-deep);
+    border-radius: 16px;
+    padding: 10px 12px;
+    background: white;
+    color: var(--ink);
+    outline: none;
+    margin-bottom: 10px;
+    transition: border-color 0.2s;
+  }
+  .pin-input:focus { border-color: var(--orange); }
+  .pin-error { color: #d04040; font-size: 13px; min-height: 18px; margin-bottom: 10px; }
+  .pin-actions { display: flex; gap: 10px; }
+  .pin-actions .btn { flex: 1; }
+
+  /* Version badge */
+  #version-badge {
+    position: absolute;
+    bottom: 7px;
+    right: 12px;
+    font-size: 10px;
+    color: rgba(61,53,40,0.28);
+    font-family: 'Nunito', sans-serif;
+    pointer-events: none;
+    z-index: 50;
+    letter-spacing: 0.4px;
+    user-select: none;
+  }
 
   /* ---- Word cards ---- */
   .pair-wrap {
@@ -537,6 +630,7 @@
 <body>
 <div id="root" class="app">
   <div class="screen-wrap" id="screen-wrap"></div>
+  <div id="version-badge"></div>
 </div>
 
 <script src="src/content.js"></script>
@@ -562,43 +656,67 @@ const state = {
   welcomeStep: 'name', // name | age
   name: '',
   age: null,
+  teenUnlocked: false, // never persisted — resets to false on every page load
   picks: {},           // category => { w, e }
   rounds: [],
   roundIdx: 0,
   speaking: false,
 };
 
+// Wire version badge
+document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'undefined' ? APP_VERSION : '';
+
 /* ================================================================
    AGE TIERS
    ================================================================ */
 function tierFor(age) {
-  if (age <= 3) return 'tot';
-  if (age <= 5) return 'little';
-  if (age <= 7) return 'kid';
-  return 'big';
+  if (age <= 3)  return 'tot';
+  if (age <= 5)  return 'little';
+  if (age <= 7)  return 'kid';
+  if (age <= 10) return 'big';
+  return 'tween';
 }
 
 
 function buildRounds(age) {
   const tier = tierFor(age);
   const plan = ROUND_PLAN[tier];
+
+  // Randomly pick 2 options from each round's pool of 6
   const binaryRounds = plan
     .map(cat => WORD_BANK[tier].find(r => r.cat === cat))
-    .filter(Boolean);
+    .filter(Boolean)
+    .map(round => {
+      const shuffled = [...round.options].sort(() => Math.random() - 0.5);
+      return { ...round, options: shuffled.slice(0, 2) };
+    });
 
   if (tier === 'kid') {
-    // Insert 1 free-text round after position 3 (after 'place')
-    const ft = FREE_TEXT_ROUNDS.kid;
+    const pool = FREE_TEXT_ROUNDS.kid;
+    const ft = [pool[Math.floor(Math.random() * pool.length)]];
     return [...binaryRounds.slice(0, 4), ...ft, ...binaryRounds.slice(4)];
   }
   if (tier === 'big') {
-    // Insert 2 free-text rounds at positions 3 and 5
-    const ft = FREE_TEXT_ROUNDS.big;
+    const pool = [...FREE_TEXT_ROUNDS.big].sort(() => Math.random() - 0.5);
+    const ft1 = pool.find(p => p.cat === 'freeword') || pool[0];
+    const ft2 = pool.find(p => p.cat === 'freeword2' && p !== ft1) || pool[1];
     return [
       ...binaryRounds.slice(0, 4),
-      ft[0],
+      ft1,
       ...binaryRounds.slice(4, 5),
-      ft[1],
+      ft2,
+      ...binaryRounds.slice(5),
+    ];
+  }
+  if (tier === 'tween') {
+    const pool = [...FREE_TEXT_ROUNDS.tween].sort(() => Math.random() - 0.5);
+    const ft1 = pool.find(p => p.cat === 'freeword') || pool[0];
+    const ft2 = pool.find(p => p.cat === 'freeword2' && p !== ft1) || pool[1];
+    return [
+      ...binaryRounds.slice(0, 4),
+      ft1,
+      ...binaryRounds.slice(4, 5),
+      ft2,
       ...binaryRounds.slice(5),
     ];
   }
@@ -631,68 +749,218 @@ function buildStory(name, picks, age) {
   const FW   = get('freeword', '');
   const FW2  = get('freeword2', '');
 
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
   if (t === 'tot') {
-    return {
-      title: `${N} and the ${capitalize(COL)} ${capitalize(PET)}`,
-      paragraphs: [
-        `One day, [name:${N}] went to the [y:${PLC}].`,
-        `A little [c:${COL} ${PET}] said hi.`,
-        `They sat under the big [c:${SKY}] and ate [y:${FOOD}].`,
-        `Then they went [c:${MOV}], [c:${MOV}], [c:${MOV}]! The end. 🌟`,
-      ],
-    };
+    return pick([
+      {
+        title: `${N} and the ${capitalize(COL)} ${capitalize(PET)}`,
+        paragraphs: [
+          `One day, [name:${N}] went to the [y:${PLC}].`,
+          `A little [c:${COL} ${PET}] said hi.`,
+          `They sat under the big [c:${SKY}] and ate [y:${FOOD}].`,
+          `Then they went [c:${MOV}], [c:${MOV}], [c:${MOV}]! The end. 🌟`,
+        ],
+      },
+      {
+        title: `${N}'s ${capitalize(PET)} Day`,
+        paragraphs: [
+          `[name:${N}] found a [c:${PET}] at the [y:${PLC}].`,
+          `The [c:${PET}] loved to [c:${MOV}] and [c:${MOV}].`,
+          `They shared [y:${FOOD}] under the [c:${SKY}].`,
+          `"Again!" said [name:${N}]. So they did. The end! 🌟`,
+        ],
+      },
+      {
+        title: `The ${capitalize(COL)} ${capitalize(SKY)}`,
+        paragraphs: [
+          `The [c:${SKY}] was bright when [name:${N}] woke up.`,
+          `Everything was [y:${COL}] — even the [c:${FOOD}]!`,
+          `A [c:${PET}] at the [y:${PLC}] knew just what to do.`,
+          `They started to [c:${MOV}] and never, ever stopped. The end! 🌟`,
+        ],
+      },
+    ]);
   }
 
   if (t === 'little') {
-    return {
-      title: `${N} and the ${capitalize(WX)} ${capitalize(PLC)}`,
-      paragraphs: [
-        `It was a [y:${WX}] morning when [name:${N}] put on a [c:${COL}] hat and skipped out the door.`,
-        `Waiting by the gate was a tiny [c:${PET}] holding a plate of [c:${FOOD}].`,
-        `"Let's go to the [y:${PLC}]!" said the ${PET}, and away they went.`,
-        `At the ${PLC}, a friendly [c:${CRE}] showed them how to [c:${MOV}] in a big circle.`,
-        `When the ${SKY === 'moon' ? 'moon' : 'sun'} came out, [name:${N}] said, "This was the best day ever!"`,
-      ],
-    };
+    return pick([
+      {
+        title: `${N} and the ${capitalize(WX)} ${capitalize(PLC)}`,
+        paragraphs: [
+          `It was a [y:${WX}] morning when [name:${N}] put on a [c:${COL}] hat and skipped out the door.`,
+          `Waiting by the gate was a tiny [c:${PET}] holding a plate of [c:${FOOD}].`,
+          `"Let's go to the [y:${PLC}]!" said the ${PET}, and away they went.`,
+          `At the ${PLC}, a friendly [c:${CRE}] showed them how to [c:${MOV}] in a big circle.`,
+          `When the sun came out, [name:${N}] said, "This was the best day ever!"`,
+        ],
+      },
+      {
+        title: `${N} and the ${capitalize(CRE)} of the ${capitalize(PLC)}`,
+        paragraphs: [
+          `Nobody expected a [y:${WX}] day to be so exciting.`,
+          `[name:${N}] was at the [y:${PLC}] when a [c:${CRE}] appeared from behind a bush.`,
+          `"I know where the best [c:${FOOD}] is," said the [c:${CRE}], looking very pleased.`,
+          `The [c:${PET}] came along too, wearing a [c:${COL}] scarf.`,
+          `Together they [c:${MOV}] all the way home. It was a perfect adventure.`,
+        ],
+      },
+      {
+        title: `The ${capitalize(WX)} ${capitalize(PLC)} Adventure`,
+        paragraphs: [
+          `On a [y:${WX}] afternoon, [name:${N}] decided to do something brave.`,
+          `[name:${N}] put on the [c:${COL}] boots and headed to the [y:${PLC}].`,
+          `A tiny [c:${PET}] was already there — and so was a very chatty [c:${CRE}].`,
+          `They traded some [c:${FOOD}] and learned how to [c:${MOV}] backwards.`,
+          `By sunset, [name:${N}] was very tired and very happy.`,
+        ],
+      },
+    ]);
   }
 
   if (t === 'kid') {
-    const fwLine = FW
-      ? `Every time they passed a tree, the ${CRE} yelled "[y:${FW}]!" — which made no sense at all, but was very funny.`
-      : `The ${CRE} kept muttering something under its breath, but [name:${N}] could only catch every third word.`;
-    return {
-      title: `${capitalize(N)}, the ${capitalize(MOD)} Hero of the ${capitalize(PLC)}`,
-      paragraphs: [
-        `Deep inside a [c:${COL}] [y:${PLC}], a kid named [name:${N}] was feeling extra [c:${MOD}].`,
-        `Out of the bushes hopped a chatty [c:${PET}] who refused to go anywhere without snacks. "Did somebody say [y:${FOOD}]?" it asked, eyes wide.`,
-        `Together they marched along, [c:${MOV}] past a tall [c:${CRE}] who was juggling acorns and humming a marching song.`,
-        fwLine,
-        `"Quick — try one of these!" said the ${CRE}, tossing a handful of ${FOOD} into the air. [name:${N}] caught three, the ${PET} caught seven, and one landed on a confused squirrel.`,
-        `By the time the stars came out, the three new friends had laughed so much that the whole ${PLC} was glowing ${COL}. And that, of course, is how legends start.`,
-      ].filter(Boolean),
-    };
+    const fwLine  = FW ? `Every time they passed a tree, the ${CRE} yelled "[y:${FW}]!" — which made no sense at all, but was very funny.`
+                       : `The ${CRE} kept muttering something under its breath, but [name:${N}] could only catch every third word.`;
+    const fwLine2 = FW ? `"[y:${FW}]!" announced the ${PET} at the worst possible moment. Everyone stopped. Then everyone laughed.`
+                       : `The ${PET} had been preparing a speech, but forgot it entirely at the critical moment.`;
+    const fwLine3 = FW ? `Nobody knew what "[y:${FW}]" meant. Somehow it was the password.`
+                       : `There was definitely a password. No one remembered it.`;
+
+    return pick([
+      {
+        title: `${capitalize(N)}, the ${capitalize(MOD)} Hero of the ${capitalize(PLC)}`,
+        paragraphs: [
+          `Deep inside a [c:${COL}] [y:${PLC}], a kid named [name:${N}] was feeling extra [c:${MOD}].`,
+          `Out of the bushes hopped a chatty [c:${PET}] who refused to go anywhere without snacks. "Did somebody say [y:${FOOD}]?" it asked, eyes wide.`,
+          `Together they marched along, [c:${MOV}] past a tall [c:${CRE}] who was juggling acorns and humming a marching song.`,
+          fwLine,
+          `"Quick — try one of these!" said the ${CRE}, tossing a handful of ${FOOD} into the air. [name:${N}] caught three, the ${PET} caught seven, and one landed on a confused squirrel.`,
+          `By the time the stars came out, the three new friends had laughed so much that the whole ${PLC} was glowing ${COL}. And that, of course, is how legends start.`,
+        ].filter(Boolean),
+      },
+      {
+        title: `The ${capitalize(MOD)} Quest of ${capitalize(N)} and the ${capitalize(CRE)}`,
+        paragraphs: [
+          `It started as a perfectly normal [y:${PLC}] — until [name:${N}] noticed something very [c:${MOD}] going on.`,
+          `A [c:${PET}] was balanced on a rock, reading a map upside down. "The [c:${CRE}] took the [y:${FOOD}]," it announced gravely.`,
+          fwLine2,
+          `They set off [c:${MOV}] through the [c:${COL}] part of the ${PLC}, which everyone agreed was the most confusing part.`,
+          `The ${CRE} had not, in fact, stolen anything — it had just borrowed the ${FOOD} briefly for a birthday surprise.`,
+          `The birthday was for a squirrel none of them had met. They went anyway. It was excellent.`,
+        ].filter(Boolean),
+      },
+      {
+        title: `${capitalize(N)} and the ${capitalize(CRE)}'s ${capitalize(FOOD)} Mystery`,
+        paragraphs: [
+          `[name:${N}] was [c:${MOV}] through the [y:${PLC}] when the smell hit: [y:${FOOD}].`,
+          `A [c:${MOD}] [c:${CRE}] appeared, wearing a [c:${COL}] cape. "You found the trail," it said. "I've been waiting."`,
+          fwLine3,
+          `[name:${N}] and a very small [c:${PET}] followed the trail of ${FOOD} deeper into the ${PLC}.`,
+          `What they found at the end was more ${FOOD}, a slightly confused ${CRE}, and a note that read: "Well done. You're the hero now."`,
+          `[name:${N}] wasn't entirely sure what that meant. But it felt [c:${MOD}], so they kept it.`,
+        ].filter(Boolean),
+      },
+    ]);
+  }
+
+  /* tween */
+  if (t === 'tween') {
+    const fwT  = FW  ? `[name:${N}] had one thing going for them: the word "[c:${FW}]". They didn't know what to do with it. This is how most good stories start.` : '';
+    const fw2T = FW2 ? `There was a note. It said: "[y:${FW2}]." No context. No signature. Obviously this was fine.` : '';
+    const fwT2 = FW  ? `At some point, [name:${N}] said "[c:${FW}]" out loud. The ${CRE} stopped. The ${PET} stopped. The whole ${PLC} briefly reconsidered itself.` : '';
+    const fw2T2= FW2 ? `Someone had tagged the wall: "[y:${FW2}]." Below it, in smaller writing: "we tried to warn you."` : '';
+    const fwT3 = FW  ? `[name:${N}] typed "[c:${FW}]" into the group chat. Seventeen people reacted. Nobody explained why.` : '';
+    const fw2T3= FW2 ? `The password turned out to be "[y:${FW2}]". Of course it was.` : '';
+    return pick([
+      {
+        title: `${capitalize(N)} and the Very ${capitalize(MOD)} Day`,
+        paragraphs: [
+          `Nobody warned [name:${N}] about the ${PLC}.`,
+          `The [c:${CRE}] was already there, looking [c:${MOD}] and eating [y:${FOOD}]. The [c:${PET}] had claimed an entire corner and refused to elaborate.`,
+          fwT,
+          `[name:${N}] ${MOV} and considered the options. There were three. All of them were bad. They picked the [c:${COL}] one.`,
+          `The [c:${CRE}] nodded slowly. "Bold," it said. It did not sound like a compliment.`,
+          fw2T,
+          `By the end, the [c:${PET}] had eaten half the [y:${FOOD}], the ${PLC} was technically on fire (in a metaphorical sense), and [name:${N}] had somehow gained a reputation.`,
+          `It was not the reputation they wanted. It was better.`,
+        ].filter(Boolean),
+      },
+      {
+        title: `${capitalize(N)}: A Story That Got Out of Hand`,
+        paragraphs: [
+          `The [c:${CRE}] sent a message. All it said was: meet me at the [y:${PLC}]. Bring [y:${FOOD}].`,
+          `[name:${N}] arrived. The [c:${PET}] was also there. No one had invited the [c:${PET}]. The [c:${PET}] had invited itself, which, honestly, tracked.`,
+          `Things were [c:${MOD}]. The vibe was [c:${COL}].`,
+          fwT2,
+          `[name:${N}] ${MOV}. The situation called for a plan. The plan was: eat the [y:${FOOD}], stall until something made sense.`,
+          fw2T2,
+          `The [c:${CRE}] looked almost impressed. "You've done this before," it said. [name:${N}] had not done this before. They simply looked like someone who had.`,
+          `The [c:${PET}] ${MOV} in solidarity. Everything remained unexplained. It always would.`,
+        ].filter(Boolean),
+      },
+      {
+        title: `The [c:${COL}] Problem Nobody Asked For`,
+        paragraphs: [
+          `It started normally. [name:${N}] showed up to the [y:${PLC}], expecting nothing. The universe had other plans.`,
+          `A [c:${CRE}] was blocking the entrance, [c:${MOD}], holding [y:${FOOD}] like it was evidence. The [c:${PET}] stood nearby refusing to make eye contact with anyone.`,
+          fwT3,
+          `[name:${N}] ${MOV}. "Okay," they said. This was not a plan. It became a plan anyway.`,
+          fw2T3,
+          `The [c:${COL}] thing in the corner turned out to be relevant. If you have to ask, you weren't paying attention.`,
+          `[name:${N}] walked out of the [y:${PLC}] with the [c:${PET}], a lingering sense of achievement, and the knowledge that the [c:${CRE}] still owed them. It always would.`,
+        ].filter(Boolean),
+      },
+    ]);
   }
 
   /* big */
-  const fwLine = FW
-    ? `"[c:${FW}]!" said the ${PET}, which [name:${N}] later realized was not actually a word but somehow explained everything.`
-    : '';
-  const fw2Line = FW2
-    ? `There was a sign on the wall that read: "[y:${FW2}]." No one knew what it meant. Everyone agreed it was correct.`
-    : '';
-  return {
-    title: `The ${capitalize(MOD === 'absolutely bonkers' ? 'Bonkers' : 'Mysterious')} Tale of ${capitalize(N)} and the ${capitalize(CRE)}`,
-    paragraphs: [
-      `On a Tuesday that felt suspiciously like a Saturday, [name:${N}] discovered an enormous [c:${COL}] door tucked behind the cupboard.`,
-      `Beyond the door stretched a [y:${PLC}] so vast that echoes there had echoes of their own. Standing in the middle of it was a [c:${PET}], wearing what appeared to be a tiny, very serious hat.`,
-      fwLine,
-      `"You're late," said the ${PET}, who clearly knew things. "The ${CRE} has been pacing for twenty minutes, and frankly, it's getting awkward."`,
-      `Sure enough, a [c:${CRE}] [c:${MOV}] right past them, leaving a trail of crumbs that smelled distinctly of [y:${FOOD}]. [name:${N}] decided, against all reasonable advice, to follow.`,
-      fw2Line,
-      `What happened next was [c:${MOD}] — even by the standards of a place where Tuesdays misbehave. There were puzzles, riddles, and at one point an extremely polite avalanche of socks.`,
-      `By the time [name:${N}] tumbled back through the cupboard door, the ${PET} had been promoted to general, the ${CRE} had taken up watercolors, and the whole ${PLC} had agreed that today, finally, was the right kind of Tuesday.`,
-    ].filter(Boolean),
-  };
+  const fwLine   = FW  ? `"[c:${FW}]!" said the ${PET}, which [name:${N}] later realized was not actually a word but somehow explained everything.` : '';
+  const fw2Line  = FW2 ? `There was a sign on the wall that read: "[y:${FW2}]." No one knew what it meant. Everyone agreed it was correct.` : '';
+  const fwLine2  = FW  ? `The ${PET} said "[c:${FW}]" once, very quietly. The room went still. Then someone started clapping.` : '';
+  const fw2Line2 = FW2 ? `Carved into the wall, in ancient handwriting, were the words: "[y:${FW2}]." Below it: "We tried to warn you."` : '';
+  const fwLine3  = FW  ? `[name:${N}] wrote "[c:${FW}]" in the visitors' book. The archivist read it and immediately requested a copy.` : '';
+  const fw2Line3 = FW2 ? `The final door had a keypad. The correct answer turned out to be "[y:${FW2}]." How anyone knew this remained unclear.` : '';
+
+  return pick([
+    {
+      title: `The ${capitalize(MOD === 'absolutely bonkers' ? 'Bonkers' : 'Mysterious')} Tale of ${capitalize(N)} and the ${capitalize(CRE)}`,
+      paragraphs: [
+        `On a Tuesday that felt suspiciously like a Saturday, [name:${N}] discovered an enormous [c:${COL}] door tucked behind the cupboard.`,
+        `Beyond the door stretched a [y:${PLC}] so vast that echoes there had echoes of their own. Standing in the middle was a [c:${PET}], wearing a tiny, very serious hat.`,
+        fwLine,
+        `"You're late," said the ${PET}, who clearly knew things. "The ${CRE} has been pacing for twenty minutes, and frankly, it's getting awkward."`,
+        `Sure enough, a [c:${CRE}] [c:${MOV}] right past them, leaving a trail of crumbs that smelled distinctly of [y:${FOOD}]. [name:${N}] decided, against all reasonable advice, to follow.`,
+        fw2Line,
+        `What happened next was [c:${MOD}] — even by the standards of a place where Tuesdays misbehave. There were puzzles, riddles, and at one point an extremely polite avalanche of socks.`,
+        `By the time [name:${N}] tumbled back through the cupboard door, the ${PET} had been promoted to general, the ${CRE} had taken up watercolors, and the whole ${PLC} had agreed that today, finally, was the right kind of Tuesday.`,
+      ].filter(Boolean),
+    },
+    {
+      title: `${capitalize(N)} and the ${capitalize(PET)}'s Unreasonable ${capitalize(PLC)}`,
+      paragraphs: [
+        `The [c:${PET}] arrived on a [c:${MOD}] afternoon with a single instruction: follow the [c:${COL}] trail.`,
+        `[name:${N}] had questions. The ${PET} had no time for them. They set off [c:${MOV}] into the [y:${PLC}] regardless.`,
+        fwLine2,
+        `"The [c:${CRE}] will explain everything," said the ${PET}. The ${CRE} explained nothing. It did, however, offer [y:${FOOD}], which helped considerably.`,
+        fw2Line2,
+        `[name:${N}] pieced it together slowly: the ${PLC} had rules. The rules were [c:${MOD}]. The ${PET} had broken six of them before breakfast.`,
+        `Nobody was punished. There was, in fact, an award. [name:${N}] accepted it on behalf of everyone and tried not to look too pleased.`,
+      ].filter(Boolean),
+    },
+    {
+      title: `The ${capitalize(CRE)}, the ${capitalize(FOOD)}, and the Entirely ${capitalize(MOD)} ${capitalize(N)}`,
+      paragraphs: [
+        `It began, as these things often do, with someone who should not have opened a door opening a door.`,
+        `[name:${N}] stepped through into a [y:${PLC}] that smelled of [y:${FOOD}] and old decisions. A [c:${CRE}] regarded them with an expression of [c:${MOD}] resignation.`,
+        fwLine3,
+        `"You've come for the [c:${COL}] thing," said the ${CRE}. It wasn't a question. The [c:${PET}] standing beside it nodded once, gravely.`,
+        `[name:${N}] had no idea what the ${COL} thing was. This was fine. Neither did anyone else, including the ${CRE}, who had simply been guarding it out of habit.`,
+        fw2Line3,
+        `They [c:${MOV}] back the way they'd come, the ${PET} carrying the ${COL} thing, the ${CRE} carrying the ${FOOD}, and [name:${N}] carrying the distinct impression that this would happen again.`,
+        `It did. It was better the second time.`,
+      ].filter(Boolean),
+    },
+  ]);
 }
 
 /* Parse token markup to HTML (safe — user input is already escaped before going into tokens) */
@@ -715,7 +983,7 @@ function storyToPlainText(story) {
    ================================================================ */
 
 function renderLogo() {
-  return `<div class="logo"><span class="logo-mark">📖</span>NoddyTales</div>`;
+  return `<div class="logo"><span class="logo-mark"><img src="public/brand/favicon.svg" width="24" height="24" alt="" style="display:block;border-radius:50%;"></span>NoddyTales</div>`;
 }
 
 /* ---- Screen 1: Welcome ---- */
@@ -723,7 +991,7 @@ function renderWelcome() {
   const step = state.welcomeStep;
   const name = esc(state.name);
   const age  = state.age;
-  const agePalette = ['#FFD166','#A8D5A2','#F4A261','#FFD166','#A8D5A2','#F4A261','#FFD166','#A8D5A2','#F4A261'];
+  const agePalette = ['#FFD166','#A8D5A2','#F4A261','#FFD166','#A8D5A2','#F4A261','#FFD166','#A8D5A2','#F4A261','#C8A8D5','#A8B8D5','#D5A8C8'];
 
   return `
 <div class="screen" id="screen-welcome">
@@ -778,15 +1046,20 @@ function renderWelcome() {
         </p>
       </div>
       <div class="age-grid">
-        ${[2,3,4,5,6,7,8,9,10].map((n, i) => `
-          <button
-            class="age-tile${age === n ? ' is-selected' : ''}"
-            data-age="${n}"
-            style="--tile-accent:${agePalette[i]}"
-          >
-            <span>${n}</span>
-          </button>
-        `).join('')}
+        ${[2,3,4,5,6,7,8,9,10,11,12,13].map((n, i) => {
+          const locked = n >= 11 && !state.teenUnlocked;
+          return `
+            <button
+              class="age-tile${age === n ? ' is-selected' : ''}${locked ? ' is-locked' : ''}"
+              data-age="${n}"
+              ${locked ? 'data-locked="true"' : ''}
+              style="--tile-accent:${agePalette[i]}"
+            >
+              <span>${n}</span>
+              ${locked ? '<span class="tile-lock">🔒</span>' : ''}
+            </button>
+          `;
+        }).join('')}
       </div>
       <div class="footer">
         <button class="btn" id="btn-age-start" ${age ? '' : 'disabled'}>
@@ -1036,6 +1309,10 @@ function attachWelcomeHandlers(el) {
 
   ageTiles.forEach(tile => {
     tile.addEventListener('click', () => {
+      if (tile.dataset.locked === 'true') {
+        showPinModal(parseInt(tile.dataset.age, 10));
+        return;
+      }
       state.age = parseInt(tile.dataset.age, 10);
       ageTiles.forEach(t => t.classList.remove('is-selected'));
       tile.classList.add('is-selected');
@@ -1184,13 +1461,17 @@ function speak(el) {
   const story = buildStory(state.name, state.picks, state.age);
   const text  = storyToPlainText(story);
   const u = new SpeechSynthesisUtterance(text);
-  // Rate targets: tot 0.75, little 0.82, kid 0.92, big 1.0
-  u.rate  = state.age <= 3 ? 0.75 : state.age <= 5 ? 0.82 : state.age <= 7 ? 0.92 : 1.0;
-  u.pitch = state.age <= 3 ? 1.2 : state.age <= 5 ? 1.15 : 1.1;
+  // Warm British male — deliberately slower than natural for children's read-aloud feel
+  u.rate  = state.age <= 3 ? 0.60 : state.age <= 5 ? 0.67 : state.age <= 7 ? 0.74 : 0.80;
+  u.pitch = 0.88;
   u.volume = 1;
 
   const voices = window.speechSynthesis.getVoices();
-  const pref = voices.find(v => /samantha|karen|moira|tessa|zira|female/i.test(v.name))
+  // Priority: Daniel (Apple/Safari), Google UK English Male (Chrome), Arthur (Windows), any en-GB, any en
+  const pref = voices.find(v => v.name === 'Daniel')
+            || voices.find(v => /google uk english male/i.test(v.name))
+            || voices.find(v => /arthur|oliver|james/i.test(v.name))
+            || voices.find(v => v.lang === 'en-GB')
             || voices.find(v => v.lang && v.lang.startsWith('en'));
   if (pref) u.voice = pref;
 
@@ -1213,11 +1494,105 @@ function resetApp() {
   state.welcomeStep  = 'name';
   state.name         = '';
   state.age          = null;
+  state.teenUnlocked = false;
   state.picks        = {};
   state.rounds       = [];
   state.roundIdx     = 0;
   state.speaking     = false;
   goTo('welcome');
+}
+
+/* ================================================================
+   PIN MODAL — parental gate for tween tier (ages 11–13)
+   PIN lives in localStorage; unlock status is session-only (state.teenUnlocked).
+   ================================================================ */
+function showPinModal(targetAge) {
+  document.querySelector('.pin-overlay')?.remove();
+
+  const hasPIN = !!localStorage.getItem('nt_pin');
+  const isNew  = !hasPIN;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'pin-overlay';
+  overlay.innerHTML = `
+    <div class="pin-modal">
+      <h3>${isNew ? '🔒 Set a Parent PIN' : '🔒 Parent PIN Required'}</h3>
+      <p>${isNew
+        ? "Teen stories (ages 11–13) need a parent PIN. Choose 4 digits — you'll only need to do this once."
+        : 'Teen stories are for ages 11–13. Enter your parent PIN to unlock.'
+      }</p>
+      <input class="pin-input" id="pin-input" type="password" inputmode="numeric"
+        pattern="[0-9]*" maxlength="4" placeholder="••••" autocomplete="off">
+      ${isNew ? `<input class="pin-input" id="pin-confirm" type="password" inputmode="numeric"
+        pattern="[0-9]*" maxlength="4" placeholder="Confirm PIN" autocomplete="off">` : ''}
+      <div class="pin-error" id="pin-error"></div>
+      <div class="pin-actions">
+        <button class="btn btn--ghost" id="pin-cancel">Cancel</button>
+        <button class="btn" id="pin-submit" disabled>${isNew ? 'Set PIN & Unlock' : 'Unlock'}</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('root').appendChild(overlay);
+
+  const inp     = overlay.querySelector('#pin-input');
+  const confirm = overlay.querySelector('#pin-confirm');
+  const submit  = overlay.querySelector('#pin-submit');
+  const errEl   = overlay.querySelector('#pin-error');
+
+  const syncSubmit = () => {
+    if (isNew) {
+      submit.disabled = !(inp.value.length === 4 && confirm && confirm.value.length === 4);
+    } else {
+      submit.disabled = inp.value.length !== 4;
+    }
+  };
+
+  inp.addEventListener('input', syncSubmit);
+  if (confirm) confirm.addEventListener('input', syncSubmit);
+
+  // Auto-advance to confirm field after 4 digits
+  if (confirm) {
+    inp.addEventListener('input', () => { if (inp.value.length === 4) confirm.focus(); });
+  }
+
+  overlay.querySelector('#pin-cancel').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+  overlay.querySelector('#pin-submit').addEventListener('click', () => {
+    errEl.textContent = '';
+    if (isNew) {
+      if (inp.value.length !== 4 || !/^\d{4}$/.test(inp.value)) {
+        errEl.textContent = 'PIN must be exactly 4 digits.';
+        return;
+      }
+      if (inp.value !== confirm.value) {
+        errEl.textContent = "PINs don't match. Try again.";
+        confirm.value = '';
+        inp.focus();
+        return;
+      }
+      localStorage.setItem('nt_pin', inp.value);
+      state.teenUnlocked = true;
+      state.age = targetAge;
+      overlay.remove();
+      rerender();
+    } else {
+      if (inp.value === localStorage.getItem('nt_pin')) {
+        state.teenUnlocked = true;
+        state.age = targetAge;
+        overlay.remove();
+        rerender();
+      } else {
+        errEl.textContent = 'Incorrect PIN. Try again.';
+        inp.value = '';
+        syncSubmit();
+        inp.focus();
+      }
+    }
+  });
+
+  setTimeout(() => inp.focus(), 120);
 }
 
 /* ================================================================

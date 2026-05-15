@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 220" width="900" height="220">
+  
+  <g transform="translate(20 20)">
+    <rect width="180" height="180" rx="40" fill="#A8D5A2"></rect>
+    <circle cx="90" cy="84" r="50" fill="#FFD166"></circle>
+    
+    <path d="M 50 66 Q 56 56 70 54 Q 80 53 86 60 Q 76 56 66 58 Q 56 60 50 68 Z" fill="#3D3528"></path>
+    <path d="M 130 66 Q 124 56 110 54 Q 100 53 94 60 Q 104 56 114 58 Q 124 60 130 68 Z" fill="#3D3528"></path>
+    
+    <circle cx="72" cy="84" r="18" fill="#FFF8EE" opacity="0.32" stroke="#3D3528" stroke-width="3.5"></circle>
+    <circle cx="108" cy="84" r="18" fill="#FFF8EE" opacity="0.32" stroke="#3D3528" stroke-width="3.5"></circle>
+    <circle cx="72" cy="84" r="5" fill="#3D3528"></circle>
+    <circle cx="108" cy="84" r="5" fill="#3D3528"></circle>
+    <circle cx="74" cy="82" r="1.5" fill="#FFF8EE"></circle>
+    <circle cx="110" cy="82" r="1.5" fill="#FFF8EE"></circle>
+    <line x1="90" y1="84" x2="90" y2="84" stroke="#3D3528" stroke-width="3" stroke-linecap="round"></line>
+    <path d="M 86 84 Q 90 81 94 84" stroke="#3D3528" stroke-width="3" stroke-linecap="round" fill="none"></path>
+    
+    <ellipse cx="90" cy="106" rx="14" ry="17" fill="#F4A261"></ellipse>
+    <ellipse cx="85" cy="100" rx="3" ry="5" fill="#FFE3C7" opacity="0.6"></ellipse>
+    
+    <ellipse cx="68" cy="130" rx="26" ry="9" fill="#3D3528"></ellipse>
+    <ellipse cx="112" cy="130" rx="26" ry="9" fill="#3D3528"></ellipse>
+    <ellipse cx="90" cy="128" rx="12" ry="6" fill="#3D3528"></ellipse>
+    
+    <circle cx="44" cy="132" r="3" fill="#3D3528"></circle>
+    <circle cx="136" cy="132" r="3" fill="#3D3528"></circle>
+    
+    <rect x="22" y="150" width="58" height="20" rx="4" fill="#FFF8EE"></rect>
+    <rect x="100" y="150" width="58" height="20" rx="4" fill="#FFF8EE"></rect>
+    <rect x="88" y="146" width="6" height="28" rx="1.5" fill="#F4A261"></rect>
+  </g>
+  <text x="230" y="138" class="word" font-size="110" fill="#3D3528"><tspan fill="#3D3528">Noddy</tspan><tspan fill="#E08A45">Tales</tspan></text>
+  <text x="232" y="180" font-family="Nunito, system-ui, sans-serif" font-weight="700" font-size="22" fill="#6B5E48" letter-spacing="2">SILLY  STORIES,  JUST  FOR  YOU</text>
+</svg>
