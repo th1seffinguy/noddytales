@@ -4,7 +4,71 @@
    Story template logic lives in index.html (buildStory).
    ================================================================ */
 
-const APP_VERSION = 'v1.14.0';
+const APP_VERSION = 'v1.14.1';
+
+/* Verb form lookup — maps each past-tense move-pool entry to its base + gerund forms.
+   Templates use moveBase()/moveGerund() to derive the right form for the syntactic slot
+   ("loved to hop", "set off hopping") instead of forcing past tense everywhere. */
+const VERB_FORMS = {
+  // tot / little overlap
+  'hopped':    { base: 'hop',    gerund: 'hopping' },
+  'spun':      { base: 'spin',   gerund: 'spinning' },
+  'ran':       { base: 'run',    gerund: 'running' },
+  'marched':   { base: 'march',  gerund: 'marching' },
+  'jumped':    { base: 'jump',   gerund: 'jumping' },
+  'clapped':   { base: 'clap',   gerund: 'clapping' },
+  'crawled':   { base: 'crawl',  gerund: 'crawling' },
+  'splashed':  { base: 'splash', gerund: 'splashing' },
+  'rolled':    { base: 'roll',   gerund: 'rolling' },
+  'swayed':    { base: 'sway',   gerund: 'swaying' },
+  'stomped':   { base: 'stomp',  gerund: 'stomping' },
+  'wiggled':   { base: 'wiggle', gerund: 'wiggling' },
+  'danced':    { base: 'dance',  gerund: 'dancing' },
+  'galloped':  { base: 'gallop', gerund: 'galloping' },
+  'twirled':   { base: 'twirl',  gerund: 'twirling' },
+  'bounced':   { base: 'bounce', gerund: 'bouncing' },
+  'tiptoed':   { base: 'tiptoe', gerund: 'tiptoeing' },
+  'zoomed':    { base: 'zoom',   gerund: 'zooming' },
+  'skidded':   { base: 'skid',   gerund: 'skidding' },
+  'flopped':   { base: 'flop',   gerund: 'flopping' },
+  // kid
+  'leapt':     { base: 'leap',   gerund: 'leaping' },
+  'tumbled':   { base: 'tumble', gerund: 'tumbling' },
+  'glided':    { base: 'glide',  gerund: 'gliding' },
+  'charged':   { base: 'charge', gerund: 'charging' },
+  'crept':     { base: 'creep',  gerund: 'creeping' },
+  'soared':    { base: 'soar',   gerund: 'soaring' },
+  'skated':    { base: 'skate',  gerund: 'skating' },
+  'shimmied':  { base: 'shimmy', gerund: 'shimmying' },
+  'wobbled':   { base: 'wobble', gerund: 'wobbling' },
+  'sprinted':  { base: 'sprint', gerund: 'sprinting' },
+  // big (verb + adverb phrases)
+  'cartwheeled':              { base: 'cartwheel',                 gerund: 'cartwheeling' },
+  'tiptoed cautiously':       { base: 'tiptoe cautiously',         gerund: 'tiptoeing cautiously' },
+  'stumbled dramatically':    { base: 'stumble dramatically',      gerund: 'stumbling dramatically' },
+  'waltzed accidentally':     { base: 'waltz accidentally',        gerund: 'waltzing accidentally' },
+  'skipped solemnly':         { base: 'skip solemnly',             gerund: 'skipping solemnly' },
+  'meandered thoughtfully':   { base: 'meander thoughtfully',      gerund: 'meandering thoughtfully' },
+  'tripped magnificently':    { base: 'trip magnificently',        gerund: 'tripping magnificently' },
+  'spun ceremoniously':       { base: 'spin ceremoniously',        gerund: 'spinning ceremoniously' },
+  'reversed unexpectedly':    { base: 'reverse unexpectedly',      gerund: 'reversing unexpectedly' },
+  'shuffled importantly':     { base: 'shuffle importantly',       gerund: 'shuffling importantly' },
+  'scuttled with purpose':    { base: 'scuttle with purpose',      gerund: 'scuttling with purpose' },
+  'fell upward somehow':      { base: 'fall upward somehow',       gerund: 'falling upward somehow' },
+  // tween
+  'dramatically sighed':         { base: 'dramatically sigh',         gerund: 'dramatically sighing' },
+  'speed-ran':                   { base: 'speed-run',                 gerund: 'speed-running' },
+  'casually yeeted everything':  { base: 'casually yeet everything',  gerund: 'casually yeeting everything' },
+  'existentially paused':        { base: 'existentially pause',       gerund: 'existentially pausing' },
+  'chaotically bolted':          { base: 'chaotically bolt',          gerund: 'chaotically bolting' },
+  'mysteriously vanished':       { base: 'mysteriously vanish',       gerund: 'mysteriously vanishing' },
+  'gracefully bailed':           { base: 'gracefully bail',           gerund: 'gracefully bailing' },
+  'aggressively scrolled':       { base: 'aggressively scroll',       gerund: 'aggressively scrolling' },
+  'passive-aggressively waved':  { base: 'passive-aggressively wave', gerund: 'passive-aggressively waving' },
+  'reluctantly arrived':         { base: 'reluctantly arrive',        gerund: 'reluctantly arriving' },
+  'took a long sip and stared':  { base: 'take a long sip and stare', gerund: 'taking a long sip and staring' },
+  'nodded knowingly':            { base: 'nod knowingly',             gerund: 'nodding knowingly' },
+};
 
 /* Auto-injected vocabulary for the kid tier — chosen randomly inside buildStory when the user
    didn't pick body/sound from a round. PG pools are used by default. _HOT pools activate when

@@ -865,6 +865,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v1.14.1', title: 'Grammar hardening (verb tense + adjective+plural)',
+    detail: 'Codex re-review caught three real bugs in v1.13: "loved to hopped" (need base verb), "set off speed-ran" (need gerund), "an electric blue tacos" (article only saw first token). Added a verb-forms lookup so templates can pull base/gerund/past as needed. fixArticles now reads the whole noun phrase and detects plural on the last token, vowel on the first.' },
   { v: 'v1.14.0', title: 'Karaoke highlighting that actually works',
     detail: 'The follow-along word highlight is now obvious (orange pill + bounce animation) and accurate (synced to real ElevenLabs character timestamps, not estimated). Cached audio rebuilds once after deploy then plays instantly.' },
   { v: 'v1.13.0', title: 'Tier-aware joke logic + plural-article fix',
@@ -995,35 +997,53 @@ function buildStory(name, picks, age) {
   const PLC  = get('place', 'park');
   const SKY  = get('sky', 'sun');
   const CRE  = get('creature', 'frog');
-  const MOV  = get('move', 'hop');
+  const MOV  = get('move', 'hopped');
+  // Verb forms — used by templates that need base ("loved to hop") or gerund ("set off hopping")
+  // instead of the default past tense ("they hopped").
+  const moveBase   = past => (VERB_FORMS[past] && VERB_FORMS[past].base)   || past;
+  const moveGerund = past => (VERB_FORMS[past] && VERB_FORMS[past].gerund) || past;
+  const MOV_BASE   = moveBase(MOV);
+  const MOV_GERUND = moveGerund(MOV);
   const MOD  = get('mood', 'silly');
   const WX   = get('weather', 'sunny');
   const FW   = get('freeword', '');
   const FW2  = get('freeword2', '');
 
-  // Fix article agreement in templated tokens. Two passes:
-  //   1. "a [c:otter]" → "an [c:otter]"   (vowel-start words)
-  //   2. "a [c:tacos]" → "some [c:tacos]" (plural-looking nouns)
-  // Mass nouns ending in -s (cheese, juice, broth, etc.) are excluded from pass 2 so
-  // "a [c:cheese]" stays "a [c:cheese]".
-  const MASS_NOUN_RE = /(cheese|sushi|broth|juice|tea|jelly|jam|soup|stew|cereal|granola|sauce|honey|gas|ice|rice|bread|toast)\b/i;
-  const fixArticles = s => {
-    // Pass 1: vowel start → an
-    s = s.replace(
-      /\b([Aa]) (\[(?:name|c|y):)([aeiouAEIOU])/g,
-      (_, art, tok, vow) => (art === 'A' ? 'An' : 'an') + ' ' + tok + vow
-    );
-    // Pass 2: plural → some  (must run AFTER pass 1 so vowel+plural still works)
-    s = s.replace(
-      /\b([Aa]) (\[(?:name|c|y):)([^\]]+)\]/g,
-      (match, art, tok, word) => {
-        if (!/s$/i.test(word)) return match;          // not plural-looking
-        if (MASS_NOUN_RE.test(word)) return match;    // mass noun, leave article
-        return (art === 'A' ? 'Some' : 'some') + ' ' + tok + word + ']';
+  // Fix article agreement in templated noun phrases. One pass that handles BOTH
+  // single-token ("a [c:tacos]") and multi-token ("a [c:electric blue] [c:tacos]") cases.
+  //
+  // Algorithm per matched "[Aa] [token1] [token2] ... [tokenN]":
+  //   1. If LAST token is plural-looking (ends in -s, not a singular-s exception) → "some"
+  //      Plural overrides vowel because "some" works regardless of the next sound.
+  //   2. Else if FIRST token starts with a vowel → "an"
+  //   3. Else leave "a"/"A" alone.
+  //
+  // NOT_PLURAL_RE catches singular nouns ending in -s (octopus, bus) and adjectives ending
+  // in -ous (mysterious, curious, ridiculous). Mass nouns ending in -s (cheese? no — gas, etc.)
+  // are explicitly whitelisted. Whitelist "bonkers" because it's an adj that ends in -ers.
+  const NOT_PLURAL_RE = /\b(?:cheese|sushi|broth|juice|tea|jelly|jam|soup|stew|cereal|granola|sauce|honey|gas|ice|rice|bread|toast|bonkers)\b|(?:ous|us|ss)$/i;
+  const TOKEN_RE      = /\[(?:name|c|y):([^\]]+)\]/g;
+  const fixArticles = s => s.replace(
+    /\b([Aa])((?:\s+\[(?:name|c|y):[^\]]+\])+)/g,
+    (match, art, tokensRaw) => {
+      const tokens = [];
+      let m;
+      TOKEN_RE.lastIndex = 0;
+      while ((m = TOKEN_RE.exec(tokensRaw)) !== null) tokens.push(m[1]);
+      if (tokens.length === 0) return match;
+      const lastWord  = tokens[tokens.length - 1];
+      const firstWord = tokens[0];
+      // Plural test first (highest priority).
+      if (/s$/i.test(lastWord) && !NOT_PLURAL_RE.test(lastWord)) {
+        return (art === 'A' ? 'Some' : 'some') + tokensRaw;
       }
-    );
-    return s;
-  };
+      // Vowel test on first word in the phrase.
+      if (/^[aeiouAEIOU]/.test(firstWord)) {
+        return (art === 'A' ? 'An' : 'an') + tokensRaw;
+      }
+      return match;
+    }
+  );
 
   const rawPick = arr => arr[Math.floor(Math.random() * arr.length)];
   // Per-tier paragraph caps — long templates get trimmed so bedtime stories stay short.
@@ -1156,7 +1176,7 @@ function buildStory(name, picks, age) {
         title: `${N}'s ${capitalize(PET)} Day`,
         paragraphs: [
           `[name:${N}] found a [c:${PET}] at the [y:${PLC}]. It was wearing a tiny [c:${COL}] hat!`,
-          `The [c:${PET}] loved to [c:${MOV}]. And to [c:${MOV}] AGAIN. And SOMETIMES it [c:${MOV}] sideways!`,
+          `The [c:${PET}] loved to [c:${MOV_BASE}]. And to [c:${MOV_BASE}] AGAIN. And SOMETIMES it [c:${MOV}] sideways!`,
           `They shared [y:${FOOD}] under the [c:${SKY}]. The [c:${PET}] tried to share with the [c:${SKY}] too. The [c:${SKY}] was confused.`,
           `Then the [c:${PET}] did a silly little dance. [name:${N}] joined in. So did a passing bug!`,
           `"Again!" said [name:${N}]. So they did. And again. And one more time. The end! 🌟`,
@@ -1187,7 +1207,7 @@ function buildStory(name, picks, age) {
         paragraphs: [
           `The [c:${SKY}] went BOING! Then BOING! BOING! BOING!`,
           `[name:${N}] looked up and said, "WHOA! Skies don't usually do that!"`,
-          `A [c:${PET}] came over and started to [c:${MOV}] in time with the boings.`,
+          `A [c:${PET}] came over and started to [c:${MOV_BASE}] in time with the boings.`,
           `BOING — [c:${MOV}] — BOING — [c:${MOV}] — BOING — clap!`,
           `They ate [y:${FOOD}] between bounces, even though it kept floating up. Yum and BOING! 🌟`,
         ],
@@ -1258,7 +1278,7 @@ function buildStory(name, picks, age) {
           `[name:${N}] put on the [c:${COL}] boots — one on the wrong foot, but it felt right that way — and headed to the [y:${PLC}].`,
           `A tiny [c:${PET}] was already there. And so was a very chatty [c:${CRE}] who would not stop talking about hats.`,
           `"Hats!" said the [c:${CRE}]. "HATS! Did you know hats go on heads? It's amazing!" Yes, said [name:${N}], very amazing indeed.`,
-          `They traded some [c:${FOOD}] and learned how to [c:${MOV}] backward, which is harder than it looks and made everyone giggle.`,
+          `They traded some [c:${FOOD}] and learned how to [c:${MOV_BASE}] backward, which is harder than it looks and made everyone giggle.`,
           `Then a bee flew by carrying a tiny suitcase. Nobody knew why. Nobody asked. It was just that kind of day.`,
           `By sunset, [name:${N}] was very tired, very happy, and now extremely curious about where the bee was going. Maybe tomorrow we find out!`,
         ],
@@ -1593,7 +1613,7 @@ function buildStory(name, picks, age) {
       title: `${capitalize(N)} and the ${capitalize(PET)}'s Unreasonable ${capitalize(PLC)}`,
       paragraphs: [
         `The [c:${PET}] arrived on a [c:${MOD}] afternoon with a single instruction: follow the [c:${COL}] trail.`,
-        `[name:${N}] had questions. The ${PET} had no time for them. They set off [c:${MOV}] into the [y:${PLC}] regardless.`,
+        `[name:${N}] had questions. The ${PET} had no time for them. They set off [c:${MOV_GERUND}] into the [y:${PLC}] regardless.`,
         fwLine2,
         `"The [c:${CRE}] will explain everything," said the ${PET}. The ${CRE} explained nothing. It did, however, offer [y:${FOOD}], which helped considerably.`,
         fw2Line2,
