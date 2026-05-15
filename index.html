@@ -1768,8 +1768,10 @@ function wrapStoryWords() {
       node.parentNode.replaceChild(frag, node);
     }
   }
+  const endEl = document.querySelector('.story-end');
   if (titleEl) processRoot(titleEl);
   processRoot(bodyEl);
+  if (endEl)   processRoot(endEl);
   return words;
 }
 
@@ -1870,7 +1872,7 @@ const TTSManager = (() => {
   async function speak(story) {
     stop();
     const strip = s => s.replace(/\[(?:name|c|y):([^\]]+)\]/g, '$1');
-    const text  = strip(story.title) + '.\n\n' + story.paragraphs.map(strip).join('\n\n');
+    const text  = strip(story.title) + '.\n\n' + story.paragraphs.map(strip).join('\n\n') + '\n\nThe End.';
     try {
       setLoading(true);
       await openDB();
