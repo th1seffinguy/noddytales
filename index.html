@@ -292,6 +292,61 @@
     margin-top: 2px;
   }
 
+  /* Sidekick step — friends/siblings picker */
+  .sidekick-input-row {
+    display: flex; gap: 10px; align-items: stretch;
+  }
+  .sidekick-input {
+    flex: 1;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 18px; font-weight: 500;
+    padding: 14px 18px;
+    border-radius: 18px;
+    border: 3px solid rgba(61,53,40,0.12);
+    background: white;
+    color: var(--ink);
+    outline: none;
+    transition: border 0.15s;
+  }
+  .sidekick-input:focus { border-color: var(--orange); }
+  .sidekick-input:disabled { opacity: 0.5; }
+  .sidekick-list {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    min-height: 48px;
+    padding: 12px;
+    background: rgba(255,255,255,0.45);
+    border-radius: 14px;
+  }
+  .sidekick-empty {
+    width: 100%; text-align: center;
+    font-size: 14px; color: var(--ink-soft);
+    font-style: italic;
+    padding: 6px 0;
+  }
+  .sidekick-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--orange);
+    color: white;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 6px 6px 6px 14px;
+    border-radius: 999px;
+    box-shadow: 0 2px 4px rgba(61,53,40,0.12);
+  }
+  .sidekick-chip-x {
+    width: 22px; height: 22px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    color: white;
+    font-size: 16px; font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+  }
+  .sidekick-chip-x:hover { background: rgba(255,255,255,0.6); }
+
   /* PIN modal overlay */
   .pin-overlay {
     position: absolute;
@@ -347,7 +402,7 @@
   .pin-actions { display: flex; gap: 10px; }
   .pin-actions .btn { flex: 1; }
 
-  /* Version badge */
+  /* Version badge — tap to open the What's New panel */
   #version-badge {
     position: absolute;
     bottom: 7px;
@@ -355,11 +410,85 @@
     font-size: 10px;
     color: rgba(61,53,40,0.28);
     font-family: 'Nunito', sans-serif;
-    pointer-events: none;
     z-index: 50;
     letter-spacing: 0.4px;
     user-select: none;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+    transition: color 0.15s, background 0.15s;
   }
+  #version-badge:hover { color: rgba(61,53,40,0.6); background: rgba(255,255,255,0.4); }
+
+  /* What's New overlay */
+  .whatsnew-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(61,53,40,0.55);
+    z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+    animation: fadeIn 0.2s ease-out;
+  }
+  .whatsnew-card {
+    background: var(--cream);
+    border-radius: 24px;
+    max-width: 380px; width: 100%;
+    max-height: 85vh; overflow-y: auto;
+    padding: 24px 24px 20px;
+    box-shadow: 0 20px 60px rgba(61,53,40,0.35);
+  }
+  .whatsnew-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .whatsnew-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 20px; font-weight: 700; color: var(--ink);
+    margin: 0;
+  }
+  .whatsnew-close {
+    width: 32px; height: 32px;
+    border: none; border-radius: 50%;
+    background: rgba(61,53,40,0.1);
+    color: var(--ink);
+    font-size: 18px; font-weight: 700;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .whatsnew-entry { margin-bottom: 18px; }
+  .whatsnew-entry:last-child { margin-bottom: 0; }
+  .whatsnew-version {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 15px; font-weight: 700;
+    color: var(--orange-dark);
+    margin-bottom: 4px;
+  }
+  .whatsnew-summary {
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px; color: var(--ink);
+    line-height: 1.5;
+    margin: 0 0 6px 0;
+    font-weight: 600;
+  }
+  .whatsnew-detail {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px; color: var(--ink-soft);
+    line-height: 1.45;
+    margin: 0;
+  }
+  .whatsnew-link {
+    display: inline-block;
+    font-size: 12px; color: var(--ink-soft);
+    text-decoration: none;
+    border-top: 1px solid rgba(61,53,40,0.1);
+    padding-top: 12px;
+    margin-top: 12px;
+    width: 100%;
+    text-align: center;
+  }
+  .whatsnew-link:hover { color: var(--orange-dark); }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
   /* ---- Word cards ---- */
   .pair-wrap {
@@ -693,22 +822,72 @@ function esc(str) {
 }
 
 /* ---- App state ---- */
+function loadSidekicks() {
+  try { return JSON.parse(localStorage.getItem('nt_sidekicks') || '[]').slice(0, 3); }
+  catch { return []; }
+}
 const state = {
-  screen: 'welcome',   // welcome | words | story
-  welcomeStep: 'name', // name | age
+  screen: 'welcome',         // welcome | words | story
+  welcomeStep: 'name',       // name | age | sidekicks
   name: '',
   age: null,
-  teenUnlocked: false, // never persisted — resets to false on every page load
-  picks: {},           // category => { w, e }
+  teenUnlocked: false,       // never persisted — resets to false on every page load
+  picks: {},                 // category => { w, e }
   rounds: [],
   roundIdx: 0,
   speaking: false,
-  story: null,         // cached buildStory() result — set once on goTo('story'), reused on rerender
+  story: null,               // cached buildStory() result — set once on goTo('story'), reused on rerender
   pottyMode: localStorage.getItem('nt_potty_mode') === '1',  // persists across sessions
+  sidekicks: loadSidekicks(), // siblings / friends — persist across sessions, max 3
 };
 
-// Wire version badge
+// Wire version badge — tap to surface the What's New panel
 document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'undefined' ? APP_VERSION : '';
+
+/* In-app release notes — kept in sync with CHANGELOG.md.
+   Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
+const RELEASE_NOTES = [
+  { v: 'v1.10.0', title: 'Friends & siblings in the story',
+    detail: 'New welcome step lets you add up to 3 sidekicks. One gets a cameo line in every story.' },
+  { v: 'v1.9.1',  title: 'Emoji audit — churros, bounce, firefly + 11 more',
+    detail: 'Fixed mismatched emojis across all tiers (churros was showing a croissant 🥐).' },
+  { v: 'v1.9.0',  title: 'Potty rounds + content punch-up',
+    detail: 'Potty mode now adds 2 visible picker rounds. All 8 kid templates rewritten with sharper rhythm and dialogue.' },
+  { v: 'v1.8.0',  title: 'Kid stories rewritten + potty toggle',
+    detail: 'Stories now have proper structure (setup → escalation → callback → big payoff). New BODY/SOUND humor pools.' },
+  { v: 'v1.7.0',  title: 'Karaoke word highlighting',
+    detail: 'Words illuminate as the narrator reads them, synced to ElevenLabs audio.' },
+];
+
+function showWhatsNew() {
+  if (document.querySelector('.whatsnew-overlay')) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'whatsnew-overlay';
+  overlay.innerHTML = `
+    <div class="whatsnew-card">
+      <div class="whatsnew-head">
+        <h2 class="whatsnew-title">What's New ✨</h2>
+        <button class="whatsnew-close" id="whatsnew-close" aria-label="Close">×</button>
+      </div>
+      ${RELEASE_NOTES.map(n => `
+        <div class="whatsnew-entry">
+          <div class="whatsnew-version">${n.v}</div>
+          <p class="whatsnew-summary">${n.title}</p>
+          <p class="whatsnew-detail">${n.detail}</p>
+        </div>
+      `).join('')}
+      <a class="whatsnew-link" href="https://github.com/th1seffinguy/noddytales/blob/main/CHANGELOG.md" target="_blank" rel="noopener">
+        Full changelog on GitHub →
+      </a>
+    </div>
+  `;
+  document.querySelector('.app').appendChild(overlay);
+  const close = () => overlay.remove();
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  overlay.querySelector('#whatsnew-close').addEventListener('click', close);
+}
+
+document.getElementById('version-badge').addEventListener('click', showWhatsNew);
 
 /* ================================================================
    AGE TIERS
@@ -810,13 +989,38 @@ function buildStory(name, picks, age) {
   );
 
   const rawPick = arr => arr[Math.floor(Math.random() * arr.length)];
-  // pick auto-corrects articles when the result is a story object (title + paragraphs).
+  // pick auto-corrects articles AND injects a sidekick cameo when the result is a story object.
   const pick = arr => {
     const r = rawPick(arr);
     if (r && typeof r === 'object' && Array.isArray(r.paragraphs)) {
-      return { title: fixArticles(r.title), paragraphs: r.paragraphs.map(fixArticles) };
+      const story = { title: fixArticles(r.title), paragraphs: r.paragraphs.map(fixArticles) };
+      return injectSidekick(story);
     }
     return r;
+  };
+
+  // Sidekick cameo — one random sibling/friend from state.sidekicks lands a single sentence
+  // appended to a middle paragraph. Different sidekick each generation; no-op when empty.
+  const injectSidekick = (story) => {
+    const sks = Array.isArray(state.sidekicks) ? state.sidekicks : [];
+    if (sks.length === 0) return story;
+    const sk = rawPick(sks);
+    const cameos = [
+      ` (Also there: [name:${sk}], obviously.)`,
+      ` [name:${sk}] showed up uninvited. Nobody minded.`,
+      ` [name:${sk}] called dibs on the leftovers. Standard procedure.`,
+      ` [name:${sk}] arrived just in time to take all the credit.`,
+      ` "I called it," said [name:${sk}], who had absolutely not called it.`,
+      ` [name:${sk}] was right there too, somehow. It's always like that.`,
+      ` [name:${sk}] watched the whole thing from a tree. They had snacks.`,
+      ` Meanwhile, [name:${sk}] had been narrating the entire scene to themselves.`,
+    ];
+    const cameo = rawPick(cameos);
+    // Target a middle paragraph so the cameo doesn't break the opening hook or the closer.
+    const targetIdx = Math.min(4, Math.max(2, Math.floor(story.paragraphs.length / 2)));
+    const updated = story.paragraphs.slice();
+    updated[targetIdx] = updated[targetIdx] + cameo;
+    return { title: story.title, paragraphs: updated };
   };
 
   // Body / sound vocabulary — user-picked rounds (potty mode) take precedence; otherwise auto-pick.
@@ -1389,8 +1593,8 @@ function renderWelcome() {
 
   <div class="screen-head">
     ${renderLogo()}
-    ${step === 'age'
-      ? `<button class="pill" id="btn-back-name">← back</button>`
+    ${step !== 'name'
+      ? `<button class="pill" id="btn-back">← back</button>`
       : `<span></span>`
     }
   </div>
@@ -1421,7 +1625,7 @@ function renderWelcome() {
         </button>
       </div>
     </div>
-  ` : `
+  ` : step === 'age' ? `
     <div class="stack gap-20 grow">
       <div>
         <h1 class="display" style="text-align:center">
@@ -1454,8 +1658,50 @@ function renderWelcome() {
         <span class="potty-label">Extra silly mode <span class="potty-hint">${state.pottyMode ? '— ON 💨' : '(potty humor)'}</span></span>
       </label>
       <div class="footer">
-        <button class="btn" id="btn-age-start" ${age ? '' : 'disabled'}>
-          Let's go! ✨
+        <button class="btn" id="btn-age-next" ${age ? '' : 'disabled'}>
+          Next →
+        </button>
+      </div>
+    </div>
+  ` : `
+    <div class="stack gap-20 grow">
+      <div>
+        <h1 class="display" style="text-align:center">
+          Anyone you want<br>
+          <span style="color:var(--orange-dark)">in the story?</span>
+        </h1>
+        <p class="lede" style="text-align:center;margin-top:10px">
+          Siblings, friends, pets — up to 3 names. Or skip!
+        </p>
+      </div>
+      <div class="sidekick-input-row">
+        <input
+          class="sidekick-input"
+          id="input-sidekick"
+          type="text"
+          placeholder="Type a name…"
+          autocomplete="off"
+          spellcheck="false"
+          autocapitalize="words"
+          maxlength="14"
+          ${state.sidekicks.length >= 3 ? 'disabled' : ''}
+        />
+        <button class="btn btn--small btn--yellow" id="btn-sidekick-add" ${state.sidekicks.length >= 3 ? 'disabled' : ''}>+ Add</button>
+      </div>
+      <div class="sidekick-list" id="sidekick-list">
+        ${state.sidekicks.length === 0
+          ? `<div class="sidekick-empty">No one added yet — that's fine!</div>`
+          : state.sidekicks.map((sk, i) => `
+              <span class="sidekick-chip">
+                <span>${esc(sk)}</span>
+                <button class="sidekick-chip-x" data-sk-idx="${i}" aria-label="Remove">×</button>
+              </span>
+            `).join('')
+        }
+      </div>
+      <div class="footer">
+        <button class="btn" id="btn-sidekicks-go">
+          ${state.sidekicks.length === 0 ? 'Skip & start ✨' : "Let's go! ✨"}
         </button>
       </div>
     </div>
@@ -1676,10 +1922,14 @@ function attachHandlers(screenName, el) {
 function attachWelcomeHandlers(el) {
   const inp = el.querySelector('#input-name');
   const btnNext = el.querySelector('#btn-name-next');
-  const btnBack = el.querySelector('#btn-back-name');
-  const btnStart = el.querySelector('#btn-age-start');
+  const btnBack = el.querySelector('#btn-back');
+  const btnAgeNext = el.querySelector('#btn-age-next');
   const ageTiles = el.querySelectorAll('.age-tile');
   const pottyToggle = el.querySelector('#toggle-potty');
+  const skInput = el.querySelector('#input-sidekick');
+  const btnSkAdd = el.querySelector('#btn-sidekick-add');
+  const btnSkGo = el.querySelector('#btn-sidekicks-go');
+  const skChipXs = el.querySelectorAll('.sidekick-chip-x');
 
   if (pottyToggle) {
     pottyToggle.addEventListener('change', () => {
@@ -1705,7 +1955,8 @@ function attachWelcomeHandlers(el) {
   });
 
   if (btnBack) btnBack.addEventListener('click', () => {
-    state.welcomeStep = 'name';
+    // Back from age → name, back from sidekicks → age
+    state.welcomeStep = state.welcomeStep === 'sidekicks' ? 'age' : 'name';
     rerender();
   });
 
@@ -1718,17 +1969,54 @@ function attachWelcomeHandlers(el) {
       state.age = parseInt(tile.dataset.age, 10);
       ageTiles.forEach(t => t.classList.remove('is-selected'));
       tile.classList.add('is-selected');
-      if (btnStart) btnStart.disabled = false;
+      if (btnAgeNext) btnAgeNext.disabled = false;
     });
   });
 
-  if (btnStart) btnStart.addEventListener('click', () => {
+  if (btnAgeNext) btnAgeNext.addEventListener('click', () => {
+    if (state.age) advanceToSidekicks();
+  });
+
+  // Sidekick step
+  const addSidekick = () => {
+    if (!skInput) return;
+    const v = skInput.value.trim().slice(0, 14).replace(/[<>&"]/g, '');
+    if (!v || state.sidekicks.length >= 3) return;
+    if (state.sidekicks.some(s => s.toLowerCase() === v.toLowerCase())) { skInput.value = ''; return; }
+    state.sidekicks = [...state.sidekicks, v];
+    localStorage.setItem('nt_sidekicks', JSON.stringify(state.sidekicks));
+    rerender();
+  };
+
+  if (skInput) {
+    skInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); addSidekick(); }
+    });
+    setTimeout(() => { try { skInput.focus(); } catch {} }, 250);
+  }
+  if (btnSkAdd) btnSkAdd.addEventListener('click', addSidekick);
+
+  skChipXs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const i = parseInt(btn.dataset.skIdx, 10);
+      state.sidekicks = state.sidekicks.filter((_, idx) => idx !== i);
+      localStorage.setItem('nt_sidekicks', JSON.stringify(state.sidekicks));
+      rerender();
+    });
+  });
+
+  if (btnSkGo) btnSkGo.addEventListener('click', () => {
     if (state.age) startWords();
   });
 }
 
 function advanceToAge() {
   state.welcomeStep = 'age';
+  rerender();
+}
+
+function advanceToSidekicks() {
+  state.welcomeStep = 'sidekicks';
   rerender();
 }
 

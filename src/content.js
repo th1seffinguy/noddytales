@@ -4,7 +4,7 @@
    Story template logic lives in index.html (buildStory).
    ================================================================ */
 
-const APP_VERSION = 'v1.9.1';
+const APP_VERSION = 'v1.10.0';
 
 /* Auto-injected vocabulary for the kid tier — chosen randomly inside buildStory when the user
    didn't pick body/sound from a round. PG pools are used by default. _HOT pools activate when
