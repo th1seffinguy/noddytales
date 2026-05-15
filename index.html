@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>NoddyTales — Silly Stories Just For You</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sage:        #A8D5A2;
+    --sage-dark:   #7CB876;
+    --orange:      #F4A261;
+    --orange-dark: #E08A45;
+    --cream:       #FFF8EE;
+    --cream-deep:  #FDEFD4;
+    --yellow:      #FFD166;
+    --yellow-dark: #F2B838;
+    --ink:         #3D3528;
+    --ink-soft:    #6B5E48;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; height: 100%; overscroll-behavior: none; }
+
+  body {
+    font-family: 'Nunito', system-ui, sans-serif;
+    background: var(--sage);
+    color: var(--ink);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(255,255,255,0.45) 0, transparent 38%),
+      radial-gradient(circle at 88% 82%, rgba(255,209,102,0.35) 0, transparent 42%),
+      radial-gradient(circle at 50% 50%, rgba(168,213,162,1) 0, var(--sage) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .app {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    height: 100vh;
+    min-height: 600px;
+    background: var(--sage);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  @media (min-width: 480px) {
+    body { padding: 24px; }
+    .app {
+      height: min(900px, calc(100vh - 48px));
+      border-radius: 44px;
+      box-shadow:
+        0 30px 60px rgba(61,53,40,0.25),
+        0 0 0 12px rgba(255,255,255,0.6),
+        0 0 0 14px rgba(61,53,40,0.08);
+    }
+  }
+
+  /* ---- Screens ---- */
+  .screen-wrap {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 28px 24px 32px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    transition: transform 0.55s cubic-bezier(0.34, 1.3, 0.64, 1), opacity 0.4s ease;
+    background: var(--sage);
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(255,255,255,0.45) 0, transparent 38%),
+      radial-gradient(circle at 88% 82%, rgba(255,209,102,0.35) 0, transparent 42%);
+  }
+  .screen.is-hidden  { transform: translateX(110%);  opacity: 0; pointer-events: none; }
+  .screen.is-exiting { transform: translateX(-12%);  opacity: 0; pointer-events: none; }
+
+  .screen--cream {
+    background: var(--cream);
+    background-image:
+      radial-gradient(circle at 8% 12%, rgba(244,162,97,0.12) 0, transparent 32%),
+      radial-gradient(circle at 92% 88%, rgba(168,213,162,0.18) 0, transparent 36%);
+  }
+
+  /* ---- Type ---- */
+  h1, h2, h3 { font-family: 'Fredoka', sans-serif; font-weight: 600; margin: 0; }
+  .display {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 38px;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+    text-wrap: balance;
+  }
+  .display--mega { font-size: 48px; }
+  .lede { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 18px; color: var(--ink-soft); }
+
+  /* ---- Logo ---- */
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 22px;
+    color: var(--ink);
+  }
+  .logo-mark {
+    width: 36px; height: 36px;
+    background: var(--yellow);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 22px;
+    box-shadow: inset 0 -4px 0 rgba(0,0,0,0.08), 0 4px 0 var(--yellow-dark);
+  }
+
+  /* ---- Buttons ---- */
+  .btn {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 22px;
+    border: none;
+    cursor: pointer;
+    background: var(--orange);
+    color: white;
+    border-radius: 28px;
+    padding: 20px 28px;
+    min-height: 68px;
+    width: 100%;
+    box-shadow: 0 6px 0 var(--orange-dark), 0 10px 20px rgba(224,138,69,0.25);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    letter-spacing: 0.2px;
+  }
+  .btn:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 var(--orange-dark), 0 4px 10px rgba(224,138,69,0.25);
+  }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn--yellow {
+    background: var(--yellow);
+    color: var(--ink);
+    box-shadow: 0 6px 0 var(--yellow-dark), 0 10px 20px rgba(242,184,56,0.25);
+  }
+  .btn--yellow:active:not(:disabled) {
+    box-shadow: 0 2px 0 var(--yellow-dark), 0 4px 10px rgba(242,184,56,0.25);
+  }
+  .btn--ghost {
+    background: white;
+    color: var(--ink);
+    box-shadow: 0 6px 0 rgba(61,53,40,0.12), 0 10px 20px rgba(0,0,0,0.06);
+  }
+  .btn--ghost:active:not(:disabled) {
+    box-shadow: 0 2px 0 rgba(61,53,40,0.12), 0 4px 10px rgba(0,0,0,0.06);
+  }
+  .btn--small { font-size: 17px; padding: 14px 20px; min-height: 52px; border-radius: 22px; }
+
+  /* ---- Name input ---- */
+  .name-input {
+    width: 100%;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 34px;
+    text-align: center;
+    background: var(--cream);
+    border: 4px solid white;
+    border-radius: 28px;
+    padding: 22px 16px;
+    color: var(--ink);
+    outline: none;
+    box-shadow: 0 6px 0 rgba(61,53,40,0.08), inset 0 2px 4px rgba(0,0,0,0.04);
+    letter-spacing: 1px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .name-input::placeholder { color: rgba(107,94,72,0.4); font-weight: 600; }
+  .name-input:focus { border-color: var(--yellow); transform: translateY(-2px); }
+
+  /* ---- Age grid ---- */
+  .age-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .age-tile {
+    aspect-ratio: 1;
+    border: none;
+    border-radius: 24px;
+    background: white;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 38px;
+    color: var(--ink);
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 0 rgba(61,53,40,0.10), 0 10px 20px rgba(0,0,0,0.05);
+    transition: transform 0.15s ease, background 0.2s, color 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+  }
+  .age-tile::before {
+    content: "";
+    position: absolute;
+    inset: 8px;
+    border-radius: 16px;
+    background: var(--tile-accent, var(--cream-deep));
+    opacity: 0.4;
+    transition: opacity 0.2s;
+  }
+  .age-tile > span { position: relative; z-index: 1; }
+  .age-tile:active { transform: translateY(3px) scale(0.97); }
+  .age-tile.is-selected {
+    background: var(--yellow);
+    color: var(--ink);
+    box-shadow: 0 6px 0 var(--yellow-dark), 0 10px 20px rgba(242,184,56,0.35);
+    transform: translateY(-2px) rotate(-2deg);
+  }
+  .age-tile.is-selected::before { background: white; opacity: 0.35; }
+
+  /* ---- Word cards ---- */
+  .pair-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    flex: 1;
+    max-height: 480px;
+  }
+  .word-card {
+    border: none;
+    border-radius: 32px;
+    background: var(--orange);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 20px 12px;
+    cursor: pointer;
+    box-shadow: 0 8px 0 var(--orange-dark), 0 16px 32px rgba(224,138,69,0.3);
+    position: relative;
+    overflow: hidden;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.5s;
+    animation: cardEnter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  .word-card:nth-child(2) {
+    animation-delay: 0.1s;
+    background: var(--yellow);
+    color: var(--ink);
+    box-shadow: 0 8px 0 var(--yellow-dark), 0 16px 32px rgba(242,184,56,0.3);
+  }
+  .word-card::before {
+    content: "";
+    position: absolute;
+    top: -30%; left: -30%;
+    width: 160%; height: 60%;
+    background: rgba(255,255,255,0.18);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .word-card.is-bouncing { animation: cardBounce 1.4s ease-in-out infinite; }
+  .word-card:nth-child(2).is-bouncing { animation-delay: 0.2s; }
+  .word-card:active { transform: translateY(4px) scale(0.97); }
+  .word-card.is-picked { animation: pickedPop 0.5s ease-out forwards; }
+  .word-card.is-faded { opacity: 0.3; transform: scale(0.92); }
+
+  .word-emoji { font-size: 72px; line-height: 1; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15)); }
+  .word-emoji--sm { font-size: 56px; opacity: 0.85; }
+  .word-text { font-size: 28px; line-height: 1; text-align: center; letter-spacing: 0.3px; }
+  .word-text--lg { font-size: 32px; }
+  .word-text--sm { font-size: 22px; }
+
+  @keyframes cardEnter {
+    from { transform: translateY(40px) scale(0.85); opacity: 0; }
+    to   { transform: translateY(0) scale(1); opacity: 1; }
+  }
+  @keyframes cardBounce {
+    0%, 100% { transform: translateY(0) rotate(-1deg); }
+    50%       { transform: translateY(-8px) rotate(1deg); }
+  }
+  @keyframes pickedPop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.12) rotate(-3deg); }
+    100% { transform: scale(1.05) rotate(0); }
+  }
+
+  /* ---- Free-text round ---- */
+  .freetext-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    flex: 1;
+    animation: cardEnter 0.45s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  }
+  .freetext-input {
+    width: 100%;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 36px;
+    text-align: center;
+    background: white;
+    border: 4px solid rgba(255,255,255,0.6);
+    border-radius: 28px;
+    padding: 24px 16px;
+    color: var(--ink);
+    outline: none;
+    box-shadow: 0 8px 0 rgba(61,53,40,0.08), inset 0 2px 4px rgba(0,0,0,0.03);
+    letter-spacing: 1px;
+    transition: border-color 0.2s, transform 0.2s;
+    caret-color: var(--orange-dark);
+  }
+  .freetext-input::placeholder { color: rgba(107,94,72,0.35); font-size: 28px; }
+  .freetext-input:focus { border-color: var(--yellow); transform: translateY(-2px); }
+  .freetext-hints {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .hint-label {
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    opacity: 0.7;
+    letter-spacing: 0.3px;
+  }
+  .hint-chip {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    background: rgba(255,255,255,0.55);
+    color: var(--ink-soft);
+    border-radius: 999px;
+    padding: 6px 14px;
+    cursor: pointer;
+    border: none;
+    transition: background 0.15s, transform 0.12s;
+    box-shadow: 0 2px 0 rgba(61,53,40,0.08);
+  }
+  .hint-chip:active { transform: translateY(2px); }
+  .hint-chip:hover { background: rgba(255,255,255,0.8); }
+
+  /* ---- Progress dots ---- */
+  .progress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .progress-dot {
+    height: 10px;
+    flex: 1;
+    border-radius: 5px;
+    background: rgba(255,255,255,0.5);
+    transition: background 0.4s, transform 0.4s;
+  }
+  .progress-dot.is-done    { background: var(--yellow); }
+  .progress-dot.is-current { background: white; transform: scaleY(1.6); }
+
+  /* ---- Story screen ---- */
+  .story-stack { display: flex; flex-direction: column; flex: 1; gap: 18px; position: relative; z-index: 1; }
+  .story-paper {
+    background: white;
+    border-radius: 32px;
+    padding: 28px 24px;
+    flex: 1;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(61,53,40,0.10), inset 0 0 0 4px var(--cream-deep);
+    background-image:
+      linear-gradient(white 0 100%),
+      repeating-linear-gradient(to bottom, transparent 0 35px, rgba(244,162,97,0.08) 35px 36px);
+    background-blend-mode: normal, normal;
+  }
+  .story-title {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 1.1;
+    margin: 0 0 16px 0;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  .story-body {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1.55;
+    color: var(--ink);
+    margin: 0;
+    text-wrap: pretty;
+  }
+  .story-body p { margin: 0 0 14px 0; }
+  .story-body .pop          { color: var(--orange-dark); font-family: 'Fredoka', sans-serif; font-weight: 600; }
+  .story-body .pop--yellow  { background: var(--yellow); color: var(--ink); padding: 0 8px; border-radius: 8px; font-family: 'Fredoka', sans-serif; font-weight: 600; }
+  .story-body .pop--name    { color: var(--orange-dark); font-family: 'Fredoka', sans-serif; font-weight: 700; }
+  .story-end { text-align: center; font-size: 18px; color: var(--ink-soft); margin-top: 8px; }
+  .story-toolbar { display: flex; flex-direction: column; gap: 12px; }
+  .story-toolbar-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* ---- Speak pill ---- */
+  .speak-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    background: var(--orange);
+    color: white;
+    border-radius: 999px;
+    padding: 10px 16px 10px 12px;
+    min-height: 44px;
+    box-shadow: 0 4px 0 var(--orange-dark), 0 8px 16px rgba(224,138,69,0.25);
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.2s;
+  }
+  .speak-pill:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--orange-dark), 0 3px 8px rgba(224,138,69,0.25);
+  }
+  .speak-pill-icon {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    display: grid; place-items: center;
+    font-size: 15px;
+  }
+  .speak-pill.is-speaking {
+    background: var(--yellow);
+    color: var(--ink);
+    box-shadow: 0 4px 0 var(--yellow-dark), 0 8px 16px rgba(242,184,56,0.3);
+    animation: speakPulse 1.6s ease-in-out infinite;
+  }
+  .speak-pill.is-speaking .speak-pill-icon { background: rgba(61,53,40,0.12); }
+  @keyframes speakPulse {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-2px); }
+  }
+  .speak-waves {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 18px;
+    margin-left: 2px;
+  }
+  .speak-waves span {
+    width: 3px;
+    background: var(--ink);
+    border-radius: 2px;
+    animation: waveBars 0.9s ease-in-out infinite;
+  }
+  .speak-waves span:nth-child(1) { height: 8px;  animation-delay: 0.00s; }
+  .speak-waves span:nth-child(2) { height: 14px; animation-delay: 0.15s; }
+  .speak-waves span:nth-child(3) { height: 10px; animation-delay: 0.30s; }
+  .speak-waves span:nth-child(4) { height: 16px; animation-delay: 0.45s; }
+  @keyframes waveBars {
+    0%, 100% { transform: scaleY(0.4); }
+    50%       { transform: scaleY(1); }
+  }
+
+  /* ---- Header ---- */
+  .screen-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .pill {
+    background: white;
+    color: var(--ink);
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    border-radius: 999px;
+    padding: 8px 14px;
+    box-shadow: 0 3px 0 rgba(61,53,40,0.08);
+    border: none;
+    cursor: pointer;
+  }
+
+  /* ---- Decorations ---- */
+  .deco {
+    position: absolute;
+    font-size: 32px;
+    pointer-events: none;
+    animation: float 6s ease-in-out infinite;
+    opacity: 0.85;
+    filter: drop-shadow(0 3px 4px rgba(0,0,0,0.1));
+  }
+  .deco--1 { top: 12%; right: 8%; font-size: 38px; animation-delay: 0s; }
+  .deco--2 { top: 18%; left: 6%; animation-delay: 1.2s; }
+  .deco--3 { bottom: 22%; right: 10%; animation-delay: 2.4s; }
+  .deco--4 { bottom: 30%; left: 8%; font-size: 28px; animation-delay: 0.6s; }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(-4deg); }
+    50%       { transform: translateY(-14px) rotate(4deg); }
+  }
+
+  /* ---- Burst ---- */
+  .burst {
+    position: absolute;
+    pointer-events: none;
+    font-size: 24px;
+    animation: burst 0.8s ease-out forwards;
+    left: 50%; top: 50%;
+  }
+  @keyframes burst {
+    0%   { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
+    100% { transform: translate(var(--bx, 30px), var(--by, -50px)) scale(1.2); opacity: 0; }
+  }
+
+  /* ---- Helpers ---- */
+  .stack { display: flex; flex-direction: column; }
+  .gap-12 { gap: 12px; } .gap-16 { gap: 16px; } .gap-20 { gap: 20px; } .gap-28 { gap: 28px; }
+  .grow { flex: 1; }
+  .footer { margin-top: auto; padding-top: 18px; }
+  .step-label { font-family: 'Fredoka', sans-serif; font-weight: 500; font-size: 15px; color: var(--ink-soft); text-align: center; margin-bottom: 14px; }
+  .step-label strong { color: var(--ink); font-weight: 600; }
+  .q-label { font-family: 'Fredoka', sans-serif; font-weight: 500; font-size: 22px; color: var(--ink); text-align: center; margin: 0 0 22px 0; line-height: 1.25; text-wrap: balance; }
+  .q-label strong { font-weight: 600; color: var(--orange-dark); }
+
+  .screen::-webkit-scrollbar, .story-paper::-webkit-scrollbar { width: 6px; }
+  .screen::-webkit-scrollbar-thumb, .story-paper::-webkit-scrollbar-thumb { background: rgba(61,53,40,0.15); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div id="root" class="app">
+  <div class="screen-wrap" id="screen-wrap"></div>
+</div>
+
+<script>
+/* ================================================================
+   NODDYTALES — Vanilla JS app
+   ================================================================ */
+
+/* ---- HTML escape (prevent XSS from name input) ---- */
+function esc(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/* ---- App state ---- */
+const state = {
+  screen: 'welcome',   // welcome | words | story
+  welcomeStep: 'name', // name | age
+  name: '',
+  age: null,
+  picks: {},           // category => { w, e }
+  rounds: [],
+  roundIdx: 0,
+  speaking: false,
+};
+
+/* ================================================================
+   AGE TIERS
+   ================================================================ */
+function tierFor(age) {
+  if (age <= 3) return 'tot';
+  if (age <= 5) return 'little';
+  if (age <= 7) return 'kid';
+  return 'big';
+}
+
+/* Binary rounds by tier */
+const WORD_BANK = {
+  tot: [
+    { cat: 'pet',   label: 'Pick a friend',          options: [{w:'dog',  e:'🐕'}, {w:'cat',  e:'🐈'}] },
+    { cat: 'color', label: 'Pick a color',            options: [{w:'red',  e:'🔴'}, {w:'blue', e:'🔵'}] },
+    { cat: 'food',  label: 'Pick a snack',            options: [{w:'cake', e:'🍰'}, {w:'jam',  e:'🍓'}] },
+    { cat: 'place', label: 'Pick a place',            options: [{w:'park', e:'🌳'}, {w:'pond', e:'🦆'}] },
+    { cat: 'sky',   label: 'Pick something up high',  options: [{w:'sun',  e:'☀️'}, {w:'moon', e:'🌙'}] },
+    { cat: 'move',  label: 'Pick a wiggle',           options: [{w:'hop',  e:'🐇'}, {w:'spin', e:'🌀'}] },
+  ],
+  little: [
+    { cat: 'pet',     label: 'Choose a buddy',    options: [{w:'puppy',   e:'🐶'}, {w:'bunny',   e:'🐰'}] },
+    { cat: 'color',   label: 'Choose a color',    options: [{w:'pink',    e:'🌸'}, {w:'green',   e:'🌿'}] },
+    { cat: 'food',    label: 'Choose a treat',    options: [{w:'pizza',   e:'🍕'}, {w:'cookies', e:'🍪'}] },
+    { cat: 'place',   label: 'Choose a spot',     options: [{w:'beach',   e:'🏖️'}, {w:'forest',  e:'🌲'}] },
+    { cat: 'creature',label: 'Choose a creature', options: [{w:'frog',    e:'🐸'}, {w:'fish',    e:'🐠'}] },
+    { cat: 'move',    label: 'Choose a move',     options: [{w:'jump',    e:'🦘'}, {w:'dance',   e:'💃'}] },
+    { cat: 'weather', label: 'Choose the weather',options: [{w:'sunny',   e:'☀️'}, {w:'snowy',   e:'❄️'}] },
+  ],
+  kid: [
+    { cat: 'pet',     label: 'Pick your sidekick',  options: [{w:'dragon',  e:'🐲'}, {w:'panda',   e:'🐼'}] },
+    { cat: 'color',   label: 'Pick a color',         options: [{w:'purple',  e:'🟣'}, {w:'rainbow', e:'🌈'}] },
+    { cat: 'food',    label: 'Pick a snack',          options: [{w:'tacos',   e:'🌮'}, {w:'donuts',  e:'🍩'}] },
+    { cat: 'place',   label: 'Pick a location',       options: [{w:'jungle',  e:'🌴'}, {w:'castle',  e:'🏰'}] },
+    { cat: 'creature',label: 'Pick a creature',       options: [{w:'robot',   e:'🤖'}, {w:'unicorn', e:'🦄'}] },
+    { cat: 'move',    label: 'Pick a move',           options: [{w:'zooming', e:'⚡'}, {w:'tiptoe',  e:'👣'}] },
+    { cat: 'mood',    label: 'Pick a feeling',        options: [{w:'silly',   e:'🤪'}, {w:'sneaky',  e:'🕵️'}] },
+  ],
+  big: [
+    { cat: 'pet',     label: 'Pick your companion',    options: [{w:'mischievous fox',   e:'🦊'}, {w:'glittering octopus', e:'🐙'}] },
+    { cat: 'color',   label: 'Pick a wild color',      options: [{w:'shimmering gold',   e:'✨'}, {w:'electric violet',    e:'⚡'}] },
+    { cat: 'food',    label: 'Pick a peculiar snack',  options: [{w:'enchanted pickles', e:'🥒'}, {w:'thunder pancakes',   e:'🥞'}] },
+    { cat: 'place',   label: 'Pick a setting',         options: [{w:'mossy labyrinth',   e:'🌿'}, {w:'cloud observatory',  e:'☁️'}] },
+    { cat: 'creature',label: 'Pick a creature',        options: [{w:'grumbling gargoyle',e:'🗿'}, {w:'sparkly squid',      e:'🦑'}] },
+    { cat: 'move',    label: 'Pick a verb',            options: [{w:'cartwheeled',       e:'🤸'}, {w:'tiptoed cautiously', e:'👣'}] },
+    { cat: 'mood',    label: 'Pick a vibe',            options: [{w:'absolutely bonkers',e:'🤪'}, {w:'mysteriously calm',  e:'🌙'}] },
+  ],
+};
+
+/* Free-text rounds (ages 6+) — inserted at specific positions */
+const FREE_TEXT_ROUNDS = {
+  kid: [
+    {
+      type: 'freetext',
+      cat: 'freeword',
+      label: "What's a sound that makes you laugh?",
+      examples: ['splat', 'burp', 'boing'],
+    },
+  ],
+  big: [
+    {
+      type: 'freetext',
+      cat: 'freeword',
+      label: "Name something you'd find under a couch.",
+      examples: ['dust', 'remote', 'crumbs'],
+    },
+    {
+      type: 'freetext',
+      cat: 'freeword2',
+      label: "What's a word that just sounds silly?",
+      examples: ['wobble', 'glorp', 'squish'],
+    },
+  ],
+};
+
+/* Round plans — binary categories, free-text inserted at position 3 (0-indexed) */
+const ROUND_PLAN = {
+  tot:    ['pet', 'color', 'food', 'place', 'move'],
+  little: ['pet', 'color', 'food', 'place', 'creature', 'move'],
+  kid:    ['pet', 'color', 'food', 'place', 'creature', 'move', 'mood'],
+  big:    ['pet', 'color', 'food', 'place', 'creature', 'move', 'mood'],
+};
+
+function buildRounds(age) {
+  const tier = tierFor(age);
+  const plan = ROUND_PLAN[tier];
+  const binaryRounds = plan
+    .map(cat => WORD_BANK[tier].find(r => r.cat === cat))
+    .filter(Boolean);
+
+  if (tier === 'kid') {
+    // Insert 1 free-text round after position 3 (after 'place')
+    const ft = FREE_TEXT_ROUNDS.kid;
+    return [...binaryRounds.slice(0, 4), ...ft, ...binaryRounds.slice(4)];
+  }
+  if (tier === 'big') {
+    // Insert 2 free-text rounds at positions 3 and 5
+    const ft = FREE_TEXT_ROUNDS.big;
+    return [
+      ...binaryRounds.slice(0, 4),
+      ft[0],
+      ...binaryRounds.slice(4, 5),
+      ft[1],
+      ...binaryRounds.slice(5),
+    ];
+  }
+  return binaryRounds;
+}
+
+/* ================================================================
+   STORY BUILDER
+   ================================================================ */
+function capitalize(s) {
+  if (!s) return '';
+  return s.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+}
+
+/* Tokens: [name:X] [c:X] [y:X] — rendered as highlighted spans */
+function buildStory(name, picks, age) {
+  const t   = tierFor(age);
+  const N   = name || 'Friend';
+  const get = (k, fb = '') => (picks[k] && picks[k].w) || fb;
+
+  const PET  = get('pet', 'puppy');
+  const COL  = get('color', 'blue');
+  const FOOD = get('food', 'cake');
+  const PLC  = get('place', 'park');
+  const SKY  = get('sky', 'sun');
+  const CRE  = get('creature', 'frog');
+  const MOV  = get('move', 'hop');
+  const MOD  = get('mood', 'silly');
+  const WX   = get('weather', 'sunny');
+  const FW   = get('freeword', '');
+  const FW2  = get('freeword2', '');
+
+  if (t === 'tot') {
+    return {
+      title: `${N} and the ${capitalize(COL)} ${capitalize(PET)}`,
+      paragraphs: [
+        `One day, [name:${N}] went to the [y:${PLC}].`,
+        `A little [c:${COL} ${PET}] said hi.`,
+        `They sat under the big [c:${SKY}] and ate [y:${FOOD}].`,
+        `Then they went [c:${MOV}], [c:${MOV}], [c:${MOV}]! The end. 🌟`,
+      ],
+    };
+  }
+
+  if (t === 'little') {
+    return {
+      title: `${N} and the ${capitalize(WX)} ${capitalize(PLC)}`,
+      paragraphs: [
+        `It was a [y:${WX}] morning when [name:${N}] put on a [c:${COL}] hat and skipped out the door.`,
+        `Waiting by the gate was a tiny [c:${PET}] holding a plate of [c:${FOOD}].`,
+        `"Let's go to the [y:${PLC}]!" said the ${PET}, and away they went.`,
+        `At the ${PLC}, a friendly [c:${CRE}] showed them how to [c:${MOV}] in a big circle.`,
+        `When the ${SKY === 'moon' ? 'moon' : 'sun'} came out, [name:${N}] said, "This was the best day ever!"`,
+      ],
+    };
+  }
+
+  if (t === 'kid') {
+    const fwLine = FW
+      ? `Every time they passed a tree, the ${CRE} yelled "[y:${FW}]!" — which made no sense at all, but was very funny.`
+      : '';
+    return {
+      title: `${capitalize(N)}, the ${capitalize(MOD)} Hero of the ${capitalize(PLC)}`,
+      paragraphs: [
+        `Deep inside a [c:${COL}] [y:${PLC}], a kid named [name:${N}] was feeling extra [c:${MOD}].`,
+        `Out of the bushes hopped a chatty [c:${PET}] who refused to go anywhere without snacks. "Did somebody say [y:${FOOD}]?" it asked, eyes wide.`,
+        `Together they marched along, [c:${MOV}] past a tall [c:${CRE}] who was juggling acorns and humming a marching song.`,
+        fwLine,
+        `"Quick — try one of these!" said the ${CRE}, tossing a handful of ${FOOD} into the air. [name:${N}] caught three, the ${PET} caught seven, and one landed on a confused squirrel.`,
+        `By the time the stars came out, the three new friends had laughed so much that the whole ${PLC} was glowing ${COL}. And that, of course, is how legends start.`,
+      ].filter(Boolean),
+    };
+  }
+
+  /* big */
+  const fwLine = FW
+    ? `"[c:${FW}]!" said the ${PET}, which [name:${N}] later realized was not actually a word but somehow explained everything.`
+    : '';
+  const fw2Line = FW2
+    ? `There was a sign on the wall that read: "[y:${FW2}]." No one knew what it meant. Everyone agreed it was correct.`
+    : '';
+  return {
+    title: `The ${capitalize(MOD === 'absolutely bonkers' ? 'Bonkers' : 'Mysterious')} Tale of ${capitalize(N)} and the ${capitalize(CRE)}`,
+    paragraphs: [
+      `On a Tuesday that felt suspiciously like a Saturday, [name:${N}] discovered an enormous [c:${COL}] door tucked behind the cupboard.`,
+      `Beyond the door stretched a [y:${PLC}] so vast that echoes there had echoes of their own. Standing in the middle of it was a [c:${PET}], wearing what appeared to be a tiny, very serious hat.`,
+      fwLine,
+      `"You're late," said the ${PET}, who clearly knew things. "The ${CRE} has been pacing for twenty minutes, and frankly, it's getting awkward."`,
+      `Sure enough, a [c:${CRE}] [c:${MOV}] right past them, leaving a trail of crumbs that smelled distinctly of [y:${FOOD}]. [name:${N}] decided, against all reasonable advice, to follow.`,
+      fw2Line,
+      `What happened next was [c:${MOD}] — even by the standards of a place where Tuesdays misbehave. There were puzzles, riddles, and at one point an extremely polite avalanche of socks.`,
+      `By the time [name:${N}] tumbled back through the cupboard door, the ${PET} had been promoted to general, the ${CRE} had taken up watercolors, and the whole ${PLC} had agreed that today, finally, was the right kind of Tuesday.`,
+    ].filter(Boolean),
+  };
+}
+
+/* Parse token markup to HTML (safe — user input is already escaped before going into tokens) */
+function parseStoryLine(line) {
+  return line.replace(/\[(name|c|y):([^\]]+)\]/g, (_, kind, text) => {
+    if (kind === 'name') return `<span class="pop pop--name">${text}</span>`;
+    if (kind === 'c')    return `<span class="pop">${text}</span>`;
+    if (kind === 'y')    return `<span class="pop pop--yellow">${text}</span>`;
+    return text;
+  });
+}
+
+function storyToPlainText(story) {
+  const strip = s => s.replace(/\[(?:name|c|y):([^\]]+)\]/g, '$1');
+  return story.title + '. ' + story.paragraphs.map(strip).join(' ');
+}
+
+/* ================================================================
+   RENDER FUNCTIONS
+   ================================================================ */
+
+function renderLogo() {
+  return `<div class="logo"><span class="logo-mark">📖</span>NoddyTales</div>`;
+}
+
+/* ---- Screen 1: Welcome ---- */
+function renderWelcome() {
+  const step = state.welcomeStep;
+  const name = esc(state.name);
+  const age  = state.age;
+  const agePalette = ['#FFD166','#A8D5A2','#F4A261','#FFD166','#A8D5A2','#F4A261','#FFD166','#A8D5A2','#F4A261'];
+
+  return `
+<div class="screen" id="screen-welcome">
+  <div class="deco deco--1">⭐</div>
+  <div class="deco deco--2">🌈</div>
+  <div class="deco deco--3">🦋</div>
+  <div class="deco deco--4">🌟</div>
+
+  <div class="screen-head">
+    ${renderLogo()}
+    ${step === 'age'
+      ? `<button class="pill" id="btn-back-name">← back</button>`
+      : `<span></span>`
+    }
+  </div>
+
+  ${step === 'name' ? `
+    <div class="stack gap-20 grow" style="justify-content:center">
+      <h1 class="display display--mega" style="text-align:center;margin-bottom:4px">
+        Hi there!<br>
+        <span style="color:var(--orange-dark)">What's your name?</span>
+      </h1>
+      <p class="lede" style="text-align:center;margin-top:-8px">
+        We'll make a silly story just for you.
+      </p>
+      <input
+        class="name-input"
+        id="input-name"
+        type="text"
+        placeholder="Type here"
+        value="${name}"
+        autocomplete="off"
+        spellcheck="false"
+        autocapitalize="words"
+        maxlength="14"
+      />
+      <div class="footer">
+        <button class="btn" id="btn-name-next" ${state.name.trim() ? '' : 'disabled'}>
+          Next →
+        </button>
+      </div>
+    </div>
+  ` : `
+    <div class="stack gap-20 grow">
+      <div>
+        <h1 class="display" style="text-align:center">
+          Nice to meet you,<br>
+          <span style="color:var(--orange-dark)">${name || 'friend'}!</span>
+        </h1>
+        <p class="lede" style="text-align:center;margin-top:10px">
+          How old are you?
+        </p>
+      </div>
+      <div class="age-grid">
+        ${[2,3,4,5,6,7,8,9,10].map((n, i) => `
+          <button
+            class="age-tile${age === n ? ' is-selected' : ''}"
+            data-age="${n}"
+            style="--tile-accent:${agePalette[i]}"
+          >
+            <span>${n}</span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="footer">
+        <button class="btn" id="btn-age-start" ${age ? '' : 'disabled'}>
+          Let's go! ✨
+        </button>
+      </div>
+    </div>
+  `}
+</div>`;
+}
+
+/* ---- Screen 2: Words ---- */
+function renderWords() {
+  const rounds = state.rounds;
+  const idx    = state.roundIdx;
+  const round  = rounds[idx];
+  const tier   = tierFor(state.age);
+  const showEmoji = tier === 'tot' || tier === 'little';
+
+  const progressDots = rounds.map((_, i) => {
+    let cls = 'progress-dot';
+    if (i < idx) cls += ' is-done';
+    if (i === idx) cls += ' is-current';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+
+  let roundContent = '';
+
+  if (round.type === 'freetext') {
+    roundContent = `
+      <div class="freetext-wrap" id="freetext-wrap">
+        <input
+          class="freetext-input"
+          id="input-freetext"
+          type="text"
+          placeholder="Type anything…"
+          autocomplete="off"
+          spellcheck="false"
+          autocapitalize="words"
+          maxlength="20"
+        />
+        <div class="freetext-hints">
+          <span class="hint-label">e.g.</span>
+          ${round.examples.map(ex => `
+            <button class="hint-chip" data-hint="${esc(ex)}">${esc(ex)}</button>
+          `).join('')}
+        </div>
+        <div class="footer">
+          <button class="btn" id="btn-freetext-submit" disabled>
+            That's my word! →
+          </button>
+        </div>
+      </div>`;
+  } else {
+    const wordClass = (w) => {
+      const len = w.length;
+      if (len <= 4)  return 'word-text word-text--lg';
+      if (len >= 11) return 'word-text word-text--sm';
+      return 'word-text';
+    };
+
+    roundContent = `
+      <div class="pair-wrap" id="pair-wrap">
+        ${round.options.map((opt, i) => `
+          <button
+            class="word-card is-bouncing"
+            data-side="${i}"
+            id="card-${i}"
+          >
+            <div class="word-emoji${showEmoji ? '' : ' word-emoji--sm'}">${opt.e}</div>
+            <div class="${wordClass(opt.w)}">${esc(opt.w)}</div>
+          </button>
+        `).join('')}
+      </div>`;
+  }
+
+  return `
+<div class="screen" id="screen-words">
+  <div class="screen-head">
+    ${renderLogo()}
+    <div class="pill">${esc(state.name || 'You')} · ${state.age}</div>
+  </div>
+
+  <div class="progress" aria-label="Round ${idx + 1} of ${rounds.length}">
+    ${progressDots}
+  </div>
+
+  <div class="step-label">
+    Round <strong>${idx + 1}</strong> of <strong>${rounds.length}</strong>
+  </div>
+
+  <p class="q-label">
+    ${esc(round.label)}<br>
+    <span style="font-size:16px;color:var(--ink-soft)">
+      ${round.type === 'freetext' ? 'type your answer' : 'tap your favorite'}
+    </span>
+  </p>
+
+  ${roundContent}
+</div>`;
+}
+
+/* ---- Screen 3: Story ---- */
+function renderStory() {
+  const story  = buildStory(state.name, state.picks, state.age);
+  const spk    = state.speaking;
+
+  /* Colorize title words alternating orange/ink */
+  const titleHtml = story.title.split(' ').map((w, i) =>
+    `<span style="color:${i % 4 === 0 ? 'var(--orange-dark)' : 'var(--ink)'}">${esc(w)} </span>`
+  ).join('');
+
+  const bodyHtml = story.paragraphs.map(p =>
+    `<p>${parseStoryLine(p)}</p>`
+  ).join('');
+
+  return `
+<div class="screen screen--cream" id="screen-story">
+  <div class="screen-head" style="position:relative;z-index:1">
+    ${renderLogo()}
+    <button
+      class="speak-pill${spk ? ' is-speaking' : ''}"
+      id="btn-speak-pill"
+      aria-label="${spk ? 'Stop reading' : 'Read story aloud'}"
+    >
+      <span class="speak-pill-icon">${spk ? '⏸' : '🔊'}</span>
+      <span class="speak-pill-label">${spk ? 'Stop' : 'Speak'}</span>
+      ${spk ? `<span class="speak-waves"><span></span><span></span><span></span><span></span></span>` : ''}
+    </button>
+  </div>
+
+  <div class="story-stack">
+    <div class="story-paper">
+      <h2 class="story-title">${titleHtml}</h2>
+      <div class="story-body">${bodyHtml}</div>
+      <p class="story-end">✦ The End ✦</p>
+    </div>
+
+    <div class="story-toolbar">
+      <div class="story-toolbar-row">
+        <button class="btn btn--ghost btn--small" id="btn-read-myself">📖 Read It Myself</button>
+        ${spk
+          ? `<button class="btn btn--yellow btn--small" id="btn-tts-stop">⏸ Stop Reading</button>`
+          : `<button class="btn btn--small" id="btn-tts-speak">🔊 Read It To Me</button>`
+        }
+      </div>
+      <button class="btn btn--yellow" id="btn-play-again">✨ Play Again</button>
+    </div>
+  </div>
+</div>`;
+}
+
+/* ================================================================
+   TRANSITIONS
+   ================================================================ */
+const wrap = document.getElementById('screen-wrap');
+
+function goTo(screenName) {
+  const prev = wrap.querySelector('.screen');
+  if (prev) prev.classList.add('is-exiting');
+
+  // render new screen hidden
+  const tmp = document.createElement('div');
+  if (screenName === 'welcome') tmp.innerHTML = renderWelcome();
+  else if (screenName === 'words') tmp.innerHTML = renderWords();
+  else if (screenName === 'story') tmp.innerHTML = renderStory();
+
+  const next = tmp.firstElementChild;
+  next.classList.add('is-hidden');
+  wrap.appendChild(next);
+
+  // animate in
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      next.classList.remove('is-hidden');
+      if (prev) {
+        setTimeout(() => prev.remove(), 600);
+      }
+    });
+  });
+
+  state.screen = screenName;
+  attachHandlers(screenName, next);
+
+  // Focus friendly: auto-focus name input on desktop
+  if (screenName === 'welcome' && state.welcomeStep === 'name') {
+    const inp = next.querySelector('#input-name');
+    if (inp && window.matchMedia('(min-width: 480px)').matches) {
+      setTimeout(() => inp.focus(), 300);
+    }
+  }
+  if (screenName === 'words' && state.rounds[state.roundIdx]?.type === 'freetext') {
+    const inp = next.querySelector('#input-freetext');
+    if (inp) setTimeout(() => inp.focus(), 400);
+  }
+}
+
+/* Re-render current screen in place (no transition) */
+function rerender() {
+  const existing = wrap.querySelector('.screen');
+  const tmp = document.createElement('div');
+  if (state.screen === 'welcome') tmp.innerHTML = renderWelcome();
+  else if (state.screen === 'words') tmp.innerHTML = renderWords();
+  else if (state.screen === 'story') tmp.innerHTML = renderStory();
+
+  const next = tmp.firstElementChild;
+  if (existing) wrap.replaceChild(next, existing);
+  else wrap.appendChild(next);
+
+  attachHandlers(state.screen, next);
+}
+
+/* ================================================================
+   EVENT HANDLERS
+   ================================================================ */
+function attachHandlers(screenName, el) {
+  if (screenName === 'welcome') attachWelcomeHandlers(el);
+  else if (screenName === 'words') attachWordsHandlers(el);
+  else if (screenName === 'story') attachStoryHandlers(el);
+}
+
+function attachWelcomeHandlers(el) {
+  const inp = el.querySelector('#input-name');
+  const btnNext = el.querySelector('#btn-name-next');
+  const btnBack = el.querySelector('#btn-back-name');
+  const btnStart = el.querySelector('#btn-age-start');
+  const ageTiles = el.querySelectorAll('.age-tile');
+
+  if (inp) {
+    inp.addEventListener('input', () => {
+      state.name = inp.value.slice(0, 14);
+      if (btnNext) btnNext.disabled = !state.name.trim();
+    });
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && state.name.trim()) advanceToAge();
+    });
+  }
+
+  if (btnNext) btnNext.addEventListener('click', () => {
+    if (state.name.trim()) advanceToAge();
+  });
+
+  if (btnBack) btnBack.addEventListener('click', () => {
+    state.welcomeStep = 'name';
+    rerender();
+  });
+
+  ageTiles.forEach(tile => {
+    tile.addEventListener('click', () => {
+      state.age = parseInt(tile.dataset.age, 10);
+      ageTiles.forEach(t => t.classList.remove('is-selected'));
+      tile.classList.add('is-selected');
+      if (btnStart) btnStart.disabled = false;
+    });
+  });
+
+  if (btnStart) btnStart.addEventListener('click', () => {
+    if (state.age) startWords();
+  });
+}
+
+function advanceToAge() {
+  state.welcomeStep = 'age';
+  rerender();
+}
+
+function startWords() {
+  state.rounds   = buildRounds(state.age);
+  state.roundIdx = 0;
+  state.picks    = {};
+  goTo('words');
+}
+
+function attachWordsHandlers(el) {
+  const round = state.rounds[state.roundIdx];
+
+  if (round.type === 'freetext') {
+    const inp    = el.querySelector('#input-freetext');
+    const btn    = el.querySelector('#btn-freetext-submit');
+    const hints  = el.querySelectorAll('.hint-chip');
+
+    const syncBtn = () => {
+      if (btn) btn.disabled = !(inp && inp.value.trim());
+    };
+
+    if (inp) {
+      inp.addEventListener('input', syncBtn);
+      inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && inp.value.trim()) submitFreeText(inp.value.trim());
+      });
+    }
+
+    hints.forEach(h => {
+      h.addEventListener('click', () => {
+        if (inp) { inp.value = h.dataset.hint; syncBtn(); inp.focus(); }
+      });
+    });
+
+    if (btn) btn.addEventListener('click', () => {
+      if (inp && inp.value.trim()) submitFreeText(inp.value.trim());
+    });
+
+  } else {
+    const cards = el.querySelectorAll('.word-card');
+    cards.forEach((card, i) => {
+      card.addEventListener('click', () => pickWord(i, el));
+    });
+  }
+}
+
+function submitFreeText(value) {
+  const round = state.rounds[state.roundIdx];
+  // sanitize: strip any HTML-like chars, enforce 20 char max
+  const clean = value.replace(/[<>&"]/g, '').slice(0, 20).trim();
+  if (!clean) return;
+  advanceRound(round.cat, { w: clean, e: '' });
+}
+
+function pickWord(side, el) {
+  const round = state.rounds[state.roundIdx];
+  const cards = el.querySelectorAll('.word-card');
+
+  cards.forEach(c => c.classList.remove('is-bouncing'));
+  cards[side].classList.add('is-picked');
+  cards[1 - side].classList.add('is-faded');
+
+  // burst stars
+  spawnBursts(cards[side]);
+
+  setTimeout(() => {
+    advanceRound(round.cat, round.options[side]);
+  }, 650);
+}
+
+function spawnBursts(card) {
+  const chars = ['⭐','✨','💫','🌟'];
+  for (let i = 0; i < 6; i++) {
+    const b = document.createElement('span');
+    b.className = 'burst';
+    b.textContent = chars[Math.floor(Math.random() * chars.length)];
+    const dx = (Math.random() - 0.5) * 120;
+    const dy = -40 - Math.random() * 60;
+    b.style.setProperty('--bx', dx + 'px');
+    b.style.setProperty('--by', dy + 'px');
+    card.appendChild(b);
+    setTimeout(() => b.remove(), 800);
+  }
+}
+
+function advanceRound(cat, chosen) {
+  state.picks[cat] = chosen;
+  const total = state.rounds.length;
+
+  if (state.roundIdx + 1 < total) {
+    state.roundIdx++;
+    goTo('words');
+  } else {
+    goTo('story');
+  }
+}
+
+/* ---- TTS state (lives outside React, shared by both pill + bottom buttons) ---- */
+let ttsUtterance = null;
+
+function attachStoryHandlers(el) {
+  const pill        = el.querySelector('#btn-speak-pill');
+  const btnSpeak    = el.querySelector('#btn-tts-speak');
+  const btnStop     = el.querySelector('#btn-tts-stop');
+  const btnReadSelf = el.querySelector('#btn-read-myself');
+  const btnAgain    = el.querySelector('#btn-play-again');
+
+  const startSpeak = () => speak(el);
+  const stopSpeak  = () => { stopSpeaking(); state.speaking = false; rerender(); };
+
+  if (pill) pill.addEventListener('click', () => state.speaking ? stopSpeak() : startSpeak());
+  if (btnSpeak) btnSpeak.addEventListener('click', startSpeak);
+  if (btnStop)  btnStop.addEventListener('click', stopSpeak);
+
+  if (btnReadSelf) {
+    btnReadSelf.addEventListener('click', () => {
+      el.querySelector('.story-paper').scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+
+  if (btnAgain) btnAgain.addEventListener('click', resetApp);
+}
+
+function speak(el) {
+  if (!('speechSynthesis' in window)) {
+    alert("Sorry — your browser can't read aloud. Try Chrome or Safari!");
+    return;
+  }
+  stopSpeaking();
+
+  const story = buildStory(state.name, state.picks, state.age);
+  const text  = storyToPlainText(story);
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate  = state.age <= 5 ? 0.85 : state.age <= 7 ? 0.92 : 0.98;
+  u.pitch = 1.15;
+  u.volume = 1;
+
+  const voices = window.speechSynthesis.getVoices();
+  const pref = voices.find(v => /samantha|karen|moira|tessa|zira|female/i.test(v.name))
+            || voices.find(v => v.lang && v.lang.startsWith('en'));
+  if (pref) u.voice = pref;
+
+  u.onstart = () => { state.speaking = true; rerender(); };
+  u.onend   = () => { state.speaking = false; rerender(); };
+  u.onerror = () => { state.speaking = false; rerender(); };
+
+  ttsUtterance = u;
+  window.speechSynthesis.speak(u);
+}
+
+function stopSpeaking() {
+  try { window.speechSynthesis.cancel(); } catch (e) {}
+  ttsUtterance = null;
+}
+
+function resetApp() {
+  stopSpeaking();
+  state.screen       = 'welcome';
+  state.welcomeStep  = 'name';
+  state.name         = '';
+  state.age          = null;
+  state.picks        = {};
+  state.rounds       = [];
+  state.roundIdx     = 0;
+  state.speaking     = false;
+  goTo('welcome');
+}
+
+/* ================================================================
+   BOOT
+   ================================================================ */
+goTo('welcome');
+</script>
+</body>
+</html>
