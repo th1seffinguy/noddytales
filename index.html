@@ -659,7 +659,7 @@ function buildStory(name, picks, age) {
   if (t === 'kid') {
     const fwLine = FW
       ? `Every time they passed a tree, the ${CRE} yelled "[y:${FW}]!" — which made no sense at all, but was very funny.`
-      : '';
+      : `The ${CRE} kept muttering something under its breath, but [name:${N}] could only catch every third word.`;
     return {
       title: `${capitalize(N)}, the ${capitalize(MOD)} Hero of the ${capitalize(PLC)}`,
       paragraphs: [
@@ -1184,8 +1184,9 @@ function speak(el) {
   const story = buildStory(state.name, state.picks, state.age);
   const text  = storyToPlainText(story);
   const u = new SpeechSynthesisUtterance(text);
-  u.rate  = state.age <= 5 ? 0.85 : state.age <= 7 ? 0.92 : 0.98;
-  u.pitch = 1.15;
+  // Rate targets: tot 0.75, little 0.82, kid 0.92, big 1.0
+  u.rate  = state.age <= 3 ? 0.75 : state.age <= 5 ? 0.82 : state.age <= 7 ? 0.92 : 1.0;
+  u.pitch = state.age <= 3 ? 1.2 : state.age <= 5 ? 1.15 : 1.1;
   u.volume = 1;
 
   const voices = window.speechSynthesis.getVoices();
