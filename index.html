@@ -847,16 +847,16 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v1.12.0', title: 'Mad Libs comedy categories (Codex peer review)',
+    detail: 'Five new auto-injected pools — objects, adverbs, numbers, liquids, fake jobs. Two new kid templates showcase the lift: "Wrong [Liquid] Delivery" and "[Name] Becomes a [Job] by Accident". Existing templates surface the new vocabulary via enriched asides.' },
+  { v: 'v1.11.2', title: 'Bug pass from Codex peer review',
+    detail: '8 surgical fixes: literal [PET] token, regression in paragraph trimming, pre-articled tween creatures, wrong-tense move pools in tot/little, broken big/tween move phrases, body parts removed from BODY pool, non-food removed from big food.' },
   { v: 'v1.11.1', title: 'Shorter stories across all tiers',
-    detail: 'Bedtime stories were running too long (60+ seconds). Tighter templates plus a per-tier paragraph cap brought little −29%, kid −16%, big −31%, tween −24%. Aside cameos tightened too.' },
+    detail: 'Bedtime stories were running too long (60+ seconds). Tighter templates plus a per-tier paragraph cap brought little −29%, kid −16%, big −31%, tween −24%.' },
   { v: 'v1.11.0', title: 'Bigger word library + always-on silliness',
     detail: 'Kid tier expanded 12 → 18 options per round (octopus, pancakes, planetarium, professionally confused, etc.). Every kid story now also injects a random absurd object — no toggle required.' },
   { v: 'v1.10.0', title: 'Friends & siblings in the story',
     detail: 'New welcome step lets you add up to 3 sidekicks. One gets a cameo line in every story.' },
-  { v: 'v1.9.1',  title: 'Emoji audit — churros, bounce, firefly + 11 more',
-    detail: 'Fixed mismatched emojis across all tiers (churros was showing a croissant 🥐).' },
-  { v: 'v1.9.0',  title: 'Potty rounds + content punch-up',
-    detail: 'Potty mode now adds 2 visible picker rounds. All 8 kid templates rewritten with sharper rhythm and dialogue.' },
 ];
 
 function showWhatsNew() {
@@ -1014,17 +1014,19 @@ function buildStory(name, picks, age) {
     return r;
   };
 
-  // Always-on silly object injection — drops a random absurd item as a brief aside in P2 or P3.
-  // Tight one-sentence form so stories stay short.
+  // Always-on aside injection — drops a brief Mad Libs-style aside in P2 or P3.
+  // Pulls from a mix of SILLY_THINGS, OBJECTS, NUMBERS, LIQUIDS, and JOBS so every story
+  // surfaces some absurd vocabulary even when the template doesn't reference it directly.
   const injectSillyThing = (story) => {
-    if (!Array.isArray(SILLY_THINGS) || SILLY_THINGS.length === 0) return story;
     const thing = rawPick(SILLY_THINGS);
-    const Cap = thing.charAt(0).toUpperCase() + thing.slice(1);
     const asides = [
       ` (Nearby: ${thing}.)`,
-      ` ${Cap}? Also there.`,
-      ` Plus ${thing}, somehow.`,
-      ` (${Cap} watched the whole thing.)`,
+      ` (${thing.charAt(0).toUpperCase() + thing.slice(1)} watched the whole thing.)`,
+      ` (Plus ${OBJ}, obviously.)`,
+      ` (Carrying ${NUM} of them, somehow.)`,
+      ` (Smelled distinctly of ${LIQ}.)`,
+      ` (${JOB.charAt(0).toUpperCase() + JOB.slice(1)} took notes.)`,
+      ` (Everyone agreed: ${ADV}.)`,
     ];
     const aside = rawPick(asides);
     const targetIdx = 1 + Math.floor(Math.random() * 2);
@@ -1060,6 +1062,15 @@ function buildStory(name, picks, age) {
   const BODY  = pickedBody  || rawPick(state.pottyMode ? BODY_HOT  : BODY_PG);
   const BODY2 = rawPick(state.pottyMode ? BODY_HOT  : BODY_PG);
   const SOUND = pickedSound || rawPick(state.pottyMode ? SOUND_HOT : SOUND_PG);
+
+  // Mad Libs-style auto-injected vocabulary (v1.12.0). Picked once per story for use in
+  // templates as [c:${OBJ}], [c:${ADV}], [c:${NUM}], [c:${LIQ}], [c:${JOB}] tokens AND in the
+  // enriched aside bank for stories that don't reference them directly.
+  const OBJ = rawPick(OBJECTS);
+  const ADV = rawPick(ADVERBS);
+  const NUM = rawPick(NUMBERS);
+  const LIQ = rawPick(LIQUIDS);
+  const JOB = rawPick(JOBS);
 
   if (t === 'tot') {
     return pick([
@@ -1346,6 +1357,28 @@ function buildStory(name, picks, age) {
           `Lunch: dessert FIRST. The [c:${PET}] tried, did a [c:${BODY}] instead, laughed so hard it rolled into a bush. "[y:${SOUND}]!" went the bush.`,
           `A wise [c:${CRE}] approached. "Backwards Day. Very advanced. Most kids tap out by lunch." Awarded [name:${N}] a [c:${COL}] pasta medal. Engraved: "${fwTok}".`,
           `By bedtime, everything was beautifully upside-down. [name:${N}] said "Good morning!" and climbed into bed. Dreamed about tomorrow happening forwards. Probably.`,
+        ],
+      },
+      // 9. The Wrong Delivery — uses NUM, LIQ, JOB, OBJ
+      {
+        title: `${capitalize(N)} and the Wrong ${capitalize(LIQ)} Delivery`,
+        paragraphs: [
+          `[name:${N}] had ONE job: deliver [c:${NUM}] jars of [c:${LIQ}] to a [c:${JOB}]. Easy. Or so it seemed.`,
+          `A [c:${PET}] showed up [c:${ADV}] holding a [c:${OBJ}] and demanding hazard pay. "${fwTok}!" it announced. Nobody was sure why.`,
+          `They [c:${MOV}] toward the [y:${PLC}]. Halfway there, the [c:${PET}] did the LOUDEST [c:${BODY}]. A passing [c:${CRE}] applauded.`,
+          `The [c:${JOB}] inspected the jars. "Wrong [c:${LIQ}]," they said, [c:${ADV}]. "I ordered [c:${NUM}] of the OTHER kind."`,
+          `[name:${N}] returned, jars corrected, and was paid in [y:${FOOD}] plus one slightly cursed [c:${OBJ}]. "${fwTok}!" everyone agreed. Best Tuesday on record.`,
+        ],
+      },
+      // 10. The Accidental Promotion — uses JOB, NUM, OBJ, ADV
+      {
+        title: `${capitalize(N)} Becomes a ${capitalize(JOB)} by Accident`,
+        paragraphs: [
+          `[name:${N}] knocked on the wrong door. The door said, [c:${ADV}]: "${capitalize(JOB)}, reporting today. Late." [name:${N}] tried to explain. The door did not care.`,
+          `Apparently [name:${N}] was now a [c:${JOB}]. [c:${NUM}] uniforms appeared. So did a [c:${OBJ}]. A [c:${PET}] was assigned as their assistant.`,
+          `Their first task: handle a [c:${CRE}] complaining about [c:${LIQ}]. [name:${N}] nodded, stamped a form, and made it all considerably worse.`,
+          `By lunchtime, [name:${N}] had filed [c:${NUM}] reports, lost the [c:${OBJ}], and accidentally promoted the [c:${PET}]. "${fwTok}!" said the [c:${CRE}], delighted.`,
+          `At quitting time, [name:${N}] handed in their badge. "Best [c:${JOB}] we've ever had," said the door. They left with [y:${FOOD}] and quiet pride.`,
         ],
       },
     ]);

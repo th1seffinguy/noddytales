@@ -4,7 +4,7 @@
    Story template logic lives in index.html (buildStory).
    ================================================================ */
 
-const APP_VERSION = 'v1.11.2';
+const APP_VERSION = 'v1.12.0';
 
 /* Auto-injected vocabulary for the kid tier — chosen randomly inside buildStory when the user
    didn't pick body/sound from a round. PG pools are used by default. _HOT pools activate when
@@ -30,6 +30,36 @@ const SILLY_THINGS = [
   'a slightly damp sticker',
   'a yo-yo with attitude',
   'a sock puppet that knows things',
+];
+
+/* Mad Libs-style auto-injected pools (kid tier) — Codex peer-review recommended additions.
+   Story-mechanic-friendly: objects produce plot, jobs create roles, numbers are instant comedy,
+   liquids are classic Mad Libs, adverbs preserve grammar while adding absurd motion. */
+const OBJECTS = [
+  'clipboard', 'suspicious envelope', 'tiny key', 'noisy spoon',
+  'haunted lunchbox', 'emergency kazoo', 'apology balloon', 'dramatic cape',
+  'pocket-sized door', 'glittery helmet', 'sleepy megaphone', 'map covered in crumbs',
+];
+const ADVERBS = [
+  'suspiciously', 'sideways', 'with great confidence', 'for unclear reasons',
+  'professionally', 'accidentally on purpose', 'extremely slowly', 'in a hurry',
+  'backwards', 'politely but firmly', 'with concerning enthusiasm', 'somehow',
+];
+const NUMBERS = [
+  'seventeen', 'twenty-three', 'eleventy-eight', 'one and a half',
+  'exactly forty-two', 'nine plus three', 'too many', 'a small but specific number of',
+  'three (allegedly)', 'eight thousand', 'a polite handful of', 'six (rude)',
+];
+const LIQUIDS = [
+  'pickle juice', 'moon milk', 'glitter lemonade', 'warm soup',
+  'rainbow water', 'questionable broth', 'extremely loud orange juice', 'emergency apple juice',
+  'haunted iced tea', 'formally polite hot chocolate', 'thunder soda', 'a single tear',
+];
+const JOBS = [
+  'official puddle inspector', 'assistant cloud dentist', 'sandwich lawyer',
+  'emergency hat consultant', 'junior moon accountant', 'certified dragon whisperer',
+  'substitute wizard', 'snack detective', 'hallway mayor',
+  'professional button counter', 'royal nap supervisor', 'chief sock investigator',
 ];
 
 /* Pickable round options for kid tier — surfaced ONLY when pottyMode is on so the toggle has
