@@ -670,8 +670,26 @@
   .story-body .pop          { color: var(--orange-dark); font-family: 'Fredoka', sans-serif; font-weight: 600; }
   .story-body .pop--yellow  { background: var(--yellow); color: var(--ink); padding: 0 8px; border-radius: 8px; font-family: 'Fredoka', sans-serif; font-weight: 600; }
   .story-body .pop--name    { color: var(--orange-dark); font-family: 'Fredoka', sans-serif; font-weight: 700; }
-  .kw { display: inline; border-radius: 3px; }
-  .kw.is-lit { background: rgba(255,209,102,0.75); }
+  /* Karaoke word highlighting — visible "this is the word being read" indicator with bounce. */
+  .kw {
+    display: inline-block;
+    border-radius: 5px;
+    padding: 0 4px;
+    margin: 0 -2px;
+    transition: background 0.12s ease, color 0.12s ease, box-shadow 0.18s ease;
+  }
+  .kw.is-lit {
+    background: var(--orange);
+    color: white;
+    font-weight: 800;
+    box-shadow: 0 3px 10px rgba(244, 162, 97, 0.55);
+    animation: kwBounce 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes kwBounce {
+    0%   { transform: scale(1)    translateY(0); }
+    45%  { transform: scale(1.14) translateY(-2px); }
+    100% { transform: scale(1)    translateY(0); }
+  }
   .story-end { text-align: center; font-size: 18px; color: var(--ink-soft); margin-top: 8px; }
   .story-toolbar { display: flex; flex-direction: column; gap: 12px; }
   .story-toolbar-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -847,6 +865,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v1.14.0', title: 'Karaoke highlighting that actually works',
+    detail: 'The follow-along word highlight is now obvious (orange pill + bounce animation) and accurate (synced to real ElevenLabs character timestamps, not estimated). Cached audio rebuilds once after deploy then plays instantly.' },
   { v: 'v1.13.0', title: 'Tier-aware joke logic + plural-article fix',
     detail: 'Each age tier now has its own aside flavor — tot gets "Boop!", big gets "There was a form for this, which made it worse.", tween gets "Nobody had asked." Sidekick cameos dropped to ~60% so they feel earned. Plural foods like "a tacos" now auto-convert to "some tacos".' },
   { v: 'v1.12.0', title: 'Mad Libs comedy categories (Codex peer review)',
@@ -2265,16 +2285,41 @@ function wrapStoryWords() {
   return words;
 }
 
-/* ---- TTSManager: ElevenLabs API + IndexedDB audio cache ---- */
+/* ---- TTSManager: ElevenLabs API + IndexedDB audio+alignment cache ---- */
 const TTSManager = (() => {
   const DB_NAME = 'noddytales-tts';
-  const STORE   = 'audio-cache';
+  const DB_VER  = 2;
+  const STORE   = 'audio-v2';   // stores { audio: Blob, alignment: object }
   let db          = null;
   let audio       = null;
   let controller  = null;
   let wordTimings = null;
   let rafId       = null;
 
+  // ElevenLabs alignment is character-level. Convert to word-level by walking the TTS text
+  // and pairing each word's first/last char with the alignment start/end times. Filter
+  // pure-punctuation tokens so timings match wrapStoryWords' word indexing exactly.
+  function buildAlignmentTimings(text, alignment) {
+    if (!alignment || !Array.isArray(alignment.character_start_times_seconds)) return null;
+    const starts = alignment.character_start_times_seconds;
+    const ends   = alignment.character_end_times_seconds;
+    if (!starts.length || !ends.length) return null;
+    const timings = [];
+    const wordRegex = /\S+/g;
+    let m;
+    while ((m = wordRegex.exec(text)) !== null) {
+      if (!/[a-zA-Z0-9]/.test(m[0])) continue;
+      const startChar = m.index;
+      const endChar   = startChar + m[0].length - 1;
+      const start     = starts[startChar];
+      const end       = ends[Math.min(endChar, ends.length - 1)];
+      if (typeof start !== 'number' || typeof end !== 'number') continue;
+      timings.push({ start, end });
+    }
+    return timings.length ? timings : null;
+  }
+
+  // Fallback when alignment is missing (legacy cache, API failure) — proportional char-count.
   function buildProportionalTimings(words, duration) {
     const lens  = words.map(w => Math.max(1, w.replace(/\W/g, '').length));
     const total = lens.reduce((s, l) => s + l, 0);
@@ -2320,8 +2365,12 @@ const TTSManager = (() => {
   function openDB() {
     if (db) return Promise.resolve(db);
     return new Promise((resolve, reject) => {
-      const req = indexedDB.open(DB_NAME, 1);
-      req.onupgradeneeded = e => e.target.result.createObjectStore(STORE);
+      const req = indexedDB.open(DB_NAME, DB_VER);
+      req.onupgradeneeded = e => {
+        const d = e.target.result;
+        if (!d.objectStoreNames.contains(STORE)) d.createObjectStore(STORE);
+        // Old v1 store 'audio-cache' is left alone; its raw-blob entries are unused under v2.
+      };
       req.onsuccess = e => { db = e.target.result; resolve(db); };
       req.onerror   = () => reject(req.error);
     });
@@ -2337,14 +2386,20 @@ const TTSManager = (() => {
     } catch { return null; }
   }
 
-  async function putCached(key, blob) {
+  async function putCached(key, value) {
     try {
       await new Promise((res, rej) => {
-        const r = db.transaction(STORE, 'readwrite').objectStore(STORE).put(blob, key);
+        const r = db.transaction(STORE, 'readwrite').objectStore(STORE).put(value, key);
         r.onsuccess = () => res();
         r.onerror   = () => rej(r.error);
       });
     } catch {}
+  }
+
+  // Base64 → Blob (audio/mpeg). Async-decode via fetch is the cleanest cross-browser path.
+  async function base64ToBlob(b64, type = 'audio/mpeg') {
+    const r = await fetch(`data:${type};base64,${b64}`);
+    return await r.blob();
   }
 
   async function hashKey(text) {
@@ -2367,8 +2422,14 @@ const TTSManager = (() => {
       setLoading(true);
       await openDB();
       const key  = await hashKey(text);
-      let   blob = await getCached(key);
-      if (!blob) {
+      let cached = await getCached(key);
+      let audioBlob, alignment;
+
+      if (cached && cached.audio) {
+        // v2 cache hit — already has both audio + alignment
+        audioBlob = cached.audio;
+        alignment = cached.alignment;
+      } else {
         controller = new AbortController();
         const res  = await fetch('/api/tts', {
           method:  'POST',
@@ -2377,15 +2438,22 @@ const TTSManager = (() => {
           signal:  controller.signal,
         });
         if (!res.ok) throw new Error('api-error');
-        blob = await res.blob();
-        await putCached(key, blob);
+        const data = await res.json();
+        audioBlob = await base64ToBlob(data.audioBase64, 'audio/mpeg');
+        alignment = data.alignment;
+        await putCached(key, { audio: audioBlob, alignment });
       }
-      const url = URL.createObjectURL(blob);
+
+      const url = URL.createObjectURL(audioBlob);
       audio = new Audio(url);
 
+      // Prefer real alignment timings; fall back to proportional if missing.
+      const alignTimings = buildAlignmentTimings(text, alignment);
       let wordArr = null;
       audio.onloadedmetadata = () => {
-        if (wordArr && wordArr.length > 0 && audio.duration) {
+        if (alignTimings) {
+          wordTimings = alignTimings;
+        } else if (wordArr && wordArr.length > 0 && audio.duration) {
           wordTimings = buildProportionalTimings(wordArr, audio.duration);
         }
       };
@@ -2398,7 +2466,9 @@ const TTSManager = (() => {
       rerender();
 
       wordArr = wrapStoryWords();
-      if (audio.readyState >= 1 && audio.duration && wordArr.length > 0) {
+      if (alignTimings) {
+        wordTimings = alignTimings;
+      } else if (audio.readyState >= 1 && audio.duration && wordArr.length > 0) {
         wordTimings = buildProportionalTimings(wordArr, audio.duration);
       }
 

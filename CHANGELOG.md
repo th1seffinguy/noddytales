@@ -4,6 +4,27 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v1.14.0 — 2026-05-15
+**Karaoke that actually karaokes**
+
+The word-by-word highlighting was technically built in v1.7.0 but two real problems hid it:
+
+1. **Visual was too subtle.** A soft yellow tint on cream paper — easy to miss. Now the active word pops with a saturated orange background, bold white text, a drop shadow, and a quick bounce animation as the highlight moves between words.
+2. **Timing was approximate.** v1.7.0 used proportional char-count estimation against `audio.duration`. Drift accumulated through 30-second stories.
+
+**Switched to ElevenLabs' `/with-timestamps` endpoint** which returns real character-level start/end times alongside the audio. Word timings are now exact, not estimated:
+
+- `api/tts.js` calls `/text-to-speech/{voice}/with-timestamps`, returns JSON `{audioBase64, alignment}`
+- `TTSManager` parses JSON, decodes base64 to a Blob, and stores `{audio, alignment}` together in IndexedDB
+- New `buildAlignmentTimings()` walks the TTS text and maps each word to its exact start/end seconds using the alignment data
+- Falls back to proportional estimation if alignment is missing (legacy cache, API error)
+
+**IndexedDB schema bumped v1 → v2.** New store `audio-v2` holds combined `{audio, alignment}` per story-hash. The old `audio-cache` store with bare blobs is left orphaned (no migration needed — users get one cache miss after deploy, then everything's fast).
+
+Trade-off accepted: response payload is ~33% larger because base64 audio. Worth it for sync that doesn't drift.
+
+---
+
 ## v1.13.0 — 2026-05-15
 **Tier-aware engine touches — Codex review polish pass**
 
