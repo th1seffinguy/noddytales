@@ -1479,33 +1479,45 @@ const TTSManager = (() => {
     stop();
     const strip = s => s.replace(/\[(?:name|c|y):([^\]]+)\]/g, '$1');
     const text  = strip(story.title) + '.\n\n' + story.paragraphs.map(strip).join('\n\n');
+    console.log('[TTS] speak() called, text length:', text.length);
     try {
       setLoading(true);
       await openDB();
+      console.log('[TTS] IndexedDB opened');
       const key  = await hashKey(text);
       let   blob = await getCached(key);
+      console.log('[TTS] cache', blob ? 'HIT' : 'MISS', 'key:', key);
       if (!blob) {
         controller = new AbortController();
+        console.log('[TTS] fetching /api/tts...');
         const res  = await fetch('/api/tts', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({ text }),
           signal:  controller.signal,
         });
-        if (!res.ok) throw new Error('api-error');
+        console.log('[TTS] /api/tts response status:', res.status);
+        if (!res.ok) {
+          const errBody = await res.text().catch(() => '');
+          console.error('[TTS] API error', res.status, errBody);
+          throw new Error('api-error');
+        }
         blob = await res.blob();
+        console.log('[TTS] blob received, size:', blob.size);
         await putCached(key, blob);
       }
       const url = URL.createObjectURL(blob);
       audio = new Audio(url);
       audio.onended = () => { state.speaking = false; rerender(); URL.revokeObjectURL(url); };
-      audio.onerror = () => { state.speaking = false; rerender(); URL.revokeObjectURL(url); };
+      audio.onerror = e => { console.error('[TTS] audio element error', e); state.speaking = false; rerender(); URL.revokeObjectURL(url); };
       setLoading(false);
       state.speaking = true;
       rerender();
-      audio.play();
+      console.log('[TTS] calling audio.play()...');
+      audio.play().then(() => console.log('[TTS] audio playing')).catch(e => console.error('[TTS] audio.play() rejected:', e));
     } catch (e) {
       if (e.name === 'AbortError') return;
+      console.error('[TTS] caught error:', e);
       setLoading(false);
       state.speaking = false;
       rerender();
