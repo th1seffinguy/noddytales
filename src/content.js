@@ -28,7 +28,7 @@ const WORD_BANK = {
     { cat: 'color',   label: 'Pick a color',         options: [{w:'purple',  e:'🟣'}, {w:'rainbow', e:'🌈'}] },
     { cat: 'food',    label: 'Pick a snack',          options: [{w:'tacos',   e:'🌮'}, {w:'donuts',  e:'🍩'}] },
     { cat: 'place',   label: 'Pick a location',       options: [{w:'jungle',  e:'🌴'}, {w:'castle',  e:'🏰'}] },
-    { cat: 'creature',label: 'Pick a creature',       options: [{w:'robot',   e:'🤖'}, {w:'unicorn', e:'🦄'}] },
+    { cat: 'creature',label: 'Pick a creature',       options: [{w:'robot',   e:'🤖'}, {w:'mermaid', e:'🧜'}] },
     { cat: 'move',    label: 'Pick a move',           options: [{w:'zooming', e:'⚡'}, {w:'tiptoe',  e:'👣'}] },
     { cat: 'mood',    label: 'Pick a feeling',        options: [{w:'silly',   e:'🤪'}, {w:'sneaky',  e:'🕵️'}] },
   ],
