@@ -4,6 +4,16 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v1.11.1 — 2026-05-15
+**Shorter stories across all tiers**
+- v1.11.0 additions (silly thing + sidekick asides) had pushed average story length up. Bedtime target is 30–45 seconds of TTS — most tiers were running 60+ seconds.
+- New per-tier paragraph cap (`PARAGRAPH_LIMIT`): tot 5 / little 5 / kid 5 / big 6 / tween 6. Long templates auto-trim to keep opening (setup) and final (closer), clipping middle paragraphs.
+- All 8 kid templates rewritten with tighter prose — sentences shorter, redundant phrasing dropped.
+- Silly-thing and sidekick asides shortened to one-clause form (e.g. `(Plus Sam.)`, `(Nearby: a sock with opinions.)` instead of two-sentence cameos).
+- Result: little **−29%** (145 → 103 words), kid **−16%** (135 → 114), big **−31%** (180 → 124), tween **−24%** (160 → 121). Tot unchanged (already short).
+
+---
+
 ## v1.11.0 — 2026-05-15
 **Bigger word library + always-on silliness (no toggle required)**
 - All 7 kid-tier word pools expanded 12 → 18 options. New picks include:
