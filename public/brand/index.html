@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NoddyTales — Brand Kit</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sage:   #A8D5A2;
+    --sage-dark: #7CB876;
+    --orange: #F4A261;
+    --orange-dark: #E08A45;
+    --cream:  #FFF8EE;
+    --cream-deep: #FDEFD4;
+    --yellow: #FFD166;
+    --yellow-dark: #F2B838;
+    --ink:    #3D3528;
+    --ink-soft: #6B5E48;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', system-ui, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page { max-width: 1240px; margin: 0 auto; padding: 56px 32px 80px; }
+
+  .hero {
+    background:
+      radial-gradient(circle at 12% 18%, rgba(255,255,255,0.4) 0, transparent 35%),
+      radial-gradient(circle at 88% 82%, rgba(255,209,102,0.35) 0, transparent 40%),
+      var(--sage);
+    border-radius: 36px;
+    padding: 56px 56px;
+    margin-bottom: 56px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+    color: var(--ink);
+    box-shadow: 0 20px 60px rgba(61,53,40,0.15);
+  }
+  @media (max-width: 820px) {
+    .hero { grid-template-columns: 1fr; padding: 36px; }
+    .page { padding: 32px 20px; }
+  }
+
+  .hero h1 {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 64px;
+    line-height: 1;
+    margin: 0 0 12px 0;
+    letter-spacing: -1px;
+  }
+  .hero h1 .accent { color: var(--orange-dark); }
+  .hero .tag {
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 3px;
+    color: var(--ink-soft);
+    margin-bottom: 24px;
+    text-transform: uppercase;
+  }
+  .hero p { font-size: 19px; line-height: 1.55; max-width: 480px; color: var(--ink); margin: 0; font-weight: 600; }
+  .hero-icon {
+    background: white;
+    border-radius: 48px;
+    padding: 32px;
+    box-shadow: 0 24px 48px rgba(61,53,40,0.18);
+    display: grid;
+    place-items: center;
+    max-width: 380px;
+    justify-self: center;
+  }
+  .hero-icon img { width: 100%; height: auto; display: block; border-radius: 22%; }
+
+  .section { margin-bottom: 64px; }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    border-bottom: 2px dashed rgba(61,53,40,0.15);
+    padding-bottom: 14px;
+  }
+  .section-head h2 {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 32px;
+    margin: 0;
+    color: var(--ink);
+  }
+  .section-head .count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--ink-soft);
+    letter-spacing: 1px;
+  }
+
+  /* Icon size grid */
+  .icon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 20px;
+  }
+  .icon-card {
+    background: white;
+    border-radius: 24px;
+    padding: 20px 16px 16px;
+    text-align: center;
+    box-shadow: 0 4px 0 rgba(61,53,40,0.06), 0 8px 24px rgba(61,53,40,0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  .icon-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 0 rgba(61,53,40,0.08), 0 12px 28px rgba(61,53,40,0.1);
+  }
+  .icon-card-frame {
+    background: linear-gradient(135deg, #FFF8EE 0%, #F5EBD8 100%);
+    border-radius: 16px;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    margin-bottom: 14px;
+    overflow: hidden;
+    padding: 14px;
+  }
+  .icon-card-frame img { max-width: 100%; max-height: 100%; height: auto; display: block; }
+  .icon-card-frame img.pixel { image-rendering: pixelated; }
+  .icon-card-label {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--ink);
+    margin: 0 0 2px 0;
+  }
+  .icon-card-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+  }
+
+  /* Wallpapers (banners) */
+  .banner-stack { display: flex; flex-direction: column; gap: 24px; }
+  .banner-card {
+    background: white;
+    border-radius: 28px;
+    padding: 20px;
+    box-shadow: 0 6px 24px rgba(61,53,40,0.08);
+  }
+  .banner-card img { width: 100%; height: auto; display: block; border-radius: 18px; }
+  .banner-card-foot {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 6px 4px; gap: 12px;
+  }
+  .banner-card-foot h3 {
+    font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 18px; margin: 0;
+  }
+  .banner-card-foot .meta {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink-soft);
+  }
+
+  /* Color swatches */
+  .swatch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .swatch {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(61,53,40,0.08);
+  }
+  .swatch-color { aspect-ratio: 16 / 10; }
+  .swatch-meta { padding: 14px 16px; }
+  .swatch-meta h4 {
+    font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 16px; margin: 0 0 4px;
+  }
+  .swatch-meta code {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    background: var(--cream-deep);
+    padding: 2px 8px;
+    border-radius: 6px;
+    color: var(--ink);
+  }
+  .swatch-meta .role { font-size: 12px; color: var(--ink-soft); margin-top: 6px; }
+
+  /* Download bar */
+  .dl {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--orange-dark);
+    padding: 4px 10px;
+    background: var(--cream-deep);
+    border-radius: 12px;
+    text-decoration: none;
+    margin-top: 6px;
+  }
+  .dl::before { content: "↓"; }
+
+  /* Usage example */
+  .usage {
+    background: linear-gradient(135deg, var(--sage) 0%, var(--sage-dark) 100%);
+    border-radius: 28px;
+    padding: 36px;
+    color: white;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 32px;
+    align-items: center;
+  }
+  @media (max-width: 700px) { .usage { grid-template-columns: 1fr; text-align: center; } }
+  .usage img { width: 120px; height: 120px; border-radius: 28px; box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+  .usage h3 { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 28px; margin: 0 0 8px; }
+  .usage p { margin: 0; font-weight: 700; font-size: 16px; line-height: 1.5; opacity: 0.92; }
+
+  /* sticky note style for typography */
+  .type-card {
+    background: white;
+    border-radius: 24px;
+    padding: 28px 32px;
+    box-shadow: 0 6px 24px rgba(61,53,40,0.08);
+    margin-bottom: 16px;
+  }
+  .type-card .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .type-sample-fredoka {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 56px;
+    line-height: 1;
+    color: var(--ink);
+    margin: 0 0 12px;
+    letter-spacing: -0.5px;
+  }
+  .type-sample-nunito {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    line-height: 1.3;
+    color: var(--ink);
+    margin: 0 0 8px;
+  }
+  .type-card .specs {
+    display: flex; flex-wrap: wrap; gap: 18px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink-soft);
+    padding-top: 12px;
+    border-top: 1px dashed rgba(61,53,40,0.15);
+    margin-top: 12px;
+  }
+  .type-card .specs strong { color: var(--ink); font-weight: 600; }
+
+  /* Footer */
+  footer {
+    margin-top: 80px;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 14px;
+    padding: 24px;
+    border-top: 1px dashed rgba(61,53,40,0.15);
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- HERO -->
+    <header class="hero">
+      <div>
+        <div class="tag">Brand Kit · v1.0</div>
+        <h1>Noddy<span class="accent">Tales</span></h1>
+        <p>Silly stories, made just for you. A warm, rounded, playful identity for the children's story app — built around a friendly sun mascot and a bright sage palette.</p>
+      </div>
+      <div class="hero-icon">
+        <img src="icon-512.png" alt="NoddyTales app icon" />
+      </div>
+    </header>
+
+    <!-- APP ICON SIZES -->
+    <section class="section">
+      <div class="section-head">
+        <h2>📱 App Icon</h2>
+        <span class="count">11 sizes · PNG + SVG</span>
+      </div>
+      <div class="icon-grid">
+        <a class="icon-card" href="icon-1024.png" download>
+          <div class="icon-card-frame"><img src="icon-1024.png" alt=""></div>
+          <p class="icon-card-label">App Store</p>
+          <p class="icon-card-meta">1024 × 1024</p>
+        </a>
+        <a class="icon-card" href="icon-512.png" download>
+          <div class="icon-card-frame"><img src="icon-512.png" alt=""></div>
+          <p class="icon-card-label">Play Store</p>
+          <p class="icon-card-meta">512 × 512</p>
+        </a>
+        <a class="icon-card" href="icon-256.png" download>
+          <div class="icon-card-frame"><img src="icon-256.png" alt=""></div>
+          <p class="icon-card-label">Desktop</p>
+          <p class="icon-card-meta">256 × 256</p>
+        </a>
+        <a class="icon-card" href="icon-192.png" download>
+          <div class="icon-card-frame"><img src="icon-192.png" alt=""></div>
+          <p class="icon-card-label">Android Home</p>
+          <p class="icon-card-meta">192 × 192</p>
+        </a>
+        <a class="icon-card" href="icon-180.png" download>
+          <div class="icon-card-frame"><img src="icon-180.png" alt=""></div>
+          <p class="icon-card-label">iOS Touch</p>
+          <p class="icon-card-meta">180 × 180</p>
+        </a>
+        <a class="icon-card" href="icon-152.png" download>
+          <div class="icon-card-frame"><img src="icon-152.png" alt=""></div>
+          <p class="icon-card-label">iPad</p>
+          <p class="icon-card-meta">152 × 152</p>
+        </a>
+        <a class="icon-card" href="icon-120.png" download>
+          <div class="icon-card-frame"><img src="icon-120.png" alt=""></div>
+          <p class="icon-card-label">iPhone</p>
+          <p class="icon-card-meta">120 × 120</p>
+        </a>
+        <a class="icon-card" href="icon-76.png" download>
+          <div class="icon-card-frame"><img src="icon-76.png" alt=""></div>
+          <p class="icon-card-label">Spotlight</p>
+          <p class="icon-card-meta">76 × 76</p>
+        </a>
+        <a class="icon-card" href="icon-64.png" download>
+          <div class="icon-card-frame"><img src="icon-64.png" alt=""></div>
+          <p class="icon-card-label">Small</p>
+          <p class="icon-card-meta">64 × 64</p>
+        </a>
+        <a class="icon-card" href="icon-32.png" download>
+          <div class="icon-card-frame"><img src="icon-32.png" alt="" class="pixel"></div>
+          <p class="icon-card-label">Favicon Lg</p>
+          <p class="icon-card-meta">32 × 32</p>
+        </a>
+        <a class="icon-card" href="icon-16.png" download>
+          <div class="icon-card-frame"><img src="icon-16.png" alt="" class="pixel"></div>
+          <p class="icon-card-label">Favicon</p>
+          <p class="icon-card-meta">16 × 16</p>
+        </a>
+        <a class="icon-card" href="icon.svg" download>
+          <div class="icon-card-frame"><img src="icon.svg" alt=""></div>
+          <p class="icon-card-label">Vector Master</p>
+          <p class="icon-card-meta">SVG · scalable</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- SQUARE / ADAPTIVE -->
+    <section class="section">
+      <div class="section-head">
+        <h2>🎯 Adaptive (Android)</h2>
+        <span class="count">No corner radius — host OS masks the shape</span>
+      </div>
+      <div class="icon-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+        <a class="icon-card" href="icon-square-1024.png" download>
+          <div class="icon-card-frame" style="background: var(--cream-deep)"><img src="icon-square-1024.png" alt=""></div>
+          <p class="icon-card-label">Adaptive Foreground</p>
+          <p class="icon-card-meta">1024 × 1024 · PNG</p>
+        </a>
+        <a class="icon-card" href="icon-square-512.png" download>
+          <div class="icon-card-frame" style="background: var(--cream-deep)"><img src="icon-square-512.png" alt=""></div>
+          <p class="icon-card-label">Adaptive Foreground</p>
+          <p class="icon-card-meta">512 × 512 · PNG</p>
+        </a>
+        <a class="icon-card" href="icon-square.svg" download>
+          <div class="icon-card-frame" style="background: var(--cream-deep)"><img src="icon-square.svg" alt=""></div>
+          <p class="icon-card-label">Adaptive Vector</p>
+          <p class="icon-card-meta">SVG · scalable</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- FAVICONS -->
+    <section class="section">
+      <div class="section-head">
+        <h2>🌐 Favicon</h2>
+        <span class="count">Simplified mark for tiny sizes</span>
+      </div>
+      <div class="icon-grid" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
+        <a class="icon-card" href="favicon.svg" download>
+          <div class="icon-card-frame"><img src="favicon.svg" alt="" style="width: 80%"></div>
+          <p class="icon-card-label">Vector</p>
+          <p class="icon-card-meta">SVG</p>
+        </a>
+        <a class="icon-card" href="favicon-48.png" download>
+          <div class="icon-card-frame"><img src="favicon-48.png" alt=""></div>
+          <p class="icon-card-label">PNG</p>
+          <p class="icon-card-meta">48 × 48</p>
+        </a>
+        <a class="icon-card" href="favicon-32.png" download>
+          <div class="icon-card-frame"><img src="favicon-32.png" alt="" class="pixel"></div>
+          <p class="icon-card-label">PNG</p>
+          <p class="icon-card-meta">32 × 32</p>
+        </a>
+        <a class="icon-card" href="favicon-16.png" download>
+          <div class="icon-card-frame"><img src="favicon-16.png" alt="" class="pixel"></div>
+          <p class="icon-card-label">PNG</p>
+          <p class="icon-card-meta">16 × 16</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- WORDMARK + BANNERS -->
+    <section class="section">
+      <div class="section-head">
+        <h2>✒️ Wordmark &amp; Banners</h2>
+        <span class="count">SVG · web-ready</span>
+      </div>
+      <div class="banner-stack">
+        <div class="banner-card">
+          <img src="wordmark.svg" alt="NoddyTales wordmark" />
+          <div class="banner-card-foot">
+            <h3>Horizontal Wordmark</h3>
+            <span class="meta">900 × 220 · SVG · <a class="dl" href="wordmark.svg" download>wordmark.svg</a></span>
+          </div>
+        </div>
+
+        <div class="banner-card">
+          <img src="banner-og.svg" alt="NoddyTales Open Graph banner" />
+          <div class="banner-card-foot">
+            <h3>Open Graph / Social Card</h3>
+            <span class="meta">1200 × 630 · SVG · <a class="dl" href="banner-og.svg" download>banner-og.svg</a></span>
+          </div>
+        </div>
+
+        <div class="banner-card">
+          <img src="banner-wide.svg" alt="NoddyTales wide banner" />
+          <div class="banner-card-foot">
+            <h3>Wide Banner / Header</h3>
+            <span class="meta">1920 × 480 · SVG · <a class="dl" href="banner-wide.svg" download>banner-wide.svg</a></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COLOR PALETTE -->
+    <section class="section">
+      <div class="section-head">
+        <h2>🎨 Palette</h2>
+        <span class="count">4 anchors · warm &amp; playful</span>
+      </div>
+      <div class="swatch-grid">
+        <div class="swatch">
+          <div class="swatch-color" style="background: #A8D5A2"></div>
+          <div class="swatch-meta">
+            <h4>Sage Green</h4>
+            <code>#A8D5A2</code>
+            <p class="role">Primary background</p>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: #F4A261"></div>
+          <div class="swatch-meta">
+            <h4>Soft Orange</h4>
+            <code>#F4A261</code>
+            <p class="role">Selector cards, CTAs</p>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: #FFF8EE; border-bottom: 1px solid rgba(0,0,0,0.06)"></div>
+          <div class="swatch-meta">
+            <h4>Cream</h4>
+            <code>#FFF8EE</code>
+            <p class="role">Story paper, text backgrounds</p>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: #FFD166"></div>
+          <div class="swatch-meta">
+            <h4>Warm Yellow</h4>
+            <code>#FFD166</code>
+            <p class="role">Highlights, progress, taps</p>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: #3D3528"></div>
+          <div class="swatch-meta">
+            <h4>Ink</h4>
+            <code>#3D3528</code>
+            <p class="role">Body type, eyes, accents</p>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: #E08A45"></div>
+          <div class="swatch-meta">
+            <h4>Orange Deep</h4>
+            <code>#E08A45</code>
+            <p class="role">Button shadow, accent text</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TYPOGRAPHY -->
+    <section class="section">
+      <div class="section-head">
+        <h2>🔤 Type</h2>
+        <span class="count">2 families · Google Fonts</span>
+      </div>
+      <div class="type-card">
+        <div class="label">Display · Fredoka</div>
+        <p class="type-sample-fredoka">Once upon a time…</p>
+        <p style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 28px; color: var(--ink-soft); margin: 0;">Big buttons. Big feelings.</p>
+        <div class="specs">
+          <span><strong>Weights:</strong> 500 · 600 · 700</span>
+          <span><strong>Usage:</strong> Titles, buttons, story headers</span>
+          <span><strong>Source:</strong> fonts.google.com/specimen/Fredoka</span>
+        </div>
+      </div>
+      <div class="type-card">
+        <div class="label">Body · Nunito</div>
+        <p class="type-sample-nunito">A friendly, rounded body face — designed to be read out loud, by a parent or a kid, with plenty of room to breathe.</p>
+        <div class="specs">
+          <span><strong>Weights:</strong> 600 · 700 · 800 · 900</span>
+          <span><strong>Usage:</strong> Story body, supporting copy</span>
+          <span><strong>Source:</strong> fonts.google.com/specimen/Nunito</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- USAGE EXAMPLE -->
+    <section class="section">
+      <div class="usage">
+        <img src="icon-180.png" alt="">
+        <div>
+          <h3>How to use the icon</h3>
+          <p>Always include the rounded square corners — never crop them. Keep ¼ icon-width of breathing room on every side. Avoid placing the icon on busy photographs; use cream, sage, or white backgrounds.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      NoddyTales · Brand Kit · All assets included in <code style="background: var(--cream-deep); padding: 2px 8px; border-radius: 6px;">brand/</code>
+    </footer>
+
+  </div>
+</body>
+</html>
