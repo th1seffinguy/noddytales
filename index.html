@@ -990,12 +990,14 @@ function buildStory(name, picks, age) {
 
   const rawPick = arr => arr[Math.floor(Math.random() * arr.length)];
   // Per-tier paragraph caps — long templates get trimmed so bedtime stories stay short.
-  // Always keep the opening (setup) and the last paragraph (closer); clip middle if over limit.
+  // Keep first 2 (setup) + last (LIMIT-2) (climax → resolution → closer). The previous formula
+  // (first 4 + last 1) cut load-bearing climax paragraphs and left dangling references.
   const PARAGRAPH_LIMIT = { tot: 5, little: 5, kid: 5, big: 6, tween: 6 }[t];
   const trimToLimit = (story) => {
     if (!PARAGRAPH_LIMIT || story.paragraphs.length <= PARAGRAPH_LIMIT) return story;
     const ps = story.paragraphs;
-    const trimmed = [...ps.slice(0, PARAGRAPH_LIMIT - 1), ps[ps.length - 1]];
+    const keepEnd = PARAGRAPH_LIMIT - 2;
+    const trimmed = [...ps.slice(0, 2), ...ps.slice(-keepEnd)];
     return { title: story.title, paragraphs: trimmed };
   };
   // pick auto-corrects articles, trims to length, injects a silly object (kid only),
@@ -1198,7 +1200,7 @@ function buildStory(name, picks, age) {
         title: `${N} and the Pet That Forgot Everything`,
         paragraphs: [
           `A [c:${PET}] knocked on [name:${N}]'s door looking deeply confused on a [y:${WX}] morning.`,
-          `"What's a [PET]?" said the [c:${PET}]. "What am I doing here? Why does my hat have buttons? Are those FEET?"`,
+          `"What's a [c:${PET}]?" said the [c:${PET}]. "What am I doing here? Why does my hat have buttons? Are those FEET?"`,
           `[name:${N}] said, "Don't worry, I'll help!" So they walked to the [y:${PLC}] together, very slowly, because the [c:${PET}] kept forgetting how walking worked.`,
           `Along the way they met a [c:${CRE}] who had also forgotten things — like which direction was "up." Very inconvenient!`,
           `A [y:${WX}] wind blew by and lifted memories like leaves. They had to chase them and catch them, one at a time.`,
