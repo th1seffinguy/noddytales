@@ -738,6 +738,15 @@ function buildRounds(age) {
   if (tier === 'kid') {
     const pool = FREE_TEXT_ROUNDS.kid;
     const ft = [pool[Math.floor(Math.random() * pool.length)]];
+    // When potty mode is ON, surface 2 extra picker rounds so the toggle has a visible effect
+    // on the selection flow — pick a body word + pick a silly sound, drawn from the HOT pools.
+    if (state.pottyMode) {
+      const bodyShuffled  = [...BODY_HOT_OPTS].sort(() => Math.random() - 0.5).slice(0, 2);
+      const soundShuffled = [...SOUND_HOT_OPTS].sort(() => Math.random() - 0.5).slice(0, 2);
+      const bodyRound  = { cat: 'body',  label: 'Pick a silly body word', options: bodyShuffled };
+      const soundRound = { cat: 'sound', label: 'Pick a chaotic sound',   options: soundShuffled };
+      return [...binaryRounds.slice(0, 4), ...ft, bodyRound, ...binaryRounds.slice(4), soundRound];
+    }
     return [...binaryRounds.slice(0, 4), ...ft, ...binaryRounds.slice(4)];
   }
   if (tier === 'big') {
@@ -810,10 +819,13 @@ function buildStory(name, picks, age) {
     return r;
   };
 
-  // Auto-injected vocabulary — picked per story, swaps PG ↔ hot based on pottyMode toggle.
-  const BODY  = rawPick(state.pottyMode ? BODY_HOT  : BODY_PG);
+  // Body / sound vocabulary — user-picked rounds (potty mode) take precedence; otherwise auto-pick.
+  // BODY2 always auto-picks for variety so the user's chosen word stays the "main" body callback.
+  const pickedBody  = get('body',  '');
+  const pickedSound = get('sound', '');
+  const BODY  = pickedBody  || rawPick(state.pottyMode ? BODY_HOT  : BODY_PG);
   const BODY2 = rawPick(state.pottyMode ? BODY_HOT  : BODY_PG);
-  const SOUND = rawPick(state.pottyMode ? SOUND_HOT : SOUND_PG);
+  const SOUND = pickedSound || rawPick(state.pottyMode ? SOUND_HOT : SOUND_PG);
 
   if (t === 'tot') {
     return pick([
@@ -1002,103 +1014,104 @@ function buildStory(name, picks, age) {
   }
 
   if (t === 'kid') {
-    const fwShout = FW ? `"[y:${FW}]!"` : `"${SOUND}!"`;
+    // Bare token — templates wrap in quotes / exclamation marks themselves so there's never doubling.
+    const fwTok = FW ? `[y:${FW}]` : `[y:${SOUND}]`;
 
     return pick([
       // 1. The Map That Smelled Funny — found-clue mystery with food callback
       {
         title: `${capitalize(N)} and the Map That Smelled Funny`,
         paragraphs: [
-          `It was a perfectly normal Tuesday until [name:${N}] found a [c:${COL}] map crumpled under the sofa cushions. It smelled, distinctly, of [y:${FOOD}]. That was the first clue.`,
-          `A [c:${PET}] sniffed it, read it upside down, then announced "[y:${SOUND}]!" with great confidence. [name:${N}] decided this was a sign. They grabbed three sandwiches and a flashlight, just in case.`,
-          `They [c:${MOV}] toward the [y:${PLC}], where an X marked the spot. Halfway there, the [c:${PET}] did the loudest [c:${BODY}] anyone had ever heard. A passing [c:${CRE}] applauded.`,
-          `At the X, there was no treasure. Just a sign that read ${fwShout} — which made absolutely no sense, but felt important. So they kept going.`,
-          `Down the path, [name:${N}] discovered eleven [c:${CRE}]s having a [c:${COL}] picnic, with way too much [y:${FOOD}]. "We've been waiting!" they cheered. "Someone smelled the map?"`,
-          `Turns out the map had been seasoned with [y:${FOOD}] on purpose, to attract heroes. [name:${N}] accepted seven sandwiches as payment. The [c:${PET}] did one more [c:${BODY}] for the road. Best Tuesday on record.`,
+          `It was a normal Tuesday. Then [name:${N}] found a [c:${COL}] map under the sofa cushions. It SMELLED. Specifically: like [y:${FOOD}]. A LOT like [y:${FOOD}]. That was clue number one.`,
+          `A [c:${PET}] sniffed it. Then read it upside-down. Then announced "[y:${SOUND}]!" with great confidence. [name:${N}] decided this was a sign. They grabbed three sandwiches and a flashlight, JUST in case.`,
+          `They [c:${MOV}] toward the [y:${PLC}]. Halfway there, the [c:${PET}] did the LOUDEST [c:${BODY}] of all time. A passing [c:${CRE}] applauded. "Beautiful," it said. "Five stars."`,
+          `At the X marked on the map — nothing. Just a sign that read "${fwTok}". They read it three times. The [c:${PET}] read it sideways. "${fwTok}!" it shouted, now fully committed to the bit.`,
+          `So they ignored the sign and kept walking. And there it was: ELEVEN [c:${CRE}]s having a [c:${COL}] picnic with WAY too much [y:${FOOD}]. The chief one looked up. "FINALLY. Did somebody smell the map? Please say yes."`,
+          `Turns out the map had been SEASONED with [y:${FOOD}] on purpose. To find heroes. [name:${N}] left with seven sandwiches. The [c:${PET}] did one more [c:${BODY}] for the road. "${fwTok}!" everyone shouted, for no good reason. Best Tuesday on record.`,
         ],
       },
       // 2. The Pet That Wouldn't Stop — body-humor escalation with snack payoff
       {
         title: `The ${capitalize(PET)} and the Never-Ending ${capitalize(BODY)}`,
         paragraphs: [
-          `[name:${N}]'s [c:${PET}] had been at it for fourteen straight minutes — just one continuous [c:${BODY}] after another. Loud ones. Soft ones. One that somehow smelled like [y:${FOOD}].`,
-          `"[y:${SOUND}]!" went the [c:${PET}], for the fifteenth time. [name:${N}] was [c:${MOD}] but determined to find a cure. They marched next door to consult a [c:${CRE}] who claimed expertise it absolutely did not have.`,
-          `"Three things fix this," the [c:${CRE}] said. "Spinning in circles, a [c:${COL}] hat, and a quick visit to the [y:${PLC}]." Two of those things sounded fake. [name:${N}] tried all three anyway.`,
-          `At the [y:${PLC}], a wiser old [c:${CRE}] took one look at the [c:${PET}] and sighed. "Oh. It just needs a real snack. Not the kind from a bag." [name:${N}] dug some slightly-squished [y:${FOOD}] out of their pocket.`,
-          `The [c:${PET}] ate it in one gulp. There was a long, beautiful silence. Then one final, glorious [c:${BODY}] echoed across the entire ${PLC}. The [c:${CRE}] called it ${fwShout}. Apparently that's the official term.`,
-          `[name:${N}] laughed all the way home, the cured [c:${PET}] trotting behind them. Three days later it started up again. But that, of course, is another story.`,
+          `[name:${N}]'s [c:${PET}] had been at it for FOURTEEN minutes straight. Loud ones. Soft ones. ONE that smelled like [y:${FOOD}]. (Nobody knew how. Nobody asked.)`,
+          `"[y:${SOUND}]!" went the [c:${PET}], for the fifteenth time. [name:${N}] was [c:${MOD}] but determined. They marched next door to consult a [c:${CRE}] who claimed expertise it absolutely did not have.`,
+          `"THREE fixes," the [c:${CRE}] said gravely. "Spin in circles. Wear a [c:${COL}] hat. Visit the [y:${PLC}]." Two of those sounded fake. [name:${N}] tried all three.`,
+          `At the [y:${PLC}], a much wiser [c:${CRE}] took ONE look at the [c:${PET}]. "Oh. It needs a real snack. Not the bag kind." [name:${N}] dug some slightly-squished [y:${FOOD}] out of their pocket. The wise [c:${CRE}] nodded. "${fwTok}, indeed."`,
+          `The [c:${PET}] ate it in ONE GULP. Long, beautiful silence. Then ONE final, glorious [c:${BODY}] echoed across the entire ${PLC}. The wise [c:${CRE}] called it the official "${fwTok}" of the year.`,
+          `[name:${N}] laughed the whole way home. The cured [c:${PET}] trotted behind, looking very proud. THREE days later? It started up again. But that, of course, is another story.`,
         ],
       },
       // 3. Someone Stole the Snack — heist comedy with reveal
       {
         title: `Someone Stole ${capitalize(N)}'s ${capitalize(FOOD)}`,
         paragraphs: [
-          `[name:${N}] put a fresh [y:${FOOD}] on the counter and turned around for exactly one second. When they turned back: gone. No crumbs. No witnesses. Just a faint whiff of [c:${BODY}] in the air.`,
-          `A [c:${PET}] sat nearby looking suspiciously innocent. [name:${N}] narrowed their eyes. The [c:${PET}] looked at the ceiling. Then the wall. Then at literally anything except [name:${N}].`,
-          `A trail of [c:${COL}] crumbs led out the back door, toward the [y:${PLC}]. [name:${N}] [c:${MOV}] after them, dodged a sprinkler, and tripped over what turned out to be a [c:${CRE}]'s left shoe.`,
-          `In the middle of the [y:${PLC}] sat the real thief: a [c:${CRE}], mouth completely full of [y:${FOOD}], looking very obviously guilty. ${fwShout} echoed from a nearby bush. Probably the witness.`,
-          `"I can explain," the [c:${CRE}] mumbled. It could not, in fact, explain. It tried for two minutes, made it worse, then offered [name:${N}] half the [y:${FOOD}] as a peace offering.`,
-          `The [c:${PET}] showed up, did a loud [c:${BODY2}], and demanded its share too. They all sat down right there and finished the [y:${FOOD}]. The crime, if it was a crime, was officially forgiven by sundown.`,
+          `[name:${N}] put a fresh [y:${FOOD}] on the counter. Turned around for ONE second. Turned back. GONE. No crumbs. No witnesses. Just a faint whiff of [c:${BODY}].`,
+          `A [c:${PET}] sat nearby, looking SUSPICIOUSLY innocent. [name:${N}] narrowed their eyes. The [c:${PET}] looked at the ceiling. Then the wall. Then at literally anything except [name:${N}].`,
+          `A trail of [c:${COL}] crumbs led out the back door. [name:${N}] [c:${MOV}] after them. Dodged a sprinkler. Tripped over a [c:${CRE}]'s left shoe. Kept going.`,
+          `In the middle of the [y:${PLC}]: the THIEF. A [c:${CRE}], mouth completely full of [y:${FOOD}], looking VERY obviously guilty. "${fwTok}!" echoed from a nearby bush. The witness, probably.`,
+          `"I can explain," the [c:${CRE}] mumbled. It could not. It tried for two minutes. Made it MUCH worse. Then offered [name:${N}] half the [y:${FOOD}] as a peace offering.`,
+          `The [c:${PET}] showed up. Did a loud [c:${BODY2}]. Demanded its share. They all sat down right there and finished the [y:${FOOD}]. "${fwTok}!" said the bush again. Case officially closed.`,
         ],
       },
       // 4. The Mysterious Smell — smell mystery with cook-off reveal
       {
         title: `The Mysterious Smell of the ${capitalize(PLC)}`,
         paragraphs: [
-          `Something was off at the [y:${PLC}]. The whole place smelled exactly like a [c:${BODY}] on a hot day. Everyone agreed it was unacceptable. Nobody could explain it.`,
-          `[name:${N}] arrived with a [c:${PET}] and a notebook to investigate. Clue one, scribbled down: "Smells terrible. Source: unknown." They added a drawing of the smell. It was very brown.`,
-          `A [c:${MOD}] [c:${CRE}] whispered, "I've been here all week — the smell came from a [c:${COL}] cloud by the rocks." Then it let out a hearty [c:${BODY}]. It was, suspiciously, contributing to the problem.`,
-          `Following the cloud, [name:${N}] uncovered the real culprit: twenty-three [c:${CRE}]s having a [y:${FOOD}] cook-off. Everything was burning. Everyone was extremely proud of how burnt their dishes were.`,
-          `"[y:${SOUND}]!" called the head judge. "We have a winner!" It was [y:${FOOD}] burnt so thoroughly it had turned slightly [c:${COL}]. They handed [name:${N}] a tiny bite. Against all odds: delicious. Truly. ${fwShout} good, in fact.`,
-          `The smell finally cleared by sundown. [name:${N}] was invited back next week as guest judge. The [c:${PET}] did one final [c:${BODY2}], just to be polite about it.`,
+          `Something was OFF at the [y:${PLC}]. The whole place smelled exactly like a [c:${BODY}] on a hot day. Everyone agreed: unacceptable. Nobody could explain it.`,
+          `[name:${N}] arrived with a [c:${PET}] and a tiny notebook. CLUE ONE: "Smells terrible. Source: unknown." They drew a picture of the smell. It was very brown.`,
+          `A [c:${MOD}] [c:${CRE}] whispered, "I've been here ALL week — the smell came from a [c:${COL}] cloud by the rocks." Then it let out a hearty [c:${BODY}]. It was, suspiciously, contributing to the problem.`,
+          `[name:${N}] followed the cloud. Real culprit: TWENTY-THREE [c:${CRE}]s having a [y:${FOOD}] cook-off. Everything was burning. Everyone was extremely PROUD of how burnt their dishes were.`,
+          `"[y:${SOUND}]!" called the head judge. "We have a WINNER!" It was [y:${FOOD}] burnt so thoroughly it had turned slightly [c:${COL}]. They handed [name:${N}] a tiny bite. ${fwTok} good, somehow. Genuinely.`,
+          `The smell finally cleared by sundown. [name:${N}] was invited back next week as guest judge. The [c:${PET}] did one final [c:${BODY2}], just to be polite. "${fwTok}!" cheered the champions. Best worst smell on record.`,
         ],
       },
       // 5. The Word That Did Things — magical word, FW is central
       {
         title: `${capitalize(N)} and the Word That Did Things`,
         paragraphs: [
-          `It was a totally normal day at the [y:${PLC}] until [name:${N}] said the word ${fwShout} out loud. A [c:${CRE}] froze mid-sentence. A nearby [c:${PET}] dropped its [y:${FOOD}]. Something in the bushes went "[y:${SOUND}]."`,
-          `"Say it again," whispered the [c:${CRE}]. [name:${N}] said it again. This time a small [c:${COL}] cloud formed right over their head. It managed one tiny [c:${BODY}], looked embarrassed, and drifted away.`,
-          `"You have the word," the [c:${CRE}] announced solemnly. "It only works for one kid every fifty years. Use it wisely. Or don't. Honestly, up to you." That was not particularly specific advice.`,
-          `[name:${N}] tried it on a stuck door. The door [c:${MOV}] open by itself, looking slightly embarrassed about the whole thing. They tried it on hunger. Some [y:${FOOD}] appeared on a rock nearby, still warm.`,
-          `They tried it on the [c:${PET}], which got bigger and louder, then did the most enormous [c:${BODY2}] anyone had ever witnessed. That was definitely not the intention. ${fwShout} was apparently a powerful word.`,
-          `By bedtime, the magic had run out. [name:${N}] didn't mind. "Saved you for emergencies," they whispered to themselves, tucked under their [c:${COL}] blanket. The [c:${PET}], back to normal size, snored agreement.`,
+          `Normal day at the [y:${PLC}]. Until [name:${N}] said the word "${fwTok}" out loud. A [c:${CRE}] FROZE mid-sentence. A nearby [c:${PET}] dropped its [y:${FOOD}]. Something in the bushes went "[y:${SOUND}]."`,
+          `"Say it AGAIN," whispered the [c:${CRE}]. [name:${N}] said it again. A small [c:${COL}] cloud formed right over their head. It managed ONE tiny [c:${BODY}], looked embarrassed, and drifted away.`,
+          `"You have THE word," the [c:${CRE}] announced solemnly. "It works for one kid every fifty years. Use it wisely. Or don't. Honestly, up to you." Not exactly specific advice.`,
+          `[name:${N}] tried it on a stuck door. "${fwTok}!" The door [c:${MOV}] open by itself, slightly embarrassed about the whole thing. They tried it on hunger. "${fwTok}!" Some [y:${FOOD}] appeared on a rock nearby. STILL WARM.`,
+          `They tried it on the [c:${PET}]. "${fwTok}!" The [c:${PET}] got bigger. And LOUDER. Then did the most enormous [c:${BODY2}] anyone had ever witnessed. That was definitely not the intention.`,
+          `By bedtime, the magic ran out. [name:${N}] didn't mind. "Saved you for emergencies," they whispered. The [c:${PET}], back to normal, snored agreement. "${fwTok}!" said the wind. Maybe.`,
         ],
       },
       // 6. The Secret Society — discovery with absurdly tiny twist
       {
         title: `The Secret ${capitalize(CRE)} Society`,
         paragraphs: [
-          `[name:${N}] was [c:${MOV}] across the [y:${PLC}] when their foot disappeared straight into a hole. A small voice from below shouted, "[y:${SOUND}]! YOU FOUND US!" That was definitely not normal.`,
-          `They climbed down. At the bottom: seventeen [c:${CRE}]s sitting at a tiny round table, eating [y:${FOOD}] from tiny plates. One was wearing a [c:${COL}] hat clearly three sizes too big for its head.`,
-          `"Welcome," said the smallest one with great seriousness. "We are the Secret [c:${CRE}] Society. Our motto is..." It paused. "Actually, we don't have one yet. We've been workshopping it for six years."`,
-          `[name:${N}]'s [c:${PET}] popped its head down into the hole, took one look at the gathering, and immediately did a loud [c:${BODY}] right into the meeting. The Society applauded. Apparently that was their highest form of greeting.`,
-          `[name:${N}] was inducted on the spot. Requirements: share some [y:${FOOD}], say something [c:${MOD}], and promise never to tell anyone. They passed easily. The Society's new motto was officially ${fwShout}, by unanimous vote.`,
-          `Climbing back up, [name:${N}] could swear they heard a faint "[y:${SOUND}]" from underground, followed by tiny laughter. Next morning, a [c:${COL}] envelope appeared on the doorstep. Inside: one perfectly sized tiny hat.`,
+          `[name:${N}] [c:${MOV}] across the [y:${PLC}] when their foot SANK INTO A HOLE. A small voice from below shouted: "[y:${SOUND}]! YOU FOUND US!"`,
+          `They climbed down. At the bottom: SEVENTEEN [c:${CRE}]s at a tiny round table, eating [y:${FOOD}] from tiny plates. One was wearing a [c:${COL}] hat clearly three sizes too big.`,
+          `"Welcome," said the smallest one, very seriously. "We are the Secret [c:${CRE}] Society. Our motto is..." A long pause. "Actually, we don't have one. We've been workshopping it for SIX YEARS."`,
+          `[name:${N}]'s [c:${PET}] popped its head into the hole. Took one look. IMMEDIATELY did a loud [c:${BODY}] right into the meeting. The Society applauded. Their HIGHEST form of greeting, apparently.`,
+          `[name:${N}] was inducted on the spot. Three rules: share some [y:${FOOD}], say something [c:${MOD}], promise NEVER to tell anyone. They passed easily. New official motto, by unanimous vote: "${fwTok}".`,
+          `Climbing back up, [name:${N}] heard a faint "[y:${SOUND}]" from underground. Tiny laughter followed. Next morning: a [c:${COL}] envelope on the doorstep. Inside: one perfectly sized tiny hat. "${fwTok}!" said the breeze.`,
         ],
       },
       // 7. Saved by Tickling — embarrassing-yet-heroic save
       {
         title: `${capitalize(N)} Saves the Day By Being ${capitalize(MOD)}`,
         paragraphs: [
-          `There was an emergency at the [y:${PLC}]. A [c:${CRE}] had wedged itself completely between two rocks and could not, no matter what, get out. A crowd had gathered. Suggestions were flying.`,
-          `"Push it!" "Pull it!" "Wait for someone tall!" None of those were good ideas. [name:${N}], who was not particularly tall, watched for a minute and then had a quietly [c:${MOD}] thought.`,
-          `"Has anyone tried tickling it?" they asked. The crowd went silent. The [c:${CRE}] looked deeply offended. But [name:${N}] was already [c:${MOV}] forward, a feather in one hand and pure stubbornness in the other.`,
-          `One tickle — nothing. Two tickles — a small giggle. Three tickles — the [c:${CRE}] burst into laughter, did an enormous [c:${BODY}], and popped right out of the rocks like a cork. "[y:${SOUND}]!" went the crowd.`,
-          `The grateful [c:${CRE}] presented [name:${N}] with [y:${FOOD}] the size of their own head — a truly unreasonable amount. A [c:${PET}] appeared from nowhere, possibly summoned by the noise, demanded a share, and contributed its own [c:${BODY2}] to the celebration.`,
-          `Word spread fast. By next week, whenever any creature got stuck anywhere in the [y:${PLC}], people called for [name:${N}]. Their official title became Royal Tickler. They had it embroidered onto a [c:${COL}] T-shirt, in letters that read ${fwShout}, and wore it everywhere.`,
+          `EMERGENCY at the [y:${PLC}]. A [c:${CRE}] had wedged itself BETWEEN TWO ROCKS. Could not get out. A crowd was gathering. Suggestions were flying.`,
+          `"PUSH IT!" "PULL IT!" "Wait for someone tall!" None of those were good ideas. [name:${N}], who was not particularly tall, watched for a minute. Then had a very [c:${MOD}] thought.`,
+          `"Has anyone tried TICKLING it?" they asked. The crowd went silent. The [c:${CRE}] looked DEEPLY offended. But [name:${N}] had already [c:${MOV}] forward, a feather in one hand and pure stubbornness in the other.`,
+          `One tickle. NOTHING. Two tickles. A small giggle. THREE tickles. The [c:${CRE}] burst into laughter, did an ENORMOUS [c:${BODY}], and popped right out like a CORK. "[y:${SOUND}]!" went the crowd.`,
+          `The grateful [c:${CRE}] handed [name:${N}] [y:${FOOD}] the size of their own head. A truly unreasonable amount. A [c:${PET}] appeared from nowhere, demanded its share, contributed its own [c:${BODY2}] to the celebration.`,
+          `Word spread FAST. Now whenever anything got stuck at the [y:${PLC}], people called for [name:${N}]. Title: ROYAL TICKLER. They had it stitched onto a [c:${COL}] T-shirt that read "${fwTok}" underneath. They wore it everywhere.`,
         ],
       },
       // 8. The Backwards Day — pure absurdism
       {
         title: `The Day ${capitalize(N)} Did Everything Backwards`,
         paragraphs: [
-          `[name:${N}] woke up and decided that today, just for fun, they would do absolutely everything backwards. They started with breakfast: ate the [y:${FOOD}] first, then poured the cereal. It was [c:${MOD}]. It also worked, somehow.`,
-          `They walked to the [y:${PLC}] backwards and [c:${MOV}] straight into a confused [c:${PET}]. The [c:${PET}] thought about it, shrugged, and joined them. They both walked backwards for the rest of the morning.`,
-          `At the [y:${PLC}], [name:${N}] said "Goodbye!" to everyone on the way IN. A passing [c:${CRE}] cheerfully said "Hello!" on the way OUT, just to balance the universe out. Nobody complained. The day continued.`,
-          `For lunch, [name:${N}] ate dessert first (which is just normal lunch, backwards). The [c:${PET}] tried to do the same, did a [c:${BODY}] instead, and laughed so hard it rolled into a bush. "[y:${SOUND}]!" went the bush.`,
-          `A very wise [c:${CRE}] approached. "I see you're doing The Backwards Day," it said solemnly. "Very advanced. Most kids tap out by lunch." It awarded [name:${N}] a [c:${COL}] medal made entirely of pasta, engraved with ${fwShout}.`,
-          `By bedtime, everything had become beautifully upside-down. [name:${N}] said "Good morning!" to their parents and climbed into bed. The [c:${PET}] did one last small [c:${BODY2}], dreamed about tomorrow happening forwards. Probably.`,
+          `[name:${N}] woke up and decided: TODAY, everything backwards. Just for fun. Breakfast first: ate the [y:${FOOD}], THEN poured the cereal. It was [c:${MOD}]. Worked, somehow.`,
+          `Walked to the [y:${PLC}] backwards — and [c:${MOV}] straight into a confused [c:${PET}]. The [c:${PET}] thought about it. Shrugged. Joined them. They walked backwards the whole rest of the morning.`,
+          `At the [y:${PLC}], [name:${N}] said "GOODBYE!" to everyone on the way IN. A passing [c:${CRE}] said "HELLO!" on the way OUT, to balance the universe out. "${fwTok}," agreed the universe.`,
+          `Lunch: dessert FIRST. (Which is just normal lunch, backwards.) The [c:${PET}] tried. Did a [c:${BODY}] instead. Laughed so hard it rolled into a bush. "[y:${SOUND}]!" went the bush.`,
+          `A wise [c:${CRE}] approached. "I see you're doing The Backwards Day," it said solemnly. "Very advanced. Most kids tap out by lunch." It awarded [name:${N}] a [c:${COL}] medal made entirely of pasta. Engraved: "${fwTok}".`,
+          `By bedtime, everything was beautifully upside-down. [name:${N}] said "Good morning!" and climbed into bed. The [c:${PET}] did one last small [c:${BODY2}]. Dreamed about tomorrow happening forwards. Probably.`,
         ],
       },
     ]);

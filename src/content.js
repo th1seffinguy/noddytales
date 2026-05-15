@@ -4,15 +4,31 @@
    Story template logic lives in index.html (buildStory).
    ================================================================ */
 
-const APP_VERSION = 'v1.8.0';
+const APP_VERSION = 'v1.9.0';
 
-/* Auto-injected vocabulary for the kid tier — chosen randomly inside buildStory.
-   PG pools are used by default. _HOT pools activate when pottyMode is on.
-   Stays bounded to school-safe (PG) and Captain-Underpants tier (HOT) — no real swears. */
+/* Auto-injected vocabulary for the kid tier — chosen randomly inside buildStory when the user
+   didn't pick body/sound from a round. PG pools are used by default. _HOT pools activate when
+   pottyMode is on. Stays bounded: PG = school-safe, HOT = Captain-Underpants tier (no real swears). */
 const BODY_PG  = ['toot', 'burp', 'wedgie', 'stinky sock', 'smelly shoe', 'hiccup', 'sneeze', 'snort', 'drool', 'snore', 'armpit', 'belly button'];
 const BODY_HOT = ['fart', 'poop', 'butt', 'pee', 'booger', 'snot rocket', 'underpants', 'stinky armpit', 'swamp foot', 'nostril', 'toilet', 'wedgie'];
 const SOUND_PG  = ['SPLAT', 'BOING', 'PFFT', 'WUMP', 'FWOOSH', 'KERPLUNK', 'BLORP', 'SQUISH', 'HONK', 'BWAH', 'BLARP', 'WAFLOOP'];
 const SOUND_HOT = ['PFFFFART', 'BTHHHPP', 'PLOPP', 'FAAAARP', 'TOOOT', 'PARP', 'BLEEEEH', 'SCHPLAT', 'GLOOP', 'KAFOOM', 'BWAHAHA', 'SQUOMP'];
+
+/* Pickable round options for kid tier — surfaced ONLY when pottyMode is on so the toggle has
+   an immediate, visible effect on the selection flow. Each option pairs a word with an emoji
+   for the binary picker UI. */
+const BODY_HOT_OPTS = [
+  {w:'fart',          e:'💨'}, {w:'poop',          e:'💩'}, {w:'butt',         e:'🍑'},
+  {w:'pee',           e:'💧'}, {w:'booger',        e:'👃'}, {w:'underpants',   e:'🩲'},
+  {w:'toilet',        e:'🚽'}, {w:'snot rocket',   e:'💦'}, {w:'swamp foot',   e:'🦶'},
+  {w:'stinky armpit', e:'🧅'}, {w:'wedgie',        e:'😱'}, {w:'nostril hair', e:'👃'},
+];
+const SOUND_HOT_OPTS = [
+  {w:'PFFFFART', e:'💨'}, {w:'BTHHHPP',  e:'🌬️'}, {w:'FAAAARP',  e:'📯'},
+  {w:'KAFOOM',   e:'💥'}, {w:'BWAHAHA',  e:'😂'}, {w:'PARP',     e:'🎺'},
+  {w:'BLEEEEH',  e:'😝'}, {w:'SQUOMP',   e:'💦'}, {w:'PLOPP',    e:'💧'},
+  {w:'TOOOT',    e:'🎺'}, {w:'SCHPLAT',  e:'💥'}, {w:'GLOOP',    e:'🟢'},
+];
 
 /* Binary rounds by tier — each round has 12 options; buildRounds() picks 2 randomly per session */
 const WORD_BANK = {
@@ -75,6 +91,12 @@ const FREE_TEXT_ROUNDS = {
     { type: 'freetext', cat: 'freeword', label: "Invent a word for falling asleep by accident.", examples: ['snoopdrop', 'zonkle', 'slumble'] },
     { type: 'freetext', cat: 'freeword', label: "What does a bouncy castle smell like?",         examples: ['rubbery', 'bouncy', 'plasticky fun'] },
     { type: 'freetext', cat: 'freeword', label: "Make up a magic word that fixes everything.",   examples: ['kazamba', 'flumptastic', 'woozle'] },
+    { type: 'freetext', cat: 'freeword', label: "Invent a really embarrassing dance move.",      examples: ['the noodle', 'flap-shuffle', 'the wobble-stomp'] },
+    { type: 'freetext', cat: 'freeword', label: "What's the loudest word you can think of?",     examples: ['BOOM', 'KABLAM', 'WHAMMO'] },
+    { type: 'freetext', cat: 'freeword', label: "Name a smell that means trouble.",              examples: ['burnt toast', 'wet dog', 'old socks'] },
+    { type: 'freetext', cat: 'freeword', label: "Invent a battle cry for a tiny knight.",        examples: ['ONWARD!', 'STABBY-STAB!', 'EAT MY BOOT!'] },
+    { type: 'freetext', cat: 'freeword', label: "Make up a name for the world's grumpiest cat.", examples: ['Sir Grumblebottom', 'Snarls', 'Mr. NO'] },
+    { type: 'freetext', cat: 'freeword', label: "What would your superhero catchphrase be?",     examples: ['NOT ON MY WATCH', 'SNACK ATTACK', 'BY THE POWER OF PIZZA'] },
   ],
   big: [
     { type: 'freetext', cat: 'freeword',  label: "Name something you'd find under a couch.",                examples: ['dust', 'remote', 'crumbs'] },
