@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v1.21.0-segment-B';
+const ENGINE_V2_VERSION = 'v1.22.0-segment-C';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -243,6 +243,32 @@ const V2_WORDS = {
       actions:['waddled in a straight line','peeped persistently','followed the kid everywhere'],
       sounds:['peep peep','tiny quack','soft beep'],
       comedy:{ energy:'bouncy', dignity:'medium', absurdity:4, bedtimeSoftness:9 } },
+    /* Segment C additions — tween-flavored companions */
+    { id:'crow', text:'crow', emoji:'🐦‍⬛', article:'a',
+      traits:['judgmental','smart','collects shiny things'],
+      actions:['side-eyed the situation','dropped a paperclip pointedly','filed a complaint with its beak'],
+      sounds:['caw','tiny cluck','dismissive hop'],
+      comedy:{ energy:'deadpan', dignity:'high', absurdity:5, bedtimeSoftness:6 } },
+    { id:'hamster', text:'hamster', emoji:'🐹', article:'a',
+      traits:['hoarder','tiny','dramatic'],
+      actions:['stuffed its cheeks with everything','sprinted on a wheel for no reason','hid a snack in its bedding'],
+      sounds:['squeak','wheel-squeak','tiny chirp'],
+      comedy:{ energy:'bouncy', dignity:'low', absurdity:5, bedtimeSoftness:8 } },
+    { id:'chameleon', text:'chameleon', emoji:'🦎', article:'a',
+      traits:['changeable','sneaky','overly committed'],
+      actions:['turned the wrong color on purpose','rolled its eyes independently','blended into a houseplant'],
+      sounds:['blink','tiny tongue flick','soft chirp'],
+      comedy:{ energy:'deadpan', dignity:'medium', absurdity:6, bedtimeSoftness:6 } },
+    { id:'raccoon', text:'raccoon', emoji:'🦝', article:'a',
+      traits:['nocturnal','thieving','smug'],
+      actions:['rifled through a trash can','escaped with a single noodle','waved a tiny hand'],
+      sounds:['chitter','rummage','tiny clatter'],
+      comedy:{ energy:'chaotic', dignity:'low', absurdity:6, bedtimeSoftness:5 } },
+    { id:'red_panda', text:'red panda', emoji:'🦊', article:'a',
+      traits:['fluffy','watchful','overly polite'],
+      actions:['cupped its paws together','tilted its head politely','climbed a tree slowly'],
+      sounds:['huff','tiny squeak','soft chirp'],
+      comedy:{ energy:'calm', dignity:'high', absurdity:4, bedtimeSoftness:9 } },
   ],
 
   /* Visitors — strangers, problem-makers, characters who arrive. */
@@ -338,6 +364,35 @@ const V2_WORDS = {
       traits:['loud','bells everywhere','overcommitted'],
       actions:['juggled three apologies','tripped on purpose','spun in a circle'],
       sounds:['jingle','BOING','tiny tah-dah'] },
+    /* Segment C — tween-flavored visitors */
+    { id:'stressed_barista', text:'stressed barista', emoji:'☕', article:'a',
+      traits:['caffeinated','sighing','tired of this'],
+      actions:['sighed loudly','rewrote the order three times','muttered about closing soon'],
+      sounds:['sigh','tiny espresso hiss','heavy yawn'] },
+    { id:'feral_librarian', text:'feral librarian', emoji:'📚', article:'a',
+      traits:['shushy','tired','encyclopedic'],
+      actions:['shushed a houseplant','reorganized a shelf at speed','glared over their glasses'],
+      sounds:['SHHH','tiny pencil tap','disapproving cough'] },
+    { id:'wifi_ghost', text:'wifi ghost', emoji:'📶', article:'a',
+      traits:['flickery','annoying','specific'],
+      actions:['dropped the signal at the worst time','reappeared during important moments','offered three bars then zero'],
+      sounds:['blip','tiny buffer','ghostly disconnect'] },
+    { id:'cryptid', text:'cryptid', emoji:'👁️', article:'a',
+      traits:['legendary','blurry','camera-shy'],
+      actions:['appeared in the background of a photo','left mysterious footprints','denied existing'],
+      sounds:['rustle','tiny growl','distant thump'] },
+    { id:'vending_machine', text:'sentient vending machine', emoji:'🤖', article:'a',
+      traits:['judgmental','snack-pushing','glowy'],
+      actions:['offered unsolicited snack advice','rejected a dollar twice','dispensed the wrong item on purpose'],
+      sounds:['BZZT','clunk','tiny ding'] },
+    { id:'sub_teacher', text:'mysterious substitute teacher', emoji:'🎓', article:'a',
+      traits:['unfamiliar','overly cheerful','underprepared'],
+      actions:['announced a pop quiz with great joy','wrote the wrong name on the board','passed out a worksheet from 2003'],
+      sounds:['ahem','tiny chalk squeak','cheerful gasp'] },
+    { id:'group_chat', text:'group chat', emoji:'💬', article:'the',
+      traits:['chaotic','always pinging','occasionally prophetic'],
+      actions:['blew up overnight','renamed itself again','dropped a single ominous emoji'],
+      sounds:['ping','tiny notification','vibrate'] },
   ],
 
   /* Places — story setting. */
@@ -363,6 +418,17 @@ const V2_WORDS = {
     { id:'library',      text:'library',        emoji:'📚', article:'a' },
     { id:'museum',       text:'museum',         emoji:'🏛️', article:'a' },
     { id:'pillow_fort',  text:'pillow fort',    emoji:'🛏️', article:'a' },
+    /* Segment C — tween-flavored places */
+    { id:'abandoned_mall',  text:'abandoned mall',   emoji:'🏚️', article:'an' },
+    { id:'skatepark',       text:'skatepark',        emoji:'🛹', article:'a' },
+    { id:'parking_garage',  text:'parking garage',   emoji:'🚗', article:'a' },
+    { id:'arcade',          text:'arcade',           emoji:'🕹️', article:'an' },
+    { id:'bus_stop',        text:'bus stop',         emoji:'🚌', article:'a' },
+    { id:'convenience_store', text:'convenience store', emoji:'🏪', article:'a' },
+    { id:'empty_hallway',   text:'empty school hallway', emoji:'🏫', article:'an' },
+    { id:'back_of_bus',     text:'back of the bus',  emoji:'🚌', article:'the' },
+    { id:'wrong_neighborhood', text:'slightly wrong neighborhood', emoji:'🗺️', article:'a' },
+    { id:'rooftop_night',   text:'rooftop at night', emoji:'🌃', article:'a' },
   ],
 
   /* Foods — edible plot devices. */
@@ -544,20 +610,29 @@ const V2_WORDS = {
    ================================================================ */
 const V2_SEEDS = [
   /* Quest-recipe seeds */
-  { id:'snack_trial',     tiers:['kid'], recipe:'quest',       requiredSlots:['companion','visitor','food','object'] },
-  { id:'lost_thing',      tiers:['kid'], recipe:'quest',       requiredSlots:['companion','place','object'] },
-  { id:'secret_club',     tiers:['kid'], recipe:'quest',       requiredSlots:['companion','visitor','place'] },
-  { id:'weird_smell',     tiers:['kid'], recipe:'quest',       requiredSlots:['companion','place','food'] },
-  { id:'wrong_room',      tiers:['kid'], recipe:'quest',       requiredSlots:['companion','visitor','object'] },
+  { id:'snack_trial',     tiers:['kid','big'], recipe:'quest',       requiredSlots:['companion','visitor','food','object'] },
+  { id:'lost_thing',      tiers:['kid','big'], recipe:'quest',       requiredSlots:['companion','place','object'] },
+  { id:'secret_club',     tiers:['kid','big'], recipe:'quest',       requiredSlots:['companion','visitor','place'] },
+  { id:'weird_smell',     tiers:['kid','big'], recipe:'quest',       requiredSlots:['companion','place','food'] },
+  { id:'wrong_room',      tiers:['kid','big'], recipe:'quest',       requiredSlots:['companion','visitor','object'] },
   /* Segment B — Mystery-recipe seeds */
-  { id:'mystery_thief',   tiers:['kid'], recipe:'mystery',     requiredSlots:['companion','visitor','food','object'] },
-  { id:'missing_kazoo',   tiers:['kid'], recipe:'mystery',     requiredSlots:['companion','object'] },
+  { id:'mystery_thief',   tiers:['kid','big'], recipe:'mystery',     requiredSlots:['companion','visitor','food','object'] },
+  { id:'missing_kazoo',   tiers:['kid','big'], recipe:'mystery',     requiredSlots:['companion','object'] },
   /* Trial-recipe seeds */
-  { id:'broken_rule',     tiers:['kid'], recipe:'trial',       requiredSlots:['companion','visitor','rule'] },
+  { id:'broken_rule',     tiers:['kid','big'], recipe:'trial',       requiredSlots:['companion','visitor','rule'] },
   /* Performance-recipe seeds */
-  { id:'surprise_show',   tiers:['kid'], recipe:'performance', requiredSlots:['companion','visitor','sound'] },
-  /* Bureaucracy-recipe seeds */
-  { id:'lost_paperwork',  tiers:['kid'], recipe:'bureaucracy', requiredSlots:['companion','visitor','object','job'] },
+  { id:'surprise_show',   tiers:['kid','big'], recipe:'performance', requiredSlots:['companion','visitor','sound'] },
+  /* Bureaucracy-recipe seeds — kid AND big */
+  { id:'lost_paperwork',  tiers:['kid','big'], recipe:'bureaucracy', requiredSlots:['companion','visitor','object','job'] },
+  /* Segment C — Big-tier seeds (reuse Mystery + Trial + Bureaucracy with dry voice) */
+  { id:'official_inquiry',tiers:['big'], recipe:'bureaucracy', requiredSlots:['companion','visitor','object','job'] },
+  { id:'noble_dispute',   tiers:['big'], recipe:'trial',       requiredSlots:['companion','visitor','rule'] },
+  { id:'cryptic_case',    tiers:['big'], recipe:'mystery',     requiredSlots:['companion','visitor','object'] },
+  /* Tween-tier seeds (social embarrassment + mystery with internet voice) */
+  { id:'group_chat_chaos',tiers:['tween'], recipe:'social_embarrassment', requiredSlots:['companion','visitor','place'] },
+  { id:'wrong_post',      tiers:['tween'], recipe:'social_embarrassment', requiredSlots:['companion','visitor','object'] },
+  { id:'mall_quest',      tiers:['tween'], recipe:'quest',     requiredSlots:['companion','visitor','place','food'] },
+  { id:'school_mystery',  tiers:['tween'], recipe:'mystery',   requiredSlots:['companion','visitor','place'] },
 ];
 
 /* ================================================================
@@ -592,6 +667,12 @@ const V2_RECIPES = {
     id: 'bureaucracy',
     beats: ['paperwork', 'impossible_rule', 'loophole', 'stamp', 'bedtime_landing'],
   },
+  /* Segment C — tween-targeted recipe */
+  social_embarrassment: {
+    // setup → mistake → witnesses → spiral → tiny redemption
+    id: 'social_embarrassment',
+    beats: ['ordinary_setup', 'public_mistake', 'witnesses', 'spiral', 'bedtime_landing'],
+  },
 };
 
 /* ================================================================
@@ -604,79 +685,79 @@ const V2_BEATS = [
   /* ARRIVAL — sets up the premise, introduces companion.
      Style note: companions are introduced with the article ("a dragon") and afterward
      referenced with "the" form ("the dragon nodded") — matches storybook convention. */
-  { id:'a1', beatType:'arrival', tiers:['kid'], requiredSlots:['kid','companion','place'],
+  { id:'a1', beatType:'arrival', tiers:['kid','big'], requiredSlots:['kid','companion','place'],
     lines: [
       '{kid.name} and {companion.articleText} headed straight to the {place.text}. Something felt off about today. {companion.TheText} kept sniffing the air {adverb.text}.',
     ] },
-  { id:'a2', beatType:'arrival', tiers:['kid'], requiredSlots:['kid','companion','sound'],
+  { id:'a2', beatType:'arrival', tiers:['kid','big'], requiredSlots:['kid','companion','sound'],
     lines: [
       '{kid.name} woke up to a {sound.text}. Just one. Then {companion.articleText} popped its head in and said, "Yeah. I heard it too."',
     ] },
-  { id:'a3', beatType:'arrival', tiers:['kid'], requiredSlots:['kid','companion','object'],
+  { id:'a3', beatType:'arrival', tiers:['kid','big'], requiredSlots:['kid','companion','object'],
     lines: [
       'There was {object.articleText} on the kitchen table. {kid.name} had not put it there. {companion.TheText} stared at it suspiciously.',
     ] },
 
   /* HELPER — companion or sidekick contributes a plan / theory */
-  { id:'h1', beatType:'helper', tiers:['kid'], requiredSlots:['companion','number'],
+  { id:'h1', beatType:'helper', tiers:['kid','big'], requiredSlots:['companion','number'],
     lines: [
       '"I have a plan," said {companion.theText}. The plan involved {number.text} steps. {kid.name} only understood three of them.',
     ] },
-  { id:'h2', beatType:'helper', tiers:['kid'], requiredSlots:['companion','adverb'],
+  { id:'h2', beatType:'helper', tiers:['kid','big'], requiredSlots:['companion','adverb'],
     lines: [
       '{companion.TheText} nodded {adverb.text}. "Trust me," it said. {kid.name} did not, but also did not have a better plan.',
     ] },
-  { id:'h3', beatType:'helper', tiers:['kid'], requiredSlots:['sidekick','companion'],
+  { id:'h3', beatType:'helper', tiers:['kid','big'], requiredSlots:['sidekick','companion'],
     lines: [
       '{sidekick.cap} arrived with a notebook. "Step one," they announced. "Find {companion.articleText}." {companion.TheText} was already there. "Oh," said {sidekick.lc}. "Step one: done."',
     ] },
 
   /* OBSTACLE — a visitor / a problem complicates things */
-  { id:'o1', beatType:'obstacle', tiers:['kid'], requiredSlots:['kid','visitor','object'],
+  { id:'o1', beatType:'obstacle', tiers:['kid','big'], requiredSlots:['kid','visitor','object'],
     lines: [
       '{visitor.articleText} appeared out of nowhere holding {object.articleText}. "I have terms," {visitor.theText} announced. {kid.name} had not agreed to any terms.',
     ] },
-  { id:'o2', beatType:'obstacle', tiers:['kid'], requiredSlots:['kid','visitor','rule'],
+  { id:'o2', beatType:'obstacle', tiers:['kid','big'], requiredSlots:['kid','visitor','rule'],
     lines: [
       '{visitor.TheText} blocked the way. "You know the rule," it said. "{rule.text}." {kid.name} did not know that rule. {kid.name} had broken it on purpose anyway.',
     ] },
-  { id:'o3', beatType:'obstacle', tiers:['kid'], requiredSlots:['kid','visitor','sound','adverb'],
+  { id:'o3', beatType:'obstacle', tiers:['kid','big'], requiredSlots:['kid','visitor','sound','adverb'],
     lines: [
       '"{sound.text}!" said {visitor.theText} {adverb.text}. {kid.name} stopped. That was the loudest "{sound.text}" {kid.name} had ever heard.',
     ] },
 
   /* DISCOVERY — the twist / weird prize */
-  { id:'d1', beatType:'discovery', tiers:['kid'], requiredSlots:['kid','object','liquid'],
+  { id:'d1', beatType:'discovery', tiers:['kid','big'], requiredSlots:['kid','object','liquid'],
     lines: [
       'Inside {object.articleText}: {liquid.text}. {kid.name} did not ask why. Nobody answered anyway.',
     ] },
-  { id:'d2', beatType:'discovery', tiers:['kid'], requiredSlots:['companion','number','food'],
+  { id:'d2', beatType:'discovery', tiers:['kid','big'], requiredSlots:['companion','number','food'],
     lines: [
       'It turned out there were {number.text} {food.plural} hidden under the rug the whole time. {companion.TheText} looked guilty.',
     ] },
-  { id:'d3', beatType:'discovery', tiers:['kid'], requiredSlots:['kid','job'],
+  { id:'d3', beatType:'discovery', tiers:['kid','big'], requiredSlots:['kid','job'],
     lines: [
       'A small certificate appeared. It announced {kid.name} as the new {job.text}. {kid.name} had not applied for this. The certificate was very official anyway.',
     ] },
 
   /* BEDTIME LANDING — cozy resolution (universal across all recipes) */
-  { id:'b1', beatType:'bedtime_landing', tiers:['kid'], requiredSlots:['kid','companion','food'],
+  { id:'b1', beatType:'bedtime_landing', tiers:['kid','big'], requiredSlots:['kid','companion','food'],
     lines: [
       'By bedtime, everyone was fed. {kid.name} ate {food.articleText}. {companion.TheText} had three. Nobody asked questions.',
     ] },
-  { id:'b2', beatType:'bedtime_landing', tiers:['kid'], requiredSlots:['kid','companion'],
+  { id:'b2', beatType:'bedtime_landing', tiers:['kid','big'], requiredSlots:['kid','companion'],
     lines: [
       '{kid.name} climbed into bed. {companion.TheText} curled up at the foot. Tomorrow, probably, more nonsense. Tonight, just sleep.',
     ] },
-  { id:'b3', beatType:'bedtime_landing', tiers:['kid'], requiredSlots:['kid','sound'],
+  { id:'b3', beatType:'bedtime_landing', tiers:['kid','big'], requiredSlots:['kid','sound'],
     lines: [
       'The last thing {kid.name} heard before falling asleep was a tiny, distant "{sound.text}." {kid.name} smiled. Goodnight.',
     ] },
-  { id:'b4', beatType:'bedtime_landing', tiers:['kid'], requiredSlots:['kid','companion','place'],
+  { id:'b4', beatType:'bedtime_landing', tiers:['kid','big'], requiredSlots:['kid','companion','place'],
     lines: [
-      '{kid.name} and {companion.TheText} walked back from the {place.text} in comfortable silence. Today had been a lot. Tomorrow could wait.',
+      '{kid.name} and {companion.theText} walked back from the {place.text} in comfortable silence. Today had been a lot. Tomorrow could wait.',
     ] },
-  { id:'b5', beatType:'bedtime_landing', tiers:['kid'], requiredSlots:['kid','companion','object'],
+  { id:'b5', beatType:'bedtime_landing', tiers:['kid','big'], requiredSlots:['kid','companion','object'],
     lines: [
       'On the way home, {kid.name} tucked {object.articleText} into a pocket for safekeeping. {companion.TheText} approved.',
     ] },
@@ -684,35 +765,35 @@ const V2_BEATS = [
   /* ============================================================
      Segment B — Mystery recipe beats
      ============================================================ */
-  { id:'m_clue1', beatType:'strange_clue', tiers:['kid'], requiredSlots:['kid','object','companion'],
+  { id:'m_clue1', beatType:'strange_clue', tiers:['kid','big'], requiredSlots:['kid','object','companion'],
     lines: [
       '{kid.name} found {object.articleText} where it absolutely should not be. {companion.TheText} sniffed it suspiciously.',
     ] },
-  { id:'m_clue2', beatType:'strange_clue', tiers:['kid'], requiredSlots:['kid','place','sound'],
+  { id:'m_clue2', beatType:'strange_clue', tiers:['kid','big'], requiredSlots:['kid','place','sound'],
     lines: [
       'Something strange was happening at the {place.text}. A faint "{sound.text}" kept coming from the corner. Nobody could find the source.',
     ] },
-  { id:'m_suspect1', beatType:'suspect', tiers:['kid'], requiredSlots:['kid','visitor','adverb'],
+  { id:'m_suspect1', beatType:'suspect', tiers:['kid','big'], requiredSlots:['kid','visitor','adverb'],
     lines: [
       '{visitor.TheText} was loitering nearby, eyeing the scene {adverb.text}. {kid.name} narrowed their eyes.',
     ] },
-  { id:'m_suspect2', beatType:'suspect', tiers:['kid'], requiredSlots:['companion','visitor'],
+  { id:'m_suspect2', beatType:'suspect', tiers:['kid','big'], requiredSlots:['companion','visitor'],
     lines: [
       '"It was {visitor.theText}," whispered {companion.theText}. "I have a feeling. A strong feeling."',
     ] },
-  { id:'m_false1', beatType:'false_solution', tiers:['kid'], requiredSlots:['kid','visitor','number'],
+  { id:'m_false1', beatType:'false_solution', tiers:['kid','big'], requiredSlots:['kid','visitor','number'],
     lines: [
       '{kid.name} accused {visitor.theText} loudly. {visitor.TheText} produced {number.text} alibis. All of them were extremely fake. But somehow they worked.',
     ] },
-  { id:'m_false2', beatType:'false_solution', tiers:['kid'], requiredSlots:['companion','adverb'],
+  { id:'m_false2', beatType:'false_solution', tiers:['kid','big'], requiredSlots:['companion','adverb'],
     lines: [
       '{companion.TheText} nodded {adverb.text}. "Wait. That cannot be right." Everyone paused. {companion.TheText} was, as usual, correct.',
     ] },
-  { id:'m_culprit1', beatType:'culprit', tiers:['kid'], requiredSlots:['kid','companion','food'],
+  { id:'m_culprit1', beatType:'culprit', tiers:['kid','big'], requiredSlots:['kid','companion','food'],
     lines: [
       'Turns out it was {companion.theText} all along. {companion.TheText} had hidden the {food.text} for emergency snack purposes. {kid.name} sighed.',
     ] },
-  { id:'m_culprit2', beatType:'culprit', tiers:['kid'], requiredSlots:['kid','object','liquid'],
+  { id:'m_culprit2', beatType:'culprit', tiers:['kid','big'], requiredSlots:['kid','object','liquid'],
     lines: [
       'The real culprit: {object.articleText} full of {liquid.text}. Nobody had put it there. Nobody had asked for it. It was just there.',
     ] },
@@ -720,35 +801,35 @@ const V2_BEATS = [
   /* ============================================================
      Segment B — Trial recipe beats
      ============================================================ */
-  { id:'t_rule1', beatType:'rule_setup', tiers:['kid'], requiredSlots:['kid','rule'],
+  { id:'t_rule1', beatType:'rule_setup', tiers:['kid','big'], requiredSlots:['kid','rule'],
     lines: [
       'Everyone knew the rule: "{rule.text}." {kid.name} knew it. The neighbors knew it. The neighbors\' pets knew it. It was a famous rule.',
     ] },
-  { id:'t_rule2', beatType:'rule_setup', tiers:['kid'], requiredSlots:['kid','rule','companion'],
+  { id:'t_rule2', beatType:'rule_setup', tiers:['kid','big'], requiredSlots:['kid','rule','companion'],
     lines: [
       'Today, {kid.name} broke the rule. "{rule.text}" — broken. On purpose. {companion.TheText} stared. This was new territory.',
     ] },
-  { id:'t_judge1', beatType:'judge_arrives', tiers:['kid'], requiredSlots:['visitor','object'],
+  { id:'t_judge1', beatType:'judge_arrives', tiers:['kid','big'], requiredSlots:['visitor','object'],
     lines: [
       '{visitor.TheText} appeared holding {object.articleText}. "I am here to judge," {visitor.theText} announced. Nobody had requested a judge.',
     ] },
-  { id:'t_judge2', beatType:'judge_arrives', tiers:['kid'], requiredSlots:['visitor','adverb'],
+  { id:'t_judge2', beatType:'judge_arrives', tiers:['kid','big'], requiredSlots:['visitor','adverb'],
     lines: [
       'A gavel banged {adverb.text}. {visitor.TheText} entered the room as if everyone had been waiting. "Court is in session," {visitor.theText} said.',
     ] },
-  { id:'t_evidence1', beatType:'silly_evidence', tiers:['kid'], requiredSlots:['kid','number','food'],
+  { id:'t_evidence1', beatType:'silly_evidence', tiers:['kid','big'], requiredSlots:['kid','number','food'],
     lines: [
       'Exhibit A: {number.text} {food.plural}. Exhibit B: a feather. Exhibit C: another feather. The case was, technically, ridiculous.',
     ] },
-  { id:'t_evidence2', beatType:'silly_evidence', tiers:['kid'], requiredSlots:['companion','object'],
+  { id:'t_evidence2', beatType:'silly_evidence', tiers:['kid','big'], requiredSlots:['companion','object'],
     lines: [
       '{companion.TheText} produced {object.articleText} as evidence. Nobody knew what it proved. {companion.TheText} did not elaborate.',
     ] },
-  { id:'t_verdict1', beatType:'verdict', tiers:['kid'], requiredSlots:['kid','visitor','job'],
+  { id:'t_verdict1', beatType:'verdict', tiers:['kid','big'], requiredSlots:['kid','visitor','job'],
     lines: [
       '{visitor.TheText} declared {kid.name} the new {job.text}. This was the most surprising verdict possible. {kid.name} accepted it anyway.',
     ] },
-  { id:'t_verdict2', beatType:'verdict', tiers:['kid'], requiredSlots:['kid','food'],
+  { id:'t_verdict2', beatType:'verdict', tiers:['kid','big'], requiredSlots:['kid','food'],
     lines: [
       'The court ruled in favor of snacks. {kid.name} was sentenced to eat {food.articleText}. Justice was served. So were the {food.plural}.',
     ] },
@@ -756,35 +837,35 @@ const V2_BEATS = [
   /* ============================================================
      Segment B — Performance recipe beats
      ============================================================ */
-  { id:'p_practice1', beatType:'practice', tiers:['kid'], requiredSlots:['kid','companion','adverb'],
+  { id:'p_practice1', beatType:'practice', tiers:['kid','big'], requiredSlots:['kid','companion','adverb'],
     lines: [
       '{kid.name} and {companion.theText} practiced {adverb.text}. The act was almost ready. Almost.',
     ] },
-  { id:'p_practice2', beatType:'practice', tiers:['kid'], requiredSlots:['kid','sound','companion'],
+  { id:'p_practice2', beatType:'practice', tiers:['kid','big'], requiredSlots:['kid','sound','companion'],
     lines: [
       'Step one: yell "{sound.text}". Step two: spin. Step three: bow. {kid.name} rehearsed all three. {companion.TheText} offered notes.',
     ] },
-  { id:'p_disaster1', beatType:'disaster', tiers:['kid'], requiredSlots:['kid','object'],
+  { id:'p_disaster1', beatType:'disaster', tiers:['kid','big'], requiredSlots:['kid','object'],
     lines: [
       'Then everything went wrong. {object.TheText} fell. The lights flickered. {kid.name} froze. The audience leaned forward.',
     ] },
-  { id:'p_disaster2', beatType:'disaster', tiers:['kid'], requiredSlots:['companion','sound'],
+  { id:'p_disaster2', beatType:'disaster', tiers:['kid','big'], requiredSlots:['companion','sound'],
     lines: [
       'Three seconds in, {companion.theText} let out a confused "{sound.text}." This was not in the script. There was no script.',
     ] },
-  { id:'p_improv1', beatType:'improvisation', tiers:['kid'], requiredSlots:['kid','adverb','companion'],
+  { id:'p_improv1', beatType:'improvisation', tiers:['kid','big'], requiredSlots:['kid','adverb','companion'],
     lines: [
       '{kid.name} improvised {adverb.text}. {companion.TheText} followed along, mostly. It was beautiful. It was also wrong.',
     ] },
-  { id:'p_improv2', beatType:'improvisation', tiers:['kid'], requiredSlots:['kid','sound'],
+  { id:'p_improv2', beatType:'improvisation', tiers:['kid','big'], requiredSlots:['kid','sound'],
     lines: [
       '{kid.name} yelled "{sound.text}!" four more times for good measure. The audience interpreted this as art.',
     ] },
-  { id:'p_applause1', beatType:'applause', tiers:['kid'], requiredSlots:['kid','visitor','number'],
+  { id:'p_applause1', beatType:'applause', tiers:['kid','big'], requiredSlots:['kid','visitor','number'],
     lines: [
       'The applause was thunderous. {visitor.TheText} demanded {number.text} encores. {kid.name} did one. The visitor pretended it counted as all of them.',
     ] },
-  { id:'p_applause2', beatType:'applause', tiers:['kid'], requiredSlots:['kid','companion'],
+  { id:'p_applause2', beatType:'applause', tiers:['kid','big'], requiredSlots:['kid','companion'],
     lines: [
       'Standing ovation. {kid.name} bowed. {companion.TheText} bowed too, several times. Some bows were sincere. Some were just for show.',
     ] },
@@ -792,37 +873,159 @@ const V2_BEATS = [
   /* ============================================================
      Segment B — Bureaucracy recipe beats
      ============================================================ */
-  { id:'bu_paper1', beatType:'paperwork', tiers:['kid'], requiredSlots:['kid','visitor','object'],
+  { id:'bu_paper1', beatType:'paperwork', tiers:['kid','big'], requiredSlots:['kid','visitor','object'],
     lines: [
       '{visitor.TheText} arrived with {object.articleText} and a stack of paperwork. "Sign here. And here. And especially here," {visitor.theText} said.',
     ] },
-  { id:'bu_paper2', beatType:'paperwork', tiers:['kid'], requiredSlots:['kid','number','object'],
+  { id:'bu_paper2', beatType:'paperwork', tiers:['kid','big'], requiredSlots:['kid','number','object'],
     lines: [
       'The form was {number.text} pages long. It demanded {object.articleText}. {kid.name} did not have one. The form did not care.',
     ] },
-  { id:'bu_rule1', beatType:'impossible_rule', tiers:['kid'], requiredSlots:['visitor','rule'],
+  { id:'bu_rule1', beatType:'impossible_rule', tiers:['kid','big'], requiredSlots:['visitor','rule'],
     lines: [
       '"Rule seventeen-B," announced {visitor.theText}. "{rule.text}." It was an old rule. Nobody remembered who made it. The rule did not care.',
     ] },
-  { id:'bu_rule2', beatType:'impossible_rule', tiers:['kid'], requiredSlots:['kid','rule','companion'],
+  { id:'bu_rule2', beatType:'impossible_rule', tiers:['kid','big'], requiredSlots:['kid','rule','companion'],
     lines: [
       'The official rule was: "{rule.text}." {kid.name} did not understand. Neither did {companion.theText}. Neither did anyone, probably.',
     ] },
-  { id:'bu_loop1', beatType:'loophole', tiers:['kid'], requiredSlots:['kid','companion','adverb'],
+  { id:'bu_loop1', beatType:'loophole', tiers:['kid','big'], requiredSlots:['kid','companion','adverb'],
     lines: [
       '{kid.name} and {companion.theText} found a loophole. They walked through it {adverb.text}. {visitor.TheText} was furious. Or possibly impressed. Hard to tell.',
     ] },
-  { id:'bu_loop2', beatType:'loophole', tiers:['kid'], requiredSlots:['kid','object'],
+  { id:'bu_loop2', beatType:'loophole', tiers:['kid','big'], requiredSlots:['kid','object'],
     lines: [
       'Subsection 4 of paragraph 12 mentioned {object.articleText}. {kid.name} produced one. The room fell silent. This had not been anticipated.',
     ] },
-  { id:'bu_stamp1', beatType:'stamp', tiers:['kid'], requiredSlots:['kid','visitor','job'],
+  { id:'bu_stamp1', beatType:'stamp', tiers:['kid','big'], requiredSlots:['kid','visitor','job'],
     lines: [
       'A stamp came down. THUNK. {kid.name} was now officially the new {job.text}. {visitor.TheText} did not look pleased. The stamp had spoken.',
     ] },
-  { id:'bu_stamp2', beatType:'stamp', tiers:['kid'], requiredSlots:['kid','food'],
+  { id:'bu_stamp2', beatType:'stamp', tiers:['kid','big'], requiredSlots:['kid','food'],
     lines: [
       'Approved. With conditions. The conditions involved {food.text}. {kid.name} agreed to all of them. The paperwork was filed in triplicate.',
+    ] },
+
+  /* ============================================================
+     Segment C — Tween (ages 11-13) beat library
+     Voice: deadpan, internet-flavored, social embarrassment, school
+     pressure, group chats, "nobody asked," "it was a vibe."
+     ============================================================ */
+
+  /* ORDINARY SETUP — innocuous opening for social_embarrassment */
+  { id:'tw_setup1', beatType:'ordinary_setup', tiers:['tween'], requiredSlots:['kid','place'],
+    lines: [
+      'It was a normal Tuesday. {kid.name} was at the {place.text}. Nothing was supposed to happen. Nothing ever does, usually. Today: different.',
+    ] },
+  { id:'tw_setup2', beatType:'ordinary_setup', tiers:['tween'], requiredSlots:['kid','companion'],
+    lines: [
+      '{kid.name} was, by all reasonable definitions, minding their own business. {companion.TheText} was nearby, doing whatever {companion.text}s do. Then it began.',
+    ] },
+  { id:'tw_setup3', beatType:'ordinary_setup', tiers:['tween'], requiredSlots:['kid','object'],
+    lines: [
+      '{kid.name} was holding {object.articleText}. This was, retrospectively, a mistake. At the time, it seemed fine.',
+    ] },
+
+  /* PUBLIC MISTAKE — the embarrassing thing */
+  { id:'tw_mistake1', beatType:'public_mistake', tiers:['tween'], requiredSlots:['kid','sound'],
+    lines: [
+      '{kid.name} yelled "{sound.text}" at full volume. In a quiet place. In front of everyone. It echoed. It kept echoing.',
+    ] },
+  { id:'tw_mistake2', beatType:'public_mistake', tiers:['tween'], requiredSlots:['kid','visitor'],
+    lines: [
+      '{kid.name} tripped. Not a regular trip. The kind of trip that becomes a story. {visitor.TheText} watched the whole thing.',
+    ] },
+  { id:'tw_mistake3', beatType:'public_mistake', tiers:['tween'], requiredSlots:['kid','object'],
+    lines: [
+      'And then {object.theText} went flying. In slow motion. Multiple witnesses confirmed this later. There was, regrettably, a clear arc.',
+    ] },
+
+  /* WITNESSES — the audience reacts */
+  { id:'tw_witness1', beatType:'witnesses', tiers:['tween'], requiredSlots:['kid','number'],
+    lines: [
+      'Approximately {number.text} people were there. All of them saw. None of them looked away. {kid.name} considered moving to a new town.',
+    ] },
+  { id:'tw_witness2', beatType:'witnesses', tiers:['tween'], requiredSlots:['visitor','adverb'],
+    lines: [
+      '{visitor.TheText} took out their phone {adverb.text}. This was now documentation. There would, inevitably, be a group chat.',
+    ] },
+  { id:'tw_witness3', beatType:'witnesses', tiers:['tween'], requiredSlots:['kid'],
+    lines: [
+      'The silence afterward had weight. It was that specific kind of quiet that exists only after a public mistake. {kid.name} could hear their own heartbeat.',
+    ] },
+
+  /* SPIRAL — overthinking, escalation */
+  { id:'tw_spiral1', beatType:'spiral', tiers:['tween'], requiredSlots:['kid','number'],
+    lines: [
+      'For approximately {number.text} hours, {kid.name} thought about it. Then thought about it some more. Then composed seven different texts and sent none.',
+    ] },
+  { id:'tw_spiral2', beatType:'spiral', tiers:['tween'], requiredSlots:['kid','companion'],
+    lines: [
+      '{kid.name} explained the whole thing to {companion.theText} in detail. {companion.TheText} blinked. {companion.TheText} did not, in any meaningful sense, care. This was somehow worse.',
+    ] },
+  { id:'tw_spiral3', beatType:'spiral', tiers:['tween'], requiredSlots:['kid','visitor'],
+    lines: [
+      'By bedtime, {kid.name} had constructed an entire imaginary conversation with {visitor.theText}. None of it had happened. All of it was now canon.',
+    ] },
+
+  /* BEDTIME LANDING — tween-flavored, more deadpan */
+  { id:'tw_bed1', beatType:'bedtime_landing', tiers:['tween'], requiredSlots:['kid'],
+    lines: [
+      'In the morning, nobody mentioned it. Nobody. Not once. This was, somehow, more suspicious. {kid.name} chose to accept the silence.',
+    ] },
+  { id:'tw_bed2', beatType:'bedtime_landing', tiers:['tween'], requiredSlots:['kid','companion'],
+    lines: [
+      '{kid.name} pulled the blanket over their head. {companion.TheText} settled on top. Tomorrow was tomorrow. Tonight was officially over.',
+    ] },
+  { id:'tw_bed3', beatType:'bedtime_landing', tiers:['tween'], requiredSlots:['kid','sound'],
+    lines: [
+      'One last group chat ping: "{sound.text}." Cryptic. Unprompted. Iconic. {kid.name} did not respond. {kid.name} fell asleep instead.',
+    ] },
+
+  /* Extra tween-flavored beats for OTHER recipes (mystery + quest), tagged tween-only */
+  { id:'tw_clue1', beatType:'strange_clue', tiers:['tween'], requiredSlots:['kid','object','place'],
+    lines: [
+      '{object.TheText} was sitting on a bench at the {place.text}. Nobody had put it there. Nobody was claiming it. It had, somehow, vibes.',
+    ] },
+  { id:'tw_obstacle1', beatType:'obstacle', tiers:['tween'], requiredSlots:['kid','visitor','adverb'],
+    lines: [
+      '{visitor.TheText} appeared {adverb.text} and asked a question {kid.name} had absolutely no answer to. There was no easy way out of this conversation.',
+    ] },
+  { id:'tw_helper1', beatType:'helper', tiers:['tween'], requiredSlots:['kid','companion'],
+    lines: [
+      '{companion.TheText} offered advice in the form of a single, ambiguous shrug. {kid.name} interpreted it as encouragement. It probably was not.',
+    ] },
+
+  /* Tween Quest beats — completes the recipe so mall_quest seed generates reliably */
+  { id:'tw_arrival1', beatType:'arrival', tiers:['tween'], requiredSlots:['kid','companion','place'],
+    lines: [
+      '{kid.name} and {companion.theText} ended up at the {place.text}. Not on purpose. Not really an accident either. The boundary was, like, blurry.',
+    ] },
+  { id:'tw_arrival2', beatType:'arrival', tiers:['tween'], requiredSlots:['kid','sound','companion'],
+    lines: [
+      'Three blocks from home, {kid.name} heard a distinct "{sound.text}." {companion.TheText} heard it too. The day was now, technically, an adventure.',
+    ] },
+  { id:'tw_discovery1', beatType:'discovery', tiers:['tween'], requiredSlots:['kid','object','liquid'],
+    lines: [
+      '{object.TheText} contained {liquid.text}. Nobody explained. {kid.name} accepted this on principle.',
+    ] },
+  { id:'tw_discovery2', beatType:'discovery', tiers:['tween'], requiredSlots:['kid','number','food'],
+    lines: [
+      'Behind the dumpster were {number.text} {food.plural}. Just sitting there. {kid.name} did not eat them. {kid.name} did not not eat them either.',
+    ] },
+
+  /* Tween Mystery beats — completes the recipe for school_mystery seed */
+  { id:'tw_suspect1', beatType:'suspect', tiers:['tween'], requiredSlots:['kid','visitor'],
+    lines: [
+      '{visitor.TheText} had a complicated look on their face. {kid.name} could not parse it. The look kept happening anyway.',
+    ] },
+  { id:'tw_false1', beatType:'false_solution', tiers:['tween'], requiredSlots:['kid','companion','adverb'],
+    lines: [
+      '{kid.name} arrived at a confident conclusion. {companion.TheText} stared {adverb.text}. The conclusion was, in retrospect, very wrong.',
+    ] },
+  { id:'tw_culprit1', beatType:'culprit', tiers:['tween'], requiredSlots:['kid','visitor','object'],
+    lines: [
+      'It was {visitor.theText}. Of course it was. {visitor.TheText} had been holding {object.articleText} the whole time. {kid.name} sighed at the sky.',
     ] },
 ];
 
@@ -830,8 +1033,13 @@ const V2_BEATS = [
    ENGINE — generateStoryV2
    ================================================================ */
 function generateStoryV2(name, picks, age) {
-  // Phase 1: kid tier only (age 6-7). Other tiers return null to trigger v1 fallback.
-  if (age < 6 || age > 7) return null;
+  // Phase 1: kid only. Segment C (v1.22.0): big + tween added.
+  // Returns null for unsupported tiers (tot/little still on v1 — Segment D adds them).
+  let tier;
+  if (age >= 6 && age <= 7)        tier = 'kid';
+  else if (age >= 8 && age <= 10)  tier = 'big';
+  else if (age >= 11 && age <= 13) tier = 'tween';
+  else                              return null;
 
   const rawPick = arr => arr[Math.floor(Math.random() * arr.length)];
 
@@ -867,8 +1075,10 @@ function generateStoryV2(name, picks, age) {
     companion, visitor, place, food, object, sound, adverb, number, liquid, job, rule,
   };
 
-  // Pick a story seed compatible with kid tier.
-  const seed   = rawPick(V2_SEEDS.filter(s => s.tiers.includes('kid')));
+  // Pick a story seed compatible with the resolved tier.
+  const compatibleSeeds = V2_SEEDS.filter(s => s.tiers.includes(tier));
+  if (compatibleSeeds.length === 0) return null;
+  const seed   = rawPick(compatibleSeeds);
   const recipe = V2_RECIPES[seed.recipe];
   if (!recipe) return null;
 
@@ -877,7 +1087,7 @@ function generateStoryV2(name, picks, age) {
   function eligibleFor(beatType) {
     return V2_BEATS.filter(b => {
       if (b.beatType !== beatType) return false;
-      if (!b.tiers.includes('kid')) return false;
+      if (!b.tiers.includes(tier)) return false;
       return b.requiredSlots.every(slotName => slots[slotName] != null);
     });
   }

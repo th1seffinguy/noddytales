@@ -4,6 +4,69 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v1.22.0 — 2026-05-15
+**v2 engine — Phase 3 (Segment C): big + tween tiers**
+
+Third segment of the v2.0 architecture rebuild. v2 engine now covers **3 of 5 tiers**: kid (6–7), big (8–10), tween (11–13). Tot and little still on v1 — Segment D adds them.
+
+### Big tier (8–10)
+Re-uses existing Quest / Mystery / Trial / Bureaucracy recipes. The dry mock-bureaucratic voice ("Approved. With conditions. The conditions involved hot dogs.") that the v1 templates established for big translates cleanly to v2 beats. Tier eligibility on existing kid beats was bulk-extended to `['kid','big']` (58 beats). 3 new big-tier-specific seeds added.
+
+### Tween tier (11–13)
+Distinct voice per spec: "social embarrassment, school pressure, group chats, internet voice, deadpan surrealism." Added a tween-tailored recipe:
+
+**New recipe: social_embarrassment** — beat sequence: `ordinary_setup → public_mistake → witnesses → spiral → bedtime_landing`
+
+Mirrors the spec's tween examples ("Nobody had asked", "It was, somehow, a vibe", "The group chat became a small, beloved religion").
+
+### Library additions
+
+| Category | Segment B | Segment C | Δ |
+|---|---:|---:|---:|
+| Companions | 20 | **25** | +5 (crow, hamster, chameleon, raccoon, red panda) |
+| Visitors   | 20 | **27** | +7 (stressed barista, feral librarian, wifi ghost, cryptid, sentient vending machine, mysterious substitute teacher, group chat) |
+| Places     | 20 | **30** | +10 (abandoned mall, skatepark, parking garage, arcade, bus stop, convenience store, empty school hallway, back of the bus, slightly wrong neighborhood, rooftop at night) |
+
+### Seeds + Beats + Recipes
+
+| Type | v1.21.0 | v1.22.0 |
+|---|---:|---:|
+| Recipes | 5 | **6** |
+| Seeds | 10 | **17** |
+| Beats | 49 | **74** |
+
+### Smoke test (50 generations per supported tier)
+
+| Tier | Non-null | Grammar errs | Unresolved | Unique titles |
+|---|---:|---:|---:|---:|
+| kid (6–7) | 50/50 | 0 | 0 | 18 |
+| big (8–10) | 50/50 | 0 | 0 | 21 |
+| tween (11–13) | 50/50 | 0 | 0 | 13 |
+| tot (2–3) | n/a — null (v1 fallback) | — | — | — |
+| little (4–5) | n/a — null (v1 fallback) | — | — | — |
+
+### Sample (big age 9, Bureaucracy)
+
+> **Cole's Official Disaster**
+> The knight arrived with a suspicious envelope and a stack of paperwork. "Sign here. And here. And especially here," the knight said.
+> "Rule seventeen-B," announced the knight. "never run with a clipboard." It was an old rule. Nobody remembered who made it. The rule did not care.
+> Cole and the dragon found a loophole. They walked through it with concerning enthusiasm. The knight was furious. Or possibly impressed. Hard to tell.
+> A stamp came down. THUNK. Cole was now officially the new chief sock investigator. The knight did not look pleased. The stamp had spoken.
+> On the way home, Cole tucked a suspicious envelope into a pocket for safekeeping. The dragon approved.
+
+### Sample (tween age 12, Social Embarrassment)
+
+> **Ava vs the Knight**
+> The whistle was sitting on a bench at the desert. Nobody had put it there. Nobody was claiming it. It had, somehow, vibes.
+> The knight had a complicated look on their face. Ava could not parse it. The look kept happening anyway.
+> Ava arrived at a confident conclusion. The dragon stared for unclear reasons. The conclusion was, in retrospect, very wrong.
+> It was the knight. Of course it was. The knight had been holding a whistle the whole time. Ava sighed at the sky.
+> Ava pulled the blanket over their head. The dragon settled on top. Tomorrow was tomorrow. Tonight was officially over.
+
+Next segment (v1.23.0): tot + little — the spec recommends building these LAST because they need restraint (shorter sentences, more repetition, lower absurdity stack).
+
+---
+
 ## v1.21.0 — 2026-05-15
 **v2 engine — Phase 2 (Segment B): kid library expansion + 4 new recipes**
 

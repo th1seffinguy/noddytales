@@ -4,7 +4,7 @@
    Story template logic lives in index.html (buildStory).
    ================================================================ */
 
-const APP_VERSION = 'v1.21.0';
+const APP_VERSION = 'v1.22.0';
 
 /* Verb form lookup — maps each past-tense move-pool entry to its base + gerund forms.
    Templates use moveBase()/moveGerund() to derive the right form for the syntactic slot
