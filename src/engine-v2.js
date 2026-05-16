@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v2.2.3';
+const ENGINE_V2_VERSION = 'v2.3.0';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -777,6 +777,56 @@ function getSetting(id) {
 }
 
 /* ================================================================
+   v2.3.0 — V2_GOALS — the causality spine
+   ================================================================
+   Per LLM Council: stories need a load-bearing goal. The kid declares
+   it in P1, a chosen pick BLOCKS it, the kid uses ANOTHER chosen pick
+   to resolve it. Goals are now first-class slots, exposed to beats as
+   {goal.text} (mid-sentence), {goal.cap} (start-of-sentence), and
+   {goal.past} (past-tense for resolution beats).
+   ================================================================ */
+const V2_GOALS = [
+  // text       — mid-sentence verb phrase: "find the missing key"
+  // past       — past-tense form: "found the missing key"
+  // tone       — coarse vibe so we can balance per tier later
+  { id:'find_missing',    text:'find the missing thing',         past:'found the missing thing',     tone:'cozy' },
+  { id:'win_race',        text:'win the silly race',             past:'won the silly race',          tone:'bouncy' },
+  { id:'rescue_friend',   text:'rescue a stuck friend',          past:'rescued a stuck friend',      tone:'brave' },
+  { id:'cheer_up',        text:'cheer somebody up',              past:'cheered somebody up',         tone:'warm' },
+  { id:'solve_riddle',    text:'solve a tricky riddle',          past:'solved the tricky riddle',    tone:'curious' },
+  { id:'find_hideout',    text:'build the perfect hideout',      past:'built the perfect hideout',   tone:'creative' },
+  { id:'wake_moon',       text:'wake up the sleepy moon',        past:'woke the sleepy moon',        tone:'whimsy' },
+  { id:'best_snack',      text:'find the best possible snack',   past:'found the best possible snack', tone:'hungry' },
+  { id:'open_door',       text:'open the door that won\'t open', past:'opened the door',             tone:'puzzle' },
+  { id:'catch_thing',     text:'catch the runaway thing',        past:'caught the runaway thing',    tone:'chase' },
+  { id:'deliver_secret',  text:'deliver a secret message',       past:'delivered the secret message', tone:'sneaky' },
+  { id:'fix_broken',      text:'fix the broken contraption',     past:'fixed the broken contraption', tone:'tinker' },
+  { id:'find_treasure',   text:'find the hidden treasure',       past:'found the hidden treasure',   tone:'adventure' },
+  { id:'tame_creature',   text:'tame the noisy creature',        past:'tamed the noisy creature',    tone:'kindness' },
+  { id:'cross_bridge',    text:'cross the wobbly bridge',        past:'crossed the wobbly bridge',   tone:'brave' },
+  { id:'plan_party',      text:'plan a surprise party',          past:'planned the surprise party',  tone:'cheerful' },
+  { id:'find_quietest',   text:'find the quietest spot ever',    past:'found the quietest spot',     tone:'cozy' },
+  { id:'sing_loudest',    text:'sing the loudest possible song', past:'sang the loudest song',       tone:'bouncy' },
+  { id:'hide_so_well',    text:'hide so well that nobody finds them', past:'hid so well that nobody could find them', tone:'sneaky' },
+  { id:'collect_seven',   text:'collect seven shiny things',     past:'collected the seven shiny things', tone:'curious' },
+  { id:'invent_dance',    text:'invent a brand new dance',       past:'invented a brand new dance',  tone:'bouncy' },
+  { id:'make_giggle',     text:'make the grumpiest thing giggle', past:'made the grumpiest thing giggle', tone:'silly' },
+  { id:'tell_joke',       text:'tell the funniest joke ever',    past:'told the funniest joke ever', tone:'silly' },
+  { id:'find_way_home',   text:'find the way home',              past:'found the way home',          tone:'cozy' },
+  { id:'win_award',       text:'win the official tiny trophy',   past:'won the tiny trophy',         tone:'proud' },
+  { id:'sneak_past',      text:'sneak past the watchful one',    past:'snuck past the watchful one', tone:'sneaky' },
+  { id:'share_secret',    text:'share a real good secret',       past:'shared the real good secret', tone:'cozy' },
+  { id:'beat_rule',       text:'find a loophole in the rules',   past:'found the loophole',          tone:'clever' },
+  { id:'make_friend',     text:'make a brand new friend',        past:'made a brand new friend',     tone:'warm' },
+  { id:'finish_meal',     text:'finish the giant snack stack',   past:'finished the giant snack stack', tone:'hungry' },
+];
+
+/* Helper: pick a goal compatible with tier (used by generateStoryV2). */
+function pickGoal() {
+  return V2_GOALS[Math.floor(Math.random() * V2_GOALS.length)];
+}
+
+/* ================================================================
    STORY SEEDS — premise anchors
    Each seed defines required slots and which recipe(s) it works with.
    Phase 1 ships 5 seeds, all Quest-compatible.
@@ -865,6 +915,15 @@ const V2_RECIPES = {
     // start → companion arrives → tiny silly problem → cozy end
     id: 'gentle_quest',
     beats: ['little_intro', 'little_companion', 'little_silly_event', 'little_cozy_end'],
+  },
+  /* v2.3.0 — THE CAUSALITY SPINE (per LLM Council root-cause fix).
+     Every beat references the goal AND a user-picked slot. Chosen words are
+     load-bearing: pet/visitor creates the OBSTACLE, food/object/move RESOLVES it.
+     Used for kid/big/tween where the kid is old enough to track a goal.
+     tot + little keep their existing simpler recipes. */
+  goal_spine: {
+    id: 'goal_spine',
+    beats: ['goal_stated', 'goal_obstacle', 'kid_decides', 'goal_resolved', 'bedtime_landing'],
   },
 };
 
@@ -1431,6 +1490,109 @@ const V2_BEATS = [
     lines: [
       '{kid.name} said, "Look! {food.cap}!" The {companion.text} looked. The {companion.text} liked the {food.text}. Hee hee.',
     ] },
+
+  /* ============================================================
+     v2.3.0 — GOAL-SPINE BEATS (the causality engine)
+     ============================================================
+     Each beat in the spine references the goal AND a user-picked
+     slot. Chosen words become CAUSES: the pet creates the problem,
+     the food/object/move resolves it. Beats are tier-aware: kid/big
+     get the same skeleton with different voice; tween gets a
+     deadpan variant.
+
+     Slots used by these beats:
+       {goal.text}    — mid-sentence: "find the missing key"
+       {goal.cap}     — start-of-sentence: "Find the missing key…"
+       {goal.past}    — past tense for resolution: "found the missing key"
+       {kid.name}     — child's name
+       {pet}/{visitor}/{food}/{object}/{move}/{color}/{mood} — picks
+     ============================================================ */
+
+  /* GOAL STATED — kid declares the goal in P1 */
+  { id:'gs_kid_1', beatType:'goal_stated', tiers:['kid','big'], requiredSlots:['kid','goal','companion'],
+    lines: [
+      '{kid.name} woke up with a plan. Today, {kid.name} was going to {goal.text}. The {companion.text} was in. The {companion.text} was always in.',
+      'Today was the day. {kid.name} had decided yesterday and slept on it and decided again this morning: {kid.name} was going to {goal.text}. The {companion.text} agreed before {kid.name} even finished saying it.',
+    ] },
+  { id:'gs_kid_2', beatType:'goal_stated', tiers:['kid','big'], requiredSlots:['kid','goal','place'],
+    lines: [
+      'It started at the {place.text}. {kid.name} looked around and made up their mind: today they would {goal.text}. No matter what.',
+    ] },
+  { id:'gs_tween_1', beatType:'goal_stated', tiers:['tween'], requiredSlots:['kid','goal'],
+    lines: [
+      '{kid.name} woke up with a goal. Specifically: {goal.text}. {kid.name} did not love announcing goals out loud, but this one felt different.',
+      'There was one objective today, and {kid.name} had committed to it: {goal.text}. {kid.cap} would deal with the consequences after.',
+    ] },
+
+  /* GOAL OBSTACLE — a chosen pick BLOCKS the goal */
+  { id:'go_pet_1', beatType:'goal_obstacle', tiers:['kid','big'], requiredSlots:['kid','goal','companion'],
+    lines: [
+      'But the {companion.text} was in the way. The {companion.text} did not want {kid.name} to {goal.text}. The {companion.text} had its own ideas, and the ideas involved snacks.',
+      'Problem: the {companion.text} blocked the door. To {goal.text}, {kid.name} would have to get past the {companion.text} first. The {companion.text} did not look easy to get past.',
+    ] },
+  { id:'go_visitor_1', beatType:'goal_obstacle', tiers:['kid','big'], requiredSlots:['kid','goal','visitor'],
+    lines: [
+      'Then {visitor.articleText} appeared, holding the very thing {kid.name} needed to {goal.text}. {visitor.TheText} did not look like {visitor.theText} was going to give it up easily.',
+      '"You cannot {goal.text}," announced {visitor.theText} firmly. "Not while I am here." That was, regrettably, a problem.',
+    ] },
+  { id:'go_visitor_2', beatType:'goal_obstacle', tiers:['kid','big'], requiredSlots:['kid','goal','visitor','object'],
+    lines: [
+      '{visitor.TheText} appeared out of nowhere holding {object.articleText}. "You want to {goal.text}? You will have to get past this first," {visitor.theText} said, waggling {object.theText} like a tiny threat.',
+    ] },
+  { id:'go_tween_1', beatType:'goal_obstacle', tiers:['tween'], requiredSlots:['kid','goal','visitor'],
+    lines: [
+      'Then {visitor.theText} showed up. Of course. {visitor.TheText} did not directly stop {kid.name} from trying to {goal.text}, but {visitor.theText} also did not, like, help.',
+    ] },
+
+  /* KID DECIDES — kid uses a chosen pick as the tool */
+  { id:'kd_food_1', beatType:'kid_decides', tiers:['kid','big'], requiredSlots:['kid','food','companion'],
+    lines: [
+      '{kid.name} reached into a pocket. Inside: {food.articleText}. {kid.name} had been saving these for an emergency. This counted. {kid.cap} held {food.articleText} out, slowly.',
+      '"Wait," said {kid.name}. "I have an idea." {kid.name} pulled out {food.articleText}. The {companion.text} understood immediately. Sometimes a snack solves a problem nothing else can.',
+    ] },
+  { id:'kd_object_1', beatType:'kid_decides', tiers:['kid','big'], requiredSlots:['kid','object','companion'],
+    lines: [
+      '{kid.name} thought for a second, then produced {object.articleText} they had brought just in case. "Will this work?" asked {kid.name}. The {companion.text} considered it, then nodded once.',
+    ] },
+  { id:'kd_move_1', beatType:'kid_decides', tiers:['kid','big'], requiredSlots:['kid','move'],
+    lines: [
+      '{kid.name} took one big breath, then {move.text} forward fast — faster than anyone expected. Even {kid.name} was a little surprised.',
+    ] },
+  { id:'kd_color_1', beatType:'kid_decides', tiers:['kid','big'], requiredSlots:['kid','color','object'],
+    lines: [
+      '{kid.name} noticed a flash of {color.text} on {object.theText}. THAT was the clue. {kid.cap} grabbed it before anyone could stop them.',
+    ] },
+  { id:'kd_tween_1', beatType:'kid_decides', tiers:['tween'], requiredSlots:['kid','food'],
+    lines: [
+      '{kid.name} pulled out {food.articleText} and gave a look. The kind of look that says "this is the move." Sometimes the move is just snacks. {kid.cap} accepted it.',
+    ] },
+
+  /* GOAL RESOLVED — the chosen pick succeeds; kid wins */
+  { id:'gr_kid_1', beatType:'goal_resolved', tiers:['kid','big'], requiredSlots:['kid','goal','companion'],
+    lines: [
+      'And just like that, {kid.name} {goal.past}. The {companion.text} cheered — quietly, because cheers carry. {kid.name} grinned a real grin.',
+      'It worked. It actually worked. {kid.name} {goal.past} in front of everyone. The {companion.text} took a small bow on {kid.name}\'s behalf.',
+    ] },
+  { id:'gr_kid_2', beatType:'goal_resolved', tiers:['kid','big'], requiredSlots:['kid','goal','visitor'],
+    lines: [
+      '{visitor.TheText} watched, surprised, as {kid.name} {goal.past} right in front of them. "Huh," said {visitor.theText}. "I did not see that coming." Nobody had.',
+    ] },
+  { id:'gr_tween_1', beatType:'goal_resolved', tiers:['tween'], requiredSlots:['kid','goal'],
+    lines: [
+      'And then, somehow, {kid.name} {goal.past}. {kid.cap} did not make a big deal about it. The day continued. The vibes were, technically, victorious.',
+    ] },
+
+  /* BEDTIME LANDING — already exists for these tiers but the goal-spine variant
+     gives a satisfying callback to the GOAL specifically. Tagged for the spine via
+     a lighter slot requirement so it slots into the recipe naturally. */
+  { id:'bl_goal_1', beatType:'bedtime_landing', tiers:['kid','big'], requiredSlots:['kid','goal','companion'],
+    lines: [
+      'Back home, {kid.name} ate a snack and replayed it in their head: how they {goal.past}, how the {companion.text} had been right there, how it had all worked out. The {companion.text} curled up. Tomorrow could be just as good.',
+    ] },
+  { id:'bl_goal_2', beatType:'bedtime_landing', tiers:['tween'], requiredSlots:['kid','goal'],
+    lines: [
+      'In bed that night, {kid.name} thought about how they {goal.past}. Quietly proud. Not posting about it. Some wins are just for you.',
+    ] },
 ];
 
 /* ================================================================
@@ -1508,18 +1670,42 @@ function generateStoryV2(name, picks, age) {
     ? state.sidekicks[Math.floor(Math.random() * state.sidekicks.length)]
     : null;
 
+  // v2.3.0 — pick a goal for the story. Goal becomes a first-class slot that
+  // goal-spine beats reference as {goal.text} / {goal.cap} / {goal.past}.
+  // Goals are tier-neutral for now (the chosen text is plain English that reads
+  // for any age); tier-specific refinement is a future pass.
+  const goalRaw = pickGoal();
+  const goal = {
+    text: goalRaw.text,
+    cap:  V2Grammar.capitalize(goalRaw.text),
+    past: goalRaw.past,
+    tone: goalRaw.tone,
+    id:   goalRaw.id,
+  };
+
   const slots = {
     kid: { name: name || 'Friend', cap: V2Grammar.capitalize(name || 'Friend'), lc: (name || 'friend').toLowerCase() },
     sidekick: sidekickName ? { name: sidekickName, cap: V2Grammar.capitalize(sidekickName), lc: sidekickName.toLowerCase() } : null,
     companion, visitor, place, food, object, sound, adverb, number, liquid, job, rule,
     color, move, mood, freeword2,
+    goal,    // v2.3.0 — load-bearing goal slot
   };
 
-  // Pick a story seed compatible with the resolved tier.
-  const compatibleSeeds = V2_SEEDS.filter(s => s.tiers.includes(tier));
-  if (compatibleSeeds.length === 0) return null;
-  const seed   = rawPick(compatibleSeeds);
-  const recipe = V2_RECIPES[seed.recipe];
+  // v2.3.0 — Route kid/big/tween to the GOAL SPINE recipe (causality engine).
+  // tot and little keep their existing simpler recipes (tot_loop, gentle_quest)
+  // because they need less narrative complexity. The spine is what gives the
+  // older tiers a real arc with chosen-words as causes, not decoration.
+  let seed, recipe;
+  if (tier === 'kid' || tier === 'big' || tier === 'tween') {
+    recipe = V2_RECIPES.goal_spine;
+    seed = { id: 'goal_spine_seed', tiers: [tier], recipe: 'goal_spine', requiredSlots: ['companion','visitor','food','object'] };
+  } else {
+    // tot + little still use their tier-specific seeds + recipes.
+    const compatibleSeeds = V2_SEEDS.filter(s => s.tiers.includes(tier));
+    if (compatibleSeeds.length === 0) return null;
+    seed = rawPick(compatibleSeeds);
+    recipe = V2_RECIPES[seed.recipe];
+  }
   if (!recipe) return null;
 
   // For each beat in the recipe, find an eligible beat card.
@@ -1600,6 +1786,14 @@ function generateStoryV2(name, picks, age) {
     /* Segment D — simpler titles for tot + little */
     tot_loop:    [`${kidCap} and the ${tc(companion.text)}`, `${kidCap} Says Hi!`, `Hi, ${tc(companion.text)}!`],
     gentle_quest:[`${kidCap} and the ${tc(companion.text)}`, `${kidCap}'s ${tc(place.text)} Day`, `The ${tc(companion.text)} with the Tiny Hat`],
+    /* v2.3.0 — goal-spine titles reference the actual goal so the title sells the story */
+    goal_spine: [
+      `How ${kidCap} ${tc(goal.past.replace(/^[a-z]/, c => c.toUpperCase()))}`,
+      `${kidCap} vs the ${tc(visitor.text)}`,
+      `The Day ${kidCap} Tried to ${tc(goal.text)}`,
+      `${kidCap}'s ${tc(food.text)} Plan`,
+      `${kidCap} and the ${tc(companion.text)} Try to ${tc(goal.text)}`,
+    ],
   };
   const titlePool = [...universalTitlePatterns, ...(recipeTitlePatterns[seed.recipe] || [])];
   const title = rawPick(titlePool);

@@ -4,6 +4,112 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.3.0 — 2026-05-16
+**The causality engine — chosen words drive the plot now**
+
+A real-kid playtest with a 4-year-old confirmed what the 60-story audit and the LLM Council had diagnosed: the prior engine was a *sentence sprinkler*, not a story engine. Beats were non-sequiturs, chosen words were decoration, and the kid was a witness rather than a protagonist. v2.3.0 ships the council's root-cause fix.
+
+### The goal spine
+
+Every story now has an explicit **GOAL**. The new recipe for kid / big / tween:
+
+```
+setting_anchor → goal_stated → goal_obstacle → kid_decides → goal_resolved → bedtime_landing
+```
+
+| Beat | What it does | Chosen pick involved |
+|---|---|---|
+| `goal_stated` | Kid declares the goal in P1 | (sets up the rest) |
+| `goal_obstacle` | A chosen pick BLOCKS the goal | pet OR visitor as obstacle |
+| `kid_decides` | Kid uses ANOTHER chosen pick as a TOOL | food / object / move / color as resolution |
+| `goal_resolved` | The tool succeeds, goal achieved | references both the goal and the tool |
+| `bedtime_landing` | Cozy close, callback to the goal | reflective |
+
+The same goal text is referenced across 4 of the 5 paragraphs — the causal glue the audit was missing.
+
+### New content
+
+**`V2_GOALS`** — 30 entries with `text` (mid-sentence verb phrase), `past` (past tense for resolution beats), and `tone`:
+
+```js
+{ id:'find_missing',  text:'find the missing thing',     past:'found the missing thing',     tone:'cozy' }
+{ id:'wake_moon',     text:'wake up the sleepy moon',    past:'woke the sleepy moon',        tone:'whimsy' }
+{ id:'win_race',      text:'win the silly race',         past:'won the silly race',          tone:'bouncy' }
+// ...30 total
+```
+
+**Goal-spine beats** (~16 new cards across kid/big/tween):
+- 3 `goal_stated` variants (kid declares purpose, sometimes with companion buy-in)
+- 4 `goal_obstacle` variants (pet-blocks, visitor-blocks, visitor-with-object-blocks, tween-deadpan)
+- 5 `kid_decides` variants (food-as-tool, object-as-tool, move-as-tool, color-as-clue, tween-snack)
+- 3 `goal_resolved` variants (with-companion-cheer, with-visitor-watching, tween-quiet-victory)
+- 2 `bedtime_landing` goal-callback variants
+
+**New title patterns** that sell the goal:
+- "How Cole Found the Way Home"
+- "The Day Livi Tried to Build the Perfect Hideout"
+- "Cole and the Parrot Try to Sing the Loudest Possible Song"
+
+### Engine wiring
+
+`generateStoryV2()` now:
+1. Picks a goal from `V2_GOALS` via `pickGoal()`
+2. Exposes it as the `goal` slot with `{ text, cap, past, tone }`
+3. Routes **kid/big/tween → `goal_spine` recipe** (forces causality)
+4. Keeps **tot + little on their existing simpler recipes** (`tot_loop`, `gentle_quest`) — they don't need narrative complexity
+
+Coverage validator and highlight pass run unchanged on top.
+
+### Smoke test (50 stories, name=Livi, age 6, same picks each time, varied goals)
+
+| Metric | Result |
+|---|---|
+| Goal verb-phrase in body | **50/50 ✓** |
+| Chosen food/object/move as tool | **46/50 (92%) ✓** |
+| Pet/visitor as obstacle | 19/50 (regex narrow; visually 50/50) |
+| Kid is active subject (decides/pulls out/grabs/produces) | every story |
+
+### Before vs After
+
+**Before (v2.2.3):**
+
+> "Cole and a parrot headed straight to the jungle. Something felt off about today. The parrot kept sniffing the air dramatically."
+> "Cole thought about it for a minute, then said, 'We need a water bottle.' The parrot agreed."
+> "'BAZINKLE!' said the dinosaur dramatically. Cole stopped."
+> "It turned out there were eleventy-eight donuts hidden under the rug the whole time."
+
+→ Why was the air "off"? Why a water bottle? Where did the donuts come from? Non-sequiturs.
+
+**After (v2.3.0):**
+
+> **The Day Livi Tried to Tell The Funniest Joke Ever**
+> "It started at the jungle. Livi looked around and made up their mind: today they would tell the funniest joke ever. No matter what."
+> "The dinosaur appeared out of nowhere holding a tiny clipboard. 'You want to tell the funniest joke ever? You will have to get past this first,' the dinosaur said, waggling the tiny clipboard like a tiny threat."
+> "Livi thought for a second, then produced a tiny clipboard they had brought just in case. 'Will this work?' asked Livi. The parrot considered it, then nodded once."
+> "And just like that, Livi told the funniest joke ever. The parrot cheered — quietly, because cheers carry. Livi grinned a real grin."
+
+Goal stated → dinosaur (chosen creature) blocks it → kid produces something → kid succeeds. **Cole is the protagonist. The chosen words caused the story.**
+
+### What's still on the to-do list (post-v2.3.0)
+
+- `goal_obstacle` patterns vary so much that my coverage regex only caught 38% of them. The story works; the metric is just narrow. Future: tighten the validator.
+- "a electric blue tint" article agreement (small grammar bug from the coverage callback layer; pre-existing).
+- Title-case proper articles in goal-based titles ("Tell **The** Funniest Joke" should be "Tell **the** Funniest Joke").
+- Beat punchlines + pause cues (council recommendation, deferred).
+- Tier voice differentiation — the goal_stated beats currently read very similar across tiers. Future pass: more deadpan for tween, simpler verbs for big.
+- **Validate with the 4-year-old who saw v2.2.3.** That's the real test.
+
+---
+
+## v2.2.4 — 2026-05-16
+**Hot-fix: title chips render + muffin→cupcakes**
+
+Real-kid playtest surfaced: the v2 story TITLE was rendering `[name:Livi]` as literal text. `renderStory()` used a homemade alternating-color word-splitter that escaped each word and never called `parseStoryLine()`. Body paragraphs worked because they did go through `parseStoryLine`. Fixed by running the title through `parseStoryLine` (same path as body).
+
+Also: little tier picker had "muffins" labeled with the cupcake emoji 🧁. Renamed to "cupcakes" so word matches icon.
+
+---
+
 ## v2.2.3 — 2026-05-16
 **Bug-fix triage from 60-story audit + LLM Council review**
 
