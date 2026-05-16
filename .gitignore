@@ -7,3 +7,6 @@ node_modules/
 dist/
 .vercel/
 .vercel
+
+# Claude Code worktrees (per-session ephemeral)
+.claude/worktrees/

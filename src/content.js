@@ -4,7 +4,7 @@
    Story template logic lives in index.html (buildStory).
    ================================================================ */
 
-const APP_VERSION = 'v1.19.1';
+const APP_VERSION = 'v1.19.2';
 
 /* Verb form lookup — maps each past-tense move-pool entry to its base + gerund forms.
    Templates use moveBase()/moveGerund() to derive the right form for the syntactic slot
@@ -235,6 +235,25 @@ const WORD_BANK = {
 
 /* Free-text prompt pools — buildRounds() randomly samples from these each session */
 const FREE_TEXT_ROUNDS = {
+  // v1.19.2 — little tier (ages 4-5) gets its own freetext pool after Codex QA caught that
+  // little Goofy Shorts templates use FW_SAFE heavily but buildRounds wasn't asking for one.
+  // Prompts are simpler than kid pool: shorter, more concrete, more shoutable. Most subtypes
+  // are 'shout' (the dominant little template pattern). A few 'name' prompts add variety for
+  // the future when little templates pick up semantic routing tags.
+  little: [
+    { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "What's a silly sound?",            examples: ['boing', 'splat', 'pop'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "Make up a magic word.",            examples: ['abracadoodle', 'kapow', 'flabbidy'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "What does a sneeze sound like?",   examples: ['achoo', 'ploof', 'snork'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "Pick the loudest word.",           examples: ['BOOM', 'WHEEEE', 'YAY'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "What sound does happy make?",      examples: ['yay', 'woop', 'fizz'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "What does a dragon say?",          examples: ['roar', 'fwoom', 'blarg'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "What word do you yell when you win?", examples: ['YAY', 'WHEE', 'WIN'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "Make up a goodnight word.",        examples: ['snoozy', 'dreamy', 'blop'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "What does a bouncy ball say?",     examples: ['boing', 'pop', 'ZIP'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "Pick a word that's just fun to say.", examples: ['noodle', 'boop', 'jellybean'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'name',  label: "Make up a name for a tiny rock.",  examples: ['Pebbles', 'Rocky', 'Mr. Stone'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'name',  label: "Make up a name for a friendly monster.", examples: ['Mumby', 'Grog', 'Smoosh'] },
+  ],
   kid: [
     { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "What's a sound that makes you laugh?",          examples: ['splat', 'burp', 'boing'] },
     { type: 'freetext', cat: 'freeword', subtype: 'word',  label: "Make up a silly word for nose.",                 examples: ['snorble', 'snoot', 'blorp'] },

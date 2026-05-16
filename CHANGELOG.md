@@ -4,6 +4,54 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v1.19.2 — 2026-05-15
+**Codex QA sweep — five findings closed**
+
+External read-only QA pass surfaced five issues, all addressed in one build.
+
+### Finding 1 (High) — Name input can inject raw HTML into story body
+**Root cause:** `state.name = inp.value.slice(0, 14)` at the input handler had no strip, while sidekick input had `.replace(/[<>&"]/g, '')`. `parseStoryLine()` returned `<span class="pop pop--name">${text}</span>` with raw `text` — the renderer trusted callers to pre-escape, but the title path was the only place that actually did (`esc(state.name)`). Body paragraphs rendered the kid's name unescaped.
+
+**Fix (belt and suspenders):**
+- **Input strip:** added `.replace(/[<>&"]/g, '')` to the name input handler, matching the sidekick pattern.
+- **Renderer escape (defense in depth):** `parseStoryLine()` now calls `esc()` on every token's captured text before interpolation. Renderer is safe regardless of source — input strip, future call sites, or legacy localStorage values can't smuggle HTML through.
+
+### Finding 2 (High) — Little tier uses freeword but never asks for one
+**Root cause:** v1.19.0 extended Goofy Shorts to the little tier and the new templates use `${fwTok}` as a repeated shoutable spell. But `buildRounds()` only added a freetext round for kid/big/tween — little tier never got one. `FW_SAFE = FW || rawPick([fallbacks])` was always hitting the fallback, so kids got `FLABBADOO`/`KAPOW`/etc. instead of their own word. Directly contradicted the v1.18.0 brief (*"every story must have at least one line kids can shout"*).
+
+**Fix:**
+- Added `FREE_TEXT_ROUNDS.little` to `src/content.js` — 12 age-4–5 prompts (mostly `shout` subtype, two `name` for variety): "What's a silly sound?", "Make up a magic word.", "What does a dragon say?", etc.
+- Added `tier === 'little'` branch to `buildRounds()` that picks one prompt from the pool and inserts it after the first 3 binary rounds so it lands mid-flow.
+
+### Finding 3 (Medium) — Semantic freetext routing effectively dead for kid
+**Root cause:** `FW_SUBTYPE` is read and kid templates filter on `tpl.tags`, but the 8 current kid Goofy Shorts templates have no `tags` — so smell/name/dance prompts all route into the same shout/spell usage. The v1.15.0 semantic routing concept was a regression after the v1.18.0 rewrite.
+
+**Fix:** Added 3 new specialized kid templates with single-subtype tags. The 8 universal templates stay untagged (always eligible), so all subtype pools remain healthy:
+- **Template 9** `tags: ['smell']` — "The Smell That Followed [Name]" — FW used as a literal smell
+- **Template 10** `tags: ['name']` — "The Legend of [FW]" — FW used as the name of a new creature
+- **Template 11** `tags: ['dance']` — "[Name] Invents the [FW] Dance" — FW as a silly dance move
+
+When user types a smell prompt, the eligible pool grows from 8 → 9 (8 universal + 1 smell-tagged). Same for name and dance. Specialized templates fire as rare bonuses, restoring the v1.15 concept.
+
+### Finding 4 (Medium) — Plural food grammar in little template #2
+**Root cause:** "The [c:${FOOD}] was gone" produces "The cookies was gone" for plural food picks. Same for "There was only [c:${FOOD}]". The `fixArticles` regex handles a/an/some agreement but not be-verb agreement.
+
+**Fix:** Rewrote both phrases to use constructions that work for both singular and plural picks:
+- "The [FOOD] was gone" → "The [FOOD] had vanished" (past-participle, no agreement issue)
+- "There was only [FOOD]" → "Just [FOOD] everywhere" (no copula)
+
+### Finding 5 (Low) — Untracked `.claude/worktrees/` directory
+**Fix:** Added `.claude/worktrees/` to `.gitignore`.
+
+### Smoke test (350 stories — 100 kid, 100 little, 100 with HTML in name, 50 with specific FW subtypes)
+- 0 stories rendering raw HTML from a malicious name input
+- 100/100 little stories include the user's freeword (no FLABBADOO fallback)
+- 0 instances of "The [plural-food] was gone" across 100 little template-2 stories
+- Smell/name/dance prompts route to the new specialized templates (verified via FW_SUBTYPE filter eligibility)
+- Other tiers (tot/big/tween) unchanged
+
+---
+
 ## v1.19.1 — 2026-05-15
 **Defect log sweep — phantom name, end-marker duration, karaoke alignment**
 

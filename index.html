@@ -874,6 +874,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v1.19.2', title: 'Codex QA sweep — XSS, little freeword, plural grammar, FW routing',
+    detail: 'Five Codex QA findings closed. (1) Name field could inject raw HTML into story body — added input strip plus defense-in-depth esc() inside parseStoryLine() so the renderer is safe regardless of source. (2) Little tier (4–5) was using FW_SAFE heavily but never asking for a freeword — added FREE_TEXT_ROUNDS.little pool with 12 age-appropriate prompts and a buildRounds little branch. Kids now get their own silly word, not FLABBADOO. (3) Restored v1.15 semantic freetext routing for kid tier: added 3 specialized templates tagged ["smell"], ["name"], ["dance"] that fire only on matching subtype. (4) Plural food grammar: "The cookies was gone" rewritten as "The cookies had vanished" + "Just cookies everywhere" — works for sg + pl. (5) Added .claude/worktrees/ to .gitignore.' },
   { v: 'v1.19.1', title: 'Defect log sweep — phantom name, end-marker, karaoke',
     detail: 'Three defects closed. (1) Critical: a fabricated sidekick name (Maya) was appearing in stories when the user hadn\'t entered any sidekicks. Removed the DEFAULT_SIDEKICKS pool entirely — no invented names are ever generated. When no user sidekick exists, kid/little templates fall back to "their pal" (with chip styling) instead. (2) Trimmed the dramatic "The End" TTS closer from 14 elongated e\'s to 7 — closer should be ~1.5-2s instead of the previous ~3s. (3) Karaoke alignment: pre-cached .kw[data-wi] node lookups (O(1) per frame instead of querySelector each tick) and added inter-word continuity so the highlight stays lit during inter-word gaps instead of blanking — the perceived "audio is ahead of text" comes from those blank flashes.' },
   { v: 'v1.19.0', title: 'Goofy Shorts: Little Edition (ages 4–5)',
@@ -965,6 +967,15 @@ function buildRounds(age) {
       return { ...round, options: shuffled.slice(0, 2) };
     });
 
+  // v1.19.2 — little tier gets one freetext round (Codex QA finding #2). Goofy Shorts: Little
+  // Edition templates repeat the freeword as a shoutable spell — without this round, FW_SAFE
+  // was falling back to FLABBADOO/KAPOW/etc. and the kid's own word was never invited.
+  if (tier === 'little') {
+    const pool = FREE_TEXT_ROUNDS.little;
+    const ft = [pool[Math.floor(Math.random() * pool.length)]];
+    // Insert freetext after the first 3 binary rounds so it lands mid-flow rather than at the start.
+    return [...binaryRounds.slice(0, 3), ...ft, ...binaryRounds.slice(3)];
+  }
   if (tier === 'kid') {
     const pool = FREE_TEXT_ROUNDS.kid;
     const ft = [pool[Math.floor(Math.random() * pool.length)]];
@@ -1331,10 +1342,10 @@ function buildStory(name, picks, age) {
       {
         title: `Where Did All the ${capitalize(FOOD)} Go?`,
         paragraphs: [
-          `The [c:${FOOD}] was gone. ALL of it! [name:${N}] looked everywhere. ${SK_OPEN} looked everywhere. No [c:${FOOD}] anywhere.`,
+          `The [c:${FOOD}] had vanished. ALL of it! [name:${N}] looked everywhere. ${SK_OPEN} looked everywhere. No [c:${FOOD}] anywhere.`,
           `"Maybe we should say the magic word," whispered ${SK_MID}. "What magic word?" said [name:${N}]. "${fwTok}!" said ${SK_MID}, like it was obvious.`,
           `They both yelled, "${fwTok}!" A drawer popped open. Inside the drawer: the [c:${FOOD}]! AND one [c:${SADJ}] [c:${STHING}] who said, "Hi!"`,
-          `The [c:${STHING}] had hidden the [c:${FOOD}] for a tea party. There was no tea. There was only [c:${FOOD}]. It was the best tea party ever.`,
+          `The [c:${STHING}] had hidden the [c:${FOOD}] for a tea party. There was no tea. Just [c:${FOOD}] everywhere. It was the best tea party ever.`,
         ],
       },
       // 3. The Magic Word That Went WHOOPS — direct mirror of kid #3 (the playtest benchmark)
@@ -1486,6 +1497,43 @@ function buildStory(name, picks, age) {
           `[name:${N}] tried to do it again. Just a normal burp. Tried again. "${fwTok}!" said the burp. WHAT. WHY.`,
           `They went outside. Every burp [name:${N}] did said "${fwTok}". A [c:${SADJ}] [c:${STHING}] rolled out of a bush and joined them. It also burped "${fwTok}". So at least [name:${N}] wasn't alone.`,
           `By bedtime, the burps were back to normal. ${SK_OPEN} said, "Good while it lasted." [name:${N}] burped one last quiet "${fwTok}". Then went to sleep smiling.`,
+        ],
+      },
+      // v1.19.2 — three subtype-tagged templates restore the v1.15 semantic freetext routing.
+      // The 8 templates above are universal (no tags), so they always fire. These specialized
+      // templates only join the eligible pool when FW_SUBTYPE matches, making them rare bonuses
+      // when the user types a smell/name/dance prompt. Codex QA finding #3 fix.
+      // 9. The Smell That Followed Them (tags: ['smell']) — FW used as a literal smell
+      {
+        tags: ['smell'],
+        title: `The Smell That Followed ${capitalize(N)}`,
+        paragraphs: [
+          `[name:${N}] noticed a weird smell. It smelled like [y:${FW_SAFE}]. Very strong. Very weird. Where was it coming from?`,
+          `${SK_OPEN} sniffed the air. "Yep. That is [y:${FW_SAFE}] alright." ${SK_MID} sniffed again. "And it is getting STRONGER."`,
+          `They followed the smell to the [y:${PLC}]. There stood a [c:${CRE}] holding a [c:${SADJ}] [c:${STHING}]. The [c:${STHING}] was the source. "Sorry!" said the [c:${CRE}]. "It is [y:${FW_SAFE}] season."`,
+          `[name:${N}] took one home. Now the whole house smells like [y:${FW_SAFE}]. Dad pretends to hate it. Dad is lying.`,
+        ],
+      },
+      // 10. The Naming Day (tags: ['name']) — FW used as the name of a new creature
+      {
+        tags: ['name'],
+        title: `The Legend of ${capitalize(FW_SAFE)}`,
+        paragraphs: [
+          `[name:${N}] found a [c:${SADJ}] [c:${STHING}] with NO NAME. Every [c:${STHING}] needs a name. ${SK_OPEN} agreed. This was an emergency.`,
+          `"Let's call it ${fwTok}," said ${SK_MID}. The [c:${STHING}] wiggled. The wiggle meant YES. So [y:${FW_SAFE}] it was.`,
+          `Word spread fast. A [c:${CRE}] showed up to meet [y:${FW_SAFE}]. So did Mom. So did the dog. Everybody wanted to high-five [y:${FW_SAFE}].`,
+          `By bedtime, [y:${FW_SAFE}] was famous. [name:${N}] tucked [y:${FW_SAFE}] in. [y:${FW_SAFE}] burped a tiny "thank you." Best naming day ever.`,
+        ],
+      },
+      // 11. The Brand New Dance (tags: ['dance']) — FW is a silly dance move
+      {
+        tags: ['dance'],
+        title: `${capitalize(N)} Invents the ${capitalize(FW_SAFE)} Dance`,
+        paragraphs: [
+          `[name:${N}] made up a brand new dance. The name of the dance was the ${fwTok}. Step one: wiggle. Step two: WOBBLE. Step three: yell "${fwTok}!"`,
+          `${SK_OPEN} tried it. "${fwTok}!" yelled ${SK_MID}. Then ${SK_MID} tripped. Tripping is officially part of the dance now.`,
+          `A [c:${CRE}] walked past and started doing it. So did a [c:${SADJ}] [c:${STHING}]. So did Dad. The whole house was [c:${MOV}] in [y:${FW_SAFE}] formation.`,
+          `By bedtime everybody was tired but no one could stop. Mom said, "Time to stop the ${fwTok}." Nobody stopped. The ${fwTok} is a hard dance to stop.`,
         ],
       },
     ].filter(tpl => !tpl.tags || tpl.tags.includes(FW_SUBTYPE)));
@@ -1724,13 +1772,20 @@ function buildStory(name, picks, age) {
   ]);
 }
 
-/* Parse token markup to HTML (safe — user input is already escaped before going into tokens) */
+/* Parse token markup to HTML.
+   v1.19.2 — every token's captured text now goes through esc() at render time. Previously the
+   renderer trusted callers to pre-escape user input ("user input is already escaped before
+   going into tokens"). That contract was violated for state.name in body paragraphs (only the
+   title path called esc()), which let an attacker inject HTML via the name field (Codex QA
+   finding #1, High severity). Escaping inside the renderer makes parseStoryLine safe regardless
+   of what reaches the token — input strip, future call sites, or legacy localStorage values. */
 function parseStoryLine(line) {
   return line.replace(/\[(name|c|y):([^\]]+)\]/g, (_, kind, text) => {
-    if (kind === 'name') return `<span class="pop pop--name">${text}</span>`;
-    if (kind === 'c')    return `<span class="pop">${text}</span>`;
-    if (kind === 'y')    return `<span class="pop pop--yellow">${text}</span>`;
-    return text;
+    const safe = esc(text);
+    if (kind === 'name') return `<span class="pop pop--name">${safe}</span>`;
+    if (kind === 'c')    return `<span class="pop">${safe}</span>`;
+    if (kind === 'y')    return `<span class="pop pop--yellow">${safe}</span>`;
+    return safe;
   });
 }
 
@@ -2126,7 +2181,10 @@ function attachWelcomeHandlers(el) {
 
   if (inp) {
     inp.addEventListener('input', () => {
-      state.name = inp.value.slice(0, 14);
+      // v1.19.2 — strip HTML-significant chars on input to match sidekick sanitization.
+      // Defense-in-depth: parseStoryLine() also escapes at render time so even if a name
+      // somehow bypasses this strip (e.g. legacy localStorage value), the renderer is safe.
+      state.name = inp.value.slice(0, 14).replace(/[<>&"]/g, '');
       // Persist on every keystroke so the name survives reloads and "Start over".
       try { localStorage.setItem('nt_name', state.name); } catch {}
       if (btnNext) btnNext.disabled = !state.name.trim();
