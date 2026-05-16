@@ -4,6 +4,27 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v1.17.0 — 2026-05-15
+**5 new kid templates — story-shape variety**
+
+The kid pool had 13 templates, which meant noticeable repetition for users who play multiple stories per session. Added 5 new templates with story shapes not previously covered:
+
+- **#14 The Trade of the Century** — Cole negotiates with a creature; stakes escalate (47-free-hats deals, mystery chickens). New shape: barter/negotiation.
+- **#15 The Case of the Missing [Object]** — Cole loses an object, uses the auto-injected OBJ as a callback motif across all 5 paragraphs. New shape: search-and-find.
+- **#16 The Day Cole Won a Race (Accidentally)** — Wrong-place-wrong-time triumph. Pasta medals. New shape: accidental victory.
+- **#17 The Visitor Who Wouldn't Leave** — A creature shows up uninvited for "the visit", eats everything for three days. New shape: visitor-who-overstays.
+- **#18 Cole's Surprise Performance** — Pushed onto a stage with no preparation, improvises a hit. New shape: improv-under-pressure.
+
+All 5 use the existing vocabulary (PET, CRE, OBJ, JOB, NUM, ADV, MOV, etc.) so they automatically benefit from sidekick injections, tier-aware asides, Mad Libs auto-injects, and karaoke highlighting.
+
+**Title diversity in random sampling:**
+- Before: 35 unique titles across 200 stories
+- After: **47 unique titles across 200 stories (+34%)**
+
+**Grammar verification:** 0 issues across 200 stories. New templates correctly handle plural/vowel article cases, gerund/base-verb tense, and Mad Libs token substitution.
+
+---
+
 ## v1.16.2 — 2026-05-15
 **Dramatic "The End" — elongated closer with finality**
 

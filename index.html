@@ -865,6 +865,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v1.17.0', title: 'Five new kid templates — more variety',
+    detail: 'Added story shapes that weren\'t in the pool: trade negotiation, lost-and-found, accidental race victory, unwelcome visitor, surprise performance. Title diversity jumped 34% in random sampling.' },
   { v: 'v1.16.2', title: 'Dramatic "The End" closer',
     detail: 'The narrator now stretches "The" for ~2.5 seconds with a pause before landing "End" — proper bedtime-story finality instead of a quick read.' },
   { v: 'v1.16.1', title: 'Logo fix + little tier emoji cleanup',
@@ -1517,6 +1519,61 @@ function buildStory(name, picks, age) {
           `Then [name:${N}] did it. Right there. In broad daylight. They broke the rule. A passing [c:${CRE}] gasped. "[y:${RULE}]," it whispered, horrified. "You... you BROKE it?"`,
           `Consequences arrived immediately. A [c:${OBJ}] fell out of a tree. The sky briefly turned [c:${COL}]. The [c:${PET}] did a [c:${BODY}] in solidarity.`,
           `At bedtime, [name:${N}] confessed to the universe. The universe whispered back: "Honestly? ${RULE.charAt(0).toUpperCase() + RULE.slice(1)} was a stupid rule. Don't tell anyone I said that." Best Tuesday on record.`,
+        ],
+      },
+      // 14. The Trade — negotiation shape with escalating stakes
+      {
+        title: `${capitalize(N)} and the Trade of the Century`,
+        paragraphs: [
+          `A [c:${CRE}] approached [name:${N}] holding a [c:${OBJ}]. "Trade time," it announced [c:${ADV}]. "I give you this. You give me your [y:${FOOD}]." [name:${N}] hadn't agreed to be negotiating.`,
+          `[name:${N}] considered. The [c:${CRE}] sweetened the deal: it would also throw in [c:${NUM}] free hats and a small island. A [c:${PET}] watched, expression of growing concern.`,
+          `"Don't do it," the [c:${PET}] whispered. "Last time I traded with one of these, I ended up owning seventeen [c:${OBJ}]s and a job title I didn't ask for."`,
+          `[name:${N}] negotiated harder. Final terms: half the [y:${FOOD}], the [c:${OBJ}], one chicken (somehow), and a vague promise of "future cooperation." They shook on it.`,
+          `The chicken stared at [name:${N}] [c:${ADV}]. The [c:${PET}] sighed deeply. Best Tuesday on record — though the chicken kept appearing in unexpected places for weeks.`,
+        ],
+      },
+      // 15. The Lost Object — search-and-find shape using OBJ as motif callback
+      {
+        title: `${capitalize(N)} and the Case of the Missing ${capitalize(OBJ)}`,
+        paragraphs: [
+          `[name:${N}] lost their [c:${OBJ}]. They had it five minutes ago. Now: gone. The [c:${PET}] hadn't seen it. The [c:${CRE}] denied involvement [c:${ADV}], which made everyone immediately suspicious.`,
+          `They searched the [y:${PLC}]. Behind the rocks. Under the [c:${COL}] cushions. Inside a bowl of [y:${FOOD}], for some reason.`,
+          `A wise [c:${CRE}] suggested: "Try thinking like a [c:${OBJ}]. Where would you go?" [name:${N}] closed their eyes. Concentrated. Tried to feel [c:${OBJ}]-ish.`,
+          `Then [name:${N}] [c:${MOV}] directly to the top shelf of a closet they'd never opened. There it was. The [c:${OBJ}]. Hiding. Looking guilty.`,
+          `"I was scared," the [c:${OBJ}] confessed. (It had never spoken before. Why now?) [name:${N}] decided not to ask. Just glad to have it back. Best Tuesday on record.`,
+        ],
+      },
+      // 16. The Accidental Race — wrong-place-wrong-time shape with triumph
+      {
+        title: `The Day ${capitalize(N)} Won a Race (Accidentally)`,
+        paragraphs: [
+          `[name:${N}] was just trying to get to the [y:${PLC}]. They were not racing. A [c:${CRE}] in the starting position vigorously disagreed.`,
+          `"THREE. TWO. ONE. GO!" shouted the [c:${CRE}] [c:${ADV}]. [name:${N}], deeply confused, [c:${MOV}] forward anyway. The crowd cheered.`,
+          `Apparently there were [c:${NUM}] contestants. A [c:${PET}] joined for moral support. It was not fast. But it was extremely loud, which counts for something.`,
+          `At the finish line, somehow, [name:${N}] arrived first. Cheering. Trophies. A medal made entirely of pasta. Someone pinned it on [name:${N}]'s [c:${COL}] shirt.`,
+          `[name:${N}] tried to explain they weren't racing. The [c:${CRE}] said: "Doesn't matter. You won. Rules are clear." The pasta medal was, apparently, theirs forever. Best Tuesday on record.`,
+        ],
+      },
+      // 17. The Unexpected Visitor — visitor-who-stays shape
+      {
+        title: `The Visitor Who Wouldn't Leave`,
+        paragraphs: [
+          `A [c:${CRE}] showed up at [name:${N}]'s door [c:${ADV}] one afternoon. It carried a [c:${OBJ}] and a small suitcase. "I'm here for the visit," it announced.`,
+          `[name:${N}] hadn't invited anyone. The [c:${CRE}] said this was technically irrelevant. The visit, apparently, had been on the calendar for months.`,
+          `For three days, the [c:${CRE}] occupied the couch, ate all the [y:${FOOD}], and explained the rules of an obscure card game nobody had asked about.`,
+          `A [c:${PET}] grew increasingly suspicious. "Pretty sure it's a [c:${JOB}]," the [c:${PET}] whispered to [name:${N}]. "Just play along. They leave eventually."`,
+          `Sure enough, on day four, the [c:${CRE}] packed up. "Thanks for the visit," it said brightly. "Same time next year." [name:${N}] is, currently, still preparing.`,
+        ],
+      },
+      // 18. The Surprise Performance — improvisation-under-pressure shape
+      {
+        title: `${capitalize(N)}'s Surprise Performance`,
+        paragraphs: [
+          `A [c:${CRE}] pushed [name:${N}] onto a stage. The audience clapped, [c:${ADV}]. "Now perform!" someone yelled. [name:${N}] had absolutely no idea what was happening.`,
+          `A spotlight clicked on. The [c:${PET}] was in the front row, somehow holding a [c:${OBJ}]. "Just wing it!" it mouthed urgently. This was not helpful.`,
+          `[name:${N}] [c:${MOV}] across the stage, improvising. They sang one note. Then another. They invented a dance. They mentioned [y:${FOOD}] for no clear reason.`,
+          `The audience LOVED it. A [c:${CRE}] in the back wept openly. Someone shouted "ENCORE!" Three times. Nobody had asked but everyone was committed.`,
+          `Afterward, [name:${N}] was handed a [c:${COL}] trophy engraved with "Best [c:${JOB}], Maybe." Some performances need no plan. Best Tuesday on record.`,
         ],
       },
     ].filter(tpl => !tpl.tags || tpl.tags.includes(FW_SUBTYPE)));
