@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v2.3.1';
+const ENGINE_V2_VERSION = 'v2.4.0';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -921,35 +921,25 @@ const V2_RECIPES = {
      load-bearing: pet/visitor creates the OBSTACLE, food/object/move RESOLVES it.
      Used for kid/big/tween where the kid is old enough to track a goal.
      tot + little keep their existing simpler recipes. */
+  /* v2.4.0 — every blueprint now has a PUNCHLINE beat between climax and bedtime.
+     Council prescription for "make it funny": physical-absurd / loud / scale-violation
+     punchlines, NOT deadpan. The joke's second beat fires here. Kid/big/tween stories
+     are now 6 paragraphs (council target). Tot + little keep their 4-paragraph shapes. */
   goal_spine: {
     id: 'goal_spine',
-    beats: ['goal_stated', 'goal_obstacle', 'kid_decides', 'goal_resolved', 'bedtime_landing'],
+    beats: ['goal_stated', 'goal_obstacle', 'kid_decides', 'goal_resolved', 'punchline', 'bedtime_landing'],
   },
-  /* v2.3.1 — INTEGRATED FROM v3 PLAN.
-     Three new blueprints that share the causality DNA of goal_spine but produce
-     distinctly different story shapes. The engine picks one of these four
-     blueprints at random per story, so replays of the same picks produce visible
-     variety. Each blueprint uses a 5-beat sequence:
-
-       SETUP → PROBLEM → KID ACTS → RESOLUTION → BEDTIME
-     Mapped per-blueprint:
-
-       goal_spine    : goal_stated → goal_obstacle → kid_decides → goal_resolved → bedtime_landing
-       lost_snack    : snack_missing → wrong_suspect → kid_investigates → true_culprit → bedtime_landing
-       show_wrong    : show_setup → show_disaster → kid_improvises → show_triumph → bedtime_landing
-       rule_loophole : rule_imposed → rule_blocks → kid_finds_loophole → loophole_works → bedtime_landing
-     */
   lost_snack: {
     id: 'lost_snack',
-    beats: ['snack_missing', 'wrong_suspect', 'kid_investigates', 'true_culprit', 'bedtime_landing'],
+    beats: ['snack_missing', 'wrong_suspect', 'kid_investigates', 'true_culprit', 'punchline', 'bedtime_landing'],
   },
   show_wrong: {
     id: 'show_wrong',
-    beats: ['show_setup', 'show_disaster', 'kid_improvises', 'show_triumph', 'bedtime_landing'],
+    beats: ['show_setup', 'show_disaster', 'kid_improvises', 'show_triumph', 'punchline', 'bedtime_landing'],
   },
   rule_loophole: {
     id: 'rule_loophole',
-    beats: ['rule_imposed', 'rule_blocks', 'kid_finds_loophole', 'loophole_works', 'bedtime_landing'],
+    beats: ['rule_imposed', 'rule_blocks', 'kid_finds_loophole', 'loophole_works', 'punchline', 'bedtime_landing'],
   },
 };
 
@@ -1819,6 +1809,139 @@ const V2_BEATS = [
   { id:'rl_win_tween', beatType:'loophole_works', tiers:['tween'], requiredSlots:['kid','visitor'],
     lines: [
       'The loophole held. {visitor.TheText} could not really stop {kid.name}. Bureaucracy is just words and {kid.name} had found the right words. Quietly satisfying.',
+    ] },
+
+  /* ============================================================
+     v2.4.0 — PUNCHLINE BEATS
+     Physical absurdity, scale violations, ALL-CAPS sounds, "suddenly X"
+     non-sequiturs. NOT deadpan. NOT witty observations. The joke is
+     the body of a thing doing the wrong thing at the wrong volume.
+     One punchline fires in every kid/big/tween story between the
+     climax and bedtime_landing.
+     ============================================================ */
+
+  /* --- PHYSICAL ABSURDITY with COMPANION + FOOD --- */
+  { id:'pl_phys_1', beatType:'punchline', tiers:['kid','big'], requiredSlots:['companion','food','number'],
+    lines: [
+      'And then the {companion.text} sneezed and exactly {number.text} {food.plural} flew out of its nose. {food.cap}. Out of a nose. Nobody knew where they had been stored.',
+    ] },
+  { id:'pl_phys_2', beatType:'punchline', tiers:['kid','big'], requiredSlots:['companion','food'],
+    lines: [
+      'Then the {companion.text} hiccuped and one entire {food.text} popped out of its mouth, fully intact, like it had been parking there. The {companion.text} looked just as surprised as everyone else.',
+    ] },
+  { id:'pl_phys_3', beatType:'punchline', tiers:['kid','big'], requiredSlots:['companion','food','sound'],
+    lines: [
+      'Suddenly the {companion.text} yelled "{sound.text}!" at a volume that should not have come out of a {companion.text}, and a single {food.text} fell out of the ceiling. The ceiling. Nobody questioned it.',
+    ] },
+
+  /* --- SCALE VIOLATIONS with OBJECT --- */
+  { id:'pl_scale_1', beatType:'punchline', tiers:['kid','big'], requiredSlots:['object','sound'],
+    lines: [
+      'Then the {object.text} did one tiny "{sound.text}." Then a much bigger "{sound.text}." Then the biggest "{sound.text}" ever recorded. Then it just sat there, satisfied.',
+    ] },
+  { id:'pl_scale_2', beatType:'punchline', tiers:['kid','big'], requiredSlots:['object'],
+    lines: [
+      'And right then, the {object.text} grew. Just a little. Then a lot. Then so much it had to duck. Nobody could explain it. Nobody really wanted to.',
+    ] },
+  { id:'pl_scale_3', beatType:'punchline', tiers:['kid','big'], requiredSlots:['object','number'],
+    lines: [
+      'Then the {object.text} split into {number.text} smaller {object.plural}, and every single one of them looked offended. {number.cap} offended {object.plural}. That was the situation now.',
+    ] },
+
+  /* --- LOUD NONSENSE with SOUND/FREEWORD --- */
+  { id:'pl_loud_1', beatType:'punchline', tiers:['kid','big'], requiredSlots:['sound','companion'],
+    lines: [
+      'Then everyone — {kid.name}, the {companion.text}, the curtains, possibly the floor — yelled "{sound.text}!" at exactly the same time. The windows rattled. A pigeon, somewhere far away, fell off something.',
+    ] },
+  { id:'pl_loud_2', beatType:'punchline', tiers:['kid','big'], requiredSlots:['freeword','sound'],
+    lines: [
+      'And then {kid.name} shouted "{freeword.text}!" so loud that the {sound.text} echoed back. The echo also yelled "{freeword.text}!" The echo had opinions now.',
+    ] },
+  { id:'pl_loud_3', beatType:'punchline', tiers:['kid','big'], requiredSlots:['sound','companion','number'],
+    lines: [
+      'The {companion.text} let out {number.text} consecutive "{sound.text}" noises. {number.cap} of them. In a row. With increasing confidence each time.',
+    ] },
+
+  /* --- WRONG-SIZED THINGS with VISITOR --- */
+  { id:'pl_wrong_1', beatType:'punchline', tiers:['kid','big'], requiredSlots:['visitor','food'],
+    lines: [
+      'Then the {visitor.text} produced one enormous {food.text}. Way too big to fit anywhere. Bigger than the {visitor.text}, even. Nobody knew where it had come from. The {visitor.text} also did not seem to know.',
+    ] },
+  { id:'pl_wrong_2', beatType:'punchline', tiers:['kid','big'], requiredSlots:['visitor','object'],
+    lines: [
+      'The {visitor.text} pulled out a tiny tiny TINY {object.text}. The smallest {object.text} in the world, possibly. Then the {visitor.text} ate it. Just like that. No comment.',
+    ] },
+  { id:'pl_wrong_3', beatType:'punchline', tiers:['kid','big'], requiredSlots:['visitor','sound'],
+    lines: [
+      'And then the {visitor.text} burped. Not a small burp. A "{sound.text}" burp. A burp that should require a permit. {kid.name} clapped. It seemed rude not to.',
+    ] },
+
+  /* --- SUDDENLY X (non-sequitur reversal) --- */
+  { id:'pl_sudden_1', beatType:'punchline', tiers:['kid','big'], requiredSlots:['liquid','place'],
+    lines: [
+      'Suddenly, for no reason, {liquid.text} started dripping from the ceiling of the {place.text}. Just a little. Then a lot. Then nobody mentioned it again because that was somehow more polite.',
+    ] },
+  { id:'pl_sudden_2', beatType:'punchline', tiers:['kid','big'], requiredSlots:['number','companion'],
+    lines: [
+      'And then, from absolutely nowhere, {number.text} more {companion.plural} showed up. All identical. All carrying tiny hats. Nobody asked. Nobody answered.',
+    ] },
+  { id:'pl_sudden_3', beatType:'punchline', tiers:['kid','big'], requiredSlots:['object','sound'],
+    lines: [
+      'Then the {object.text} said "{sound.text}." Out loud. Like a word. The {object.text} was not supposed to be able to do that. The {object.text} did it anyway.',
+    ] },
+
+  /* --- BLUEPRINT-FRIENDLY: lost_snack-flavored (food + companion crumb gag) --- */
+  { id:'pl_snack_1', beatType:'punchline', tiers:['kid','big'], requiredSlots:['companion','food'],
+    lines: [
+      'Right then, the {companion.text} burped, and a tiny crumb of {food.text} flew out and landed perfectly on {kid.name}\'s nose. {kid.cap} did not move. The crumb did not move. Nobody breathed.',
+    ] },
+  { id:'pl_snack_2', beatType:'punchline', tiers:['kid','big'], requiredSlots:['companion','food','number'],
+    lines: [
+      'And the {companion.text} opened its mouth one more time and {number.text} more {food.plural} fell out. Just kept coming. At some point everyone agreed to stop counting.',
+    ] },
+
+  /* --- BLUEPRINT-FRIENDLY: show_wrong-flavored (improv-loud) --- */
+  { id:'pl_show_1', beatType:'punchline', tiers:['kid','big'], requiredSlots:['freeword2','companion','place'],
+    lines: [
+      'And then the entire {place.text} chanted "{freeword2.text}!" at the same time, including the pillows somehow, and the {companion.text} fainted from the honor of it.',
+    ] },
+  { id:'pl_show_2', beatType:'punchline', tiers:['kid','big'], requiredSlots:['move','freeword2'],
+    lines: [
+      'So {kid.name} {move.text} one more time, yelled "{freeword2.text}!" so loud the walls flinched, and ended in a pose nobody had ever seen before. A new pose. {kid.cap} had invented it on the spot.',
+    ] },
+
+  /* --- BLUEPRINT-FRIENDLY: rule_loophole-flavored (rule visitor undone) --- */
+  { id:'pl_rule_1', beatType:'punchline', tiers:['kid','big'], requiredSlots:['visitor','object','sound'],
+    lines: [
+      'And then the {visitor.text} tripped, dropped a fresh {object.text}, said "{sound.text}!" by accident, and the entire rule fell over and stopped existing. Just like that.',
+    ] },
+  { id:'pl_rule_2', beatType:'punchline', tiers:['kid','big'], requiredSlots:['visitor','food'],
+    lines: [
+      'The {visitor.text} tried one more rule. The new rule was about {food.plural}. Then a {food.text} flew through the window and hit {visitor.theText} on the head. The rule retired immediately.',
+    ] },
+
+  /* --- KID-OWN-BODY GAGS (no companion required) --- */
+  { id:'pl_kid_1', beatType:'punchline', tiers:['kid','big'], requiredSlots:['kid','sound'],
+    lines: [
+      'And then {kid.name} did one enormous laugh. Like, the kind of laugh that bends you in half. "{sound.text}!" {kid.name} kept saying. "{sound.text}!" It was unstoppable now. It was the law.',
+    ] },
+  { id:'pl_kid_2', beatType:'punchline', tiers:['kid','big'], requiredSlots:['kid','move','object'],
+    lines: [
+      'So {kid.name} {move.text} one last time, holding {object.articleText} up like a trophy, and the whole room cheered. The room. The actual room. Walls and everything.',
+    ] },
+
+  /* --- TWEEN VARIANTS (deadpan delivery, still physically absurd) --- */
+  { id:'pl_tw_1', beatType:'punchline', tiers:['tween'], requiredSlots:['companion','food','number'],
+    lines: [
+      'Then the {companion.text} produced, somehow, {number.text} additional {food.plural} from a location {kid.name} chose not to investigate. Nobody addressed it. Everybody noticed.',
+    ] },
+  { id:'pl_tw_2', beatType:'punchline', tiers:['tween'], requiredSlots:['visitor','sound'],
+    lines: [
+      'The {visitor.text} let out a single "{sound.text}." Then, after a long pause, exactly the same "{sound.text}" again. {kid.cap} took a screenshot mentally.',
+    ] },
+  { id:'pl_tw_3', beatType:'punchline', tiers:['tween'], requiredSlots:['object','place'],
+    lines: [
+      'And then the {object.text}, with absolutely no warning, fell over at the {place.text}. {kid.cap} watched it. It watched {kid.name} back. Neither of them looked away for an uncomfortable amount of time.',
     ] },
 ];
 

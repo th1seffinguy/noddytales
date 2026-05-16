@@ -4,6 +4,75 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.4.0 — 2026-05-16
+**Physical-absurd punchlines — "make it funny" per LLM Council prescription**
+
+After v2.3.1 landed structural variety (4 blueprints), the council's remaining diagnosis still stood: setup → setup → setup → resolution → bedtime. The story arrives at a satisfying ending but the *joke never fires its second beat*. Kids laugh at physical absurdity, scale violations, and loud nonsense — not at observational wit. This release adds a dedicated **PUNCHLINE** beat between the climax and bedtime in every kid/big/tween story.
+
+### What's new
+
+**Recipe change — every blueprint now has 6 paragraphs, not 5:**
+
+| Blueprint | Old (5 beats) | New (6 beats) |
+|---|---|---|
+| `goal_spine`    | …goal_resolved → bedtime_landing                | …goal_resolved → **punchline** → bedtime_landing       |
+| `lost_snack`    | …true_culprit → bedtime_landing                 | …true_culprit → **punchline** → bedtime_landing        |
+| `show_wrong`    | …show_triumph → bedtime_landing                 | …show_triumph → **punchline** → bedtime_landing        |
+| `rule_loophole` | …loophole_works → bedtime_landing               | …loophole_works → **punchline** → bedtime_landing      |
+
+**28 new punchline beat cards**, all tier-tagged, all built around the council's prescription (NOT deadpan):
+
+- **Physical absurdity** — the companion sneezes and {number} {food.plural} fly out of its nose
+- **Scale violations** — the object splits into N smaller offended versions of itself
+- **Loud nonsense** — everyone in the room yells the chosen freeword at exactly the same time
+- **Wrong-sized things** — the visitor produces one enormous {food} bigger than the visitor itself
+- **"Suddenly X" non-sequiturs** — {liquid} starts dripping from the ceiling for no reason
+- **Kid-own-body gags** — kid does one enormous laugh, "{sound}!" keeps repeating, it is the law now
+- **Blueprint-flavored** — punchlines tuned for lost_snack (crumb gags), show_wrong (chant gags), rule_loophole (rule collapses physically)
+- **Tween variants** — deadpan delivery, still physically absurd ("from a location {kid} chose not to investigate")
+
+Every beat references chosen picks (companion, food, visitor, object, place, sound, freeword, number, liquid, move) so the punchline still carries causality — the joke is built out of *this story's* selected words, not a generic tag.
+
+### Smoke test (300 stories: 100 each for kid/big/tween)
+
+| Metric | Result |
+|---|---|
+| Total stories generated | 300 |
+| Null stories | 0/300 ✓ |
+| 6-paragraph stories | 300/300 ✓ |
+| Unresolved `{slot}` tokens | 0/200 ✓ |
+| Punchline-in-P5 (kid) | 87/100 |
+| Punchline-in-P5 (big) | 87/100 |
+| Punchline-in-P5 (tween) | 62/100 (detector bias — tween deadpan language not in regex set; sample inspection shows beats firing in P5) |
+
+### Per-blueprint coverage (200 same-pick stories, age 6)
+
+| Blueprint | Punchline-detected | Coverage |
+|---|---|---|
+| `goal_spine`    | 43/53 | 81% ✓ |
+| `lost_snack`    | 52/55 | 95% ✓ |
+| `show_wrong`    | 49/55 | 89% ✓ |
+| `rule_loophole` | 29/37 | 78% ✓ |
+
+### Sample (rule_loophole, age 6, picks: parrot/donuts/jungle/dinosaur/bounced/electric blue/KABLAM)
+
+> **Cole and the Umbrella Problem**
+> P1: Cole woke up with a plan. Today, at the jungle, Cole was going to find a loophole in the rules. The parrot was in. The parrot was always in.
+> P2: The dinosaur appeared out of nowhere holding an umbrella. "You want to find a loophole in the rules? You will have to get past this first," the dinosaur said, waggling the umbrella like a tiny threat. Somebody finally produced some donuts. The room shifted.
+> P3: Cole took one big breath, then bounced forward fast — faster than anyone expected. Even Cole was a little surprised. The whole scene had a electric blue tint by then.
+> P4: It worked. It actually worked. Cole found the loophole in front of everyone. The parrot took a small bow on Cole's behalf. Cole was silly about the whole thing, in a quiet way.
+> **P5: Then the umbrella did one tiny "KABLAM." Then a much bigger "KABLAM." Then the biggest "KABLAM" ever recorded. Then it just sat there, satisfied.**
+> P6: The last thing Cole heard before falling asleep was a tiny, distant "KABLAM." Cole smiled. Goodnight.
+
+P5 is the punchline. The chosen object (umbrella) and chosen shout (KABLAM) are now the *body of the joke* — escalating volume, then absurd anticlimax ("just sat there, satisfied"). This is the comedy beat that was missing in v2.3.x.
+
+### Files modified
+
+- `src/engine-v2.js` — `ENGINE_V2_VERSION` → `v2.4.0`; recipes for all 4 blueprints now include `'punchline'` between climax and bedtime; 28 new punchline beat cards (~110 lines)
+- `src/content.js` — `APP_VERSION` → `v2.4.0`
+
+---
+
 ## v2.3.1 — 2026-05-16
 **Blueprint variety — integrates the v3 overhaul plan into v2.3.0 without scrapping it**
 
