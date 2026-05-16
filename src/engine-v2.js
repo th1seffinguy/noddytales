@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v2.4.0';
+const ENGINE_V2_VERSION = 'v2.4.1';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -1946,6 +1946,53 @@ const V2_BEATS = [
 ];
 
 /* ================================================================
+   v2.4.1 — RECENT-BEAT MEMORY
+   The engine used to pure-random-pick beats and lines on every call,
+   which meant a kid hitting "again" with the same dragon + cookies
+   could hear the exact same punchline 3 stories in a row. With
+   v2.4.0's 28 new punchlines fresh in the pool, repetition became
+   noticeable in real-kid playtest.
+
+   This module keeps two FIFO lists of recently-fired beat IDs and
+   recently-rendered line keys. When picking from candidates the
+   engine prefers entries not in the recent list, then falls back to
+   the full pool if every candidate is recent (small pools shouldn't
+   stall). State is module-scoped (page-lifetime). Profile module
+   already owns the persistence boundary — beat memory stays in-memory
+   on purpose so a fresh app open feels fresh.
+   ================================================================ */
+const __recentBeatIds  = [];
+const __recentLineKeys = [];
+const __RECENT_BEAT_CAP = 30;
+const __RECENT_LINE_CAP = 80;
+function __remember(arr, key, cap) {
+  arr.push(key);
+  while (arr.length > cap) arr.shift();
+}
+/* freshPickBeat — given candidate beat cards, prefer ones whose id is
+   not in __recentBeatIds. Falls back to full list if all are recent.
+   Returns the card (caller decides what to do with it).
+   Pure pick: caller is responsible for calling __remember afterward. */
+function __freshPickBeat(candidates) {
+  if (!candidates || candidates.length === 0) return null;
+  if (candidates.length === 1) return candidates[0];
+  const fresh = candidates.filter(c => __recentBeatIds.indexOf(c.id) === -1);
+  const pool = fresh.length > 0 ? fresh : candidates;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+/* freshPickLine — given a beat card, pick a line index, preferring
+   ones whose key (beatId:idx) is not in __recentLineKeys. */
+function __freshPickLine(card) {
+  if (!card || !card.lines || card.lines.length === 0) return null;
+  if (card.lines.length === 1) return { idx: 0, line: card.lines[0] };
+  const indices = card.lines.map((_, i) => i);
+  const fresh = indices.filter(i => __recentLineKeys.indexOf(card.id + ':' + i) === -1);
+  const pool = fresh.length > 0 ? fresh : indices;
+  const idx = pool[Math.floor(Math.random() * pool.length)];
+  return { idx, line: card.lines[idx] };
+}
+
+/* ================================================================
    ENGINE — generateStoryV2
    ================================================================ */
 function generateStoryV2(name, picks, age) {
@@ -2101,18 +2148,24 @@ function generateStoryV2(name, picks, age) {
       b.tiers.includes(tier) &&
       b.requiredSlots.every(s => slots[s] != null)
     );
-    const card = rawPick(anchors);
-    const line = rawPick(card.lines);
-    paragraphs.push(ensureSentenceStart(V2Grammar.render(line, slots)));
+    // v2.4.1 — prefer beats and lines not in the recent FIFO
+    const card = __freshPickBeat(anchors) || rawPick(anchors);
+    const picked = __freshPickLine(card) || { idx: 0, line: rawPick(card.lines) };
+    __remember(__recentBeatIds, card.id, __RECENT_BEAT_CAP);
+    __remember(__recentLineKeys, card.id + ':' + picked.idx, __RECENT_LINE_CAP);
+    paragraphs.push(ensureSentenceStart(V2Grammar.render(picked.line, slots)));
     // Skip the first recipe beat — anchor replaces it
     beatTypeSequence.shift();
   }
   for (const beatType of beatTypeSequence) {
     const candidates = eligibleFor(beatType);
     if (candidates.length === 0) return null; // fallback to v1 if any beat type unfillable
-    const card = rawPick(candidates);
-    const line = rawPick(card.lines);
-    paragraphs.push(ensureSentenceStart(V2Grammar.render(line, slots)));
+    // v2.4.1 — prefer beats and lines not recently used; falls back to full pool if all recent
+    const card = __freshPickBeat(candidates) || rawPick(candidates);
+    const picked = __freshPickLine(card) || { idx: 0, line: rawPick(card.lines) };
+    __remember(__recentBeatIds, card.id, __RECENT_BEAT_CAP);
+    __remember(__recentLineKeys, card.id + ':' + picked.idx, __RECENT_LINE_CAP);
+    paragraphs.push(ensureSentenceStart(V2Grammar.render(picked.line, slots)));
   }
 
   // Title — bind kid name + slot picks for a recognizable shape. Each recipe gets a slight
@@ -2332,6 +2385,24 @@ if (typeof window !== 'undefined') {
   window.V2_SETTINGS = V2_SETTINGS;     // v2.1.0
   window.getSetting = getSetting;        // v2.1.0
   window.V2Grammar = V2Grammar;
+
+  /* v2.4.1 — DevTools helpers to inspect and reset the recent-beat memory.
+     Usage:
+       qaBeatMemoryStats()   // { beats:[...], lines:[...], capBeats, capLines }
+       qaResetMemory()       // clears both FIFOs — useful between playtests */
+  window.qaBeatMemoryStats = function qaBeatMemoryStats() {
+    return {
+      beats:     __recentBeatIds.slice(),
+      lines:     __recentLineKeys.slice(),
+      capBeats:  __RECENT_BEAT_CAP,
+      capLines:  __RECENT_LINE_CAP,
+    };
+  };
+  window.qaResetMemory = function qaResetMemory() {
+    __recentBeatIds.length  = 0;
+    __recentLineKeys.length = 0;
+    console.log('[NoddyTales] beat memory cleared');
+  };
 
   /* v2.2.3 — DevTools QA helper that mirrors the 60-story audit script.
      Usage from browser console:

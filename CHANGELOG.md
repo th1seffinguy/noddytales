@@ -4,6 +4,58 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.4.1 — 2026-05-16
+**Recent-beat memory — same picks now produce 10 different stories, not the same gag repeated**
+
+After v2.4.0 added 28 punchlines, the engine's pure-random `rawPick` over both beat cards and line variants meant a kid hitting "again" with their favorite dragon + cookies could hear the exact same punchline 2-3 stories in a row. v2.4.0 made the comedy work; v2.4.1 makes the comedy *renewable*.
+
+### What changed
+
+**Module-scoped recent-beat FIFOs (page-lifetime, in-memory only):**
+
+- `__recentBeatIds` (FIFO, capacity 30) — tracks which beat-card IDs have fired recently
+- `__recentLineKeys` (FIFO, capacity 80) — tracks `beatId:lineIndex` for each variant rendered
+- `__freshPickBeat(candidates)` — prefers cards not in the recent set; falls back to full pool if every candidate is recent (small pools never stall)
+- `__freshPickLine(card)` — prefers line indices not recently rendered
+- Wired into both the `setting_anchor` pick and the main beat loop
+
+**Profile module owns the persistence boundary.** The beat memory deliberately stays in-memory — a fresh app open should still feel fresh, not stuck in the last session's groove.
+
+### New DevTools helpers
+
+```js
+qaBeatMemoryStats()  // { beats: [...], lines: [...], capBeats: 30, capLines: 80 }
+qaResetMemory()      // clears both FIFOs — useful between playtests
+```
+
+### Smoke test (10 same-pick replays, age 6)
+
+| Metric | Result |
+|---|---|
+| Consecutive-paragraph exact-text repeats | **0/54** ✓ |
+| Unique P1 variants across 10 stories | 9/10 ✓ |
+| Unique P2 variants | 10/10 ✓ |
+| Unique P3 variants | 9/10 ✓ |
+| Unique P4 variants | 9/10 ✓ |
+| Unique P5 (punchline) variants | **10/10** ✓ |
+| Unique P6 variants | 8/10 ✓ |
+| Memory cap saturation after 10 stories | 30/30 beats, 60/80 lines |
+
+### Regression (200 stories, ages 2-13)
+
+| Metric | Result |
+|---|---|
+| Null returns | 0/200 ✓ |
+| Unresolved `{slot}` tokens | 0/200 ✓ |
+| Wrong-paragraph-count (kid+) | 0/N ✓ |
+
+### Files modified
+
+- `src/engine-v2.js` — `ENGINE_V2_VERSION` → `v2.4.1`; +~50 lines for memory module; replaced `rawPick(candidates)` / `rawPick(card.lines)` in beat loop and setting_anchor with `__freshPickBeat` / `__freshPickLine`; new `qaBeatMemoryStats` + `qaResetMemory` window exports
+- `src/content.js` — `APP_VERSION` → `v2.4.1`
+
+---
+
 ## v2.4.0 — 2026-05-16
 **Physical-absurd punchlines — "make it funny" per LLM Council prescription**
 
