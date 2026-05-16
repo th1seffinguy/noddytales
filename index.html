@@ -865,6 +865,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v1.15.0', title: 'Semantically-routed freetext',
+    detail: 'Freetext prompts now carry a type: shout, smell, name, dance, or word. Smell prompts can yield a story where your word is used as a literal smell. Name prompts can yield a story where it’s the name of a creature. Two new kid templates demonstrate the routing.' },
   { v: 'v1.14.1', title: 'Grammar hardening (verb tense + adjective+plural)',
     detail: 'Codex re-review caught three real bugs in v1.13: "loved to hopped" (need base verb), "set off speed-ran" (need gerund), "an electric blue tacos" (article only saw first token). Added a verb-forms lookup so templates can pull base/gerund/past as needed. fixArticles now reads the whole noun phrase and detects plural on the last token, vowel on the first.' },
   { v: 'v1.14.0', title: 'Karaoke highlighting that actually works',
@@ -1008,6 +1010,9 @@ function buildStory(name, picks, age) {
   const WX   = get('weather', 'sunny');
   const FW   = get('freeword', '');
   const FW2  = get('freeword2', '');
+  // Subtype tells templates how to route the freeword: shout (default), smell, name, dance, word.
+  // Falls back to 'shout' for legacy picks that didn't carry a subtype.
+  const FW_SUBTYPE = (picks.freeword && picks.freeword.subtype) || 'shout';
 
   // Fix article agreement in templated noun phrases. One pass that handles BOTH
   // single-token ("a [c:tacos]") and multi-token ("a [c:electric blue] [c:tacos]") cases.
@@ -1469,7 +1474,31 @@ function buildStory(name, picks, age) {
           `At quitting time, [name:${N}] handed in their badge. "Best [c:${JOB}] we've ever had," said the door. They left with [y:${FOOD}] and quiet pride.`,
         ],
       },
-    ]);
+      // 11. The Smell That Followed Them Home — only fires when FW subtype is 'smell'
+      {
+        tags: ['smell'],
+        title: `The Smell That Followed ${capitalize(N)} Home`,
+        paragraphs: [
+          `[name:${N}] noticed it on the way to the [y:${PLC}] — a faint whiff of [y:${FW}]. Annoying. Mysterious. Persistent.`,
+          `A [c:${PET}] sniffed the air [c:${ADV}]. "Yep. Definitely [y:${FW}]. Where's it coming from?"`,
+          `They [c:${MOV}] toward the source. The smell got stronger. So did the [c:${PET}]'s expression of polite disgust.`,
+          `At the source: a [c:${CRE}] holding a [c:${OBJ}] and an apologetic look. "I can explain," it said. "It's [y:${FW}] season."`,
+          `[name:${N}] accepted a complimentary [y:${FOOD}] (faintly [y:${FW}]-flavored) and headed home. Some smells, it turns out, are seasonal. Best Tuesday on record.`,
+        ],
+      },
+      // 12. The Legendary [Name] — only fires when FW subtype is 'name'
+      {
+        tags: ['name'],
+        title: `The Legendary ${capitalize(FW || 'Friend')}`,
+        paragraphs: [
+          `[name:${N}] discovered, against all odds, a [c:${CRE}] with no name. This was a problem. Naming was tradition.`,
+          `A [c:${PET}] suggested they consult an oracle. The oracle turned out to be a [c:${OBJ}] under the porch. It was [c:${ADV}] unhelpful.`,
+          `After [c:${NUM}] possible names and considerable debate, [name:${N}] declared the [c:${CRE}]'s name to be [y:${FW}]. The [c:${CRE}] tried it on. It fit perfectly.`,
+          `News spread. Other [c:${CRE}]s came looking for [y:${FW}], who was — let's be honest — kind of famous now.`,
+          `By bedtime, the legend of [y:${FW}] had reached the [y:${PLC}]. There was a parade. Plenty of [y:${FOOD}]. The unmistakable smell of victory.`,
+        ],
+      },
+    ].filter(tpl => !tpl.tags || tpl.tags.includes(FW_SUBTYPE)));
   }
 
   /* tween */
@@ -2220,7 +2249,9 @@ function submitFreeText(value) {
   // sanitize: strip any HTML-like chars, enforce 20 char max
   const clean = value.replace(/[<>&"]/g, '').slice(0, 20).trim();
   if (!clean) return;
-  advanceRound(round.cat, { w: clean, e: '' });
+  // Propagate the prompt's subtype so buildStory can route the freeword semantically
+  // ("smell" picks become "smelled like X", "name" picks become "named X", etc.).
+  advanceRound(round.cat, { w: clean, e: '', subtype: round.subtype || 'shout' });
 }
 
 function pickWord(side, el) {

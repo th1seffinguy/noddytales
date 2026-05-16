@@ -4,7 +4,7 @@
    Story template logic lives in index.html (buildStory).
    ================================================================ */
 
-const APP_VERSION = 'v1.14.1';
+const APP_VERSION = 'v1.15.0';
 
 /* Verb form lookup — maps each past-tense move-pool entry to its base + gerund forms.
    Templates use moveBase()/moveGerund() to derive the right form for the syntactic slot
@@ -193,22 +193,22 @@ const WORD_BANK = {
 /* Free-text prompt pools — buildRounds() randomly samples from these each session */
 const FREE_TEXT_ROUNDS = {
   kid: [
-    { type: 'freetext', cat: 'freeword', label: "What's a sound that makes you laugh?",          examples: ['splat', 'burp', 'boing'] },
-    { type: 'freetext', cat: 'freeword', label: "Make up a silly word for nose.",                 examples: ['snorble', 'snoot', 'blorp'] },
-    { type: 'freetext', cat: 'freeword', label: "What noise would a confused robot make?",        examples: ['bzzzt', 'glonk', 'whirr'] },
-    { type: 'freetext', cat: 'freeword', label: "Invent a word for when your sock falls down.",   examples: ['floopsy', 'droop', 'schlump'] },
-    { type: 'freetext', cat: 'freeword', label: "What sound does happiness make?",                examples: ['woop', 'fizz', 'zing'] },
-    { type: 'freetext', cat: 'freeword', label: "Make up a word for a tiny sneeze.",              examples: ['plink', 'achoo-bit', 'sniff-pop'] },
-    { type: 'freetext', cat: 'freeword', label: "What would a dragon say instead of hello?",     examples: ['FWOOOM', 'smokeface', 'blarg'] },
-    { type: 'freetext', cat: 'freeword', label: "Invent a word for falling asleep by accident.", examples: ['snoopdrop', 'zonkle', 'slumble'] },
-    { type: 'freetext', cat: 'freeword', label: "What does a bouncy castle smell like?",         examples: ['rubbery', 'bouncy', 'plasticky fun'] },
-    { type: 'freetext', cat: 'freeword', label: "Make up a magic word that fixes everything.",   examples: ['kazamba', 'flumptastic', 'woozle'] },
-    { type: 'freetext', cat: 'freeword', label: "Invent a really embarrassing dance move.",      examples: ['the noodle', 'flap-shuffle', 'the wobble-stomp'] },
-    { type: 'freetext', cat: 'freeword', label: "What's the loudest word you can think of?",     examples: ['BOOM', 'KABLAM', 'WHAMMO'] },
-    { type: 'freetext', cat: 'freeword', label: "Name a smell that means trouble.",              examples: ['burnt toast', 'wet dog', 'old socks'] },
-    { type: 'freetext', cat: 'freeword', label: "Invent a battle cry for a tiny knight.",        examples: ['ONWARD!', 'STABBY-STAB!', 'EAT MY BOOT!'] },
-    { type: 'freetext', cat: 'freeword', label: "Make up a name for the world's grumpiest cat.", examples: ['Sir Grumblebottom', 'Snarls', 'Mr. NO'] },
-    { type: 'freetext', cat: 'freeword', label: "What would your superhero catchphrase be?",     examples: ['NOT ON MY WATCH', 'SNACK ATTACK', 'BY THE POWER OF PIZZA'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "What's a sound that makes you laugh?",          examples: ['splat', 'burp', 'boing'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'word',  label: "Make up a silly word for nose.",                 examples: ['snorble', 'snoot', 'blorp'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "What noise would a confused robot make?",        examples: ['bzzzt', 'glonk', 'whirr'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'word',  label: "Invent a word for when your sock falls down.",   examples: ['floopsy', 'droop', 'schlump'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "What sound does happiness make?",                examples: ['woop', 'fizz', 'zing'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "Make up a word for a tiny sneeze.",              examples: ['plink', 'achoo-bit', 'sniff-pop'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "What would a dragon say instead of hello?",     examples: ['FWOOOM', 'smokeface', 'blarg'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'word',  label: "Invent a word for falling asleep by accident.", examples: ['snoopdrop', 'zonkle', 'slumble'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'smell', label: "What does a bouncy castle smell like?",         examples: ['rubbery', 'bouncy', 'plasticky fun'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "Make up a magic word that fixes everything.",   examples: ['kazamba', 'flumptastic', 'woozle'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'dance', label: "Invent a really embarrassing dance move.",      examples: ['the noodle', 'flap-shuffle', 'the wobble-stomp'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "What's the loudest word you can think of?",     examples: ['BOOM', 'KABLAM', 'WHAMMO'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'smell', label: "Name a smell that means trouble.",              examples: ['burnt toast', 'wet dog', 'old socks'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "Invent a battle cry for a tiny knight.",        examples: ['ONWARD!', 'STABBY-STAB!', 'EAT MY BOOT!'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'name',  label: "Make up a name for the world's grumpiest cat.", examples: ['Sir Grumblebottom', 'Snarls', 'Mr. NO'] },
+    { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "What would your superhero catchphrase be?",     examples: ['NOT ON MY WATCH', 'SNACK ATTACK', 'BY THE POWER OF PIZZA'] },
   ],
   big: [
     { type: 'freetext', cat: 'freeword',  label: "Name something you'd find under a couch.",                examples: ['dust', 'remote', 'crumbs'] },

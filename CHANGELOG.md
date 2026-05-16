@@ -4,6 +4,29 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v1.15.0 — 2026-05-15
+**Semantically-routed freetext (Codex Option A, item #11)**
+
+Codex's recommendation: instead of every freetext prompt landing as a generic "shouted catchphrase", typed prompts should produce typed values. "Name a smell that means trouble" should let the story use the input AS a smell, not just quote it.
+
+**What changed:**
+- All 16 kid freetext prompts tagged with a `subtype`: `shout` (default), `smell`, `name`, `dance`, `word`. The picker UI is unchanged; the subtype is metadata on the prompt.
+- `submitFreeText` now propagates the subtype through `state.picks.freeword.subtype`.
+- `buildStory` exposes `FW_SUBTYPE` so templates can route the freeword semantically.
+- Two new kid templates added that ONLY fire when their subtype is matched:
+  - **#11 The Smell That Followed [Name] Home** — fires when subtype is `smell`. Uses the freeword as a literal smell that follows the kid around. ("A faint whiff of burnt toast. Annoying. Mysterious. Persistent.")
+  - **#12 The Legendary [Freeword]** — fires when subtype is `name`. Uses the freeword as the actual name of a creature the kid discovers. ("Cole declared the knight's name to be Sir Grumblebottom. The knight tried it on. It fit perfectly.")
+- Template selection filter: `templates.filter(t => !t.tags || t.tags.includes(FW_SUBTYPE))`. Untagged templates (the existing 10) remain compatible with every subtype. Tagged templates only fire for their matching subtype.
+
+**Routing verification (200 stories per subtype):**
+- `shout` picks: 0 smell-template hits, 0 name-template hits (never leaks)
+- `smell` picks: ~10% smell-template hits (1-in-11 odds with 11 eligible templates)
+- `name` picks: ~9% name-template hits (same)
+
+**Carries forward into v2.0:** The subtype taxonomy and prompt tags survive the rich-word-objects rebuild. Template routing changes (from filter-by-tags to beat-recipe selection) but the semantic distinction persists.
+
+---
+
 ## v1.14.1 — 2026-05-15
 **Grammar hardening pass — Codex re-review fixes**
 
