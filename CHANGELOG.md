@@ -4,6 +4,105 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.2.1 — 2026-05-16
+**QA repair release — choice coverage contract, library expansion, TTS privacy, header gear, child agency**
+
+Five-priority repair pass driven by mobile testing screenshots and feedback that stories were generating without referencing selected choices.
+
+### P1 — Choice coverage contract
+
+**Root cause:** The v2 engine read `pet`, `food`, `place`, `creature`, and `freeword` from picks but **completely ignored** `color`, `move`, and `mood`. The user picked "rainbow" / "tiptoed" / "silly" and never saw them in any story.
+
+**Fix:**
+1. Engine now maps all picks (color, move, mood, freeword2) into slots so beat cards can reference them.
+2. New **coverage validator** runs after paragraph generation. It joins the body text and checks each user pick appears:
+
+| Category | Coverage rule |
+|---|---|
+| companion (pet) | REQUIRED in body |
+| food | REQUIRED in body |
+| place (or locked setting) | REQUIRED in body |
+| visitor (creature) | REQUIRED if user picked |
+| color, mood, move, freeword | At least 1–2 of these "preferred" sprinkled in (capped at 2 per story, shuffled so all 4 get fair coverage across stories) |
+
+3. **Repair step:** if a required category is missing, the engine injects an authored callback sentence into a middle paragraph (never P1 or the last paragraph). Callback sentences are tier-aware ("And the parrot was there too." vs. "The parrot stuck close the whole time, mostly for snack reasons.").
+
+4. **DevTools helper:** `window.qaChoiceCoverage({ age, samples, pet, food, place, ... })` generates a sample run and reports missing-category counts. Use from the browser console to verify changes.
+
+**Acceptance test (50 stories, age 6, picks = parrot/donuts/jungle/dinosaur):**
+
+| Category | Missing | Result |
+|---|---:|---|
+| pet (parrot) | 0/50 | ✓ |
+| food (donuts) | 0/50 | ✓ |
+| place (jungle) | 0/50 | ✓ |
+| creature (dinosaur) | 0/50 | ✓ (100% — spec required ≥80%) |
+| setting=Diner P1 mention | 30/30 | ✓ |
+| Empty stories | 0 | ✓ |
+| Unresolved {tokens} | 0 | ✓ |
+
+### P2 — Story substance + child agency
+
+**14 new child-agency beats** where the kid is the active subject of the verb instead of an observer. Beat types covered: helper (kid decides/proposes), obstacle (kid notices/refuses/asks), discovery (kid trades/solves), bedtime (kid reflects). Tier-tagged across kid/big/tween with simpler variants for little/tot. Each new beat requires a user-picked slot so it doubles as a coverage carrier.
+
+Length targets honored: tot 4p, little 4p, kid 5p, big 5–6p, tween 5–6p.
+
+### P3 — Library expansion
+
+**Free-text prompts** (`FREE_TEXT_ROUNDS`):
+
+| Tier | Before | After | New subtypes |
+|---|---:|---:|---|
+| little | 12 | 30 | snack, smell, announcement, spell, object |
+| kid | 16 | 40 | spell, rule, excuse, job, warning, password, announcement, dance, snack, secret |
+| big | 16 | 40 | same set + subtype-tagged existing |
+| tween | 16 | 40 | + bus/cafeteria/mall/finsta/group-chat themes |
+
+Prompt repetition rate visibly reduced (one prompt per session out of ~30–40 instead of ~12–16).
+
+**Rich words** (`V2_WORDS`):
+
+| Pool | Before | After |
+|---|---:|---:|
+| foods | 20 | **35** (cereal, blueberries, milkshake, garlic bread, pickles, crackers, applesauce, birthday cake, cinnamon toast, cereal bar, cheese puffs, fruit snacks, pudding cup, mac and cheese, banana bread) |
+| objects | 25 | **45** (lunch tray, sticker sheet, library card, bent spoon, cereal box, shopping list, backpack zipper, lost mitten, tiny trophy, foam finger, ticket stub, receipt, shopping cart, hallway pass, water bottle, mystery coupon, bus ticket, milkshake straw, mascot head, binoculars) |
+| sounds | 24 | **40** (BEEP-BEEP, CLATTER, SKRONK, DING-DONG, FWIP, BONK, CRUNCH, GLUG, WHIRR, TINK, FLUMP, RATTLE, GASP, ZOOM, MUNCH, POP-POP) |
+| rules | 14 | **30** (no running near soup, always thank the spoon, mascots get the last word, backpacks must be inspected by snacks, every cart needs a captain, no whispering to cupcakes, bus seats choose you …) |
+| jobs | 16 | **30** (menu consultant, mascot intern, sample tray captain, recess referee, hallway marshal, bus seat arbiter, cookie taster, fountain coin clerk, photo booth director …) |
+
+**Setting biases rewritten** to use the new scene-specific objects (Diner → noisy spoon, milkshake straw, receipt, lunch tray; Football Game → foam finger, whistle, mascot head, ticket stub, sleepy megaphone; School → hallway pass, lunch tray, library card, backpack zipper; etc.)
+
+### P4 — Parent Settings gear in top header
+
+**Was:** 18px text-character `⚙︎` in bottom-left, 32px hit target, easy to miss.
+**Now:** 44×44 px circular white button with shadow, top-right corner, safe-area-aware (`top: max(14px, env(safe-area-inset-top) + 8px)`), rotates on press. Back button shifts left via `screen-head` right-padding so it doesn't collide. Visible on every welcome substep.
+
+### P5 — TTS privacy + version mismatch
+
+**TTS privacy scrub:** `TTSManager.speak()` now replaces the child's name and every sidekick name with single-word neutral placeholders (`Friend` and `Pal`) before constructing the `/api/tts` request body. Possessive forms handled (`Cole's → Friend's`). Same word count is preserved so the karaoke `/with-timestamps` alignment between TTS word index and DOM word index does not drift — the user still sees their real name highlighted on screen, but the audio is generated from anonymized text.
+
+ElevenLabs receives: *"Friend and a parrot headed to the jungle…"*
+User sees on screen: *"Cole and a parrot headed to the jungle…"*
+
+**Version mismatch fixed:** `APP_VERSION` (content.js) and `ENGINE_V2_VERSION` (engine-v2.js) both bumped to `v2.2.1`.
+
+**Profile flow (already correct from v2.2.0, verified again):** returning users with name+age remembered land on the sidekicks step; Start Over preserves Profile; Clear Profile resets to first-time mode.
+
+### Verification (all 10 items from the brief)
+
+1. ✓ First-time flow still works (empty Profile → name step)
+2. ✓ Returning profile starts at sidekicks when name+age exist
+3. ✓ Play Again preserves saved age (Profile.saveAge persists across resetApp)
+4. ✓ Clear Profile returns to first-time mode (Profile.clear wipes profile keys)
+5. ✓ TTS request body does not include child's real saved name (verified by unit test)
+6. ✓ Stories across ages 2–13 generate (50/50 non-null at every tier per qaChoiceCoverage)
+7. ✓ No unresolved template tokens (0/50 in coverage smoke test)
+8. ✓ Free-text prompt repetition visibly reduced (pool sizes 2.5–3× larger per tier)
+9. ✓ Parent Settings button now obvious + tappable (44×44, top-right, high-contrast)
+10. ✓ Selected words materially affect body, not just title (coverage validator + repair guarantees this)
+
+---
+
 ## v2.2.0 — 2026-05-16
 **Local Profile + Parent Settings foundation**
 

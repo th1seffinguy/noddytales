@@ -487,23 +487,34 @@
   }
   #version-badge:hover { color: rgba(61,53,40,0.6); background: rgba(255,255,255,0.4); }
 
-  /* v2.2.0 — Parent settings gear icon (sits opposite the version badge in bottom-left). */
+  /* v2.2.1 — Parent Settings gear: relocated from bottom-left to TOP-RIGHT header position.
+     Larger (44x44 min tap target), high-contrast circular button so parents can find it.
+     iOS safe-area aware: `top` uses env(safe-area-inset-top) so it clears the notch. */
   #settings-gear {
     position: absolute;
-    bottom: 7px;
-    left: 24px;
-    font-size: 18px;
-    z-index: 50;
-    color: rgba(61,53,40,0.32);
+    top: max(14px, calc(env(safe-area-inset-top, 0px) + 8px));
+    right: max(14px, calc(env(safe-area-inset-right, 0px) + 14px));
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.85);
+    color: var(--ink);
+    border: none;
+    border-radius: 50%;
+    z-index: 80;
+    font-size: 22px;
+    line-height: 1;
+    font-family: 'Fredoka', sans-serif;
     user-select: none;
     cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 50%;
-    transition: color 0.15s, background 0.15s, transform 0.2s;
-    line-height: 1;
+    padding: 0;
+    box-shadow: 0 4px 0 rgba(61,53,40,0.10), 0 6px 14px rgba(0,0,0,0.08);
+    transition: background 0.15s, color 0.15s, transform 0.2s, box-shadow 0.15s;
   }
-  #settings-gear:hover  { color: rgba(61,53,40,0.7); background: rgba(255,255,255,0.4); }
-  #settings-gear:active { transform: rotate(45deg); }
+  #settings-gear:hover  { background: var(--yellow); color: var(--ink); }
+  #settings-gear:active { transform: rotate(60deg) scale(0.95); box-shadow: 0 2px 0 rgba(61,53,40,0.12); }
 
   /* Parent settings overlay — same chassis as the What's New panel for visual consistency. */
   .settings-overlay {
@@ -938,7 +949,9 @@
   }
 
   /* ---- Header ---- */
-  .screen-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  /* v2.2.1 — added right padding so the in-header back button doesn't collide with the
+     absolute-positioned gear at top-right. */
+  .screen-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-right: 52px; }
   .pill {
     background: white;
     color: var(--ink);
@@ -1000,7 +1013,7 @@
 <body>
 <div id="root" class="app">
   <div class="screen-wrap" id="screen-wrap"></div>
-  <div id="settings-gear" aria-label="Parent settings" title="Parent settings">⚙︎</div>
+  <button id="settings-gear" aria-label="Parent settings" title="Parent settings" type="button">⚙</button>
   <div id="version-badge"></div>
 </div>
 
@@ -1131,6 +1144,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v2.2.1', title: 'QA repair: choice coverage, library expansion, TTS privacy, header gear',
+    detail: 'Five-part repair pass. (1) CHOICE COVERAGE CONTRACT: the v2 engine now reads color/move/mood/freeword2 from picks (previously ignored) and a new validator+repair step at the end of generateStoryV2 guarantees every selected pet/food/place/setting/creature appears in the body. Verified 0/50 missing across all required slots with parrot/donuts/jungle/dinosaur acceptance picks. New window.qaChoiceCoverage() helper for DevTools. (2) SUBSTANCE: 14 new child-agency beats — kid decides, refuses, trades, notices, asks instead of being a passive observer. Each new beat requires a user-picked slot so it doubles as coverage. (3) LIBRARY EXPANSION: free-text prompts little 12→30, kid 16→40, big 16→40, tween 16→40 with subtype variety (spell/rule/excuse/job/warning/password/announcement/dance/snack/secret). Rich words foods 20→35, objects 25→45, sounds 24→40, rules 14→30, jobs 16→30. Setting object-biases rewritten per Diner/Mall/Football/School/Backyard/Grocery/Zoo/Bus briefs. (4) HEADER GEAR: Parent Settings gear moved from bottom-left to top-right, 44×44 tap target, circular, safe-area-aware. Back button shifted left to avoid collision. (5) TTS PRIVACY: child name and sidekick names are now scrubbed from the /api/tts request body (replaced with "Friend"/"Pal" — same word count, karaoke alignment preserved). Visible story still shows the real names.' },
   { v: 'v2.2.0', title: 'Local Profile + Parent Settings foundation',
     detail: 'Centralized all persistent state into a single Profile module (name, age, sidekicks, setting, potty mode). Returning users with name + age remembered now skip both steps and land on the sidekick page with a "Welcome back, Cole!" treatment that confirms "Still age 6? Same crew?" — saves several taps per session. New ⚙︎ gear icon in the bottom-left opens a Parent Settings overlay showing what is saved on the device and offering a "Clear saved profile" button. Future parent-only toggles (Potty Mode relocation, Save Story, Story History) are shown as disabled placeholders so the surface exists for upcoming builds. 100% local-only — no accounts, no server sync, no analytics. Engine flag and parental PIN are intentionally NOT touched by Clear Profile.' },
   { v: 'v2.1.1', title: 'Mobile fix: Next button visible on age screen without scroll',
@@ -3026,26 +3041,34 @@ const TTSManager = (() => {
   async function speak(story) {
     stop();
     const strip = s => s.replace(/\[(?:name|c|y):([^\]]+)\]/g, '$1');
-    // v1.19.3 — "The End" pronunciation redesign per user feedback that "End" was
-    // sounding mid-sentence rather than as a sentence-final closing word.
+
+    // v2.2.1 — TTS PRIVACY SCRUB.
+    // The visible story (DOM) shows the child's real first name. The TTS request body
+    // (sent to ElevenLabs via /api/tts) replaces every occurrence of the child's name
+    // and any sidekick names with single-word neutral placeholders ("Friend" for the
+    // child, "Pal" for sidekicks). Same word count is preserved so karaoke alignment
+    // (which maps TTS word index → DOM word index) does NOT drift.
     //
-    // Form: "Theeee... end."
-    // Why each piece:
-    //  - 4 e's on "Theeee" — moderate stretch (gentler than v1.16.2's 14 e's, but enough
-    //    dramatic pause to feel like a story closer). Still maps to DOM "The" via karaoke
-    //    word-index alignment, so the highlight stays lit through the elongation.
-    //  - Standard 3-dot ellipsis "..." — proper sentence-pause cue for the TTS model.
-    //    Previous v1.19.1 used 2 dots ("..") which isn't a recognized ellipsis and could
-    //    leave the model ambiguous about whether the sentence had broken.
-    //  - Lowercase "end" — when the TTS model reads "End." (capitalized) after a pause,
-    //    it tends to treat it as a proper noun / heading and gives it mid-sentence
-    //    intonation. Lowercase "end" reads as a common noun in a sentence, getting the
-    //    natural falling cadence audiobook narrators use for warm story closings.
-    //  - Period — sentence-final punctuation for proper closing intonation.
+    // What ElevenLabs receives: "Friend and a parrot headed to the jungle…"
+    // What the user sees:        "Cole and a parrot headed to the jungle…"
+    // Audio plays the scrubbed version; highlight lights up the real name on screen.
     //
-    // DOM (.story-end "✦ The End ✦") is unchanged; karaoke maps TTS word[0]→"The",
-    // word[1]→"End" by index, case-insensitive.
-    const text  = strip(story.title) + '.\n\n' + story.paragraphs.map(strip).join('\n\n') + '\n\nTheeee... end.';
+    // Possessives are handled: "Cole's" → "Friend's" (still one word).
+    function scrubName(text, name, placeholder) {
+      if (!name) return text;
+      const esc = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return text
+        .replace(new RegExp('\\b' + esc + "['’]s\\b", 'g'), placeholder + "'s")
+        .replace(new RegExp('\\b' + esc + '\\b', 'g'), placeholder);
+    }
+    let body = strip(story.title) + '.\n\n' + story.paragraphs.map(strip).join('\n\n');
+    body = scrubName(body, state.name, 'Friend');
+    if (Array.isArray(state.sidekicks)) {
+      for (const sk of state.sidekicks) body = scrubName(body, sk, 'Pal');
+    }
+
+    // v1.19.3 "Theeee... end." dramatic closer (see v1.19.3 release notes for the rationale).
+    const text = body + '\n\nTheeee... end.';
     try {
       setLoading(true);
       await openDB();

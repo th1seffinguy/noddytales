@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v2.1.0';
+const ENGINE_V2_VERSION = 'v2.2.1';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -454,6 +454,22 @@ const V2_WORDS = {
     { id:'burritos',      text:'burritos',      emoji:'🌯', isPlural:true,  plural:'burritos' },
     { id:'dumplings',     text:'dumplings',     emoji:'🥟', isPlural:true,  plural:'dumplings' },
     { id:'jellybeans',    text:'jellybeans',    emoji:'🍬', isPlural:true,  plural:'jellybeans' },
+    /* v2.2.1 — foods expansion to 35 (relatable diner/mall/school flavors) */
+    { id:'cereal',           text:'cereal',           emoji:'🥣', isPlural:false, article:'some' },
+    { id:'blueberries',      text:'blueberries',      emoji:'🫐', isPlural:true,  plural:'blueberries' },
+    { id:'milkshake',        text:'milkshake',        emoji:'🥤', isPlural:false, article:'a' },
+    { id:'garlic_bread',     text:'garlic bread',     emoji:'🍞', isPlural:false, article:'some' },
+    { id:'pickles',          text:'pickles',          emoji:'🥒', isPlural:true,  plural:'pickles' },
+    { id:'crackers',         text:'crackers',         emoji:'🍘', isPlural:true,  plural:'crackers' },
+    { id:'applesauce',       text:'applesauce',       emoji:'🍎', isPlural:false, article:'some' },
+    { id:'birthday_cake',    text:'birthday cake',    emoji:'🎂', isPlural:false, article:'a slice of' },
+    { id:'cinnamon_toast',   text:'cinnamon toast',   emoji:'🍞', isPlural:false, article:'a piece of' },
+    { id:'cereal_bar',       text:'cereal bar',       emoji:'🍫', isPlural:false, article:'a' },
+    { id:'cheese_puffs',     text:'cheese puffs',     emoji:'🧀', isPlural:true,  plural:'cheese puffs' },
+    { id:'fruit_snacks',     text:'fruit snacks',     emoji:'🍇', isPlural:true,  plural:'fruit snacks' },
+    { id:'pudding_cup',      text:'pudding cup',      emoji:'🍮', isPlural:false, article:'a' },
+    { id:'mac_and_cheese',   text:'mac and cheese',   emoji:'🧀', isPlural:false, article:'some' },
+    { id:'banana_bread',     text:'banana bread',     emoji:'🍌', isPlural:false, article:'a slice of' },
   ],
 
   /* Objects — holdable, discoverable plot items. */
@@ -484,6 +500,27 @@ const V2_WORDS = {
     { id:'broken_compass',      text:'broken compass',      emoji:'🧭', article:'a' },
     { id:'invisible_box',       text:'invisible box',       emoji:'📦', article:'an' },
     { id:'wobbly_telescope',    text:'wobbly telescope',    emoji:'🔭', article:'a' },
+    /* v2.2.1 — objects expansion to 45 (relatable diner/mall/school/football items) */
+    { id:'lunch_tray',          text:'lunch tray',          emoji:'🥡', article:'a' },
+    { id:'sticker_sheet',       text:'sticker sheet',       emoji:'🏷️', article:'a' },
+    { id:'library_card',        text:'library card',        emoji:'💳', article:'a' },
+    { id:'bent_spoon',          text:'bent spoon',          emoji:'🥄', article:'a' },
+    { id:'cereal_box',          text:'cereal box',          emoji:'📦', article:'a' },
+    { id:'shopping_list',       text:'shopping list',       emoji:'📝', article:'a' },
+    { id:'backpack_zipper',     text:'backpack zipper',     emoji:'🎒', article:'a' },
+    { id:'lost_mitten',         text:'lost mitten',         emoji:'🧤', article:'a' },
+    { id:'tiny_trophy',         text:'tiny trophy',         emoji:'🏆', article:'a' },
+    { id:'foam_finger',         text:'foam finger',         emoji:'👉', article:'a' },
+    { id:'ticket_stub',         text:'ticket stub',         emoji:'🎟️', article:'a' },
+    { id:'receipt',             text:'receipt',             emoji:'🧾', article:'a' },
+    { id:'shopping_cart',       text:'shopping cart',       emoji:'🛒', article:'a' },
+    { id:'hallway_pass',        text:'hallway pass',        emoji:'📋', article:'a' },
+    { id:'water_bottle',        text:'water bottle',        emoji:'🍶', article:'a' },
+    { id:'mystery_coupon',      text:'mystery coupon',      emoji:'🎫', article:'a' },
+    { id:'bus_ticket',          text:'bus ticket',          emoji:'🎫', article:'a' },
+    { id:'milkshake_straw',     text:'milkshake straw',     emoji:'🥤', article:'a' },
+    { id:'mascot_head',         text:'mascot head',         emoji:'🎭', article:'a' },
+    { id:'binoculars',          text:'binoculars',          emoji:'🔭', article:'some' },
   ],
 
   /* Sounds — onomatopoeia + exclamations. Used as standalone slots and also pulled from companion.sounds. */
@@ -501,6 +538,15 @@ const V2_WORDS = {
     { id:'zonk',    text:'ZONK' },      { id:'pfft',    text:'PFFT' },
     { id:'thud',    text:'THUD' },      { id:'thwip',   text:'THWIP' },
     { id:'squelch', text:'SQUELCH' },   { id:'meep',    text:'MEEP' },
+    /* v2.2.1 — sounds expansion to 40 (everyday/scene-relevant beats) */
+    { id:'beep_beep', text:'BEEP-BEEP' }, { id:'clatter', text:'CLATTER' },
+    { id:'skronk',  text:'SKRONK' },     { id:'ding_dong', text:'DING-DONG' },
+    { id:'fwip',    text:'FWIP' },       { id:'bonk',     text:'BONK' },
+    { id:'crunch',  text:'CRUNCH' },     { id:'glug',     text:'GLUG' },
+    { id:'whirr',   text:'WHIRR' },      { id:'tink',     text:'TINK' },
+    { id:'flump',   text:'FLUMP' },      { id:'rattle',   text:'RATTLE' },
+    { id:'gasp',    text:'GASP' },       { id:'zoom',     text:'ZOOM' },
+    { id:'munch',   text:'MUNCH' },      { id:'pop_pop',  text:'POP-POP' },
   ],
 
   /* Adverbs — used in {adverb} slots for action flavor. */
@@ -581,6 +627,21 @@ const V2_WORDS = {
     { id:'pillow_engineer',    text:'pillow engineer' },
     { id:'bubble_judge',       text:'bubble judge' },
     { id:'lost_thing_returner',text:'lost thing returner' },
+    /* v2.2.1 — jobs expansion to 30 (relatable diner/mall/school flavors) */
+    { id:'menu_consultant',    text:'menu consultant' },
+    { id:'mascot_intern',      text:'mascot intern' },
+    { id:'sample_tray_captain',text:'sample tray captain' },
+    { id:'recess_referee',     text:'recess referee' },
+    { id:'hallway_marshal',    text:'hallway marshal' },
+    { id:'bus_seat_arbiter',   text:'bus seat arbiter' },
+    { id:'cookie_taster',      text:'cookie taster' },
+    { id:'fountain_coin_clerk',text:'fountain coin clerk' },
+    { id:'photo_booth_director',text:'photo booth director' },
+    { id:'fridge_inspector',   text:'fridge inspector' },
+    { id:'sticker_archivist',  text:'sticker archivist' },
+    { id:'snack_alarm_specialist',text:'snack alarm specialist' },
+    { id:'cart_wheel_engineer',text:'cart wheel engineer' },
+    { id:'foam_finger_handler',text:'foam finger handler' },
   ],
 
   /* Rules — used as motif anchors (setup → violation → payoff). */
@@ -600,6 +661,23 @@ const V2_WORDS = {
     { id:'no_clipboard_running', text:'never run with a clipboard' },
     { id:'two_snacks_min',  text:'always carry two snacks minimum' },
     { id:'tuesday_pancakes',text:'pancakes are mandatory on Tuesday' },
+    /* v2.2.1 — rules expansion to 30 (everyday/scene-relevant rules) */
+    { id:'no_running_near_soup',    text:'no running near soup' },
+    { id:'thank_the_spoon',         text:'always thank the spoon' },
+    { id:'never_open_cereal_twice', text:'never open a cereal box twice' },
+    { id:'mascots_last_word',       text:'mascots get the last word' },
+    { id:'backpack_snack_inspection',text:'backpacks must be inspected by snacks' },
+    { id:'cart_captain',            text:'every cart needs a captain' },
+    { id:'no_whisper_cupcake',      text:'no whispering to cupcakes' },
+    { id:'bus_seats_choose',        text:'bus seats choose you' },
+    { id:'foam_finger_first',       text:'foam finger goes on first' },
+    { id:'sample_tray_silent',      text:'approach the sample tray quietly' },
+    { id:'cookie_offered',          text:'a cookie offered must be accepted' },
+    { id:'fountain_one_coin',       text:'one coin per fountain wish' },
+    { id:'no_skip_aisle_seven',     text:'never skip aisle seven' },
+    { id:'hallway_pass_held_high',  text:'hallway passes must be held high' },
+    { id:'menu_must_be_read',       text:'the menu must be read out loud, at least once' },
+    { id:'last_donut_voted',        text:'the last donut is decided by vote' },
   ],
 };
 
@@ -635,56 +713,57 @@ const V2_SETTINGS = [
     note: 'Pancakes, milkshakes, a jukebox',
     place: { id:'diner', text:'diner', emoji:'🍔', article:'the' },
     visitorBias: ['stressed_barista','jester','wizard','knight'],
-    objectBias: ['noisy_spoon','clipboard','suspicious_envelope','pickle_jar','rubber_chicken'] },
+    /* v2.2.1 — expanded with scene-relevant objects per Diner brief */
+    objectBias: ['noisy_spoon','bent_spoon','milkshake_straw','receipt','lunch_tray','sticker_sheet','cereal_box','pickle_jar'] },
   { id: 'mall',
     label: 'The Mall',
     emoji: '🛍️',
     note: 'Escalators, food court, fountains',
     place: { id:'mall', text:'mall', emoji:'🛍️', article:'the' },
     visitorBias: ['stressed_barista','wifi_ghost','vending_machine','sub_teacher','group_chat'],
-    objectBias: ['shiny_rock','wind_up_toy','glittery_helmet','dramatic_cape','umbrella'] },
+    objectBias: ['shiny_rock','glittery_helmet','dramatic_cape','mystery_coupon','receipt','ticket_stub','umbrella'] },
   { id: 'football_game',
     label: 'The Football Game',
     emoji: '🏈',
     note: 'Bleachers, mascots, halftime',
     place: { id:'football_game', text:'football game', emoji:'🏈', article:'the' },
     visitorBias: ['jester','knight','pirate','dinosaur'],
-    objectBias: ['whistle','rubber_chicken','dramatic_cape','sleepy_megaphone','noisy_spoon'] },
+    objectBias: ['foam_finger','whistle','mascot_head','ticket_stub','sleepy_megaphone','dramatic_cape'] },
   { id: 'school',
     label: 'School',
     emoji: '🏫',
     note: 'Cafeteria, recess, the long hallway',
     place: { id:'school', text:'school', emoji:'🏫', article:'the' },
     visitorBias: ['sub_teacher','feral_librarian','knight','goblin','jester'],
-    objectBias: ['clipboard','tiny_clipboard','whistle','apology_balloon','suspicious_envelope'] },
+    objectBias: ['hallway_pass','lunch_tray','library_card','backpack_zipper','sticker_sheet','tiny_clipboard'] },
   { id: 'backyard',
     label: 'The Backyard',
     emoji: '🌳',
     note: 'Grass, sprinklers, a tiny adventure',
     place: { id:'backyard', text:'backyard', emoji:'🌳', article:'the' },
     visitorBias: ['fairy','gnome','dinosaur','goblin','ghost'],
-    objectBias: ['shiny_rock','umbrella','crumb_map','tiny_key','invisible_box'] },
+    objectBias: ['shiny_rock','umbrella','crumb_map','tiny_key','lost_mitten','water_bottle'] },
   { id: 'grocery_store',
     label: 'The Grocery Store',
     emoji: '🛒',
     note: 'Cart wheels, free samples, the cereal aisle',
     place: { id:'grocery_store', text:'grocery store', emoji:'🛒', article:'the' },
     visitorBias: ['stressed_barista','wizard','witch','goblin'],
-    objectBias: ['pickle_jar','jar_of_buttons','noisy_spoon','crumb_map','clipboard'] },
+    objectBias: ['shopping_list','cereal_box','shopping_cart','mystery_coupon','pickle_jar','receipt'] },
   { id: 'zoo',
     label: 'The Zoo',
     emoji: '🦁',
     note: 'Animals, snacks, a long walk',
     place: { id:'zoo', text:'zoo', emoji:'🦁', article:'the' },
     visitorBias: ['knight','pirate','wizard','jester','dinosaur'],
-    objectBias: ['crumb_map','wobbly_telescope','whistle','umbrella','tiny_key'] },
+    objectBias: ['crumb_map','wobbly_telescope','binoculars','ticket_stub','water_bottle','tiny_key'] },
   { id: 'bus',
     label: 'On the Bus',
     emoji: '🚌',
     note: 'Bumpy ride, weird strangers, snacks',
     place: { id:'bus', text:'bus', emoji:'🚌', article:'the' },
     visitorBias: ['sub_teacher','wifi_ghost','goblin','stressed_barista','gnome'],
-    objectBias: ['banana_phone','wind_up_toy','suspicious_envelope','umbrella','whistle'] },
+    objectBias: ['bus_ticket','backpack_zipper','lost_mitten','lunch_tray','sticker_sheet','water_bottle'] },
 ];
 
 /* Helper: look up a setting by id, with safe fallback to "surprise". */
@@ -1272,6 +1351,81 @@ const V2_BEATS = [
     lines: [
       'The {place.text} hits different when you go with {companion.articleText}. {kid.name} did not have a reason for being there. The {companion.text} did not ask.',
     ] },
+
+  /* ============================================================
+     v2.2.1 — CHILD-AGENCY BEATS
+     The prior beat pool sometimes left the kid as a passive observer
+     while events happened around them. These beats put the kid in
+     the verb seat: they decide, refuse, trade, notice, ask, try.
+     Tier-tagged for kid + big + tween (active narrators); tot/little
+     get simpler agency variants in their dedicated beat sequences.
+     Each beat REQUIRES one or more user-picked slots (food, object,
+     visitor, companion, color, mood) so they double as coverage carriers.
+     ============================================================ */
+
+  /* HELPER beats: kid actively decides / proposes */
+  { id:'ag_h1', beatType:'helper', tiers:['kid','big'], requiredSlots:['kid','food'],
+    lines: [
+      '{kid.name} decided this was a {food.text} problem. {kid.name} reached into a pocket for {food.articleText} they had been saving.',
+    ] },
+  { id:'ag_h2', beatType:'helper', tiers:['kid','big'], requiredSlots:['kid','companion','object'],
+    lines: [
+      '{kid.name} thought about it for a minute, then said, "We need {object.articleText}." The {companion.text} agreed. {kid.cap} had a plan.',
+    ] },
+  { id:'ag_h3', beatType:'helper', tiers:['kid','big','tween'], requiredSlots:['kid','mood'],
+    lines: [
+      '{kid.name} was {mood.text} now, and {mood.text} {kid.name} solves problems faster.',
+    ] },
+
+  /* OBSTACLE beats: kid actively refuses / notices / asks */
+  { id:'ag_o1', beatType:'obstacle', tiers:['kid','big'], requiredSlots:['kid','visitor'],
+    lines: [
+      '{kid.name} stopped and noticed {visitor.articleText} watching the whole thing. "Hi?" said {kid.name}. The {visitor.text} did not say hi back, exactly.',
+    ] },
+  { id:'ag_o2', beatType:'obstacle', tiers:['kid','big','tween'], requiredSlots:['kid','object'],
+    lines: [
+      '"Nope," said {kid.name} firmly. "Not without {object.articleText}." Everybody looked at {kid.name}. {kid.cap} did not budge.',
+    ] },
+  { id:'ag_o3', beatType:'obstacle', tiers:['kid','big'], requiredSlots:['kid','color','food'],
+    lines: [
+      '{kid.name} spotted something {color.text} on the {food.text}. That was the clue. {kid.cap} had been right.',
+    ] },
+
+  /* DISCOVERY beats: kid actively trades / solves */
+  { id:'ag_d1', beatType:'discovery', tiers:['kid','big'], requiredSlots:['kid','companion','food'],
+    lines: [
+      '{kid.name} traded the {food.text} for the answer. The {companion.text} watched the deal go down. It was a fair trade. Mostly.',
+    ] },
+  { id:'ag_d2', beatType:'discovery', tiers:['kid','big','tween'], requiredSlots:['kid','object','move'],
+    lines: [
+      '{kid.name} held {object.articleText} up to the light. Then {kid.name} {move.text} forward and figured the whole thing out.',
+    ] },
+
+  /* BEDTIME beats: kid actively reflects (gives the kid a closing line) */
+  { id:'ag_b1', beatType:'bedtime_landing', tiers:['kid','big'], requiredSlots:['kid','companion','food'],
+    lines: [
+      'Back home, {kid.name} ate {food.articleText} and thought about everything that had happened. The {companion.text} did the same, but with more {food.text}.',
+    ] },
+  { id:'ag_b2', beatType:'bedtime_landing', tiers:['kid','big','tween'], requiredSlots:['kid','mood'],
+    lines: [
+      '{kid.name} settled in, feeling {mood.text} about how the day had turned out. Some days are like that. This was one of them.',
+    ] },
+
+  /* LITTLE-tier agency: simple decisions, no irony */
+  { id:'ag_li_silly', beatType:'little_silly_event', tiers:['little'], requiredSlots:['kid','food','companion'],
+    lines: [
+      '{kid.name} pulled out {food.articleText} and said, "I have an idea." The {companion.text} listened carefully. {kid.cap} had a really good idea.',
+    ] },
+  { id:'ag_li_silly2', beatType:'little_silly_event', tiers:['little'], requiredSlots:['kid','object','companion'],
+    lines: [
+      '{kid.name} held {object.articleText} up high. "We need this," {kid.name} said. The {companion.text} nodded. They headed off together.',
+    ] },
+
+  /* TOT-tier agency: tiny declarations */
+  { id:'ag_tot_silly', beatType:'tot_silly_meet', tiers:['tot'], requiredSlots:['kid','companion','food'],
+    lines: [
+      '{kid.name} said, "Look! {food.cap}!" The {companion.text} looked. The {companion.text} liked the {food.text}. Hee hee.',
+    ] },
 ];
 
 /* ================================================================
@@ -1316,8 +1470,10 @@ function generateStoryV2(name, picks, age) {
   }
 
   const companion = mapPickToWord(picks.pet?.w,      V2_WORDS.companions);
-  // Visitor: bias to setting-appropriate visitors when no explicit user pick.
-  const visitor   = picks.creature?.w
+  // v2.2.1 — track whether visitor came from a user pick (used by coverage validator
+  // to decide whether visitor MUST appear in body).
+  const userPickedVisitor = !!picks.creature?.w;
+  const visitor   = userPickedVisitor
                     ? mapPickToWord(picks.creature.w, V2_WORDS.visitors)
                     : pickWithBias(V2_WORDS.visitors, setting.visitorBias);
   // Place: setting locks it. Only fall back to user pick / random if setting is "surprise".
@@ -1333,6 +1489,13 @@ function generateStoryV2(name, picks, age) {
   const liquid    = rawPick(V2_WORDS.liquids);
   const job       = rawPick(V2_WORDS.jobs);
   const rule      = rawPick(V2_WORDS.rules);
+  // v2.2.1 — choice coverage contract. Previously color/move/mood were collected in picks
+  // but the engine NEVER read them. Now they are real slots; beat cards can reference them,
+  // and the coverage validator below ensures any user-selected value surfaces in the body.
+  const color = picks.color?.w ? { text: picks.color.w } : null;
+  const move  = picks.move?.w  ? { text: picks.move.w }  : null;
+  const mood  = picks.mood?.w  ? { text: picks.mood.w }  : null;
+  const freeword2 = picks.freeword2?.w ? { text: picks.freeword2.w } : null;
 
   // Sidekick is optional. Pull from state.sidekicks if available; otherwise null.
   // (Beat cards that require sidekick will be filtered out when null.)
@@ -1344,6 +1507,7 @@ function generateStoryV2(name, picks, age) {
     kid: { name: name || 'Friend', cap: V2Grammar.capitalize(name || 'Friend'), lc: (name || 'friend').toLowerCase() },
     sidekick: sidekickName ? { name: sidekickName, cap: V2Grammar.capitalize(sidekickName), lc: sidekickName.toLowerCase() } : null,
     companion, visitor, place, food, object, sound, adverb, number, liquid, job, rule,
+    color, move, mood, freeword2,
   };
 
   // Pick a story seed compatible with the resolved tier.
@@ -1435,6 +1599,98 @@ function generateStoryV2(name, picks, age) {
   const titlePool = [...universalTitlePatterns, ...(recipeTitlePatterns[seed.recipe] || [])];
   const title = rawPick(titlePool);
 
+  // ============================================================
+  // v2.2.1 — CHOICE COVERAGE CONTRACT
+  // ============================================================
+  // After paragraphs are generated, verify that each REQUIRED user pick surfaces in
+  // the body text. If missing, inject a short authored callback sentence into the
+  // middle paragraph (not P1, not the last) so the selected word is honored without
+  // breaking the story arc.
+  //
+  // Tiers:
+  //   ALWAYS required if available: companion (pet), food, place
+  //   Required if user-picked:      visitor (creature)
+  //   Preferred (max 2 sprinkled):  color, mood, move, freeword
+  //
+  // Title doesn't count as coverage — must appear in the body.
+
+  function joinBody() { return paragraphs.join(' '); }
+  function bodyHas(text) {
+    if (!text) return false;
+    // Case-insensitive substring against word boundaries to avoid "rain" matching "rainbow"
+    const re = new RegExp('\\b' + text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
+    return re.test(joinBody());
+  }
+
+  // Authored callback sentences — tier-aware where it matters.
+  // Each entry is an array; one is picked at random per missing slot.
+  const callbacks = {
+    companion: tier === 'tot'
+      ? [' And the {companion.text} was there too.', ' The {companion.text} smiled.']
+      : tier === 'little'
+        ? [' The {companion.text} stayed close the whole time.', ' The {companion.text} did not want to miss any of it.']
+        : tier === 'tween'
+          ? [' The {companion.text} watched the whole thing. {companion.cap} judged it. Mildly.']
+          : [' The {companion.text} stuck close the whole time, mostly for snack reasons.', ' Through it all, the {companion.text} did not leave their side.'],
+    food: tier === 'tot'
+      ? [' They had {food.articleText}. Yum!']
+      : tier === 'little'
+        ? [' {kid.cap} pulled out {food.articleText} they had saved. Just in time.']
+        : tier === 'tween'
+          ? [' Eventually somebody mentioned {food.articleText}. That changed things.']
+          : [' Eventually, {kid.name} got around to the {food.text} they had been saving for exactly this moment.', ' Somebody finally produced {food.articleText}. The room shifted.'],
+    place: [' The {place.text} hummed around them like it was in on the joke.', ' The {place.text} watched it all happen and said nothing.'],
+    visitor: tier === 'tot'
+      ? [' The {visitor.text} waved hi too.']
+      : [' Even the {visitor.text} came by to see what the fuss was about.', ' The {visitor.text} took notes. Probably.'],
+    color: tier === 'tot'
+      ? [' Everything was a little {color.text}.']
+      : [' The whole scene had a {color.text} tint by then.', ' Somehow even the air looked {color.text}.'],
+    mood: tier === 'tot'
+      ? [' {kid.cap} felt {mood.text}.']
+      : [' {kid.cap} was {mood.text} about the whole thing, in a quiet way.'],
+    move: tier === 'tot'
+      ? [' Then they all {move.text}.']
+      : [' They {move.text} a little, just because it felt right.', ' At some point everybody {move.text}, briefly.'],
+    freeword: [' And once, very quietly, somebody said "{sound.text}".'],
+  };
+
+  function injectCallback(slotName) {
+    if (!callbacks[slotName]) return false;
+    const tpl = rawPick(callbacks[slotName]);
+    const sentence = V2Grammar.render(tpl, slots);
+    // Target paragraph: prefer middle (not first, not last). For 4-para stories: P2 or P3.
+    const targetIdx = paragraphs.length >= 4
+      ? 1 + Math.floor(Math.random() * (paragraphs.length - 2))
+      : Math.max(0, paragraphs.length - 2);
+    paragraphs[targetIdx] = paragraphs[targetIdx].trimEnd() + sentence;
+    return true;
+  }
+
+  // Required: companion, food, place
+  if (companion && !bodyHas(companion.text)) injectCallback('companion');
+  if (food && !bodyHas(food.text))           injectCallback('food');
+  // place: must appear in P1 if setting locked. If body doesn't mention place at all, repair.
+  if (place && !bodyHas(place.text))         injectCallback('place');
+  // Required if user-picked
+  if (userPickedVisitor && visitor && !bodyHas(visitor.text)) injectCallback('visitor');
+
+  // Preferred sprinkles — cap at 2 per story to avoid pileups, but SHUFFLE so all four
+  // user-selected categories get fair coverage across multiple stories (otherwise the
+  // fixed order would starve move + freeword whenever color and mood were both missing).
+  let sprinkleBudget = 2;
+  const preferred = [
+    color    && !bodyHas(color.text)    ? 'color'    : null,
+    mood     && !bodyHas(mood.text)     ? 'mood'     : null,
+    move     && !bodyHas(move.text)     ? 'move'     : null,
+    // freeword — picks.freeword.w is the chosen word; sound.text equals it when user picked
+    (picks.freeword?.w && !bodyHas(picks.freeword.w)) ? 'freeword' : null,
+  ].filter(Boolean).sort(() => Math.random() - 0.5);
+  for (const cat of preferred) {
+    if (sprinkleBudget <= 0) break;
+    if (injectCallback(cat)) sprinkleBudget--;
+  }
+
   return { title, paragraphs };
 }
 
@@ -1450,4 +1706,57 @@ if (typeof window !== 'undefined') {
   window.V2_SETTINGS = V2_SETTINGS;     // v2.1.0
   window.getSetting = getSetting;        // v2.1.0
   window.V2Grammar = V2Grammar;
+
+  /* v2.2.1 — DevTools QA helper for the choice coverage contract.
+     Usage from browser console:
+       qaChoiceCoverage()                               // age 6, surprise, 50 samples
+       qaChoiceCoverage({ age: 5, setting: 'diner' })
+       qaChoiceCoverage({ samples: 200 })
+     Returns a summary object listing missing-category counts. */
+  window.qaChoiceCoverage = function qaChoiceCoverage(opts) {
+    opts = opts || {};
+    const age = opts.age != null ? opts.age : 6;
+    const samples = opts.samples != null ? opts.samples : 50;
+    const picks = {
+      pet: { w: opts.pet || 'parrot' },
+      food: { w: opts.food || 'donuts' },
+      place: { w: opts.place || 'jungle' },
+      creature: opts.creature !== null ? { w: opts.creature || 'dinosaur' } : undefined,
+      color: opts.color !== null ? { w: opts.color || 'electric blue' } : undefined,
+      move: opts.move !== null ? { w: opts.move || 'tiptoed' } : undefined,
+      mood: opts.mood !== null ? { w: opts.mood || 'silly' } : undefined,
+      freeword: opts.freeword !== null ? { w: opts.freeword || 'BAZINKLE', subtype: 'shout' } : undefined,
+      setting: { id: opts.setting || 'surprise' },
+    };
+    const results = {
+      samples,
+      missing: { companion: 0, food: 0, place: 0, visitor: 0, color: 0, mood: 0, move: 0, freeword: 0 },
+      empty: 0,
+      grammarErr: 0,
+      examples: [],
+    };
+    for (let i = 0; i < samples; i++) {
+      const story = generateStoryV2(opts.name || 'Cole', picks, age);
+      if (!story || !story.paragraphs.length) { results.empty++; continue; }
+      const body = story.paragraphs.join(' ').replace(/\[(?:name|c|y):([^\]]+)\]/g, '$1');
+      const has = (s) => s && new RegExp('\\b' + s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(body);
+      if (!has(picks.pet.w))   results.missing.companion++;
+      if (!has(picks.food.w))  results.missing.food++;
+      const setting = window.getSetting && window.getSetting(picks.setting.id);
+      const placeText = setting && setting.place ? setting.place.text : picks.place.w;
+      if (!has(placeText))     results.missing.place++;
+      if (picks.creature && !has(picks.creature.w)) results.missing.visitor++;
+      if (picks.color && !has(picks.color.w))       results.missing.color++;
+      if (picks.mood && !has(picks.mood.w))         results.missing.mood++;
+      if (picks.move && !has(picks.move.w))         results.missing.move++;
+      if (picks.freeword && !has(picks.freeword.w)) results.missing.freeword++;
+      if (/\{[a-zA-Z][\w.]*\}/.test(body))           results.grammarErr++;
+      if (results.examples.length < 2) results.examples.push({ title: story.title, paragraphs: story.paragraphs });
+    }
+    console.log('[qaChoiceCoverage] age=' + age + ' setting=' + (opts.setting || 'surprise') + ' samples=' + samples);
+    console.table(results.missing);
+    if (results.empty)       console.warn('Empty stories:', results.empty);
+    if (results.grammarErr)  console.warn('Stories with unresolved {tokens}:', results.grammarErr);
+    return results;
+  };
 }
