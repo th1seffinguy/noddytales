@@ -4,6 +4,33 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.1.1 — 2026-05-16
+**Mobile fix: Next button visible on age screen without scroll**
+
+User reported: on mobile, the age-selection screen requires scrolling to reach the "Next →" button. The button was rendering below the viewport because the 4-row × 3-column square age grid plus the Extra-silly-mode toggle exceeded standard mobile heights.
+
+**Fix:** three targeted CSS adjustments to `.age-grid` / `.age-tile`:
+
+```diff
+- .age-grid { gap: 12px; }
++ .age-grid { gap: 10px; }
+  .age-tile {
+-   aspect-ratio: 1;
++   aspect-ratio: 1.18;
+-   font-size: 38px;
++   font-size: 34px;
+  }
+```
+
+**Math:** with tile width ~136px on a typical mobile (480px viewport minus 48px padding minus 24px gap divided by 3):
+- Old tile height: 136px (square) × 4 rows + 3 × 12px gaps = **580px**
+- New tile height: 115px × 4 rows + 3 × 10px gaps = **490px**
+- Saves **~90px vertical** — enough to bring the Next button comfortably above the fold
+
+Tiles remain large friendly tap targets; the slight non-squareness reads naturally because the digits inside are still bold and prominent.
+
+---
+
 ## v2.1.0 — 2026-05-16
 **Story Setting Modes + Defect Log sweep**
 

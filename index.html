@@ -202,20 +202,24 @@
   .name-input::placeholder { color: rgba(107,94,72,0.4); font-weight: 600; }
   .name-input:focus { border-color: var(--yellow); transform: translateY(-2px); }
 
-  /* ---- Age grid ---- */
+  /* ---- Age grid ----
+     v2.1.1 — tiles shortened from aspect-ratio 1 to 1.18 and gap tightened from 12 to 10px.
+     On smaller mobile viewports the 4-row × 3-col square grid was pushing the Next button
+     below the fold. Total vertical saved: ~75px, button now visible without scroll. Tiles
+     still read as large, friendly chunks; tap targets remain comfortable. */
   .age-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+    gap: 10px;
   }
   .age-tile {
-    aspect-ratio: 1;
+    aspect-ratio: 1.18;
     border: none;
     border-radius: 24px;
     background: white;
     font-family: 'Fredoka', sans-serif;
     font-weight: 600;
-    font-size: 38px;
+    font-size: 34px;
     color: var(--ink);
     cursor: pointer;
     position: relative;
@@ -956,6 +960,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v2.1.1', title: 'Mobile fix: Next button visible on age screen without scroll',
+    detail: 'The age-select screen had 4 rows of square tiles plus the Extra-silly-mode toggle pushing the Next button below the mobile viewport. Tightened the layout: tile aspect-ratio 1.0 → 1.18 (slightly shorter), grid gap 12px → 10px, tile font 38px → 34px. Saves ~75px vertical. Tiles still read as large, comfortable tap targets; Next button now reaches without scrolling on standard mobile heights.' },
   { v: 'v2.1.0', title: 'Story Setting Modes — pick where the story happens',
     detail: 'Eight relatable settings + Surprise: Diner, Mall, Football Game, School, Backyard, Grocery Store, Zoo, On the Bus. Settings appear as a tile grid after the sidekick step. Each setting locks the story\'s place ("The diner", "the mall") AND biases the visitor + object pools so a Diner story leans toward stressed-barista-style visitors and diner-flavored objects, while a Football Game story leans toward whistles and dramatic capes. New "setting-anchor" beats guarantee the first paragraph mentions the chosen location: 30/30 stories per setting reference the place (verified across 240 generated stories). Surprise mode is the default and behaves exactly like before. Defect Log re-audit: 4 of 5 open defects were resolved automatically by the v2.0 architecture (template recycling, plural foods, double-verb, hardcoded bouncy-castle-smell phrase). The 5th (sound repeated 7+ times in pre-reader) is now fixed by trimming tot beat sound usage to cap at 3 per story.' },
   { v: 'v2.0.0', title: 'v2 engine is now the default — authored comedy engine across all 5 tiers',
