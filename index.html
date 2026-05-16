@@ -874,6 +874,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v1.19.3', title: '"The End" warmth + mid-sentence "Their pal" fix',
+    detail: '"End" was reading with mid-sentence intonation instead of sentence-final closing. Redesigned the TTS end-marker from "Theeeeeee.. End." (2-dot near-ellipsis, capitalized "End") to "Theeee... end." (standard 3-dot ellipsis, lowercase "end" with period). Lowercase "end" tells the model it\'s a common noun in a sentence, not a heading — gets the natural falling cadence audiobook narrators use for warm story closings. Also fixed a Codex-flagged residue: one kid template had `[name:Cole] and ${SK_OPEN} chased...` which read as "Cole and Their pal chased" (mid-sentence capital). Now uses the lowercase mid-sentence form.' },
   { v: 'v1.19.2', title: 'Codex QA sweep — XSS, little freeword, plural grammar, FW routing',
     detail: 'Five Codex QA findings closed. (1) Name field could inject raw HTML into story body — added input strip plus defense-in-depth esc() inside parseStoryLine() so the renderer is safe regardless of source. (2) Little tier (4–5) was using FW_SAFE heavily but never asking for a freeword — added FREE_TEXT_ROUNDS.little pool with 12 age-appropriate prompts and a buildRounds little branch. Kids now get their own silly word, not FLABBADOO. (3) Restored v1.15 semantic freetext routing for kid tier: added 3 specialized templates tagged ["smell"], ["name"], ["dance"] that fire only on matching subtype. (4) Plural food grammar: "The cookies was gone" rewritten as "The cookies had vanished" + "Just cookies everywhere" — works for sg + pl. (5) Added .claude/worktrees/ to .gitignore.' },
   { v: 'v1.19.1', title: 'Defect log sweep — phantom name, end-marker, karaoke',
@@ -1466,7 +1468,7 @@ function buildStory(name, picks, age) {
           `[name:${N}] brought a [c:${SADJ}] [c:${STHING}] to the [y:${PLC}]. Big mistake. The [c:${STHING}] bounced. Then it bounced HIGHER. Then it bounced ONTO THE ROOF.`,
           `${SK_OPEN} yelled, "${fwTok}! ${fwTok}!" Apparently that was the magic word for the [c:${STHING}], because it came back down and landed in [name:${N}]'s hood.`,
           `A [c:${CRE}] walked by and said, "Is that a [c:${SADJ}] [c:${STHING}]? I had one of those once." Then it asked to hold it. Then it ran off with it. RUDE.`,
-          `[name:${N}] and ${SK_OPEN} chased the [c:${CRE}] all the way home. They caught it. They got the [c:${STHING}] back. They also got [y:${FOOD}] out of the deal.`,
+          `[name:${N}] and ${SK_MID} chased the [c:${CRE}] all the way home. They caught it. They got the [c:${STHING}] back. They also got [y:${FOOD}] out of the deal.`,
         ],
       },
       // 6. The Sandwich That Was Just Plain Wrong — disgusting-on-purpose, kid humor
@@ -2558,13 +2560,26 @@ const TTSManager = (() => {
   async function speak(story) {
     stop();
     const strip = s => s.replace(/\[(?:name|c|y):([^\]]+)\]/g, '$1');
-    // "Theeeeeee.. End." — repeated vowels tell ElevenLabs to elongate the "ee" sound,
-    // ellipsis adds a brief pause, period gives final-sentence finality.
-    // v1.19.1: trimmed from 14 e's + "..." to 7 e's + ".." per Defect Log "'The End' display
-    // duration too long" — target ~1.5-2s instead of the previous ~3s. The rendered DOM still
-    // shows clean "The End" (karaoke maps by word index, so the elongated TTS word stays mapped
-    // to the DOM "The" span, which keeps the highlight lit for the full elongation).
-    const text  = strip(story.title) + '.\n\n' + story.paragraphs.map(strip).join('\n\n') + '\n\nTheeeeeee.. End.';
+    // v1.19.3 — "The End" pronunciation redesign per user feedback that "End" was
+    // sounding mid-sentence rather than as a sentence-final closing word.
+    //
+    // Form: "Theeee... end."
+    // Why each piece:
+    //  - 4 e's on "Theeee" — moderate stretch (gentler than v1.16.2's 14 e's, but enough
+    //    dramatic pause to feel like a story closer). Still maps to DOM "The" via karaoke
+    //    word-index alignment, so the highlight stays lit through the elongation.
+    //  - Standard 3-dot ellipsis "..." — proper sentence-pause cue for the TTS model.
+    //    Previous v1.19.1 used 2 dots ("..") which isn't a recognized ellipsis and could
+    //    leave the model ambiguous about whether the sentence had broken.
+    //  - Lowercase "end" — when the TTS model reads "End." (capitalized) after a pause,
+    //    it tends to treat it as a proper noun / heading and gives it mid-sentence
+    //    intonation. Lowercase "end" reads as a common noun in a sentence, getting the
+    //    natural falling cadence audiobook narrators use for warm story closings.
+    //  - Period — sentence-final punctuation for proper closing intonation.
+    //
+    // DOM (.story-end "✦ The End ✦") is unchanged; karaoke maps TTS word[0]→"The",
+    // word[1]→"End" by index, case-insensitive.
+    const text  = strip(story.title) + '.\n\n' + story.paragraphs.map(strip).join('\n\n') + '\n\nTheeee... end.';
     try {
       setLoading(true);
       await openDB();

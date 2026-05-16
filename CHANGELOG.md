@@ -4,6 +4,37 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v1.19.3 — 2026-05-15
+**"The End" warmth + mid-sentence "Their pal" fix**
+
+### "The End" pronunciation redesign
+**User feedback:** "'End' is being pronounced as if it's in the middle of a sentence, not the last word of a sentence." Asked for the most-widely-used form for warm story closings.
+
+**Root cause:** v1.19.1's `Theeeeeee.. End.` had two issues:
+1. **`..` is not a standard ellipsis.** ElevenLabs Turbo v2.5 parses `...` (three dots) as a clear sentence-pause cue. Two dots fall into ambiguity — sometimes parsed as a period followed by another period, sometimes as an unfinished thought, sometimes ignored.
+2. **Capitalized "End"** after a pause tends to be parsed as a proper noun or heading. The model gives it title-like intonation (flat or slightly rising) rather than sentence-final falling.
+
+**Survey of warm closing forms used in audiobook narration:**
+- "The end." (lowercase, single period — standard children's audiobook close)
+- "The eeennnd." (stretch on the closing word itself)
+- "Theeeeee... the end." (long stretch + repeated article, very dramatic)
+- "And that's the end." (storyteller wind-down)
+
+**Selected: `Theeee... end.`**
+- 4 e's on "Theeee" — moderate stretch, less melodramatic than v1.16.2's 14 e's but still recognizable as a story closer.
+- Standard 3-dot ellipsis — proper sentence-pause signal.
+- Lowercase "end" — TTS treats it as a common noun in a sentence and applies natural falling cadence.
+- Period at end — sentence-final closing intonation.
+
+Visible DOM `.story-end` paragraph (`✦ The End ✦`) is **unchanged**. Karaoke maps TTS word[0]→DOM "The" and TTS word[1]→DOM "End" by word-index, so the elongation still lights the DOM "The" span for its full duration and the highlight transitions cleanly to "End" on the closing word.
+
+### Codex re-audit — one residual finding closed
+Codex's second pass flagged one real residue from the v1.19.1 SK_OPEN/SK_MID split: a kid template had `[name:Cole] and ${SK_OPEN} chased the [c:knight]` which, when the user had no sidekick, rendered as "Cole and Their pal chased the knight" — capital "T" mid-sentence. Now uses `${SK_MID}` for the lowercase mid-sentence form ("Cole and their pal chased the knight").
+
+Codex's other re-audit findings (XSS, little freeword, semantic routing, plural-food grammar) were already fixed in v1.19.2 — the audit was against an earlier checkout. Verified live: noddytales.app serves v1.19.2 with `esc()` in `parseStoryLine`, `FREE_TEXT_ROUNDS.little` in content.js, 3 tagged kid templates, and the "had vanished" / "Just FOOD everywhere" phrasing in little template #2.
+
+---
+
 ## v1.19.2 — 2026-05-15
 **Codex QA sweep — five findings closed**
 
