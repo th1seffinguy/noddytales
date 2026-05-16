@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v1.20.0-segment-A';
+const ENGINE_V2_VERSION = 'v1.21.0-segment-B';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -192,6 +192,57 @@ const V2_WORDS = {
       actions:['took twelve full seconds to wave','smiled at a cloud','hugged a branch with great commitment'],
       sounds:['mmmmm','blink','tiny yawn'],
       comedy:{ energy:'calm', dignity:'medium', absurdity:6, bedtimeSoftness:10 } },
+    /* Segment B additions — 10 more companions to 20 total */
+    { id:'tiger', text:'tiger', emoji:'🐯', article:'a',
+      traits:['stripey','proud','dramatic'],
+      actions:['stalked through the grass','batted at a butterfly','sharpened a claw against the wall'],
+      sounds:['rrrrrr','tiny mew','growl'],
+      comedy:{ energy:'chaotic', dignity:'high', absurdity:5, bedtimeSoftness:6 } },
+    { id:'parrot', text:'parrot', emoji:'🦜', article:'a',
+      traits:['loud','colorful','overshares'],
+      actions:['repeated every secret it heard','squawked at the wrong moment','preened endlessly'],
+      sounds:['SQUAWK','hello hello','tiny whistle'],
+      comedy:{ energy:'chaotic', dignity:'low', absurdity:6, bedtimeSoftness:7 } },
+    { id:'koala', text:'koala', emoji:'🐨', article:'a',
+      traits:['sleepy','small','clingy'],
+      actions:['fell asleep mid-sentence','hugged a backpack','blinked slowly twice'],
+      sounds:['snurfle','tiny snore','yawn'],
+      comedy:{ energy:'calm', dignity:'medium', absurdity:4, bedtimeSoftness:10 } },
+    { id:'falcon', text:'falcon', emoji:'🦅', article:'a',
+      traits:['fast','serious','dramatic'],
+      actions:['swooped down for no reason','perched on a high thing','stared into the middle distance'],
+      sounds:['SCREE','whoosh','tiny click'],
+      comedy:{ energy:'chaotic', dignity:'high', absurdity:5, bedtimeSoftness:5 } },
+    { id:'lynx', text:'lynx', emoji:'🐱', article:'a',
+      traits:['tufted','watchful','elegant'],
+      actions:['pounced on a leaf','padded silently','flicked its ear'],
+      sounds:['mrrrp','soft chirp','tiny growl'],
+      comedy:{ energy:'deadpan', dignity:'high', absurdity:5, bedtimeSoftness:7 } },
+    { id:'otter', text:'otter', emoji:'🦦', article:'an',
+      traits:['floppy','playful','damp'],
+      actions:['rolled in the grass','clapped its paws','stuffed a snack in its pocket'],
+      sounds:['squeak','splash','happy chirp'],
+      comedy:{ energy:'bouncy', dignity:'low', absurdity:5, bedtimeSoftness:8 } },
+    { id:'hedgehog', text:'hedgehog', emoji:'🦔', article:'a',
+      traits:['prickly','tiny','anxious'],
+      actions:['curled into a tight ball','sniffed everything','rolled forward an inch'],
+      sounds:['squeak','tiny huff','sniff sniff'],
+      comedy:{ energy:'deadpan', dignity:'medium', absurdity:5, bedtimeSoftness:9 } },
+    { id:'llama', text:'llama', emoji:'🦙', article:'a',
+      traits:['judgmental','long-necked','smug'],
+      actions:['spat in mild protest','stared down a stranger','strutted into the room'],
+      sounds:['hmmm','snort','tiny hum'],
+      comedy:{ energy:'deadpan', dignity:'high', absurdity:6, bedtimeSoftness:7 } },
+    { id:'cub', text:'bear cub', emoji:'🐻', article:'a',
+      traits:['fluffy','clumsy','curious'],
+      actions:['tripped over a root','sniffed a pinecone','climbed the wrong tree'],
+      sounds:['snuffle','tiny growl','huff'],
+      comedy:{ energy:'bouncy', dignity:'medium', absurdity:5, bedtimeSoftness:8 } },
+    { id:'duckling', text:'duckling', emoji:'🐥', article:'a',
+      traits:['fluffy','tiny','determined'],
+      actions:['waddled in a straight line','peeped persistently','followed the kid everywhere'],
+      sounds:['peep peep','tiny quack','soft beep'],
+      comedy:{ energy:'bouncy', dignity:'medium', absurdity:4, bedtimeSoftness:9 } },
   ],
 
   /* Visitors — strangers, problem-makers, characters who arrive. */
@@ -246,6 +297,47 @@ const V2_WORDS = {
       actions:['hovered judgmentally','sprinkled glitter without permission','offered confusing advice'],
       sounds:['tinkle','hmph','tiny snap'],
       comedy:{ energy:'bouncy', dignity:'high', absurdity:6 } },
+    /* Segment B additions — 10 more visitors to 20 total */
+    { id:'robot', text:'robot', emoji:'🤖', article:'a',
+      traits:['polite','slightly broken','overconfident'],
+      actions:['ran a diagnostic on a houseplant','beeped reassuringly','rebooted at a bad moment'],
+      sounds:['beep','whirr','tiny chime'] },
+    { id:'mermaid', text:'mermaid', emoji:'🧜', article:'a',
+      traits:['glittery','dramatic','sandy'],
+      actions:['flopped onto the porch','sang an unprompted ballad','demanded fresh towels'],
+      sounds:['la la la','splash','tiny sigh'] },
+    { id:'phoenix', text:'phoenix', emoji:'🔥', article:'a',
+      traits:['fiery','vain','dramatic'],
+      actions:['caught fire on purpose','adjusted its feathers','posed for an imaginary photo'],
+      sounds:['whoosh','crackle','tiny caw'] },
+    { id:'centaur', text:'centaur', emoji:'🐎', article:'a',
+      traits:['tall','formal','well-read'],
+      actions:['quoted a poem nobody asked for','galloped politely','adjusted a tiny bowtie'],
+      sounds:['neigh','tiny ahem','hoof tap'] },
+    { id:'gnome', text:'gnome', emoji:'🧙', article:'a',
+      traits:['bearded','suspicious','tiny'],
+      actions:['guarded a mushroom','muttered at the weather','offered an unsolicited rule'],
+      sounds:['harumph','tiny shuffle','grumble'] },
+    { id:'banshee', text:'banshee', emoji:'🌬️', article:'a',
+      traits:['shrieky','dramatic','well-meaning'],
+      actions:['wailed once for effect','floated upside-down','apologized for the noise'],
+      sounds:['WAAAA','soft sigh','tiny whistle'] },
+    { id:'dinosaur', text:'dinosaur', emoji:'🦖', article:'a',
+      traits:['huge','clumsy','sincere'],
+      actions:['stepped on a daisy','tried to whisper','offered a tiny snack with a giant claw'],
+      sounds:['ROAR','rumble','tiny chuff'] },
+    { id:'sphinx', text:'sphinx', emoji:'🏛️', article:'a',
+      traits:['cryptic','dignified','bored'],
+      actions:['asked a riddle','accepted any answer','pretended to nap'],
+      sounds:['hmmm','tiny purr','dramatic exhale'] },
+    { id:'gargoyle', text:'gargoyle', emoji:'🗿', article:'a',
+      traits:['stoney','grumpy','watchful'],
+      actions:['glared from a rooftop','flexed a tiny wing','complained about the weather'],
+      sounds:['grrr','grumble','tiny stone tap'] },
+    { id:'jester', text:'jester', emoji:'🃏', article:'a',
+      traits:['loud','bells everywhere','overcommitted'],
+      actions:['juggled three apologies','tripped on purpose','spun in a circle'],
+      sounds:['jingle','BOING','tiny tah-dah'] },
   ],
 
   /* Places — story setting. */
@@ -260,6 +352,17 @@ const V2_WORDS = {
     { id:'lighthouse', text:'lighthouse', emoji:'🗼', article:'a' },
     { id:'aquarium',   text:'aquarium',   emoji:'🐠', article:'an' },
     { id:'bakery',     text:'bakery',     emoji:'🥐', article:'a' },
+    /* Segment B additions — 10 more places to 20 total */
+    { id:'meadow',       text:'meadow',         emoji:'🌾', article:'a' },
+    { id:'beach',        text:'beach',          emoji:'🏖️', article:'a' },
+    { id:'shipwreck',    text:'shipwreck',      emoji:'⚓', article:'a' },
+    { id:'glacier',      text:'glacier',        emoji:'🧊', article:'a' },
+    { id:'rooftop',      text:'rooftop',        emoji:'🏙️', article:'a' },
+    { id:'carnival',     text:'carnival',       emoji:'🎡', article:'a' },
+    { id:'planetarium',  text:'planetarium',    emoji:'🪐', article:'a' },
+    { id:'library',      text:'library',        emoji:'📚', article:'a' },
+    { id:'museum',       text:'museum',         emoji:'🏛️', article:'a' },
+    { id:'pillow_fort',  text:'pillow fort',    emoji:'🛏️', article:'a' },
   ],
 
   /* Foods — edible plot devices. */
@@ -274,6 +377,17 @@ const V2_WORDS = {
     { id:'pretzels',      text:'pretzels',      emoji:'🥨', isPlural:true,  plural:'pretzels' },
     { id:'sushi',         text:'sushi',         emoji:'🍣', isPlural:false, article:'a piece of' },
     { id:'grilled_cheese',text:'grilled cheese',emoji:'🥪', isPlural:false, article:'a' },
+    /* Segment B additions — 10 more foods to 20 total */
+    { id:'waffles',       text:'waffles',       emoji:'🧇', isPlural:true,  plural:'waffles' },
+    { id:'spaghetti',     text:'spaghetti',     emoji:'🍝', isPlural:false, article:'some' },
+    { id:'popcorn',       text:'popcorn',       emoji:'🍿', isPlural:false, article:'some' },
+    { id:'hot_dogs',      text:'hot dogs',      emoji:'🌭', isPlural:true,  plural:'hot dogs' },
+    { id:'cookies',       text:'cookies',       emoji:'🍪', isPlural:true,  plural:'cookies' },
+    { id:'french_fries',  text:'french fries',  emoji:'🍟', isPlural:true,  plural:'french fries' },
+    { id:'ramen',         text:'ramen',         emoji:'🍜', isPlural:false, article:'a bowl of' },
+    { id:'burritos',      text:'burritos',      emoji:'🌯', isPlural:true,  plural:'burritos' },
+    { id:'dumplings',     text:'dumplings',     emoji:'🥟', isPlural:true,  plural:'dumplings' },
+    { id:'jellybeans',    text:'jellybeans',    emoji:'🍬', isPlural:true,  plural:'jellybeans' },
   ],
 
   /* Objects — holdable, discoverable plot items. */
@@ -288,22 +402,39 @@ const V2_WORDS = {
     { id:'dramatic_cape',     text:'dramatic cape',     emoji:'🦸', article:'a' },
     { id:'crumb_map',         text:'map covered in crumbs', emoji:'🗺️', article:'a' },
     { id:'sleepy_megaphone',  text:'sleepy megaphone',  emoji:'📣', article:'a' },
+    /* Segment B additions — 15 more objects to 25 total */
+    { id:'suspicious_envelope', text:'suspicious envelope', emoji:'✉️', article:'a' },
+    { id:'noisy_spoon',         text:'noisy spoon',         emoji:'🥄', article:'a' },
+    { id:'tiny_clipboard',      text:'tiny clipboard',      emoji:'📋', article:'a' },
+    { id:'magic_8_ball',        text:'magic eight ball',    emoji:'🎱', article:'a' },
+    { id:'whistle',             text:'whistle',             emoji:'🎺', article:'a' },
+    { id:'rubber_chicken',      text:'rubber chicken',      emoji:'🐔', article:'a' },
+    { id:'jar_of_buttons',      text:'jar of buttons',      emoji:'🫙', article:'a' },
+    { id:'umbrella',            text:'umbrella',            emoji:'☂️', article:'an' },
+    { id:'shiny_rock',          text:'shiny rock',          emoji:'💎', article:'a' },
+    { id:'wind_up_toy',         text:'wind-up toy',         emoji:'🧸', article:'a' },
+    { id:'banana_phone',        text:'banana phone',        emoji:'📞', article:'a' },
+    { id:'pickle_jar',          text:'pickle jar',          emoji:'🥒', article:'a' },
+    { id:'broken_compass',      text:'broken compass',      emoji:'🧭', article:'a' },
+    { id:'invisible_box',       text:'invisible box',       emoji:'📦', article:'an' },
+    { id:'wobbly_telescope',    text:'wobbly telescope',    emoji:'🔭', article:'a' },
   ],
 
   /* Sounds — onomatopoeia + exclamations. Used as standalone slots and also pulled from companion.sounds. */
   sounds: [
-    { id:'splat',   text:'SPLAT' },
-    { id:'boing',   text:'BOING' },
-    { id:'kerplunk',text:'KERPLUNK' },
-    { id:'wump',    text:'WUMP' },
-    { id:'fwoosh',  text:'FWOOSH' },
-    { id:'honk',    text:'HONK' },
-    { id:'plop',    text:'PLOP' },
-    { id:'yikes',   text:'YIKES' },
-    { id:'whee',    text:'WHEE' },
-    { id:'bwah',    text:'BWAH' },
-    { id:'zink',    text:'ZINK' },
-    { id:'poof',    text:'POOF' },
+    { id:'splat',   text:'SPLAT' },     { id:'boing',   text:'BOING' },
+    { id:'kerplunk',text:'KERPLUNK' },  { id:'wump',    text:'WUMP' },
+    { id:'fwoosh',  text:'FWOOSH' },    { id:'honk',    text:'HONK' },
+    { id:'plop',    text:'PLOP' },      { id:'yikes',   text:'YIKES' },
+    { id:'whee',    text:'WHEE' },      { id:'bwah',    text:'BWAH' },
+    { id:'zink',    text:'ZINK' },      { id:'poof',    text:'POOF' },
+    /* Segment B — 12 more sounds to 24 total */
+    { id:'kazam',   text:'KAZAM' },     { id:'blip',    text:'BLIP' },
+    { id:'sproing', text:'SPROING' },   { id:'whoosh',  text:'WHOOSH' },
+    { id:'flurp',   text:'FLURP' },     { id:'glonk',   text:'GLONK' },
+    { id:'zonk',    text:'ZONK' },      { id:'pfft',    text:'PFFT' },
+    { id:'thud',    text:'THUD' },      { id:'thwip',   text:'THWIP' },
+    { id:'squelch', text:'SQUELCH' },   { id:'meep',    text:'MEEP' },
   ],
 
   /* Adverbs — used in {adverb} slots for action flavor. */
@@ -316,6 +447,15 @@ const V2_WORDS = {
     { id:'somehow',               text:'somehow' },
     { id:'backwards',             text:'backwards' },
     { id:'extra_slowly',          text:'extremely slowly' },
+    /* Segment B — 8 more adverbs to 16 total */
+    { id:'accidentally_on_purpose', text:'accidentally on purpose' },
+    { id:'with_concerning_enthusiasm', text:'with concerning enthusiasm' },
+    { id:'in_a_hurry',            text:'in a hurry' },
+    { id:'for_unclear_reasons',   text:'for unclear reasons' },
+    { id:'thoughtfully',          text:'thoughtfully' },
+    { id:'cautiously',            text:'cautiously' },
+    { id:'dramatically',          text:'dramatically' },
+    { id:'cheerfully',            text:'cheerfully' },
   ],
 
   /* Numbers — concrete absurd quantities. */
@@ -326,6 +466,15 @@ const V2_WORDS = {
     { id:'too_many',      text:'too many' },
     { id:'forty_two',     text:'exactly forty-two' },
     { id:'a_polite_few',  text:'a polite handful of' },
+    /* Segment B — 8 more numbers to 14 total */
+    { id:'eleventy_eight',text:'eleventy-eight' },
+    { id:'three_alleged', text:'three (allegedly)' },
+    { id:'six_rude',      text:'six (rude)' },
+    { id:'nine_plus_three', text:'nine plus three' },
+    { id:'eight_thousand',text:'eight thousand' },
+    { id:'a_small_specific', text:'a small but specific number of' },
+    { id:'almost_zero',   text:'almost zero' },
+    { id:'far_too_few',   text:'far too few' },
   ],
 
   /* Liquids — pickle juice, moon milk. */
@@ -336,6 +485,15 @@ const V2_WORDS = {
     { id:'warm_soup',       text:'warm soup' },
     { id:'thunder_soda',    text:'thunder soda' },
     { id:'rainbow_water',   text:'rainbow water' },
+    /* Segment B — 8 more liquids to 14 total */
+    { id:'questionable_broth', text:'questionable broth' },
+    { id:'loud_orange_juice',  text:'extremely loud orange juice' },
+    { id:'emergency_apple_juice', text:'emergency apple juice' },
+    { id:'haunted_iced_tea',   text:'haunted iced tea' },
+    { id:'formal_hot_chocolate', text:'formally polite hot chocolate' },
+    { id:'single_tear',        text:'a single tear' },
+    { id:'invisible_water',    text:'invisible water' },
+    { id:'sleepy_milk',        text:'sleepy milk' },
   ],
 
   /* Jobs — fake titles for absurd authority. */
@@ -346,6 +504,17 @@ const V2_WORDS = {
     { id:'hat_consultant',     text:'emergency hat consultant' },
     { id:'snack_detective',    text:'snack detective' },
     { id:'hallway_mayor',      text:'hallway mayor' },
+    /* Segment B — 10 more jobs to 16 total */
+    { id:'moon_accountant',    text:'junior moon accountant' },
+    { id:'dragon_whisperer',   text:'certified dragon whisperer' },
+    { id:'substitute_wizard',  text:'substitute wizard' },
+    { id:'button_counter',     text:'professional button counter' },
+    { id:'nap_supervisor',     text:'royal nap supervisor' },
+    { id:'sock_investigator',  text:'chief sock investigator' },
+    { id:'apology_writer',     text:'official apology writer' },
+    { id:'pillow_engineer',    text:'pillow engineer' },
+    { id:'bubble_judge',       text:'bubble judge' },
+    { id:'lost_thing_returner',text:'lost thing returner' },
   ],
 
   /* Rules — used as motif anchors (setup → violation → payoff). */
@@ -356,6 +525,15 @@ const V2_WORDS = {
     { id:'pets_vote',       text:'pets vote on Tuesdays' },
     { id:'check_hat',       text:'check the hat before sitting' },
     { id:'no_apology_stairs', text:'no apologizing on stairs' },
+    /* Segment B — 8 more rules to 14 total */
+    { id:'left_socks',      text:'all left socks must be paired' },
+    { id:'spoon_finder',    text:'whoever finds the spoon makes the rules' },
+    { id:'no_whispering',   text:'no whispering at lunch' },
+    { id:'every_cloud',     text:'every cloud counts' },
+    { id:'always_ladybug',  text:'always say hello to ladybugs' },
+    { id:'no_clipboard_running', text:'never run with a clipboard' },
+    { id:'two_snacks_min',  text:'always carry two snacks minimum' },
+    { id:'tuesday_pancakes',text:'pancakes are mandatory on Tuesday' },
   ],
 };
 
@@ -365,11 +543,21 @@ const V2_WORDS = {
    Phase 1 ships 5 seeds, all Quest-compatible.
    ================================================================ */
 const V2_SEEDS = [
-  { id:'snack_trial',   tiers:['kid'], recipe:'quest', requiredSlots:['companion','visitor','food','object'] },
-  { id:'lost_thing',    tiers:['kid'], recipe:'quest', requiredSlots:['companion','place','object'] },
-  { id:'secret_club',   tiers:['kid'], recipe:'quest', requiredSlots:['companion','visitor','place'] },
-  { id:'weird_smell',   tiers:['kid'], recipe:'quest', requiredSlots:['companion','place','food'] },
-  { id:'wrong_room',    tiers:['kid'], recipe:'quest', requiredSlots:['companion','visitor','object'] },
+  /* Quest-recipe seeds */
+  { id:'snack_trial',     tiers:['kid'], recipe:'quest',       requiredSlots:['companion','visitor','food','object'] },
+  { id:'lost_thing',      tiers:['kid'], recipe:'quest',       requiredSlots:['companion','place','object'] },
+  { id:'secret_club',     tiers:['kid'], recipe:'quest',       requiredSlots:['companion','visitor','place'] },
+  { id:'weird_smell',     tiers:['kid'], recipe:'quest',       requiredSlots:['companion','place','food'] },
+  { id:'wrong_room',      tiers:['kid'], recipe:'quest',       requiredSlots:['companion','visitor','object'] },
+  /* Segment B — Mystery-recipe seeds */
+  { id:'mystery_thief',   tiers:['kid'], recipe:'mystery',     requiredSlots:['companion','visitor','food','object'] },
+  { id:'missing_kazoo',   tiers:['kid'], recipe:'mystery',     requiredSlots:['companion','object'] },
+  /* Trial-recipe seeds */
+  { id:'broken_rule',     tiers:['kid'], recipe:'trial',       requiredSlots:['companion','visitor','rule'] },
+  /* Performance-recipe seeds */
+  { id:'surprise_show',   tiers:['kid'], recipe:'performance', requiredSlots:['companion','visitor','sound'] },
+  /* Bureaucracy-recipe seeds */
+  { id:'lost_paperwork',  tiers:['kid'], recipe:'bureaucracy', requiredSlots:['companion','visitor','object','job'] },
 ];
 
 /* ================================================================
@@ -381,6 +569,28 @@ const V2_RECIPES = {
   quest: {
     id: 'quest',
     beats: ['arrival', 'helper', 'obstacle', 'discovery', 'bedtime_landing'],
+  },
+  /* Segment B — 4 more recipes (5 total). Each is a distinct story shape with different beat
+     sequence, giving real shape variety beyond the Quest pattern. */
+  mystery: {
+    // strange clue → suspect → false solution → real culprit → cozy resolution
+    id: 'mystery',
+    beats: ['strange_clue', 'suspect', 'false_solution', 'culprit', 'bedtime_landing'],
+  },
+  trial: {
+    // rule broken → judge appears → silly evidence → verdict → snack
+    id: 'trial',
+    beats: ['rule_setup', 'judge_arrives', 'silly_evidence', 'verdict', 'bedtime_landing'],
+  },
+  performance: {
+    // practice → disaster → improvisation → applause → sleepy closer
+    id: 'performance',
+    beats: ['practice', 'disaster', 'improvisation', 'applause', 'bedtime_landing'],
+  },
+  bureaucracy: {
+    // form/clipboard → impossible rule → loophole → stamp → absurd compliance
+    id: 'bureaucracy',
+    beats: ['paperwork', 'impossible_rule', 'loophole', 'stamp', 'bedtime_landing'],
   },
 };
 
@@ -449,7 +659,7 @@ const V2_BEATS = [
       'A small certificate appeared. It announced {kid.name} as the new {job.text}. {kid.name} had not applied for this. The certificate was very official anyway.',
     ] },
 
-  /* BEDTIME LANDING — cozy resolution */
+  /* BEDTIME LANDING — cozy resolution (universal across all recipes) */
   { id:'b1', beatType:'bedtime_landing', tiers:['kid'], requiredSlots:['kid','companion','food'],
     lines: [
       'By bedtime, everyone was fed. {kid.name} ate {food.articleText}. {companion.TheText} had three. Nobody asked questions.',
@@ -461,6 +671,158 @@ const V2_BEATS = [
   { id:'b3', beatType:'bedtime_landing', tiers:['kid'], requiredSlots:['kid','sound'],
     lines: [
       'The last thing {kid.name} heard before falling asleep was a tiny, distant "{sound.text}." {kid.name} smiled. Goodnight.',
+    ] },
+  { id:'b4', beatType:'bedtime_landing', tiers:['kid'], requiredSlots:['kid','companion','place'],
+    lines: [
+      '{kid.name} and {companion.TheText} walked back from the {place.text} in comfortable silence. Today had been a lot. Tomorrow could wait.',
+    ] },
+  { id:'b5', beatType:'bedtime_landing', tiers:['kid'], requiredSlots:['kid','companion','object'],
+    lines: [
+      'On the way home, {kid.name} tucked {object.articleText} into a pocket for safekeeping. {companion.TheText} approved.',
+    ] },
+
+  /* ============================================================
+     Segment B — Mystery recipe beats
+     ============================================================ */
+  { id:'m_clue1', beatType:'strange_clue', tiers:['kid'], requiredSlots:['kid','object','companion'],
+    lines: [
+      '{kid.name} found {object.articleText} where it absolutely should not be. {companion.TheText} sniffed it suspiciously.',
+    ] },
+  { id:'m_clue2', beatType:'strange_clue', tiers:['kid'], requiredSlots:['kid','place','sound'],
+    lines: [
+      'Something strange was happening at the {place.text}. A faint "{sound.text}" kept coming from the corner. Nobody could find the source.',
+    ] },
+  { id:'m_suspect1', beatType:'suspect', tiers:['kid'], requiredSlots:['kid','visitor','adverb'],
+    lines: [
+      '{visitor.TheText} was loitering nearby, eyeing the scene {adverb.text}. {kid.name} narrowed their eyes.',
+    ] },
+  { id:'m_suspect2', beatType:'suspect', tiers:['kid'], requiredSlots:['companion','visitor'],
+    lines: [
+      '"It was {visitor.theText}," whispered {companion.theText}. "I have a feeling. A strong feeling."',
+    ] },
+  { id:'m_false1', beatType:'false_solution', tiers:['kid'], requiredSlots:['kid','visitor','number'],
+    lines: [
+      '{kid.name} accused {visitor.theText} loudly. {visitor.TheText} produced {number.text} alibis. All of them were extremely fake. But somehow they worked.',
+    ] },
+  { id:'m_false2', beatType:'false_solution', tiers:['kid'], requiredSlots:['companion','adverb'],
+    lines: [
+      '{companion.TheText} nodded {adverb.text}. "Wait. That cannot be right." Everyone paused. {companion.TheText} was, as usual, correct.',
+    ] },
+  { id:'m_culprit1', beatType:'culprit', tiers:['kid'], requiredSlots:['kid','companion','food'],
+    lines: [
+      'Turns out it was {companion.theText} all along. {companion.TheText} had hidden the {food.text} for emergency snack purposes. {kid.name} sighed.',
+    ] },
+  { id:'m_culprit2', beatType:'culprit', tiers:['kid'], requiredSlots:['kid','object','liquid'],
+    lines: [
+      'The real culprit: {object.articleText} full of {liquid.text}. Nobody had put it there. Nobody had asked for it. It was just there.',
+    ] },
+
+  /* ============================================================
+     Segment B — Trial recipe beats
+     ============================================================ */
+  { id:'t_rule1', beatType:'rule_setup', tiers:['kid'], requiredSlots:['kid','rule'],
+    lines: [
+      'Everyone knew the rule: "{rule.text}." {kid.name} knew it. The neighbors knew it. The neighbors\' pets knew it. It was a famous rule.',
+    ] },
+  { id:'t_rule2', beatType:'rule_setup', tiers:['kid'], requiredSlots:['kid','rule','companion'],
+    lines: [
+      'Today, {kid.name} broke the rule. "{rule.text}" — broken. On purpose. {companion.TheText} stared. This was new territory.',
+    ] },
+  { id:'t_judge1', beatType:'judge_arrives', tiers:['kid'], requiredSlots:['visitor','object'],
+    lines: [
+      '{visitor.TheText} appeared holding {object.articleText}. "I am here to judge," {visitor.theText} announced. Nobody had requested a judge.',
+    ] },
+  { id:'t_judge2', beatType:'judge_arrives', tiers:['kid'], requiredSlots:['visitor','adverb'],
+    lines: [
+      'A gavel banged {adverb.text}. {visitor.TheText} entered the room as if everyone had been waiting. "Court is in session," {visitor.theText} said.',
+    ] },
+  { id:'t_evidence1', beatType:'silly_evidence', tiers:['kid'], requiredSlots:['kid','number','food'],
+    lines: [
+      'Exhibit A: {number.text} {food.plural}. Exhibit B: a feather. Exhibit C: another feather. The case was, technically, ridiculous.',
+    ] },
+  { id:'t_evidence2', beatType:'silly_evidence', tiers:['kid'], requiredSlots:['companion','object'],
+    lines: [
+      '{companion.TheText} produced {object.articleText} as evidence. Nobody knew what it proved. {companion.TheText} did not elaborate.',
+    ] },
+  { id:'t_verdict1', beatType:'verdict', tiers:['kid'], requiredSlots:['kid','visitor','job'],
+    lines: [
+      '{visitor.TheText} declared {kid.name} the new {job.text}. This was the most surprising verdict possible. {kid.name} accepted it anyway.',
+    ] },
+  { id:'t_verdict2', beatType:'verdict', tiers:['kid'], requiredSlots:['kid','food'],
+    lines: [
+      'The court ruled in favor of snacks. {kid.name} was sentenced to eat {food.articleText}. Justice was served. So were the {food.plural}.',
+    ] },
+
+  /* ============================================================
+     Segment B — Performance recipe beats
+     ============================================================ */
+  { id:'p_practice1', beatType:'practice', tiers:['kid'], requiredSlots:['kid','companion','adverb'],
+    lines: [
+      '{kid.name} and {companion.theText} practiced {adverb.text}. The act was almost ready. Almost.',
+    ] },
+  { id:'p_practice2', beatType:'practice', tiers:['kid'], requiredSlots:['kid','sound','companion'],
+    lines: [
+      'Step one: yell "{sound.text}". Step two: spin. Step three: bow. {kid.name} rehearsed all three. {companion.TheText} offered notes.',
+    ] },
+  { id:'p_disaster1', beatType:'disaster', tiers:['kid'], requiredSlots:['kid','object'],
+    lines: [
+      'Then everything went wrong. {object.TheText} fell. The lights flickered. {kid.name} froze. The audience leaned forward.',
+    ] },
+  { id:'p_disaster2', beatType:'disaster', tiers:['kid'], requiredSlots:['companion','sound'],
+    lines: [
+      'Three seconds in, {companion.theText} let out a confused "{sound.text}." This was not in the script. There was no script.',
+    ] },
+  { id:'p_improv1', beatType:'improvisation', tiers:['kid'], requiredSlots:['kid','adverb','companion'],
+    lines: [
+      '{kid.name} improvised {adverb.text}. {companion.TheText} followed along, mostly. It was beautiful. It was also wrong.',
+    ] },
+  { id:'p_improv2', beatType:'improvisation', tiers:['kid'], requiredSlots:['kid','sound'],
+    lines: [
+      '{kid.name} yelled "{sound.text}!" four more times for good measure. The audience interpreted this as art.',
+    ] },
+  { id:'p_applause1', beatType:'applause', tiers:['kid'], requiredSlots:['kid','visitor','number'],
+    lines: [
+      'The applause was thunderous. {visitor.TheText} demanded {number.text} encores. {kid.name} did one. The visitor pretended it counted as all of them.',
+    ] },
+  { id:'p_applause2', beatType:'applause', tiers:['kid'], requiredSlots:['kid','companion'],
+    lines: [
+      'Standing ovation. {kid.name} bowed. {companion.TheText} bowed too, several times. Some bows were sincere. Some were just for show.',
+    ] },
+
+  /* ============================================================
+     Segment B — Bureaucracy recipe beats
+     ============================================================ */
+  { id:'bu_paper1', beatType:'paperwork', tiers:['kid'], requiredSlots:['kid','visitor','object'],
+    lines: [
+      '{visitor.TheText} arrived with {object.articleText} and a stack of paperwork. "Sign here. And here. And especially here," {visitor.theText} said.',
+    ] },
+  { id:'bu_paper2', beatType:'paperwork', tiers:['kid'], requiredSlots:['kid','number','object'],
+    lines: [
+      'The form was {number.text} pages long. It demanded {object.articleText}. {kid.name} did not have one. The form did not care.',
+    ] },
+  { id:'bu_rule1', beatType:'impossible_rule', tiers:['kid'], requiredSlots:['visitor','rule'],
+    lines: [
+      '"Rule seventeen-B," announced {visitor.theText}. "{rule.text}." It was an old rule. Nobody remembered who made it. The rule did not care.',
+    ] },
+  { id:'bu_rule2', beatType:'impossible_rule', tiers:['kid'], requiredSlots:['kid','rule','companion'],
+    lines: [
+      'The official rule was: "{rule.text}." {kid.name} did not understand. Neither did {companion.theText}. Neither did anyone, probably.',
+    ] },
+  { id:'bu_loop1', beatType:'loophole', tiers:['kid'], requiredSlots:['kid','companion','adverb'],
+    lines: [
+      '{kid.name} and {companion.theText} found a loophole. They walked through it {adverb.text}. {visitor.TheText} was furious. Or possibly impressed. Hard to tell.',
+    ] },
+  { id:'bu_loop2', beatType:'loophole', tiers:['kid'], requiredSlots:['kid','object'],
+    lines: [
+      'Subsection 4 of paragraph 12 mentioned {object.articleText}. {kid.name} produced one. The room fell silent. This had not been anticipated.',
+    ] },
+  { id:'bu_stamp1', beatType:'stamp', tiers:['kid'], requiredSlots:['kid','visitor','job'],
+    lines: [
+      'A stamp came down. THUNK. {kid.name} was now officially the new {job.text}. {visitor.TheText} did not look pleased. The stamp had spoken.',
+    ] },
+  { id:'bu_stamp2', beatType:'stamp', tiers:['kid'], requiredSlots:['kid','food'],
+    lines: [
+      'Approved. With conditions. The conditions involved {food.text}. {kid.name} agreed to all of them. The paperwork was filed in triplicate.',
     ] },
 ];
 
@@ -536,20 +898,30 @@ function generateStoryV2(name, picks, age) {
     paragraphs.push(ensureSentenceStart(V2Grammar.render(line, slots)));
   }
 
-  // Title — bind kid name + companion/visitor/object/food for a recognizable shape.
-  // titleCase capitalizes every word so multi-word things ("sleepy megaphone") render as
-  // proper titles ("Sleepy Megaphone").
+  // Title — bind kid name + slot picks for a recognizable shape. Each recipe gets a slight
+  // title bias for thematic fit (mystery → "Case of...", trial → "Trial of...", etc.) but
+  // the universal patterns also fire for any recipe.
   const tc = V2Grammar.titleCase;
   const kidCap = V2Grammar.capitalize(slots.kid.name);
-  const titlePatterns = [
+  const universalTitlePatterns = [
     `${kidCap} and the ${tc(companion.text)}`,
     `The Day ${kidCap} Met ${tc(visitor.text)}`,
     `${kidCap} and the ${tc(object.text)} Problem`,
     `${kidCap}'s ${tc(food.text)} Adventure`,
-    `The Curious Case of the ${tc(object.text)}`,
-    `${kidCap} and the ${tc(place.text)} Mystery`,
+    `${kidCap} and the ${tc(place.text)}`,
+    `The ${tc(companion.text)} and the ${tc(food.text)}`,
+    `How ${kidCap} Met ${tc(visitor.text)}`,
+    `${kidCap} vs the ${tc(visitor.text)}`,
   ];
-  const title = rawPick(titlePatterns);
+  const recipeTitlePatterns = {
+    mystery:     [`The Curious Case of the ${tc(object.text)}`, `The Mystery of the ${tc(place.text)}`, `${kidCap} and the Missing ${tc(object.text)}`],
+    trial:       [`The Trial of ${kidCap}`, `${kidCap} on Trial`, `The People vs ${kidCap}`],
+    performance: [`${kidCap}'s Big Show`, `${kidCap} Takes the Stage`, `The ${tc(companion.text)} Performance`],
+    bureaucracy: [`${kidCap} and the Impossible Form`, `${kidCap}'s Official Disaster`, `The ${tc(job.text)} Crisis`],
+    quest:       [`${kidCap}'s Adventure to the ${tc(place.text)}`, `${kidCap} Goes to the ${tc(place.text)}`],
+  };
+  const titlePool = [...universalTitlePatterns, ...(recipeTitlePatterns[seed.recipe] || [])];
+  const title = rawPick(titlePool);
 
   return { title, paragraphs };
 }

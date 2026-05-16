@@ -4,6 +4,84 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v1.21.0 — 2026-05-15
+**v2 engine — Phase 2 (Segment B): kid library expansion + 4 new recipes**
+
+Second segment of the v2.0 architecture rebuild. The v2 engine remains opt-in via `?engine=v2`. Kid tier only. Other tiers still run v1 unchanged.
+
+### Library growth (10 categories → 189 rich words)
+
+| Category | v1.20.0 | v1.21.0 | Δ |
+|---|---:|---:|---:|
+| Companions | 10 | **20** | +10 |
+| Visitors   | 10 | **20** | +10 |
+| Places     | 10 | **20** | +10 |
+| Foods      | 10 | **20** | +10 |
+| Objects    | 10 | **25** | +15 |
+| Sounds     | 12 | **24** | +12 |
+| Adverbs    |  8 | **16** | +8  |
+| Numbers    |  6 | **14** | +8  |
+| Liquids    |  6 | **14** | +8  |
+| Jobs       |  6 | **16** | +10 |
+| Rules      |  6 | **14** | +8  |
+| **Total**  | 94 | **203** | **+109** |
+
+New companions include tiger, parrot, koala, falcon, lynx, otter, hedgehog, llama, bear cub, duckling. New visitors include robot, mermaid, phoenix, centaur, gnome, banshee, dinosaur, sphinx, gargoyle, jester.
+
+### Story-shape variety: 1 recipe → 5 recipes
+
+| Recipe | Beat sequence |
+|---|---|
+| Quest (existing) | arrival → helper → obstacle → discovery → bedtime_landing |
+| **Mystery** (new) | strange_clue → suspect → false_solution → culprit → bedtime_landing |
+| **Trial** (new) | rule_setup → judge_arrives → silly_evidence → verdict → bedtime_landing |
+| **Performance** (new) | practice → disaster → improvisation → applause → bedtime_landing |
+| **Bureaucracy** (new) | paperwork → impossible_rule → loophole → stamp → bedtime_landing |
+
+5 new story seeds added (10 total) — at least one per recipe.
+
+### Beat library: 15 → 49
+
+- Quest beats: 15 (unchanged + 2 new bedtime_landing variants)
+- Mystery beats: 8 (4 beat types × 2 each)
+- Trial beats: 8
+- Performance beats: 8
+- Bureaucracy beats: 8
+- Universal bedtime_landing variants: 5
+
+### Title pool
+
+Universal patterns: 8 (was 6). Recipe-specific patterns: 3 per recipe (15 total). When the engine picks a Mystery seed, titles like "The Curious Case of the Tiny Key" or "The Mystery of the Desert" are eligible alongside the universal patterns.
+
+### Smoke test (100 generations, kid age 6, FW=FLOBBER)
+- 100/100 stories generated successfully
+- **0 grammar errors** (hostile combos: octopus + tacos + alien + axolotl all clean)
+- **0 unresolved `{slot.prop}` tokens**
+- 26/100 unique titles
+- All 21 beat types in the 5 recipes have ≥1 beat card
+
+### Sample (Mystery recipe)
+
+> **The Mystery of the Desert**
+> Cole found a clipboard where it absolutely should not be. The dragon sniffed it suspiciously.
+> The knight was loitering nearby, eyeing the scene for unclear reasons. Cole narrowed their eyes.
+> The dragon nodded for unclear reasons. "Wait. That cannot be right." Everyone paused. The dragon was, as usual, correct.
+> Turns out it was the dragon all along. The dragon had hidden the tacos for emergency snack purposes. Cole sighed.
+> By bedtime, everyone was fed. Cole ate some tacos. The dragon had three. Nobody asked questions.
+
+### Sample (Performance recipe)
+
+> **Cole's Tacos Adventure**
+> Cole and the dragon practiced sideways. The act was almost ready. Almost.
+> Then everything went wrong. The dramatic cape fell. The lights flickered. Cole froze. The audience leaned forward.
+> Cole improvised sideways. The dragon followed along, mostly. It was beautiful. It was also wrong.
+> Standing ovation. Cole bowed. The dragon bowed too, several times. Some bows were sincere. Some were just for show.
+> On the way home, Cole tucked a dramatic cape into a pocket for safekeeping. The dragon approved.
+
+Next segment (v1.22.0): add big + tween seeds, recipes (bureaucracy already exists — extend it for big, add internet-voice / social-embarrassment for tween).
+
+---
+
 ## v1.20.0 — 2026-05-15
 **v2 engine — Phase 1 prototype (Segment A of the v2.0 architecture rebuild)**
 
