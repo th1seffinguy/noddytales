@@ -825,12 +825,29 @@
 </div>
 
 <script src="src/content.js"></script>
+<script src="src/engine-v2.js"></script>
 <script>
 /* ================================================================
    NODDYTALES — Vanilla JS app
    ================================================================ */
 
 if (typeof WORD_BANK === 'undefined') throw new Error('content.js must load before index.html script');
+
+/* v1.20.0 — v2 engine feature flag.
+   v2 is opt-in via ?engine=v2 (also persists to localStorage). Kid-tier only in Phase 1.
+   When off (default), the v1 generator runs unchanged. When on, buildStory() delegates to
+   generateStoryV2() for kid tier; any null/failure path falls back to v1 silently. */
+(function initEngineFlag() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const urlEngine = params.get('engine');
+    if (urlEngine === 'v2') localStorage.setItem('nt_engine_v2', '1');
+    if (urlEngine === 'v1') localStorage.setItem('nt_engine_v2', '0');
+  } catch {}
+})();
+function isEngineV2Enabled() {
+  try { return localStorage.getItem('nt_engine_v2') === '1'; } catch { return false; }
+}
 
 /* ---- HTML escape (prevent XSS from name input) ---- */
 function esc(str) {
@@ -874,6 +891,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v1.20.0', title: 'v2 engine — Phase 1 (Segment A): authored comedy prototype',
+    detail: 'First segment of the v2.0 architecture rebuild. The v2 engine generates kid-tier stories from rich word objects + beat cards + story-shape recipes instead of v1\'s template-substitution model. Phase 1 ships: 10 of each rich word type (companions, visitors, places, foods, objects, sounds, adverbs, numbers, liquids, jobs, rules), grammar renderer (articleText/theText/TheText/titleCase/plural/possessive), 1 recipe (Quest, 5 beats), 5 story seeds, 15 beat cards, and generateStoryV2(). Enabled with ?engine=v2 (persists to localStorage). Default is still v1. Kid tier only — other ages run v1 unchanged. Falls back to v1 silently on any v2 failure. Smoke test: 50/50 stories generated cleanly, 0 grammar errors (including hostile combos like octopus+tacos+alien), proper articles ("an octopus" / "some tacos"), proper subject-position articles ("the dragon nodded" / "said the dragon"). Subsequent segments expand the library, add recipes, add tiers, eventually flip v2 to default in v2.0.0.' },
   { v: 'v1.19.3', title: '"The End" warmth + mid-sentence "Their pal" fix',
     detail: '"End" was reading with mid-sentence intonation instead of sentence-final closing. Redesigned the TTS end-marker from "Theeeeeee.. End." (2-dot near-ellipsis, capitalized "End") to "Theeee... end." (standard 3-dot ellipsis, lowercase "end" with period). Lowercase "end" tells the model it\'s a common noun in a sentence, not a heading — gets the natural falling cadence audiobook narrators use for warm story closings. Also fixed a Codex-flagged residue: one kid template had `[name:Cole] and ${SK_OPEN} chased...` which read as "Cole and Their pal chased" (mid-sentence capital). Now uses the lowercase mid-sentence form.' },
   { v: 'v1.19.2', title: 'Codex QA sweep — XSS, little freeword, plural grammar, FW routing',
@@ -1029,6 +1048,21 @@ function capitalize(s) {
 
 /* Tokens: [name:X] [c:X] [y:X] — rendered as highlighted spans */
 function buildStory(name, picks, age) {
+  // v1.20.0 — v2 engine entry point (kid tier only, behind feature flag).
+  // Silent fallback to v1 if generateStoryV2 returns null/throws for any reason.
+  const tierEarly = tierFor(age);
+  if (isEngineV2Enabled() && tierEarly === 'kid' && typeof generateStoryV2 === 'function') {
+    try {
+      const v2Result = generateStoryV2(name, picks, age);
+      if (v2Result && v2Result.title && Array.isArray(v2Result.paragraphs) && v2Result.paragraphs.length > 0) {
+        return v2Result;
+      }
+    } catch (err) {
+      // Log but don't surface to user — fall through to v1.
+      try { console.warn('[engine-v2] fallback to v1:', err); } catch {}
+    }
+  }
+
   const t   = tierFor(age);
   const N   = name || 'Friend';
   const get = (k, fb = '') => (picks[k] && picks[k].w) || fb;

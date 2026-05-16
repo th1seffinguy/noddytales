@@ -4,6 +4,80 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v1.20.0 — 2026-05-15
+**v2 engine — Phase 1 prototype (Segment A of the v2.0 architecture rebuild)**
+
+First shippable segment of the v2.0 rebuild plan captured in the NoddyTales v2.0 Full Design Spec (Notion). The full v2.0 transforms NoddyTales from a template-substitution app into an authored comedy engine that assembles stories from rich word objects, beat cards, and story-shape recipes. v2.0 is large — the spec recommends shipping it as a series of segments behind a feature flag, with the kid tier proving the model first.
+
+### Segment plan toward v2.0
+| Segment | Version | Scope |
+|---|---|---|
+| **A** | **v1.20.0 (this build)** | Thin kid-tier v2 prototype behind `?engine=v2` flag. v1 stays default. |
+| B | v1.21.0 | Expand kid library (60–80 words), 4–5 recipes, 40+ beats, relationship variants, QA harness |
+| C | v1.22.0 | Big + tween seed sets (bureaucracy, social embarrassment, internet voice) |
+| D | v1.23.0 | Backfill tot + little with restraint (fewer beats, simpler sentences) |
+| E | v2.0.0 | Flip v2 to default. Remove v1 fallback once five-tier coverage proves out. |
+
+Each segment ships independently and is safe to interrupt at — the v2 engine is opt-in, the v1 engine remains the default and fully functional, and the v2 engine falls back to v1 on any failure.
+
+### What ships in v1.20.0
+
+**New file `src/engine-v2.js`** — the v2 engine, isolated from v1. Loaded after `src/content.js`. Exposes `generateStoryV2()` and `V2Grammar` on `window` (browser-global pattern matching the existing app convention).
+
+**Grammar renderer** owns sentence construction so beat cards don't solve grammar inline:
+- `articleText(word)` → `"an octopus"`, `"a dragon"`, `"some tacos"`
+- `theText(word)` / `TheText(word)` → mid-sentence `"the dragon"` / sentence-start `"The dragon"`
+- `titleCase(str)` → multi-word capitalization for titles
+- `plural(word)` / `possessive(name)` / `capitalize(str)`
+- `resolveSlot(slots, "companion.articleText")` walks dotted paths
+- `render(line, slots)` substitutes all `{slot.prop}` placeholders
+- Sentence-start safety: each rendered paragraph auto-capitalizes its first letter
+
+**Rich word library** (Phase 1 kid-tier subset, ~10 per category):
+- 10 companions (dragon, panda, penguin, octopus, unicorn, fennec fox, capybara, axolotl, wolf cub, sloth) with `traits`, `actions`, `sounds`, comedy metadata
+- 10 visitors (goblin, knight, wizard, pirate, ninja, alien, witch, ghost, troll, fairy)
+- 10 places, 10 foods (with `isPlural` flags), 10 objects, 12 sounds, 8 adverbs, 6 numbers, 6 liquids, 6 jobs, 6 rules
+
+**1 recipe** (Quest): `arrival → helper → obstacle → discovery → bedtime_landing`
+
+**5 story seeds**: snack_trial, lost_thing, secret_club, weird_smell, wrong_room
+
+**15 beat cards** spanning the 5 beat types in the Quest recipe.
+
+**Feature flag wiring** in `index.html`:
+- `?engine=v2` URL param → persists to `localStorage.nt_engine_v2 = '1'`
+- `?engine=v1` resets to v1
+- `isEngineV2Enabled()` checks the flag
+- `buildStory()` delegates to `generateStoryV2()` when flag is on AND tier is kid (age 6–7)
+- Any v2 failure (null return, exception, missing function) falls back to v1 silently
+
+### Smoke test (50 v2 generations, kid age 6)
+- 50/50 non-null stories
+- 50/50 within 4–6 paragraphs
+- **0 grammar errors** — handled hostile picks (octopus + tacos + alien + axolotl) cleanly
+- 0 unresolved `{slot.prop}` tokens
+- 16/50 unique titles (Phase 1 has 6 title patterns — expanded in Segment B)
+- All non-kid tiers (tot/little/big/tween) return `null`, triggering v1 fallback
+
+### Sample v2 kid output (FW=FLOBBER)
+> **The Curious Case of the Apology Balloon**
+> There was an apology balloon on the kitchen table. Cole had not put it there. The dragon stared at it suspiciously.
+> The dragon nodded with great confidence. "Trust me," it said. Cole did not, but also did not have a better plan.
+> A knight appeared out of nowhere holding an apology balloon. "I have terms," the knight announced. Cole had not agreed to any terms.
+> Inside an apology balloon: rainbow water. Cole did not ask why. Nobody answered anyway.
+> The last thing Cole heard before falling asleep was a tiny, distant "FLOBBER." Cole smiled. Goodnight.
+
+### Try it
+1. Open noddytales.app
+2. Append `?engine=v2` to the URL
+3. Pick age 6 or 7
+4. Pick any companion/visitor/place/food/freeword
+5. Generate — the story is now assembled by the v2 engine
+
+To revert: `?engine=v1` or clear localStorage `nt_engine_v2`.
+
+---
+
 ## v1.19.3 — 2026-05-15
 **"The End" warmth + mid-sentence "Their pal" fix**
 
