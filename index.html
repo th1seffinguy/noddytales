@@ -1148,6 +1148,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v2.2.4', title: 'Hot-fix: title now renders chips correctly + muffin→cupcakes',
+    detail: 'Two visible bugs from real-kid playtest. (1) Story TITLE was rendering [name:Livi] as literal text — renderStory had a homemade alternating-color word-splitter that escaped each word and never called parseStoryLine. Body paragraphs worked because they DID go through parseStoryLine. Fixed by running the title through the same parseStoryLine path as the body. (2) Little tier picker had "muffins" labeled with the cupcake emoji 🧁. Renamed to "cupcakes" so the word matches the icon. A bigger causality-engine overhaul (the LLM Council recommendation) follows in v2.3.0.' },
   { v: 'v2.2.3', title: 'Bug-fix triage: name, highlights, TTS audio mismatch',
     detail: 'Three confirmed bugs from the 60-story audit + user playtest. (1) NAME REGRESSION: {kid.cap} resolved to empty string when slot.text was absent (kid slot uses .name) — caused "  had a plan" empty-subject sentences in 23/60 stories. Fixed in resolveSlot. (2) HIGHLIGHTS: v2 paragraphs never produced [name:X]/[c:X]/[y:X] tokens that parseStoryLine wraps in chip styling. 60/60 stories had no highlights. Added a post-processing pass in generateStoryV2 that wraps kid name + sidekick names + user-picked pet/food/creature/color/move/mood + setting place + freeword in the right tokens. Selected words are now visibly highlighted again. (3) TTS NAME MATCH: removed the v2.2.1 TTS request-body scrub that replaced Cole→Friend before sending to ElevenLabs. The audio narrator now speaks the child\'s real name, matching the visible story. Also added window.qaStoryMatrix() DevTools helper (5 stories per age across 12 ages = 60) for ongoing audits.' },
   { v: 'v2.2.2', title: 'Align Parent Settings gear with back button',
@@ -2503,10 +2505,12 @@ function renderStory() {
   const story  = state.story;
   const spk    = state.speaking;
 
-  /* Colorize title words alternating orange/ink */
-  const titleHtml = story.title.split(' ').map((w, i) =>
-    `<span style="color:${i % 4 === 0 ? 'var(--orange-dark)' : 'var(--ink)'}">${esc(w)} </span>`
-  ).join('');
+  /* v2.2.4 — title was using a homemade alternating-color word-splitter that escaped
+     each word and never called parseStoryLine. Result: v2 stories produced titles like
+     [name:Livi] and the Library Card Problem and the [name:Livi] token rendered literally.
+     Now run the title through parseStoryLine (same path the body uses) so [name:X]/[c:X]/
+     [y:X] tokens become proper chip spans. Visual variety comes from the chips themselves. */
+  const titleHtml = parseStoryLine(story.title);
 
   const bodyHtml = story.paragraphs.map(p =>
     `<p>${parseStoryLine(p)}</p>`
