@@ -874,6 +874,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v1.19.1', title: 'Defect log sweep — phantom name, end-marker, karaoke',
+    detail: 'Three defects closed. (1) Critical: a fabricated sidekick name (Maya) was appearing in stories when the user hadn\'t entered any sidekicks. Removed the DEFAULT_SIDEKICKS pool entirely — no invented names are ever generated. When no user sidekick exists, kid/little templates fall back to "their pal" (with chip styling) instead. (2) Trimmed the dramatic "The End" TTS closer from 14 elongated e\'s to 7 — closer should be ~1.5-2s instead of the previous ~3s. (3) Karaoke alignment: pre-cached .kw[data-wi] node lookups (O(1) per frame instead of querySelector each tick) and added inter-word continuity so the highlight stays lit during inter-word gaps instead of blanking — the perceived "audio is ahead of text" comes from those blank flashes.' },
   { v: 'v1.19.0', title: 'Goofy Shorts: Little Edition (ages 4–5)',
     detail: 'Story Test Log Entry 001 ("The Sunny Island Adventure", age 5) scored 2/1/3/2/1 across humor / substance / age-fit / name-integration / replayability — failing on the core promise. The Goofy Shorts voice from v1.18.0 (which scored 5/4/5/5/5 in Entry 002) was rolled out to the little tier. 7 old little templates replaced with 8 new Goofy Shorts: Little Edition. Same structural rules as kid (sidekick drives action, silly adjective + silly noun, freeword 2–3× as shoutable spell, 4 paragraphs, punchline ending) tuned for 4–5 year olds with simpler vocab and heavier repetition. Little PARAGRAPH_LIMIT dropped 5→4. Adult-ironic asides + 60% cameo injection now skipped for both kid and little tiers.' },
   { v: 'v1.18.2', title: 'Fix: duplicate "The End" at story close',
@@ -1110,14 +1112,23 @@ function buildStory(name, picks, age) {
   // across multiple paragraphs in escalating contexts (setup → violation → payoff).
   const RULE = rawPick(RULES);
 
-  // v1.18.0 Goofy Shorts vocabulary — kid-tier silly adjective + silly noun combos and a
-  // guaranteed sidekick name (uses user sidekicks if any, otherwise picks from DEFAULT_SIDEKICKS).
-  // FW_SAFE coerces the freeword to a non-empty shoutable string so kid templates can repeat it
-  // as a spell/chant without a guard.
+  // v1.18.0 Goofy Shorts vocabulary — kid-tier silly adjective + silly noun combos.
+  // v1.19.1 — SK is no longer a fabricated name fallback. If the user added sidekicks, SK_OPEN
+  // and SK_MID both resolve to a [name:Real] token (auto-capitalized chip). If not, they fall
+  // back to a common-noun phrase ("Their pal" sentence-start, "their pal" mid-sentence) via the
+  // [c:...] chip styling. NO INVENTED NAMES — Defect Log "Phantom character name" fix.
+  // FW_SAFE coerces the freeword to a non-empty shoutable string so kid/little templates can
+  // repeat it as a spell/chant without a guard.
   const SADJ   = rawPick(SILLY_ADJ);
   const STHING = rawPick(SILLY_NOUN);
-  const SKS    = (Array.isArray(state.sidekicks) && state.sidekicks.length > 0) ? state.sidekicks : DEFAULT_SIDEKICKS;
-  const SK     = rawPick(SKS);
+  const hasUserSK = Array.isArray(state.sidekicks) && state.sidekicks.length > 0;
+  const SK_NAME   = hasUserSK ? rawPick(state.sidekicks) : null;
+  // SK_OPEN — sentence-start form (capitalized).
+  // SK_MID  — mid-sentence form (lowercase when fallback).
+  // Title-position form uses SK_TITLE (capitalized fallback "Their Pal").
+  const SK_OPEN  = SK_NAME ? `[name:${SK_NAME}]` : `[c:Their pal]`;
+  const SK_MID   = SK_NAME ? `[name:${SK_NAME}]` : `[c:their pal]`;
+  const SK_TITLE = SK_NAME ? SK_NAME : `Their Pal`;
   const FW_SAFE = FW || rawPick(['KAPOW', 'ZINGO', 'WOMBO', 'FLABBADOO', 'BAZINKLE', 'YOINKO', 'SNORBLE', 'FLOOBA']);
 
   // pick auto-corrects articles, trims to length, injects a tier-appropriate aside,
@@ -1311,8 +1322,8 @@ function buildStory(name, picks, age) {
         title: `${capitalize(N)} and the ${capitalize(SADJ)} ${capitalize(STHING)}`,
         paragraphs: [
           `[name:${N}] found a [c:${SADJ}] [c:${STHING}] under the bed. It had a little face. It had two tiny feet. "${fwTok}!" it said.`,
-          `[name:${SK}] came to look. [name:${SK}] poked it. UH OH. The [c:${STHING}] went BOING! Right up to the ceiling!`,
-          `[name:${N}] yelled, "${fwTok}!" [name:${SK}] yelled, "${fwTok}!" And the [c:${STHING}] came BOING right back down. PLOP! On Dad's head.`,
+          `${SK_OPEN} came to look. ${SK_OPEN} poked it. UH OH. The [c:${STHING}] went BOING! Right up to the ceiling!`,
+          `[name:${N}] yelled, "${fwTok}!" ${SK_OPEN} yelled, "${fwTok}!" And the [c:${STHING}] came BOING right back down. PLOP! On Dad's head.`,
           `Dad said, "I have a [c:${STHING}] hat now." Everybody clapped. The [c:${STHING}] giggled. So did Dad.`,
         ],
       },
@@ -1320,8 +1331,8 @@ function buildStory(name, picks, age) {
       {
         title: `Where Did All the ${capitalize(FOOD)} Go?`,
         paragraphs: [
-          `The [c:${FOOD}] was gone. ALL of it! [name:${N}] looked everywhere. [name:${SK}] looked everywhere. No [c:${FOOD}] anywhere.`,
-          `"Maybe we should say the magic word," whispered [name:${SK}]. "What magic word?" said [name:${N}]. "${fwTok}!" said [name:${SK}], like it was obvious.`,
+          `The [c:${FOOD}] was gone. ALL of it! [name:${N}] looked everywhere. ${SK_OPEN} looked everywhere. No [c:${FOOD}] anywhere.`,
+          `"Maybe we should say the magic word," whispered ${SK_MID}. "What magic word?" said [name:${N}]. "${fwTok}!" said ${SK_MID}, like it was obvious.`,
           `They both yelled, "${fwTok}!" A drawer popped open. Inside the drawer: the [c:${FOOD}]! AND one [c:${SADJ}] [c:${STHING}] who said, "Hi!"`,
           `The [c:${STHING}] had hidden the [c:${FOOD}] for a tea party. There was no tea. There was only [c:${FOOD}]. It was the best tea party ever.`,
         ],
@@ -1330,10 +1341,10 @@ function buildStory(name, picks, age) {
       {
         title: `${capitalize(N)} Says "${FW_SAFE.toUpperCase()}" Too Many Times`,
         paragraphs: [
-          `[name:${SK}] taught [name:${N}] a magic word. The word was ${fwTok}. "Only say it ONE TIME," said [name:${SK}]. [name:${N}] nodded.`,
+          `${SK_OPEN} taught [name:${N}] a magic word. The word was ${fwTok}. "Only say it ONE TIME," said ${SK_MID}. [name:${N}] nodded.`,
           `[name:${N}] said it one time. A [c:${SADJ}] [c:${STHING}] popped up! Cool! [name:${N}] said it AGAIN. Another one popped up. Even more [c:${SADJ}].`,
-          `[name:${N}] said it FOUR MORE TIMES. The whole room was FULL of [c:${SADJ}] [c:${STHING}]s. "I TOLD YOU!" yelled [name:${SK}]. The [c:${STHING}]s started to sing!`,
-          `[name:${N}] said "${fwTok}" one tiny last time. POP POP POP! All gone. [name:${SK}] said, "Let's not tell Mom." [name:${N}] agreed.`,
+          `[name:${N}] said it FOUR MORE TIMES. The whole room was FULL of [c:${SADJ}] [c:${STHING}]s. "I TOLD YOU!" yelled ${SK_MID}. The [c:${STHING}]s started to sing!`,
+          `[name:${N}] said "${fwTok}" one tiny last time. POP POP POP! All gone. ${SK_OPEN} said, "Let's not tell Mom." [name:${N}] agreed.`,
         ],
       },
       // 4. The Loud, LOUD Pet — heavy repetition for emergent tier
@@ -1341,9 +1352,9 @@ function buildStory(name, picks, age) {
         title: `${capitalize(N)}'s ${capitalize(PET)} Is SO Loud`,
         paragraphs: [
           `[name:${N}]'s [c:${PET}] would NOT stop yelling. "${fwTok}! ${fwTok}! ${fwTok}!" Loud. LOUDER. LOUDEST.`,
-          `[name:${SK}] ran over with an idea. The idea was: feed it one [c:${SADJ}] [c:${STHING}]. "Will that work?" asked [name:${N}]. "We will see," said [name:${SK}].`,
+          `${SK_OPEN} ran over with an idea. The idea was: feed it one [c:${SADJ}] [c:${STHING}]. "Will that work?" asked [name:${N}]. "We will see," said ${SK_MID}.`,
           `The [c:${PET}] ate the [c:${SADJ}] [c:${STHING}] in one big chomp. CHOMP! Then it burped. Then it said, very quietly, "${fwTok}." And fell asleep!`,
-          `It slept on [name:${N}]'s lap. It snored. The snore sounded like "${fwTok}". [name:${SK}] said, "Shhh." They all took a nap.`,
+          `It slept on [name:${N}]'s lap. It snored. The snore sounded like "${fwTok}". ${SK_OPEN} said, "Shhh." They all took a nap.`,
         ],
       },
       // 5. The Bouncy Disaster — central object goes on adventure, sidekick saves the day
@@ -1351,17 +1362,17 @@ function buildStory(name, picks, age) {
         title: `The Day the ${capitalize(SADJ)} ${capitalize(STHING)} Got Loose`,
         paragraphs: [
           `[name:${N}] brought a [c:${SADJ}] [c:${STHING}] to the [y:${PLC}]. BOING! It bounced. BOING! Higher! BOING! Over a tree!`,
-          `"OH NO!" yelled [name:${N}]. [name:${SK}] yelled, "${fwTok}! ${fwTok}!" That was the magic word for the [c:${STHING}]! Down it came! WHOOSH!`,
+          `"OH NO!" yelled [name:${N}]. ${SK_OPEN} yelled, "${fwTok}! ${fwTok}!" That was the magic word for the [c:${STHING}]! Down it came! WHOOSH!`,
           `It landed right on [name:${N}]'s hat. A [c:${CRE}] walked by. It said, "Is that a [c:${SADJ}] [c:${STHING}]? I want one!" And ran off with it!`,
-          `[name:${SK}] and [name:${N}] chased the [c:${CRE}]. They got the [c:${STHING}] back. The [c:${CRE}] said sorry and gave them all some [y:${FOOD}].`,
+          `${SK_OPEN} and [name:${N}] chased the [c:${CRE}]. They got the [c:${STHING}] back. The [c:${CRE}] said sorry and gave them all some [y:${FOOD}].`,
         ],
       },
       // 6. The Funny Sandwich — Captain-Underpants tier physical comedy, but bedtime-friendly
       {
-        title: `${capitalize(SK)} Makes a ${capitalize(SADJ)} Sandwich`,
+        title: `${SK_TITLE} Makes a ${capitalize(SADJ)} Sandwich`,
         paragraphs: [
-          `[name:${SK}] made a sandwich. Inside the sandwich: [y:${FOOD}], one [c:${SADJ}] [c:${STHING}], and a [c:${COL}] crayon. "Want a bite?" asked [name:${SK}]. [name:${N}] said NO WAY.`,
-          `So [name:${SK}] ate the whole thing. Chomp chomp chomp! "${fwTok}!" said [name:${SK}]. Then BURP. A tiny [c:${COL}] bubble came out!`,
+          `${SK_OPEN} made a sandwich. Inside the sandwich: [y:${FOOD}], one [c:${SADJ}] [c:${STHING}], and a [c:${COL}] crayon. "Want a bite?" asked ${SK_MID}. [name:${N}] said NO WAY.`,
+          `So ${SK_MID} ate the whole thing. Chomp chomp chomp! "${fwTok}!" said ${SK_MID}. Then BURP. A tiny [c:${COL}] bubble came out!`,
           `The bubble floated up. POP! Glitter everywhere! [name:${N}] laughed so hard. "Okay, ONE bite," said [name:${N}]. CHOMP. "${fwTok}!" yelled [name:${N}].`,
           `Now they both had glitter burps. They burped a glitter rainbow all afternoon. Mom said, "What did you eat?" They did not tell.`,
         ],
@@ -1371,7 +1382,7 @@ function buildStory(name, picks, age) {
         title: `The Hat That Said "${FW_SAFE.toUpperCase()}"`,
         paragraphs: [
           `[name:${N}] put on a hat. The hat said, "${fwTok}!" [name:${N}] said, "Whoa." Hats do NOT usually talk.`,
-          `[name:${SK}] tried the hat. The hat said, "${fwTok}!" again! Every time anybody put it on, it said the same thing. "${fwTok}!"`,
+          `${SK_OPEN} tried the hat. The hat said, "${fwTok}!" again! Every time anybody put it on, it said the same thing. "${fwTok}!"`,
           `They put it on a [c:${PET}]. "${fwTok}!" said the hat. They put it on a [c:${SADJ}] [c:${STHING}]. "${fwTok}!" the hat said happily!`,
           `By dinner the hat was tired. It said one last quiet "${fwTok}" and fell asleep on the table. [name:${N}] gave it a tiny blanket.`,
         ],
@@ -1381,7 +1392,7 @@ function buildStory(name, picks, age) {
         title: `${capitalize(N)} and the Stuck ${capitalize(CRE)}`,
         paragraphs: [
           `A [c:${CRE}] got STUCK in the [y:${PLC}]. Wedged tight. Couldn't move. Looking grumpy.`,
-          `[name:${N}] had an idea. "Let's tickle it!" said [name:${N}]. "${fwTok}!" agreed [name:${SK}], which wasn't really an answer but felt right.`,
+          `[name:${N}] had an idea. "Let's tickle it!" said [name:${N}]. "${fwTok}!" agreed ${SK_MID}, which wasn't really an answer but felt right.`,
           `They tickled the [c:${CRE}]. Tickle tickle tickle! It giggled. It snorted. It POPPED right out! "${fwTok}!" it yelled. "I'M FREE!"`,
           `The [c:${CRE}] gave them a [c:${SADJ}] [c:${STHING}] as a thank-you gift. They took it home. It snored. Quietly. Happily.`,
         ],
@@ -1402,8 +1413,8 @@ function buildStory(name, picks, age) {
         title: `${capitalize(N)} and the ${capitalize(SADJ)} ${capitalize(STHING)}`,
         paragraphs: [
           `[name:${N}] found a [c:${SADJ}] [c:${STHING}] under the bed. It had eyes. It had feet. It had a tiny hat. "${fwTok}!" said the [c:${STHING}].`,
-          `[name:${SK}] poked it with a spoon. BAD IDEA. The [c:${STHING}] went BOING BOING BOING and stuck to the ceiling.`,
-          `[name:${N}] yelled, "${fwTok}!" [name:${SK}] yelled, "${fwTok} BUT LOUDER!" The [c:${STHING}] fell down and landed on Dad's head.`,
+          `${SK_OPEN} poked it with a spoon. BAD IDEA. The [c:${STHING}] went BOING BOING BOING and stuck to the ceiling.`,
+          `[name:${N}] yelled, "${fwTok}!" ${SK_OPEN} yelled, "${fwTok} BUT LOUDER!" The [c:${STHING}] fell down and landed on Dad's head.`,
           `Dad said, "I am the [c:${STHING}] king now." Everybody clapped. The [c:${STHING}] burped.`,
         ],
       },
@@ -1411,9 +1422,9 @@ function buildStory(name, picks, age) {
       {
         title: `${capitalize(N)} and the ${capitalize(FOOD)} Heist`,
         paragraphs: [
-          `Somebody hid the [c:${FOOD}]. [name:${N}] checked the cupboard. EMPTY. [name:${SK}] checked the fridge. ALSO EMPTY. This was an emergency.`,
-          `[name:${SK}] whispered, "We need a codeword. If we find the [c:${FOOD}], we say ${fwTok}." [name:${N}] nodded. Very serious. Mostly serious.`,
-          `They [c:${MOV}] into the kitchen on tiptoes. [name:${SK}] opened a drawer. Inside the drawer: the [c:${FOOD}]. AND a [c:${SADJ}] [c:${STHING}]. "${fwTok}! ${fwTok}!" they both shouted.`,
+          `Somebody hid the [c:${FOOD}]. [name:${N}] checked the cupboard. EMPTY. ${SK_OPEN} checked the fridge. ALSO EMPTY. This was an emergency.`,
+          `${SK_OPEN} whispered, "We need a codeword. If we find the [c:${FOOD}], we say ${fwTok}." [name:${N}] nodded. Very serious. Mostly serious.`,
+          `They [c:${MOV}] into the kitchen on tiptoes. ${SK_OPEN} opened a drawer. Inside the drawer: the [c:${FOOD}]. AND a [c:${SADJ}] [c:${STHING}]. "${fwTok}! ${fwTok}!" they both shouted.`,
           `The dog ran in. The dog ate the [c:${SADJ}] [c:${STHING}]. The dog burped a tiny rainbow. They ate the [c:${FOOD}] anyway.`,
         ],
       },
@@ -1421,10 +1432,10 @@ function buildStory(name, picks, age) {
       {
         title: `${capitalize(N)} Says "${FW_SAFE.toUpperCase()}" Too Many Times`,
         paragraphs: [
-          `[name:${SK}] taught [name:${N}] a magic word. The word was ${fwTok}. "Only use it once," said [name:${SK}]. "Trust me."`,
+          `${SK_OPEN} taught [name:${N}] a magic word. The word was ${fwTok}. "Only use it once," said ${SK_MID}. "Trust me."`,
           `[name:${N}] said it once. A [c:${SADJ}] [c:${STHING}] appeared. Cool. [name:${N}] said it again. ANOTHER [c:${STHING}] appeared. Even more [c:${SADJ}].`,
-          `[name:${N}] said it FIVE MORE TIMES. The whole room filled up with [c:${SADJ}] [c:${STHING}]s. [name:${SK}] yelled, "I TOLD YOU!" The [c:${STHING}]s started singing.`,
-          `[name:${N}] said "${fwTok}" one last time. Everything turned upside down. Then it all popped like bubbles. [name:${SK}] said, "Don't tell Mom."`,
+          `[name:${N}] said it FIVE MORE TIMES. The whole room filled up with [c:${SADJ}] [c:${STHING}]s. ${SK_OPEN} yelled, "I TOLD YOU!" The [c:${STHING}]s started singing.`,
+          `[name:${N}] said "${fwTok}" one last time. Everything turned upside down. Then it all popped like bubbles. ${SK_OPEN} said, "Don't tell Mom."`,
         ],
       },
       // 4. The Loud Pet — kid + sidekick try to quiet a [c:${PET}]
@@ -1432,9 +1443,9 @@ function buildStory(name, picks, age) {
         title: `${capitalize(N)}'s ${capitalize(PET)} Will Not Be Quiet`,
         paragraphs: [
           `[name:${N}]'s [c:${PET}] would NOT stop yelling. All it said was "${fwTok}! ${fwTok}! ${fwTok}!" At three in the morning. Not okay.`,
-          `[name:${SK}] came over with a plan. The plan was: feed it a [c:${SADJ}] [c:${STHING}]. [name:${N}] said, "That's not a real food." [name:${SK}] said, "It is now."`,
+          `${SK_OPEN} came over with a plan. The plan was: feed it a [c:${SADJ}] [c:${STHING}]. [name:${N}] said, "That's not a real food." ${SK_OPEN} said, "It is now."`,
           `The [c:${PET}] ate the [c:${SADJ}] [c:${STHING}]. Chewed. Swallowed. Burped. Then said, in a tiny polite voice, "Thank you. ${fwTok}." Then fell asleep on [name:${N}]'s head.`,
-          `[name:${N}] couldn't move. [name:${SK}] took a picture. The [c:${PET}] snored. The snore sounded EXACTLY like "${fwTok}".`,
+          `[name:${N}] couldn't move. ${SK_OPEN} took a picture. The [c:${PET}] snored. The snore sounded EXACTLY like "${fwTok}".`,
         ],
       },
       // 5. The Bouncy Disaster — silly object goes wild, sidekick saves the day
@@ -1442,18 +1453,18 @@ function buildStory(name, picks, age) {
         title: `The Day the ${capitalize(SADJ)} ${capitalize(STHING)} Got Loose`,
         paragraphs: [
           `[name:${N}] brought a [c:${SADJ}] [c:${STHING}] to the [y:${PLC}]. Big mistake. The [c:${STHING}] bounced. Then it bounced HIGHER. Then it bounced ONTO THE ROOF.`,
-          `[name:${SK}] yelled, "${fwTok}! ${fwTok}!" Apparently that was the magic word for the [c:${STHING}], because it came back down and landed in [name:${N}]'s hood.`,
+          `${SK_OPEN} yelled, "${fwTok}! ${fwTok}!" Apparently that was the magic word for the [c:${STHING}], because it came back down and landed in [name:${N}]'s hood.`,
           `A [c:${CRE}] walked by and said, "Is that a [c:${SADJ}] [c:${STHING}]? I had one of those once." Then it asked to hold it. Then it ran off with it. RUDE.`,
-          `[name:${N}] and [name:${SK}] chased the [c:${CRE}] all the way home. They caught it. They got the [c:${STHING}] back. They also got [y:${FOOD}] out of the deal.`,
+          `[name:${N}] and ${SK_OPEN} chased the [c:${CRE}] all the way home. They caught it. They got the [c:${STHING}] back. They also got [y:${FOOD}] out of the deal.`,
         ],
       },
       // 6. The Sandwich That Was Just Plain Wrong — disgusting-on-purpose, kid humor
       {
-        title: `${capitalize(SK)}'s ${capitalize(SADJ)} Sandwich`,
+        title: `${SK_TITLE}'s ${capitalize(SADJ)} Sandwich`,
         paragraphs: [
-          `[name:${SK}] made a sandwich. It had [y:${FOOD}], a [c:${SADJ}] [c:${STHING}], and one whole [c:${COL}] crayon. [name:${SK}] said, "Try it." [name:${N}] said NOPE.`,
-          `So [name:${SK}] ate it. The whole thing. In one bite. Chewed twice. Then said, "${fwTok}." Then made a face. Then said "${fwTok}" again, but quieter.`,
-          `[name:${N}] said, "Are you okay?" [name:${SK}] said, "I can taste colors now." Then [name:${SK}] burped a tiny [c:${COL}] cloud. The cloud floated up and POPPED.`,
+          `${SK_OPEN} made a sandwich. It had [y:${FOOD}], a [c:${SADJ}] [c:${STHING}], and one whole [c:${COL}] crayon. ${SK_OPEN} said, "Try it." [name:${N}] said NOPE.`,
+          `So ${SK_MID} ate it. The whole thing. In one bite. Chewed twice. Then said, "${fwTok}." Then made a face. Then said "${fwTok}" again, but quieter.`,
+          `[name:${N}] said, "Are you okay?" ${SK_OPEN} said, "I can taste colors now." Then ${SK_MID} burped a tiny [c:${COL}] cloud. The cloud floated up and POPPED.`,
           `[name:${N}] decided maybe one bite wouldn't hurt. It hurt. "${fwTok}!" yelled [name:${N}]. They drank a LOT of water.`,
         ],
       },
@@ -1462,19 +1473,19 @@ function buildStory(name, picks, age) {
         title: `${capitalize(N)} and the ${capitalize(SADJ)} Underpants`,
         paragraphs: [
           `[name:${N}] put on underpants this morning. The underpants were [c:${SADJ}]. They were also TALKING. They said, "${fwTok}!" every time [name:${N}] sat down.`,
-          `[name:${SK}] heard them all the way from across the street. [name:${SK}] ran over and yelled, "WHY ARE YOUR UNDERPANTS YELLING?" [name:${N}] said, "I DO NOT KNOW."`,
+          `${SK_OPEN} heard them all the way from across the street. ${SK_OPEN} ran over and yelled, "WHY ARE YOUR UNDERPANTS YELLING?" [name:${N}] said, "I DO NOT KNOW."`,
           `They went to the [y:${PLC}]. Every single step: "${fwTok}!" said the underpants. A [c:${CRE}] laughed so hard it fell over. A grown-up pretended not to notice. The grown-up was lying.`,
-          `Finally [name:${SK}] said, "Maybe they're just happy." [name:${N}] said, "Maybe." The underpants yelled "${fwTok}!" one more time. Then they took a nap.`,
+          `Finally ${SK_MID} said, "Maybe they're just happy." [name:${N}] said, "Maybe." The underpants yelled "${fwTok}!" one more time. Then they took a nap.`,
         ],
       },
       // 8. The Mysterious Burp — small mystery with a silly payoff
       {
         title: `The Burp That Said "${FW_SAFE.toUpperCase()}"`,
         paragraphs: [
-          `[name:${N}] burped at breakfast. The burp said a word. The word was ${fwTok}. Everybody stopped. [name:${SK}] dropped a spoon.`,
+          `[name:${N}] burped at breakfast. The burp said a word. The word was ${fwTok}. Everybody stopped. ${SK_OPEN} dropped a spoon.`,
           `[name:${N}] tried to do it again. Just a normal burp. Tried again. "${fwTok}!" said the burp. WHAT. WHY.`,
           `They went outside. Every burp [name:${N}] did said "${fwTok}". A [c:${SADJ}] [c:${STHING}] rolled out of a bush and joined them. It also burped "${fwTok}". So at least [name:${N}] wasn't alone.`,
-          `By bedtime, the burps were back to normal. [name:${SK}] said, "Good while it lasted." [name:${N}] burped one last quiet "${fwTok}". Then went to sleep smiling.`,
+          `By bedtime, the burps were back to normal. ${SK_OPEN} said, "Good while it lasted." [name:${N}] burped one last quiet "${fwTok}". Then went to sleep smiling.`,
         ],
       },
     ].filter(tpl => !tpl.tags || tpl.tags.includes(FW_SUBTYPE)));
@@ -2391,18 +2402,34 @@ const TTSManager = (() => {
   function startKaraokeRAF() {
     stopKaraokeRAF();
     let lastIdx = -1;
+    // v1.19.1 — Defect Log "Read-aloud out of sync" fix.
+    // Two improvements over the previous loop:
+    //  1) Pre-cache .kw[data-wi] node references once at start so each frame is O(1) DOM
+    //     access instead of a fresh querySelector per tick (was running 60x/sec).
+    //  2) Inter-word continuity: when audio time falls into a gap between word[i].end and
+    //     word[i+1].start, KEEP the last lit word lit (previously the highlight blanked,
+    //     which the user perceives as "audio is ahead of text"). New behaviour: find the
+    //     last word whose .start <= t and keep that one lit until the next word truly begins.
+    const kwNodes = Array.from(document.querySelectorAll('.kw'));
     function tick() {
       if (!audio || !wordTimings) return;
       const t  = audio.currentTime;
       const wt = wordTimings;
       let idx  = -1;
+      // Primary pass: find the word currently being spoken (t inside [start, end)).
       for (let i = 0; i < wt.length; i++) {
         if (t >= wt[i].start && t < wt[i].end) { idx = i; break; }
       }
-      if (idx === -1 && wt.length && t >= wt[wt.length - 1].end) idx = wt.length - 1;
+      // Continuity pass: if we're past the start of any word but in an inter-word gap,
+      // keep the most-recently-started word lit. Walk backwards for early exit.
+      if (idx === -1 && wt.length) {
+        for (let i = wt.length - 1; i >= 0; i--) {
+          if (t >= wt[i].start) { idx = i; break; }
+        }
+      }
       if (idx !== lastIdx) {
-        if (lastIdx >= 0) document.querySelector(`.kw[data-wi="${lastIdx}"]`)?.classList.remove('is-lit');
-        if (idx     >= 0) document.querySelector(`.kw[data-wi="${idx}"]`)?.classList.add('is-lit');
+        if (lastIdx >= 0 && kwNodes[lastIdx]) kwNodes[lastIdx].classList.remove('is-lit');
+        if (idx     >= 0 && kwNodes[idx])     kwNodes[idx].classList.add('is-lit');
         lastIdx = idx;
       }
       rafId = requestAnimationFrame(tick);
@@ -2473,12 +2500,13 @@ const TTSManager = (() => {
   async function speak(story) {
     stop();
     const strip = s => s.replace(/\[(?:name|c|y):([^\]]+)\]/g, '$1');
-    // "Theeeeeeeeeeeee... End." — repeated vowels tell ElevenLabs to elongate the "ee" sound,
-    // ellipsis adds a beat of silence, period gives final-sentence finality. ~3 seconds total
-    // for a dramatic closer. The rendered DOM still shows clean "The End" (karaoke maps by word
-    // index, so the elongated "Theeeeeeeeeeeee..." TTS word stays mapped to the DOM "The" span,
-    // which keeps the highlight lit for the full elongation).
-    const text  = strip(story.title) + '.\n\n' + story.paragraphs.map(strip).join('\n\n') + '\n\nTheeeeeeeeeeeee... End.';
+    // "Theeeeeee.. End." — repeated vowels tell ElevenLabs to elongate the "ee" sound,
+    // ellipsis adds a brief pause, period gives final-sentence finality.
+    // v1.19.1: trimmed from 14 e's + "..." to 7 e's + ".." per Defect Log "'The End' display
+    // duration too long" — target ~1.5-2s instead of the previous ~3s. The rendered DOM still
+    // shows clean "The End" (karaoke maps by word index, so the elongated TTS word stays mapped
+    // to the DOM "The" span, which keeps the highlight lit for the full elongation).
+    const text  = strip(story.title) + '.\n\n' + story.paragraphs.map(strip).join('\n\n') + '\n\nTheeeeeee.. End.';
     try {
       setLoading(true);
       await openDB();

@@ -4,7 +4,7 @@
    Story template logic lives in index.html (buildStory).
    ================================================================ */
 
-const APP_VERSION = 'v1.19.0';
+const APP_VERSION = 'v1.19.1';
 
 /* Verb form lookup — maps each past-tense move-pool entry to its base + gerund forms.
    Templates use moveBase()/moveGerund() to derive the right form for the syntactic slot
@@ -114,10 +114,12 @@ const SILLY_NOUN = [
   'sneaker', 'helmet', 'pretzel', 'waffle', 'mitten', 'taco',
 ];
 
-/* Default sidekicks for kid tier when no user-defined sidekicks exist.
-   Kid stories REQUIRE a sidekick to drive action (not cameo), so we always have one.
-   Short, easy-to-pronounce names that work cross-culturally. */
-const DEFAULT_SIDEKICKS = ['Maya', 'Jake', 'Sam', 'Riley', 'Ben', 'Emma', 'Theo', 'Ava'];
+/* v1.19.1 — DEFAULT_SIDEKICKS REMOVED.
+   Defect Log entry "Phantom character name injected into story" (Critical): a fabricated name
+   from this pool appeared in a generated story when the user had not added any sidekicks.
+   Per the defect note, all names in a template must be populated from user input only.
+   buildStory now falls back to a common-noun phrase ("their pal" / "Their pal") instead of
+   an invented name when state.sidekicks is empty. */
 
 /* Mad Libs-style auto-injected pools (kid tier) — Codex peer-review recommended additions.
    Story-mechanic-friendly: objects produce plot, jobs create roles, numbers are instant comedy,

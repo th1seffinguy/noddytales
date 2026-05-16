@@ -4,6 +4,50 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v1.19.1 — 2026-05-15
+**Defect log sweep — phantom name, end-marker duration, karaoke alignment**
+
+Three Notion Defect Log entries closed in one build.
+
+### Defect 1 (Critical) — Phantom character name injected into story
+**Root cause:** The `DEFAULT_SIDEKICKS` pool added in v1.18.0 (`['Maya', 'Jake', 'Sam', 'Riley', 'Ben', 'Emma', 'Theo', 'Ava']`) was used as a fallback when the user hadn't entered any sidekicks. A parent who entered only their kid's name was getting back a story with a fabricated other-child's name (e.g. "Maya yelled, 'FLOBBER!'"). Per the defect note: *"Any name in a template must be a dynamic variable populated from user input only."*
+
+**Fix:**
+- Removed `DEFAULT_SIDEKICKS` from `src/content.js` entirely. No invented names anywhere.
+- New `buildStory` logic computes two tokens based on whether user has sidekicks:
+  - **With user sidekick:** `SK_OPEN` and `SK_MID` both = `[name:Riley]` (chip styling, auto-capitalized)
+  - **Without:** `SK_OPEN = '[c:Their pal]'` (sentence-start), `SK_MID = '[c:their pal]'` (mid-sentence), `SK_TITLE = 'Their Pal'` (title position)
+- All 16 kid + little Goofy Shorts templates updated:
+  - Sentence-start positions → `${SK_OPEN}`
+  - Dialogue attributions (`said/asked/yelled/whispered/agreed ${SK}`) → `${SK_MID}`
+  - "So/Then/Finally ${SK} ..." mid-sentence patterns → `${SK_MID}`
+  - Title patterns `${capitalize(SK)}'s ...` → `${SK_TITLE}`
+
+### Defect 2 (Low) — 'The End' display duration too long
+**Root cause:** The dramatic elongated TTS closer added in v1.16.2 used 14 e's in `Theeeeeeeeeeeee... End.`, producing ~3s of audio. Defect note: should target 2s.
+
+**Fix:** Trimmed to 7 e's + shorter ellipsis: `Theeeeeee.. End.` Target now ~1.5–2s.
+
+### Defect 3 (High) — Read-aloud out of sync with displayed text
+**Defect note assumed Web Speech API; we use ElevenLabs `/with-timestamps`.** Real cause traced to the karaoke RAF loop:
+
+1. When audio time fell into the gap between `word[i].end` and `word[i+1].start`, the previous highlight was being REMOVED with no replacement (`idx === -1` path unlit but didn't relight). The user perceived these blank-flashes as "audio is ahead of text."
+2. Every animation frame ran a fresh `document.querySelector('.kw[data-wi="..."]')` — slow on long stories.
+
+**Fix:**
+- Pre-cache all `.kw[data-wi]` nodes once when karaoke starts; each frame is now O(1) DOM access.
+- Inter-word continuity: when audio time lands in a gap, keep the **last word whose start ≤ t** lit (walks backwards through `wordTimings` for early exit) instead of blanking the highlight.
+
+### Smoke test (300 stories — 100 kid age 6, 100 little age 5, 100 with empty sidekicks)
+- 0 stories containing any name from the removed `DEFAULT_SIDEKICKS` pool
+- 0 grammar issues
+- 4 paragraphs per kid/little story
+- ≥2 freeword shouts per Goofy Shorts story
+- Other tiers (tot/big/tween) unchanged
+- TTS text length reduced by 6 characters at the end-marker
+
+---
+
 ## v1.19.0 — 2026-05-15
 **Goofy Shorts: Little Edition — ages 4–5 content rewrite (Story Test Log Entry 001 fix)**
 
