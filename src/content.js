@@ -4,7 +4,7 @@
    Story template logic lives in index.html (buildStory).
    ================================================================ */
 
-const APP_VERSION = 'v1.17.0';
+const APP_VERSION = 'v1.18.0';
 
 /* Verb form lookup — maps each past-tense move-pool entry to its base + gerund forms.
    Templates use moveBase()/moveGerund() to derive the right form for the syntactic slot
@@ -95,6 +95,29 @@ const SILLY_THINGS = [
   'a yo-yo with attitude',
   'a sock puppet that knows things',
 ];
+
+/* Goofy Shorts pools (v1.18.0) — kid-tier short story rewrite.
+   SILLY_ADJ + SILLY_NOUN combine to form the central absurd object of every kid story
+   ("wobbly pickle", "stinky pancake", "boingy underpants"). The juxtaposition is the joke.
+   Adjectives are physical/sensory (kids understand), not ironic. Nouns are concrete kid-vocab
+   things — never abstract. Stories pair one of each randomly. */
+const SILLY_ADJ = [
+  'wobbly', 'stinky', 'boingy', 'squishy', 'noodle-y', 'floppy', 'slurpy',
+  'honking', 'sneezy', 'banana-shaped', 'upside-down', 'extra crunchy',
+  'crusty', 'bouncy', 'invisible', 'rubbery', 'jiggly', 'sticky',
+  'lumpy', 'slimy', 'fuzzy', 'gloopy', 'crinkly', 'snorty',
+];
+const SILLY_NOUN = [
+  'pickle', 'sock', 'pancake', 'toothbrush', 'banana', 'underpants',
+  'spoon', 'cupcake', 'noodle', 'bubble', 'hat', 'meatball',
+  'sticker', 'pillow', 'jellybean', 'doughnut', 'sandwich', 'muffin',
+  'sneaker', 'helmet', 'pretzel', 'waffle', 'mitten', 'taco',
+];
+
+/* Default sidekicks for kid tier when no user-defined sidekicks exist.
+   Kid stories REQUIRE a sidekick to drive action (not cameo), so we always have one.
+   Short, easy-to-pronounce names that work cross-culturally. */
+const DEFAULT_SIDEKICKS = ['Maya', 'Jake', 'Sam', 'Riley', 'Ben', 'Emma', 'Theo', 'Ava'];
 
 /* Mad Libs-style auto-injected pools (kid tier) — Codex peer-review recommended additions.
    Story-mechanic-friendly: objects produce plot, jobs create roles, numbers are instant comedy,

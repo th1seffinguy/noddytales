@@ -865,6 +865,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v1.18.0', title: 'Goofy Shorts — kid tier rewrite',
+    detail: 'Playtests with real 6–7 year olds revealed the kid tier had drifted toward adult-ironic humor over 19 versions. Full rewrite to the voice kids actually laugh at: shorter (4 paragraphs), sidekick drives the plot (not a 60%-chance cameo), silly adjective + silly noun forms the central absurd thing (wobbly pickle, stinky pancake, boingy underpants), and the freeword becomes a shoutable spell repeated 2–3× per story. 18 old kid templates → 8 new Goofy Shorts. Adult-ironic asides still fire for tot/little/big/tween where they work.' },
   { v: 'v1.17.0', title: 'Five new kid templates — more variety',
     detail: 'Added story shapes that weren\'t in the pool: trade negotiation, lost-and-found, accidental race victory, unwelcome visitor, surprise performance. Title diversity jumped 34% in random sampling.' },
   { v: 'v1.16.2', title: 'Dramatic "The End" closer',
@@ -1062,7 +1064,9 @@ function buildStory(name, picks, age) {
   // Per-tier paragraph caps — long templates get trimmed so bedtime stories stay short.
   // Keep first 2 (setup) + last (LIMIT-2) (climax → resolution → closer). The previous formula
   // (first 4 + last 1) cut load-bearing climax paragraphs and left dangling references.
-  const PARAGRAPH_LIMIT = { tot: 5, little: 5, kid: 5, big: 6, tween: 6 }[t];
+  // v1.18.0 — kid tier dropped to 4 paragraphs (Goofy Shorts: punchy, bedtime-friendly,
+  // sidekick-driven). Other tiers unchanged.
+  const PARAGRAPH_LIMIT = { tot: 5, little: 5, kid: 4, big: 6, tween: 6 }[t];
   const trimToLimit = (story) => {
     if (!PARAGRAPH_LIMIT || story.paragraphs.length <= PARAGRAPH_LIMIT) return story;
     const ps = story.paragraphs;
@@ -1090,15 +1094,30 @@ function buildStory(name, picks, age) {
   // across multiple paragraphs in escalating contexts (setup → violation → payoff).
   const RULE = rawPick(RULES);
 
+  // v1.18.0 Goofy Shorts vocabulary — kid-tier silly adjective + silly noun combos and a
+  // guaranteed sidekick name (uses user sidekicks if any, otherwise picks from DEFAULT_SIDEKICKS).
+  // FW_SAFE coerces the freeword to a non-empty shoutable string so kid templates can repeat it
+  // as a spell/chant without a guard.
+  const SADJ   = rawPick(SILLY_ADJ);
+  const STHING = rawPick(SILLY_NOUN);
+  const SKS    = (Array.isArray(state.sidekicks) && state.sidekicks.length > 0) ? state.sidekicks : DEFAULT_SIDEKICKS;
+  const SK     = rawPick(SKS);
+  const FW_SAFE = FW || rawPick(['KAPOW', 'ZINGO', 'WOMBO', 'FLABBADOO', 'BAZINKLE', 'YOINKO', 'SNORBLE', 'FLOOBA']);
+
   // pick auto-corrects articles, trims to length, injects a tier-appropriate aside,
   // and adds a sidekick cameo (60% of the time when sidekicks exist).
+  // v1.18.0: kid tier skips both aside + cameo injection — Goofy Shorts templates are
+  // self-contained, sidekick is baked into the prose, and asides drift toward adult-ironic
+  // register which playtests confirmed kids don't read as funny.
   const pick = arr => {
     const r = rawPick(arr);
     if (r && typeof r === 'object' && Array.isArray(r.paragraphs)) {
       let story = { title: fixArticles(r.title), paragraphs: r.paragraphs.map(fixArticles) };
       story = trimToLimit(story);
-      story = injectTierAside(story);
-      story = injectSidekick(story);
+      if (t !== 'kid') {
+        story = injectTierAside(story);
+        story = injectSidekick(story);
+      }
       return story;
     }
     return r;
@@ -1363,217 +1382,91 @@ function buildStory(name, picks, age) {
   }
 
   if (t === 'kid') {
-    // Bare token — templates wrap in quotes / exclamation marks themselves so there's never doubling.
-    const fwTok = FW ? `[y:${FW}]` : `[y:${SOUND}]`;
+    // v1.18.0 Goofy Shorts — total kid-tier rewrite after playtest feedback that prior templates
+    // read as adult-ironic. New rules: short (3-4 paragraphs), sidekick DRIVES action,
+    // freeword [y:${FW_SAFE}] appears 2-3x as a shoutable spell/chant/name, [c:${SADJ}] [c:${STHING}]
+    // is the central absurd thing, physical-not-witty humor, every story has a CAPS-SHOUT line.
+    const fwTok = `[y:${FW_SAFE}]`;
 
     return pick([
-      // 1. The Map That Smelled Funny
+      // 1. The Talking Thing Under the Bed — the user-locked example template
       {
-        title: `${capitalize(N)} and the Map That Smelled Funny`,
+        title: `${capitalize(N)} and the ${capitalize(SADJ)} ${capitalize(STHING)}`,
         paragraphs: [
-          `Normal Tuesday. Then [name:${N}] found a [c:${COL}] map under the sofa. It SMELLED — like [y:${FOOD}]. A lot.`,
-          `A [c:${PET}] sniffed it. Read it upside-down. "[y:${SOUND}]!" it announced. [name:${N}] grabbed sandwiches, just in case.`,
-          `They [c:${MOV}] toward the [y:${PLC}]. Halfway there, the [c:${PET}] did the LOUDEST [c:${BODY}]. A passing [c:${CRE}] applauded. "Five stars."`,
-          `The X marked nothing. Just a sign reading "${fwTok}". "${fwTok}!" shouted the [c:${PET}], fully committed.`,
-          `They kept walking. ELEVEN [c:${CRE}]s, a [c:${COL}] picnic, way too much [y:${FOOD}]. "FINALLY. Did somebody smell the map?"`,
-          `The map had been seasoned with [y:${FOOD}] on purpose. To find heroes. [name:${N}] left with seven sandwiches. "${fwTok}!" everyone shouted. Best Tuesday on record.`,
+          `[name:${N}] found a [c:${SADJ}] [c:${STHING}] under the bed. It had eyes. It had feet. It had a tiny hat. "${fwTok}!" said the [c:${STHING}].`,
+          `[name:${SK}] poked it with a spoon. BAD IDEA. The [c:${STHING}] went BOING BOING BOING and stuck to the ceiling.`,
+          `[name:${N}] yelled, "${fwTok}!" [name:${SK}] yelled, "${fwTok} BUT LOUDER!" The [c:${STHING}] fell down and landed on Dad's head.`,
+          `Dad said, "I am the [c:${STHING}] king now." Everybody clapped. The [c:${STHING}] burped. THE END.`,
         ],
       },
-      // 2. The Pet and the Never-Ending Body
+      // 2. The Snack Heist — sidekick orchestrates, freeword is the codeword
       {
-        title: `The ${capitalize(PET)} and the Never-Ending ${capitalize(BODY)}`,
+        title: `${capitalize(N)} and the ${capitalize(FOOD)} Heist`,
         paragraphs: [
-          `[name:${N}]'s [c:${PET}] had been at it for FOURTEEN minutes. Loud, soft, one that smelled like [y:${FOOD}]. (Nobody knew how.)`,
-          `"[y:${SOUND}]!" went the [c:${PET}], for the fifteenth time. [name:${N}] was [c:${MOD}] but determined. Off to consult a [c:${CRE}].`,
-          `"THREE fixes," it said gravely. "Spin in circles. Wear a [c:${COL}] hat. Visit the [y:${PLC}]." Two sounded fake. [name:${N}] tried all three.`,
-          `At the [y:${PLC}], a much wiser [c:${CRE}] took one look. "Oh. It needs a real snack." [name:${N}] dug some [y:${FOOD}] out of their pocket.`,
-          `The [c:${PET}] ate it in ONE GULP. Long silence. Then one final, GLORIOUS [c:${BODY}]. The wise [c:${CRE}] called it the official "${fwTok}" of the year.`,
-          `[name:${N}] laughed the whole way home. THREE days later, it started up again. But that's another story.`,
+          `Somebody hid the [c:${FOOD}]. [name:${N}] checked the cupboard. EMPTY. [name:${SK}] checked the fridge. ALSO EMPTY. This was an emergency.`,
+          `[name:${SK}] whispered, "We need a codeword. If we find the [c:${FOOD}], we say ${fwTok}." [name:${N}] nodded. Very serious. Mostly serious.`,
+          `They [c:${MOV}] into the kitchen on tiptoes. [name:${SK}] opened a drawer. Inside the drawer: the [c:${FOOD}]. AND a [c:${SADJ}] [c:${STHING}]. "${fwTok}! ${fwTok}!" they both shouted.`,
+          `The dog ran in. The dog ate the [c:${SADJ}] [c:${STHING}]. The dog burped a tiny rainbow. They ate the [c:${FOOD}] anyway. THE END.`,
         ],
       },
-      // 3. Someone Stole the Snack
+      // 3. The Magic Word That Got Out of Hand — freeword as spell, escalating chaos
       {
-        title: `Someone Stole ${capitalize(N)}'s ${capitalize(FOOD)}`,
+        title: `${capitalize(N)} Says "${FW_SAFE.toUpperCase()}" Too Many Times`,
         paragraphs: [
-          `[name:${N}] put fresh [y:${FOOD}] on the counter. Turned around for ONE second. Turned back. GONE. Just a whiff of [c:${BODY}].`,
-          `A [c:${PET}] sat nearby, SUSPICIOUSLY innocent. It looked at the ceiling. The wall. Anywhere except [name:${N}].`,
-          `A trail of [c:${COL}] crumbs led out the back door. [name:${N}] [c:${MOV}] after them, dodged a sprinkler, kept going.`,
-          `In the [y:${PLC}]: the THIEF. A [c:${CRE}], mouth full of [y:${FOOD}], very obviously guilty. "${fwTok}!" echoed from a bush.`,
-          `"I can explain," it mumbled. It could not. Two minutes of trying made it worse. It offered [name:${N}] half the [y:${FOOD}].`,
-          `The [c:${PET}] showed up, did a loud [c:${BODY2}], demanded its share. They finished the [y:${FOOD}] right there. "${fwTok}!" said the bush. Case closed.`,
+          `[name:${SK}] taught [name:${N}] a magic word. The word was ${fwTok}. "Only use it once," said [name:${SK}]. "Trust me."`,
+          `[name:${N}] said it once. A [c:${SADJ}] [c:${STHING}] appeared. Cool. [name:${N}] said it again. ANOTHER [c:${STHING}] appeared. Even more [c:${SADJ}].`,
+          `[name:${N}] said it FIVE MORE TIMES. The whole room filled up with [c:${SADJ}] [c:${STHING}]s. [name:${SK}] yelled, "I TOLD YOU!" The [c:${STHING}]s started singing.`,
+          `[name:${N}] said "${fwTok}" one last time. Everything turned upside down. Then it all popped like bubbles. [name:${SK}] said, "Don't tell Mom." THE END.`,
         ],
       },
-      // 4. Mysterious Smell
+      // 4. The Loud Pet — kid + sidekick try to quiet a [c:${PET}]
       {
-        title: `The Mysterious Smell of the ${capitalize(PLC)}`,
+        title: `${capitalize(N)}'s ${capitalize(PET)} Will Not Be Quiet`,
         paragraphs: [
-          `Something was OFF at the [y:${PLC}]. The whole place smelled like a [c:${BODY}] on a hot day. Unacceptable.`,
-          `[name:${N}] arrived with a [c:${PET}] and a notebook. CLUE ONE: "Smells terrible. Source: unknown." Drew a picture. Very brown.`,
-          `A [c:${MOD}] [c:${CRE}] whispered, "Came from a [c:${COL}] cloud by the rocks." Then let out a hearty [c:${BODY}]. Suspicious.`,
-          `[name:${N}] followed the cloud. TWENTY-THREE [c:${CRE}]s having a [y:${FOOD}] cook-off. Everything burning. Everyone PROUD.`,
-          `"[y:${SOUND}]!" called the head judge. "WINNER!" It was [y:${FOOD}] so burnt it had turned slightly [c:${COL}]. ${fwTok} good, somehow.`,
-          `Smell cleared by sundown. [name:${N}] was invited back as guest judge. "${fwTok}!" cheered the champions. Best worst smell on record.`,
+          `[name:${N}]'s [c:${PET}] would NOT stop yelling. All it said was "${fwTok}! ${fwTok}! ${fwTok}!" At three in the morning. Not okay.`,
+          `[name:${SK}] came over with a plan. The plan was: feed it a [c:${SADJ}] [c:${STHING}]. [name:${N}] said, "That's not a real food." [name:${SK}] said, "It is now."`,
+          `The [c:${PET}] ate the [c:${SADJ}] [c:${STHING}]. Chewed. Swallowed. Burped. Then said, in a tiny polite voice, "Thank you. ${fwTok}." Then fell asleep on [name:${N}]'s head.`,
+          `[name:${N}] couldn't move. [name:${SK}] took a picture. The [c:${PET}] snored. The snore sounded EXACTLY like "${fwTok}". THE END.`,
         ],
       },
-      // 5. The Word That Did Things
+      // 5. The Bouncy Disaster — silly object goes wild, sidekick saves the day
       {
-        title: `${capitalize(N)} and the Word That Did Things`,
+        title: `The Day the ${capitalize(SADJ)} ${capitalize(STHING)} Got Loose`,
         paragraphs: [
-          `Normal day at the [y:${PLC}]. Until [name:${N}] said "${fwTok}" out loud. A [c:${CRE}] FROZE. A [c:${PET}] dropped its [y:${FOOD}]. The bushes went "[y:${SOUND}]."`,
-          `"Say it AGAIN," whispered the [c:${CRE}]. [name:${N}] did. A small [c:${COL}] cloud formed overhead. Managed one tiny [c:${BODY}]. Drifted off.`,
-          `"You have THE word," said the [c:${CRE}]. "One kid every fifty years. Use it wisely. Or don't. Up to you."`,
-          `[name:${N}] tried it on a stuck door. "${fwTok}!" The door [c:${MOV}] open by itself. They tried it on hunger. "${fwTok}!" Some [y:${FOOD}] appeared on a rock. STILL WARM.`,
-          `Tried it on the [c:${PET}]. "${fwTok}!" The [c:${PET}] got bigger. LOUDER. Then did the most enormous [c:${BODY2}] ever. Not the intention.`,
-          `By bedtime, the magic ran out. [name:${N}] didn't mind. "Saved you for emergencies," they whispered. "${fwTok}!" said the wind. Maybe.`,
+          `[name:${N}] brought a [c:${SADJ}] [c:${STHING}] to the [y:${PLC}]. Big mistake. The [c:${STHING}] bounced. Then it bounced HIGHER. Then it bounced ONTO THE ROOF.`,
+          `[name:${SK}] yelled, "${fwTok}! ${fwTok}!" Apparently that was the magic word for the [c:${STHING}], because it came back down and landed in [name:${N}]'s hood.`,
+          `A [c:${CRE}] walked by and said, "Is that a [c:${SADJ}] [c:${STHING}]? I had one of those once." Then it asked to hold it. Then it ran off with it. RUDE.`,
+          `[name:${N}] and [name:${SK}] chased the [c:${CRE}] all the way home. They caught it. They got the [c:${STHING}] back. They also got [y:${FOOD}] out of the deal. THE END.`,
         ],
       },
-      // 6. The Secret Society
+      // 6. The Sandwich That Was Just Plain Wrong — disgusting-on-purpose, kid humor
       {
-        title: `The Secret ${capitalize(CRE)} Society`,
+        title: `${capitalize(SK)}'s ${capitalize(SADJ)} Sandwich`,
         paragraphs: [
-          `[name:${N}] [c:${MOV}] across the [y:${PLC}] when their foot SANK INTO A HOLE. A voice from below: "[y:${SOUND}]! YOU FOUND US!"`,
-          `Down at the bottom: SEVENTEEN [c:${CRE}]s at a tiny table, eating [y:${FOOD}] from tiny plates. One wore a [c:${COL}] hat three sizes too big.`,
-          `"Welcome," said the smallest. "We are the Secret [c:${CRE}] Society. Our motto is..." Long pause. "We don't have one. SIX YEARS workshopping."`,
-          `[name:${N}]'s [c:${PET}] popped its head in, took one look, did a loud [c:${BODY}] right into the meeting. The Society applauded — their HIGHEST greeting.`,
-          `Inducted on the spot. New official motto, unanimous vote: "${fwTok}".`,
-          `Climbing back up, [name:${N}] heard a faint "[y:${SOUND}]" from underground. Next morning: a [c:${COL}] envelope. Inside, one perfectly sized tiny hat.`,
+          `[name:${SK}] made a sandwich. It had [y:${FOOD}], a [c:${SADJ}] [c:${STHING}], and one whole [c:${COL}] crayon. [name:${SK}] said, "Try it." [name:${N}] said NOPE.`,
+          `So [name:${SK}] ate it. The whole thing. In one bite. Chewed twice. Then said, "${fwTok}." Then made a face. Then said "${fwTok}" again, but quieter.`,
+          `[name:${N}] said, "Are you okay?" [name:${SK}] said, "I can taste colors now." Then [name:${SK}] burped a tiny [c:${COL}] cloud. The cloud floated up and POPPED.`,
+          `[name:${N}] decided maybe one bite wouldn't hurt. It hurt. "${fwTok}!" yelled [name:${N}]. They drank a LOT of water. THE END.`,
         ],
       },
-      // 7. Saved by Tickling
+      // 7. The Underpants Emergency — Captain-Underpants tier silliness
       {
-        title: `${capitalize(N)} Saves the Day By Being ${capitalize(MOD)}`,
+        title: `${capitalize(N)} and the ${capitalize(SADJ)} Underpants`,
         paragraphs: [
-          `EMERGENCY at the [y:${PLC}]. A [c:${CRE}] had wedged itself between two rocks. Crowd gathering. Suggestions flying.`,
-          `"PUSH IT!" "PULL IT!" "Wait for someone tall!" None were good. [name:${N}] watched, then had a [c:${MOD}] thought.`,
-          `"Has anyone tried TICKLING it?" they asked. Silence. The [c:${CRE}] looked OFFENDED. [name:${N}] had already [c:${MOV}] forward, feather in hand.`,
-          `One tickle: nothing. Two: a giggle. THREE: the [c:${CRE}] burst into laughter, did an ENORMOUS [c:${BODY}], popped right out like a cork. "[y:${SOUND}]!" went the crowd.`,
-          `The grateful [c:${CRE}] handed [name:${N}] [y:${FOOD}] the size of their head. A [c:${PET}] appeared, demanded a share, contributed its own [c:${BODY2}].`,
-          `Word spread FAST. Now [name:${N}]'s title is ROYAL TICKLER. Stitched on a [c:${COL}] T-shirt that reads "${fwTok}" underneath.`,
+          `[name:${N}] put on underpants this morning. The underpants were [c:${SADJ}]. They were also TALKING. They said, "${fwTok}!" every time [name:${N}] sat down.`,
+          `[name:${SK}] heard them all the way from across the street. [name:${SK}] ran over and yelled, "WHY ARE YOUR UNDERPANTS YELLING?" [name:${N}] said, "I DO NOT KNOW."`,
+          `They went to the [y:${PLC}]. Every single step: "${fwTok}!" said the underpants. A [c:${CRE}] laughed so hard it fell over. A grown-up pretended not to notice. The grown-up was lying.`,
+          `Finally [name:${SK}] said, "Maybe they're just happy." [name:${N}] said, "Maybe." The underpants yelled "${fwTok}!" one more time. Then they took a nap. THE END.`,
         ],
       },
-      // 8. The Backwards Day
+      // 8. The Mysterious Burp — small mystery with a silly payoff
       {
-        title: `The Day ${capitalize(N)} Did Everything Backwards`,
+        title: `The Burp That Said "${FW_SAFE.toUpperCase()}"`,
         paragraphs: [
-          `[name:${N}] woke up and decided: TODAY, everything backwards. Just for fun. Ate the [y:${FOOD}] first, THEN poured the cereal. [c:${MOD}]. Worked, somehow.`,
-          `Walked to the [y:${PLC}] backwards — [c:${MOV}] straight into a confused [c:${PET}]. The [c:${PET}] thought about it. Shrugged. Joined them.`,
-          `At the [y:${PLC}], [name:${N}] said "GOODBYE!" to everyone on the way IN. A passing [c:${CRE}] said "HELLO!" on the way OUT. "${fwTok}," agreed the universe.`,
-          `Lunch: dessert FIRST. The [c:${PET}] tried, did a [c:${BODY}] instead, laughed so hard it rolled into a bush. "[y:${SOUND}]!" went the bush.`,
-          `A wise [c:${CRE}] approached. "Backwards Day. Very advanced. Most kids tap out by lunch." Awarded [name:${N}] a [c:${COL}] pasta medal. Engraved: "${fwTok}".`,
-          `By bedtime, everything was beautifully upside-down. [name:${N}] said "Good morning!" and climbed into bed. Dreamed about tomorrow happening forwards. Probably.`,
-        ],
-      },
-      // 9. The Wrong Delivery — uses NUM, LIQ, JOB, OBJ
-      {
-        title: `${capitalize(N)} and the Wrong ${capitalize(LIQ)} Delivery`,
-        paragraphs: [
-          `[name:${N}] had ONE job: deliver [c:${NUM}] jars of [c:${LIQ}] to a [c:${JOB}]. Easy. Or so it seemed.`,
-          `A [c:${PET}] showed up [c:${ADV}] holding a [c:${OBJ}] and demanding hazard pay. "${fwTok}!" it announced. Nobody was sure why.`,
-          `They [c:${MOV}] toward the [y:${PLC}]. Halfway there, the [c:${PET}] did the LOUDEST [c:${BODY}]. A passing [c:${CRE}] applauded.`,
-          `The [c:${JOB}] inspected the jars. "Wrong [c:${LIQ}]," they said, [c:${ADV}]. "I ordered [c:${NUM}] of the OTHER kind."`,
-          `[name:${N}] returned, jars corrected, and was paid in [y:${FOOD}] plus one slightly cursed [c:${OBJ}]. "${fwTok}!" everyone agreed. Best Tuesday on record.`,
-        ],
-      },
-      // 10. The Accidental Promotion — uses JOB, NUM, OBJ, ADV
-      {
-        title: `${capitalize(N)} Becomes a ${capitalize(JOB)} by Accident`,
-        paragraphs: [
-          `[name:${N}] knocked on the wrong door. The door said, [c:${ADV}]: "${capitalize(JOB)}, reporting today. Late." [name:${N}] tried to explain. The door did not care.`,
-          `Apparently [name:${N}] was now a [c:${JOB}]. [c:${NUM}] uniforms appeared. So did a [c:${OBJ}]. A [c:${PET}] was assigned as their assistant.`,
-          `Their first task: handle a [c:${CRE}] complaining about [c:${LIQ}]. [name:${N}] nodded, stamped a form, and made it all considerably worse.`,
-          `By lunchtime, [name:${N}] had filed [c:${NUM}] reports, lost the [c:${OBJ}], and accidentally promoted the [c:${PET}]. "${fwTok}!" said the [c:${CRE}], delighted.`,
-          `At quitting time, [name:${N}] handed in their badge. "Best [c:${JOB}] we've ever had," said the door. They left with [y:${FOOD}] and quiet pride.`,
-        ],
-      },
-      // 11. The Smell That Followed Them Home — only fires when FW subtype is 'smell'
-      {
-        tags: ['smell'],
-        title: `The Smell That Followed ${capitalize(N)} Home`,
-        paragraphs: [
-          `[name:${N}] noticed it on the way to the [y:${PLC}] — a faint whiff of [y:${FW}]. Annoying. Mysterious. Persistent.`,
-          `A [c:${PET}] sniffed the air [c:${ADV}]. "Yep. Definitely [y:${FW}]. Where's it coming from?"`,
-          `They [c:${MOV}] toward the source. The smell got stronger. So did the [c:${PET}]'s expression of polite disgust.`,
-          `At the source: a [c:${CRE}] holding a [c:${OBJ}] and an apologetic look. "I can explain," it said. "It's [y:${FW}] season."`,
-          `[name:${N}] accepted a complimentary [y:${FOOD}] (faintly [y:${FW}]-flavored) and headed home. Some smells, it turns out, are seasonal. Best Tuesday on record.`,
-        ],
-      },
-      // 12. The Legendary [Name] — only fires when FW subtype is 'name'
-      {
-        tags: ['name'],
-        title: `The Legendary ${capitalize(FW || 'Friend')}`,
-        paragraphs: [
-          `[name:${N}] discovered, against all odds, a [c:${CRE}] with no name. This was a problem. Naming was tradition.`,
-          `A [c:${PET}] suggested they consult an oracle. The oracle turned out to be a [c:${OBJ}] under the porch. It was [c:${ADV}] unhelpful.`,
-          `After [c:${NUM}] possible names and considerable debate, [name:${N}] declared the [c:${CRE}]'s name to be [y:${FW}]. The [c:${CRE}] tried it on. It fit perfectly.`,
-          `News spread. Other [c:${CRE}]s came looking for [y:${FW}], who was — let's be honest — kind of famous now.`,
-          `By bedtime, the legend of [y:${FW}] had reached the [y:${PLC}]. There was a parade. Plenty of [y:${FOOD}]. The unmistakable smell of victory.`,
-        ],
-      },
-      // 13. The Time [Name] Broke a Rule — callback motif (RULE referenced 3x across story)
-      // Codex callback system: setup (P1) → violation (P3) → payoff (P5).
-      {
-        title: `The Time ${capitalize(N)} Broke a Rule`,
-        paragraphs: [
-          `Every kid at the [y:${PLC}] knew the rules. There was one in particular nobody ever questioned: "${RULE}." A sign said it. The grown-ups said it. Even the [c:${CRE}]s said it.`,
-          `[name:${N}] [c:${MOV}] past the sign on a perfectly ordinary morning. A [c:${PET}] followed [c:${ADV}], whispering, "Are you sure about this?" [name:${N}] was not sure. They kept walking.`,
-          `Then [name:${N}] did it. Right there. In broad daylight. They broke the rule. A passing [c:${CRE}] gasped. "[y:${RULE}]," it whispered, horrified. "You... you BROKE it?"`,
-          `Consequences arrived immediately. A [c:${OBJ}] fell out of a tree. The sky briefly turned [c:${COL}]. The [c:${PET}] did a [c:${BODY}] in solidarity.`,
-          `At bedtime, [name:${N}] confessed to the universe. The universe whispered back: "Honestly? ${RULE.charAt(0).toUpperCase() + RULE.slice(1)} was a stupid rule. Don't tell anyone I said that." Best Tuesday on record.`,
-        ],
-      },
-      // 14. The Trade — negotiation shape with escalating stakes
-      {
-        title: `${capitalize(N)} and the Trade of the Century`,
-        paragraphs: [
-          `A [c:${CRE}] approached [name:${N}] holding a [c:${OBJ}]. "Trade time," it announced [c:${ADV}]. "I give you this. You give me your [y:${FOOD}]." [name:${N}] hadn't agreed to be negotiating.`,
-          `[name:${N}] considered. The [c:${CRE}] sweetened the deal: it would also throw in [c:${NUM}] free hats and a small island. A [c:${PET}] watched, expression of growing concern.`,
-          `"Don't do it," the [c:${PET}] whispered. "Last time I traded with one of these, I ended up owning seventeen [c:${OBJ}]s and a job title I didn't ask for."`,
-          `[name:${N}] negotiated harder. Final terms: half the [y:${FOOD}], the [c:${OBJ}], one chicken (somehow), and a vague promise of "future cooperation." They shook on it.`,
-          `The chicken stared at [name:${N}] [c:${ADV}]. The [c:${PET}] sighed deeply. Best Tuesday on record — though the chicken kept appearing in unexpected places for weeks.`,
-        ],
-      },
-      // 15. The Lost Object — search-and-find shape using OBJ as motif callback
-      {
-        title: `${capitalize(N)} and the Case of the Missing ${capitalize(OBJ)}`,
-        paragraphs: [
-          `[name:${N}] lost their [c:${OBJ}]. They had it five minutes ago. Now: gone. The [c:${PET}] hadn't seen it. The [c:${CRE}] denied involvement [c:${ADV}], which made everyone immediately suspicious.`,
-          `They searched the [y:${PLC}]. Behind the rocks. Under the [c:${COL}] cushions. Inside a bowl of [y:${FOOD}], for some reason.`,
-          `A wise [c:${CRE}] suggested: "Try thinking like a [c:${OBJ}]. Where would you go?" [name:${N}] closed their eyes. Concentrated. Tried to feel [c:${OBJ}]-ish.`,
-          `Then [name:${N}] [c:${MOV}] directly to the top shelf of a closet they'd never opened. There it was. The [c:${OBJ}]. Hiding. Looking guilty.`,
-          `"I was scared," the [c:${OBJ}] confessed. (It had never spoken before. Why now?) [name:${N}] decided not to ask. Just glad to have it back. Best Tuesday on record.`,
-        ],
-      },
-      // 16. The Accidental Race — wrong-place-wrong-time shape with triumph
-      {
-        title: `The Day ${capitalize(N)} Won a Race (Accidentally)`,
-        paragraphs: [
-          `[name:${N}] was just trying to get to the [y:${PLC}]. They were not racing. A [c:${CRE}] in the starting position vigorously disagreed.`,
-          `"THREE. TWO. ONE. GO!" shouted the [c:${CRE}] [c:${ADV}]. [name:${N}], deeply confused, [c:${MOV}] forward anyway. The crowd cheered.`,
-          `Apparently there were [c:${NUM}] contestants. A [c:${PET}] joined for moral support. It was not fast. But it was extremely loud, which counts for something.`,
-          `At the finish line, somehow, [name:${N}] arrived first. Cheering. Trophies. A medal made entirely of pasta. Someone pinned it on [name:${N}]'s [c:${COL}] shirt.`,
-          `[name:${N}] tried to explain they weren't racing. The [c:${CRE}] said: "Doesn't matter. You won. Rules are clear." The pasta medal was, apparently, theirs forever. Best Tuesday on record.`,
-        ],
-      },
-      // 17. The Unexpected Visitor — visitor-who-stays shape
-      {
-        title: `The Visitor Who Wouldn't Leave`,
-        paragraphs: [
-          `A [c:${CRE}] showed up at [name:${N}]'s door [c:${ADV}] one afternoon. It carried a [c:${OBJ}] and a small suitcase. "I'm here for the visit," it announced.`,
-          `[name:${N}] hadn't invited anyone. The [c:${CRE}] said this was technically irrelevant. The visit, apparently, had been on the calendar for months.`,
-          `For three days, the [c:${CRE}] occupied the couch, ate all the [y:${FOOD}], and explained the rules of an obscure card game nobody had asked about.`,
-          `A [c:${PET}] grew increasingly suspicious. "Pretty sure it's a [c:${JOB}]," the [c:${PET}] whispered to [name:${N}]. "Just play along. They leave eventually."`,
-          `Sure enough, on day four, the [c:${CRE}] packed up. "Thanks for the visit," it said brightly. "Same time next year." [name:${N}] is, currently, still preparing.`,
-        ],
-      },
-      // 18. The Surprise Performance — improvisation-under-pressure shape
-      {
-        title: `${capitalize(N)}'s Surprise Performance`,
-        paragraphs: [
-          `A [c:${CRE}] pushed [name:${N}] onto a stage. The audience clapped, [c:${ADV}]. "Now perform!" someone yelled. [name:${N}] had absolutely no idea what was happening.`,
-          `A spotlight clicked on. The [c:${PET}] was in the front row, somehow holding a [c:${OBJ}]. "Just wing it!" it mouthed urgently. This was not helpful.`,
-          `[name:${N}] [c:${MOV}] across the stage, improvising. They sang one note. Then another. They invented a dance. They mentioned [y:${FOOD}] for no clear reason.`,
-          `The audience LOVED it. A [c:${CRE}] in the back wept openly. Someone shouted "ENCORE!" Three times. Nobody had asked but everyone was committed.`,
-          `Afterward, [name:${N}] was handed a [c:${COL}] trophy engraved with "Best [c:${JOB}], Maybe." Some performances need no plan. Best Tuesday on record.`,
+          `[name:${N}] burped at breakfast. The burp said a word. The word was ${fwTok}. Everybody stopped. [name:${SK}] dropped a spoon.`,
+          `[name:${N}] tried to do it again. Just a normal burp. Tried again. "${fwTok}!" said the burp. WHAT. WHY.`,
+          `They went outside. Every burp [name:${N}] did said "${fwTok}". A [c:${SADJ}] [c:${STHING}] rolled out of a bush and joined them. It also burped "${fwTok}". So at least [name:${N}] wasn't alone.`,
+          `By bedtime, the burps were back to normal. [name:${SK}] said, "Good while it lasted." [name:${N}] burped one last quiet "${fwTok}". Then went to sleep smiling. THE END.`,
         ],
       },
     ].filter(tpl => !tpl.tags || tpl.tags.includes(FW_SUBTYPE)));

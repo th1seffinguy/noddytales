@@ -4,6 +4,35 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v1.18.0 — 2026-05-15
+**Goofy Shorts — kid tier rewrite (the playtest fix)**
+
+Playtests with actual 6–7 year olds revealed the kid tier had been drifting toward adult-ironic humor over 19 versions. Stories weren't funny to the audience they were built for. v1.18.0 is a ground-up kid-tier rewrite to the voice kids actually laugh at.
+
+**The four rules behind the rewrite:**
+1. **Shorter.** Kid `PARAGRAPH_LIMIT` dropped 5 → 4. Bedtime-length, no padding.
+2. **Sidekick drives the action.** Every kid story features a named sidekick (user-defined or default) who is in the prose driving the plot — not a 60%-chance grafted-on cameo.
+3. **Silly adjective + silly noun is the joke.** New auto-pools `SILLY_ADJ` (24 entries: wobbly, stinky, boingy, squishy…) and `SILLY_NOUN` (24 entries: pickle, sock, pancake, underpants…) combine into the central absurd object of every story.
+4. **Freeword becomes a shoutable spell.** The user's typed word appears 2–3× per story as a yelled spell, codeword, magic incantation, or repeated chant. Every story has at least one line kids can shout along with.
+
+**Templates:** 18 old kid templates → **8 new Goofy Shorts templates** (The Talking Thing Under the Bed, The Snack Heist, The Magic Word, The Loud Pet, The Bouncy Disaster, The Wrong Sandwich, The Underpants Emergency, The Mysterious Burp).
+
+**Tier-specific changes:**
+- Adult-ironic asides and the 60% sidekick-cameo injection are now **skipped for kid tier only**. Both still fire for tot/little/big/tween where they land correctly.
+- New `DEFAULT_SIDEKICKS` pool (Maya/Jake/Sam/Riley/Ben/Emma/Theo/Ava) so a sidekick name is always available even when the user hasn't added one.
+- `FW_SAFE` guarantees a shoutable string (falls back to KAPOW/ZINGO/etc. when the user skipped freeword).
+
+**Smoke test (200 random kid stories, age 6):**
+- 100 unique titles (titles parameterize on SADJ + STHING)
+- 0 paragraph-count violations (all 4 paragraphs)
+- 0 grammar issues (article/plural/vowel/verb-form)
+- 0 stories missing 2+ freeword shouts
+- 0 stories missing a sidekick name
+
+Other tiers (tot/little/big/tween) untouched and verified non-regressed.
+
+---
+
 ## v1.17.0 — 2026-05-15
 **5 new kid templates — story-shape variety**
 
