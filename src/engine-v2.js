@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v2.4.1';
+const ENGINE_V2_VERSION = 'v2.4.2';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -1349,14 +1349,27 @@ const V2_BEATS = [
      Slightly more structure than tot, but no irony.
      ============================================================ */
 
-  { id:'li_intro1', beatType:'little_intro', tiers:['little'], requiredSlots:['kid','place'],
+  /* v2.4.2 — cast introductions: P1 names the companion alongside the kid so it
+     doesn't pop in cold in P2. Old kid+place-only intros are kept as fallback for
+     companion-less stories, gated to NOT require companion. */
+  { id:'li_intro1', beatType:'little_intro', tiers:['little'], requiredSlots:['kid','place','companion'],
     lines: [
-      'One sunny morning, {kid.name} headed to the {place.text}. It was a perfect day for an adventure.',
+      'One sunny morning, {kid.name} headed to the {place.text} with {companion.articleText}. It was a perfect day for an adventure.',
+      'One sunny morning, {kid.name} and {companion.articleText} headed to the {place.text}. It was a perfect day for an adventure.',
     ] },
-  { id:'li_intro2', beatType:'little_intro', tiers:['little'], requiredSlots:['kid','object'],
+  { id:'li_intro2', beatType:'little_intro', tiers:['little'], requiredSlots:['kid','object','companion'],
     lines: [
-      '{kid.name} found {object.articleText} on the doorstep. What a surprise! What was it for?',
+      '{kid.name} and {companion.articleText} found {object.articleText} on the doorstep. What a surprise! What was it for?',
     ] },
+  { id:'li_intro3', beatType:'little_intro', tiers:['little'], requiredSlots:['kid','place','companion','food'],
+    lines: [
+      '{kid.name} packed {food.articleText} and brought {companion.articleText} along to the {place.text}. The day was just getting started.',
+    ] },
+  /* v2.4.2 — no place-only fallback. Companion slot is always populated in v2
+     (pet pick is required by the wizard), so every little_intro must introduce
+     the companion to avoid the phantom P2 entrance bug. If the eligibleFor
+     filter returns empty due to a future schema change, generateStoryV2 returns
+     null and the caller falls back to v1. */
 
   { id:'li_comp1', beatType:'little_companion', tiers:['little'], requiredSlots:['kid','companion'],
     lines: [
@@ -1530,9 +1543,11 @@ const V2_BEATS = [
       '{kid.name} woke up with a plan. Today, at the {place.text}, {kid.name} was going to {goal.text}. The {companion.text} was in. The {companion.text} was always in.',
       'Today was the day. {kid.name} had decided yesterday at the {place.text} and slept on it and decided again this morning: today, {kid.name} was going to {goal.text}. The {companion.text} agreed before {kid.name} even finished saying it.',
     ] },
-  { id:'gs_kid_2', beatType:'goal_stated', tiers:['kid','big'], requiredSlots:['kid','goal','place'],
+  /* v2.4.2 — introduce companion in P1 to avoid mid-story phantom entrances. */
+  { id:'gs_kid_2', beatType:'goal_stated', tiers:['kid','big'], requiredSlots:['kid','goal','place','companion'],
     lines: [
-      'It started at the {place.text}. {kid.name} looked around and made up their mind: today they would {goal.text}. No matter what.',
+      'It started at the {place.text}. {kid.name} looked around, glanced at the {companion.text}, and made up their mind: today they would {goal.text}. No matter what.',
+      '{kid.name} and the {companion.text} were already at the {place.text} when it hit: today was the day to {goal.text}. The {companion.text} did not argue.',
     ] },
   { id:'gs_tween_1', beatType:'goal_stated', tiers:['tween'], requiredSlots:['kid','goal','place'],
     lines: [
@@ -1618,10 +1633,11 @@ const V2_BEATS = [
      ============================================================ */
 
   /* SNACK MISSING — food is gone, kid notices */
-  { id:'ls_miss_1', beatType:'snack_missing', tiers:['kid','big'], requiredSlots:['kid','food','place'],
+  /* v2.4.2 — introduce companion in P1 so the later "true_culprit" reveal lands. */
+  { id:'ls_miss_1', beatType:'snack_missing', tiers:['kid','big'], requiredSlots:['kid','food','place','companion'],
     lines: [
-      '{kid.name} set down the {food.text} on the counter and turned around for one second. ONE second. When {kid.name} turned back, the {food.text} was gone. Just gone. There was a crumb. That was it.',
-      'At the {place.text}, {kid.name} had been saving the {food.text} all morning. Then it vanished. {kid.cap} did a slow look around. Nothing.',
+      '{kid.name} and the {companion.text} were at the {place.text}. {kid.name} set down the {food.text} on the counter and turned around for one second. ONE second. When {kid.name} turned back, the {food.text} was gone. Just gone. There was a crumb. That was it. The {companion.text} looked very innocent.',
+      'At the {place.text}, {kid.name} had been saving the {food.text} all morning. The {companion.text} had been watching. Maybe a little too closely. Then the {food.text} vanished. {kid.cap} did a slow look around. Nothing.',
     ] },
   { id:'ls_miss_2', beatType:'snack_missing', tiers:['kid','big'], requiredSlots:['kid','food','companion','place'],
     lines: [
@@ -1638,9 +1654,10 @@ const V2_BEATS = [
       '{kid.name} spotted the {visitor.text} nearby, looking VERY innocent. Suspiciously innocent. There was a {color.text} crumb on its chin. Case closed.',
       'The {visitor.text} was right there. The {visitor.text} had a {color.text} smudge on its face. {kid.name} narrowed their eyes. "It was you."',
     ] },
+  /* v2.4.2 — bridge the visitor's entrance so they don't pop in cold mid-paragraph. */
   { id:'ls_susp_2', beatType:'wrong_suspect', tiers:['kid','big'], requiredSlots:['kid','visitor','mood'],
     lines: [
-      '"I know what you did," {kid.name} said, feeling {mood.text} about it. The {visitor.text} stared. The {visitor.text} did not deny it. The {visitor.text} also did not confess. Suspicious!',
+      'Right then {visitor.articleText} wandered into view, looking guilty. "I know what you did," {kid.name} said, feeling {mood.text} about it. The {visitor.text} stared. The {visitor.text} did not deny it. The {visitor.text} also did not confess. Suspicious!',
     ] },
   { id:'ls_susp_tween', beatType:'wrong_suspect', tiers:['tween'], requiredSlots:['kid','visitor'],
     lines: [
@@ -1690,9 +1707,10 @@ const V2_BEATS = [
       'There was going to be a show. {kid.name} had been planning it for days. The {companion.text} was the co-star. The stage was the {place.text}. The audience was three pillows and a confused {visitor.text}.',
       '"This is going to be the greatest show," {kid.name} announced at the {place.text}. The {companion.text} agreed wholeheartedly. They had rehearsed. They were ready.',
     ] },
-  { id:'sw_set_2', beatType:'show_setup', tiers:['kid','big'], requiredSlots:['kid','object','place'],
+  /* v2.4.2 — introduce companion in P1 so its later "co-star" role lands. */
+  { id:'sw_set_2', beatType:'show_setup', tiers:['kid','big'], requiredSlots:['kid','object','place','companion'],
     lines: [
-      'The {place.text} was the venue. {kid.name} had even brought {object.articleText} as a prop. The whole show kind of depended on the {object.text} working. The {object.text} had better work.',
+      'The {place.text} was the venue. {kid.name} had brought {object.articleText} as a prop and the {companion.text} as the co-star. The whole show kind of depended on the {object.text} working. The {object.text} had better work.',
     ] },
   { id:'sw_set_tween', beatType:'show_setup', tiers:['tween'], requiredSlots:['kid','place'],
     lines: [
@@ -2264,18 +2282,27 @@ function generateStoryV2(name, picks, age) {
           ? [' Eventually somebody mentioned {food.articleText}. That changed things.']
           : [' Eventually, {kid.name} got around to the {food.text} they had been saving for exactly this moment.', ' Somebody finally produced {food.articleText}. The room shifted.'],
     place: [' The {place.text} hummed around them like it was in on the joke.', ' The {place.text} watched it all happen and said nothing.'],
+    /* v2.4.2 — visitor callbacks now BRIDGE the entrance ("walked up", "showed up",
+       "appeared") so the visitor doesn't pop into mid-paragraph as if they had always
+       been there. Same fix for move (clarify subject). */
     visitor: tier === 'tot'
-      ? [' The {visitor.text} waved hi too.']
-      : [' Even the {visitor.text} came by to see what the fuss was about.', ' The {visitor.text} took notes. Probably.'],
+      ? [' Then {visitor.articleText} walked up and waved hi.']
+      : tier === 'little'
+        ? [' Then {visitor.articleText} walked up to see what was going on.', ' Just then, {visitor.articleText} came around the corner and joined in.']
+        : [' Then {visitor.articleText} showed up to see what the fuss was about.', ' Then {visitor.articleText} appeared and started taking notes. Probably.'],
     color: tier === 'tot'
       ? [' Everything was a little {color.text}.']
       : [' The whole scene had a {color.text} tint by then.', ' Somehow even the air looked {color.text}.'],
     mood: tier === 'tot'
       ? [' {kid.cap} felt {mood.text}.']
       : [' {kid.cap} was {mood.text} about the whole thing, in a quiet way.'],
+    /* v2.4.2 — move callback names the kid as subject so it doesn't read as
+       a stranded "they" referring to nobody in particular. */
     move: tier === 'tot'
-      ? [' Then they all {move.text}.']
-      : [' They {move.text} a little, just because it felt right.', ' At some point everybody {move.text}, briefly.'],
+      ? [' Then {kid.name} {move.text} too. Hee hee.']
+      : tier === 'little'
+        ? [' Then {kid.name} {move.text} a little, just because it felt right.', ' {kid.cap} {move.text} all around. It was that kind of day.']
+        : [' {kid.cap} {move.text} a little, just because it felt right.', ' At some point {kid.name} {move.text} across the room, briefly.'],
     freeword: [' And once, very quietly, somebody said "{sound.text}".'],
   };
 

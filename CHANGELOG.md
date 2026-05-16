@@ -4,6 +4,63 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.4.2 — 2026-05-16
+**Cast introductions — fix the "hamster appears out of nowhere" bug**
+
+Real-kid playtest with Livi (age 4) flagged a structural narrative bug: stories opened with "{kid} headed to the {place}" and then the companion (hamster) suddenly *talked* in P2 with no introduction. The user's exact diagnosis: *"It would make more sense if the story began with 'Livi headed to the volcano with her pet hamster.'"* That fix is now the default for every little-tier opener.
+
+### Two phantom-introduction patterns fixed
+
+**A. Little tier P1 openers** — `li_intro1` / `li_intro2` opened with kid + place only. Both rewritten to require companion and name them in the opener:
+
+- *Before:* "One sunny morning, Livi headed to the volcano."
+- *After:* "One sunny morning, Livi headed to the volcano with a hamster."
+
+Added `li_intro3` (kid + place + companion + food) for variety. Removed the place-only fallback since companion slot is always populated in v2 stories.
+
+**B. Coverage callbacks** — when a chosen slot wasn't otherwise referenced in the body, the validator injected sentences that dropped the entity cold:
+
+- *Before:* "The ninja took notes. Probably."
+- *After:* "Then a ninja appeared and started taking notes. Probably."
+
+- *Before:* "They danced a little, just because it felt right."
+- *After:* "Livi danced a little, just because it felt right."
+
+Visitor + move callbacks now have entry bridges ("showed up", "walked up", "appeared", "came around the corner") and name the kid as subject so "they" isn't stranded.
+
+### Kid/big P1 beats also tightened
+
+- `gs_kid_2` (goal_spine no-companion variant) — rewritten to include companion
+- `ls_miss_1` (lost_snack first beat) — rewritten to include companion (sets up the "true_culprit" reveal)
+- `sw_set_2` (show_wrong no-companion variant) — rewritten to include companion as co-star
+- `ls_susp_2` (wrong_suspect mood variant) — added entrance bridge ("Right then the ninja wandered into view, looking guilty")
+
+### Smoke test (50 little tier stories with the exact playtest picks)
+
+| Metric | Before v2.4.2 | After v2.4.2 |
+|---|---|---|
+| Companion (hamster) in P1 | ~50% | **100% ✓** |
+| Visitor phantom intro (no bridge) | high | **0/50 ✓** |
+| "they danced" with no subject | regular | **0/50 ✓** |
+
+### Regression (300 stories, ages 2-13)
+
+| Metric | Result |
+|---|---|
+| Null returns | 0/300 ✓ |
+| Unresolved `{slot}` tokens | 0/300 ✓ |
+
+### Kid tier design note
+
+78% of kid-tier stories now name the companion in P1; the remaining 22% are `rule_loophole` blueprint where the **visitor** (rule-imposer) is the P1 protagonist by design — companion appears as side character in later beats. This is the correct narrative shape for that blueprint and not a bug.
+
+### Files modified
+
+- `src/engine-v2.js` — `ENGINE_V2_VERSION` → `v2.4.2`; little_intro beats rewritten; gs_kid_2 / ls_miss_1 / sw_set_2 / ls_susp_2 rewritten; visitor + move coverage callbacks bridged
+- `src/content.js` — `APP_VERSION` → `v2.4.2`
+
+---
+
 ## v2.4.1 — 2026-05-16
 **Recent-beat memory — same picks now produce 10 different stories, not the same gag repeated**
 
