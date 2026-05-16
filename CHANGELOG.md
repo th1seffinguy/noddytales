@@ -4,6 +4,28 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v1.16.0 — 2026-05-15
+**Callback motif tracking (Codex Option A, item #8)**
+
+Codex's example: pick a story-specific motif (a phrase, an object, a rule) and reuse it 2-3 times in escalating contexts. "Setup: 'no soup after moonrise.' Escalation: 'You brought soup after moonrise?' Payoff: 'Nice soup.'"
+
+That repetition is what makes generated stories feel authored, not assembled.
+
+**What changed:**
+- New `RULES` pool — 12 absurd rules ("no soup after moonrise", "always say hello to ladybugs", "whoever finds the spoon makes the rules", "three hops before any door", etc.)
+- `RULE` picked once per story in `buildStory`, available to kid templates
+- New kid template **#13 The Time [Name] Broke a Rule** structured as a classic callback:
+  - **P1 (setup):** The rule is introduced — "Nobody ever questioned: 'whoever finds the spoon makes the rules.'"
+  - **P3 (violation):** The protagonist breaks it — "'whoever finds the spoon makes the rules,' the knight whispered, horrified. 'You... you BROKE it?'"
+  - **P5 (payoff):** The universe weighs in — "Honestly? Whoever finds the spoon makes the rules was a stupid rule. Don't tell anyone I said that."
+
+**Sample fragment from a live generation:**
+> *Cole tiptoed past the sign on a perfectly ordinary morning... Then Cole did it. Right there. In broad daylight. They broke the rule. A passing knight gasped. "whoever finds the spoon makes the rules," it whispered, horrified...*
+
+**Carries into v2.0:** The motif-tracking concept (pick a story-specific element, reference it 2-3x) becomes a property of beat cards in the rich-objects architecture. Implementation rewrites; design pattern persists.
+
+---
+
 ## v1.15.0 — 2026-05-15
 **Semantically-routed freetext (Codex Option A, item #11)**
 

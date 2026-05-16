@@ -865,6 +865,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v1.16.0', title: 'Callback motif tracking',
+    detail: 'Stories that feel authored: a recurring "rule" is set up in P1, violated in P3, and paid off in P5. New "The Time [Name] Broke a Rule" template uses one of 12 absurd rules (no soup after moonrise, three hops before any door, etc.) as a callback woven through the whole story.' },
   { v: 'v1.15.0', title: 'Semantically-routed freetext',
     detail: 'Freetext prompts now carry a type: shout, smell, name, dance, or word. Smell prompts can yield a story where your word is used as a literal smell. Name prompts can yield a story where it’s the name of a creature. Two new kid templates demonstrate the routing.' },
   { v: 'v1.14.1', title: 'Grammar hardening (verb tense + adjective+plural)',
@@ -1078,6 +1080,9 @@ function buildStory(name, picks, age) {
   const NUM = rawPick(NUMBERS);
   const LIQ = rawPick(LIQUIDS);
   const JOB = rawPick(JOBS);
+  // Story-specific motif — Codex callback system. Picked once per story and referenced
+  // across multiple paragraphs in escalating contexts (setup → violation → payoff).
+  const RULE = rawPick(RULES);
 
   // pick auto-corrects articles, trims to length, injects a tier-appropriate aside,
   // and adds a sidekick cameo (60% of the time when sidekicks exist).
@@ -1496,6 +1501,18 @@ function buildStory(name, picks, age) {
           `After [c:${NUM}] possible names and considerable debate, [name:${N}] declared the [c:${CRE}]'s name to be [y:${FW}]. The [c:${CRE}] tried it on. It fit perfectly.`,
           `News spread. Other [c:${CRE}]s came looking for [y:${FW}], who was — let's be honest — kind of famous now.`,
           `By bedtime, the legend of [y:${FW}] had reached the [y:${PLC}]. There was a parade. Plenty of [y:${FOOD}]. The unmistakable smell of victory.`,
+        ],
+      },
+      // 13. The Time [Name] Broke a Rule — callback motif (RULE referenced 3x across story)
+      // Codex callback system: setup (P1) → violation (P3) → payoff (P5).
+      {
+        title: `The Time ${capitalize(N)} Broke a Rule`,
+        paragraphs: [
+          `Every kid at the [y:${PLC}] knew the rules. There was one in particular nobody ever questioned: "${RULE}." A sign said it. The grown-ups said it. Even the [c:${CRE}]s said it.`,
+          `[name:${N}] [c:${MOV}] past the sign on a perfectly ordinary morning. A [c:${PET}] followed [c:${ADV}], whispering, "Are you sure about this?" [name:${N}] was not sure. They kept walking.`,
+          `Then [name:${N}] did it. Right there. In broad daylight. They broke the rule. A passing [c:${CRE}] gasped. "[y:${RULE}]," it whispered, horrified. "You... you BROKE it?"`,
+          `Consequences arrived immediately. A [c:${OBJ}] fell out of a tree. The sky briefly turned [c:${COL}]. The [c:${PET}] did a [c:${BODY}] in solidarity.`,
+          `At bedtime, [name:${N}] confessed to the universe. The universe whispered back: "Honestly? ${RULE.charAt(0).toUpperCase() + RULE.slice(1)} was a stupid rule. Don't tell anyone I said that." Best Tuesday on record.`,
         ],
       },
     ].filter(tpl => !tpl.tags || tpl.tags.includes(FW_SUBTYPE)));

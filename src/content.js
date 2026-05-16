@@ -4,7 +4,7 @@
    Story template logic lives in index.html (buildStory).
    ================================================================ */
 
-const APP_VERSION = 'v1.15.0';
+const APP_VERSION = 'v1.16.0';
 
 /* Verb form lookup — maps each past-tense move-pool entry to its base + gerund forms.
    Templates use moveBase()/moveGerund() to derive the right form for the syntactic slot
@@ -124,6 +124,24 @@ const JOBS = [
   'emergency hat consultant', 'junior moon accountant', 'certified dragon whisperer',
   'substitute wizard', 'snack detective', 'hallway mayor',
   'professional button counter', 'royal nap supervisor', 'chief sock investigator',
+];
+
+/* Absurd rules — Codex callback-motif system (#8). One rule is picked per kid story and
+   referenced 3 times across paragraphs in escalating uses (setup → violation → payoff).
+   The repetition is what makes generated stories feel authored. */
+const RULES = [
+  'no soup after moonrise',
+  'never trust a sandwich after sunset',
+  'always say hello to ladybugs',
+  'never run with a clipboard',
+  'whoever finds the spoon makes the rules',
+  'all left socks must be paired',
+  'three hops before any door',
+  'pets vote on Tuesdays',
+  'no whispering at lunch',
+  'check the hat before sitting',
+  'every cloud counts',
+  'no apologizing on stairs',
 ];
 
 /* Pickable round options for kid tier — surfaced ONLY when pottyMode is on so the toggle has
