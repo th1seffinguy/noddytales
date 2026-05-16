@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v2.2.1';
+const ENGINE_V2_VERSION = 'v2.2.3';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -108,19 +108,24 @@ const V2Grammar = (() => {
     // Plain-string slots (kid.name, sidekick.lc, freeword, etc.)
     if (typeof slot === 'string') return slot;
 
-    // Rich word object
-    if (!prop || prop === 'text')     return slot.text;
+    // Rich word object.
+    // v2.2.3 — resolveSlot used to assume rich slots always have a `.text` property. The kid
+    // slot is { name, cap, lc } with NO text — so `{kid.text}` returned undefined and
+    // `{kid.cap}` returned capitalize(undefined) = "". 23 of 60 audit stories had an empty
+    // subject ("...agreed.  had a plan."). Fall back to `.name` when `.text` is absent.
+    const baseText = slot.text != null ? slot.text : (slot.name != null ? slot.name : '');
+    if (!prop || prop === 'text')     return baseText;
     if (prop === 'articleText')        return articleText(slot);
     if (prop === 'theText')            return theText(slot);     // mid-sentence: "the dragon"
     if (prop === 'TheText')            return TheText(slot);     // sentence-start: "The dragon"
-    if (prop === 'titleText')          return titleCase(slot.text); // "sleepy megaphone" → "Sleepy Megaphone"
+    if (prop === 'titleText')          return titleCase(baseText); // "sleepy megaphone" → "Sleepy Megaphone"
     if (prop === 'plural')             return plural(slot);
     if (prop === 'emoji')              return slot.emoji || '';
     if (prop === 'trait')              return pickOne(slot.traits || []) || '';
     if (prop === 'action')             return pickOne(slot.actions || []) || '';
     if (prop === 'sound')              return pickOne(slot.sounds || []) || '';
     if (prop === 'funnyUse')           return pickOne(slot.funnyUses || []) || '';
-    if (prop === 'cap')                return capitalize(slot.text);
+    if (prop === 'cap')                return capitalize(baseText);
     return slot[prop] != null ? String(slot[prop]) : `{${path}}`;
   }
 
@@ -1691,7 +1696,62 @@ function generateStoryV2(name, picks, age) {
     if (injectCallback(cat)) sprinkleBudget--;
   }
 
-  return { title, paragraphs };
+  // ============================================================
+  // v2.2.3 — HIGHLIGHT RESTORATION
+  // ============================================================
+  // v1 stories used [name:X]/[c:X]/[y:X] tokens in template literals. v2 renders plain
+  // text, so parseStoryLine() never had tokens to wrap — the 60-story audit confirmed
+  // 60/60 paragraphs had no highlight tokens. Post-process here: walk the title and each
+  // paragraph, wrap the kid's name + sidekick + user-picked slot values in the same
+  // tokens parseStoryLine already understands. parseStoryLine remains the single source
+  // of HTML rendering for both v1 and v2.
+  //
+  // Rules:
+  //   - Kid name + sidekick names      → [name:X]  (chip-style)
+  //   - User-picked pet/food/creature/color/move/mood → [c:X]  (orange pop)
+  //   - User-picked place + setting place + freeword  → [y:X]  (yellow pop)
+  //   - Word-boundary, case-insensitive
+  //   - Never re-wrap text that's already inside a token (lookbehind for ':' / '[')
+  //   - Process longer terms FIRST so "electric blue" wins before "blue" alone
+  function applyHighlightTokens(text) {
+    if (!text) return text;
+    function wrap(s, term, kind) {
+      if (!term) return s;
+      const trimmed = String(term).trim();
+      if (!trimmed) return s;
+      // Escape regex metacharacters in the term
+      const esc = trimmed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      // (?<![[:\w]) ensures we're not already inside a [name:...]/[c:...]/[y:...] token.
+      // (?!\]) ensures we're not the captured text of a token currently being closed.
+      const re = new RegExp('(?<![[:\\w])\\b' + esc + '\\b(?!\\])', 'gi');
+      return s.replace(re, (m) => '[' + kind + ':' + m + ']');
+    }
+    let out = text;
+    // Names first (sidekick may match before kid name if shorter — order by length desc)
+    const names = [slots.kid.name, slots.sidekick && slots.sidekick.name]
+      .filter(Boolean)
+      .sort((a, b) => b.length - a.length);
+    for (const n of names) out = wrap(out, n, 'name');
+    // Color picks tend to be multi-word ("electric blue") — wrap longest first
+    const cTerms = [
+      picks.color?.w, picks.move?.w, picks.mood?.w,
+      picks.pet?.w, picks.food?.w, picks.creature?.w,
+    ].filter(Boolean).sort((a, b) => String(b).length - String(a).length);
+    for (const t of cTerms) out = wrap(out, t, 'c');
+    // Yellow: place pick + locked setting place + freeword
+    const yTerms = [
+      picks.place?.w,
+      setting && setting.place ? setting.place.text : null,
+      picks.freeword?.w,
+    ].filter(Boolean).sort((a, b) => String(b).length - String(a).length);
+    for (const t of yTerms) out = wrap(out, t, 'y');
+    return out;
+  }
+
+  const highlightedTitle = applyHighlightTokens(title);
+  const highlightedParagraphs = paragraphs.map(applyHighlightTokens);
+
+  return { title: highlightedTitle, paragraphs: highlightedParagraphs };
 }
 
 /* Expose globals for use from index.html. Browser-global pattern so we don't
@@ -1706,6 +1766,84 @@ if (typeof window !== 'undefined') {
   window.V2_SETTINGS = V2_SETTINGS;     // v2.1.0
   window.getSetting = getSetting;        // v2.1.0
   window.V2Grammar = V2Grammar;
+
+  /* v2.2.3 — DevTools QA helper that mirrors the 60-story audit script.
+     Usage from browser console:
+       qaStoryMatrix()                             // 5 stories per age, 12 ages = 60
+       qaStoryMatrix({ samplesPerAge: 10 })        // 120 total
+       qaStoryMatrix({ ages: [6, 7] })             // only kid tier
+     Returns { stories: [...], aggregate: {...} }. Console-logs a per-tier summary table. */
+  window.qaStoryMatrix = function qaStoryMatrix(opts) {
+    opts = opts || {};
+    const AGES = opts.ages || [2,3,4,5,6,7,8,9,10,11,12,13];
+    const N = opts.samplesPerAge != null ? opts.samplesPerAge : 5;
+    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+    const stories = [];
+    const tierOf = a => a <= 3 ? 'tot' : a <= 5 ? 'little' : a <= 7 ? 'kid' : a <= 10 ? 'big' : 'tween';
+    for (const age of AGES) {
+      for (let i = 0; i < N; i++) {
+        const picks = {
+          pet:      { w: pick(V2_WORDS.companions).text },
+          food:     { w: pick(V2_WORDS.foods).text },
+          place:    { w: pick(V2_WORDS.places).text },
+          creature: { w: pick(V2_WORDS.visitors).text },
+          color:    { w: pick(['rainbow','electric blue','golden','scarlet','silver','teal','neon','pitch black']) },
+          move:     { w: pick(['tiptoed','spun','bounced','zoomed','galloped','crept','soared','wobbled']) },
+          mood:     { w: pick(['silly','sneaky','brave','goofy','spooky','dramatic','mysterious','determined']) },
+          freeword: { w: pick(['BAZINKLE','FLOBBER','POP','BOING','KAPOW','ZINGO','WOMBO','MEEP']), subtype: 'shout' },
+          setting:  { id: pick(V2_SETTINGS.map(s => s.id)) },
+        };
+        const name = opts.name || 'Cole';
+        const story = generateStoryV2(name, picks, age);
+        const setting = V2_SETTINGS.find(s => s.id === picks.setting.id);
+        const placeText = setting && setting.place ? setting.place.text : picks.place.w;
+        const strip = s => s.replace(/\[(?:name|c|y):([^\]]+)\]/g, '$1');
+        const stripped = story ? story.paragraphs.map(strip).join(' ') : '';
+        const has = (w) => w && new RegExp('\\b' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(stripped);
+        const rawJoined = story ? story.paragraphs.join(' ') : '';
+        stories.push({
+          age, tier: tierOf(age), name,
+          setting: setting ? setting.label : '(unknown)',
+          picks,
+          title: story ? story.title : '(NULL)',
+          paragraphs: story ? story.paragraphs : [],
+          checks: {
+            name_in_body: has(name),
+            pet_in_body:  has(picks.pet.w),
+            food_in_body: has(picks.food.w),
+            place_in_p1:  story && new RegExp('\\b' + placeText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(strip(story.paragraphs[0] || '')),
+            creature_in_body: has(picks.creature.w),
+            color_in_body:    has(picks.color.w),
+            mood_in_body:     has(picks.mood.w),
+            move_in_body:     has(picks.move.w),
+            freeword_in_body: has(picks.freeword.w),
+            has_highlight_tokens: /\[(name|c|y):/.test(rawJoined),
+            empty_subject_bug: /\.\s\s+(had a plan|was [a-z]|came over)/.test(stripped),
+          },
+        });
+      }
+    }
+    // Aggregate
+    const total = stories.length;
+    const sum  = (fn) => stories.filter(fn).length;
+    const aggregate = {
+      total,
+      name_in_body:          sum(s => s.checks.name_in_body),
+      empty_subject_bug:     sum(s => s.checks.empty_subject_bug),
+      pet_in_body:           sum(s => s.checks.pet_in_body),
+      food_in_body:          sum(s => s.checks.food_in_body),
+      place_in_p1:           sum(s => s.checks.place_in_p1),
+      creature_in_body:      sum(s => s.checks.creature_in_body),
+      color_in_body:         sum(s => s.checks.color_in_body),
+      mood_in_body:          sum(s => s.checks.mood_in_body),
+      move_in_body:          sum(s => s.checks.move_in_body),
+      freeword_in_body:      sum(s => s.checks.freeword_in_body),
+      stories_with_highlights: sum(s => s.checks.has_highlight_tokens),
+    };
+    console.log('[qaStoryMatrix] ' + total + ' stories generated');
+    console.table(aggregate);
+    return { stories, aggregate };
+  };
 
   /* v2.2.1 — DevTools QA helper for the choice coverage contract.
      Usage from browser console:

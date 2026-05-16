@@ -1148,6 +1148,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v2.2.3', title: 'Bug-fix triage: name, highlights, TTS audio mismatch',
+    detail: 'Three confirmed bugs from the 60-story audit + user playtest. (1) NAME REGRESSION: {kid.cap} resolved to empty string when slot.text was absent (kid slot uses .name) — caused "  had a plan" empty-subject sentences in 23/60 stories. Fixed in resolveSlot. (2) HIGHLIGHTS: v2 paragraphs never produced [name:X]/[c:X]/[y:X] tokens that parseStoryLine wraps in chip styling. 60/60 stories had no highlights. Added a post-processing pass in generateStoryV2 that wraps kid name + sidekick names + user-picked pet/food/creature/color/move/mood + setting place + freeword in the right tokens. Selected words are now visibly highlighted again. (3) TTS NAME MATCH: removed the v2.2.1 TTS request-body scrub that replaced Cole→Friend before sending to ElevenLabs. The audio narrator now speaks the child\'s real name, matching the visible story. Also added window.qaStoryMatrix() DevTools helper (5 stories per age across 12 ages = 60) for ongoing audits.' },
   { v: 'v2.2.2', title: 'Align Parent Settings gear with back button',
     detail: 'In v2.2.1 the gear floated ~14px from the top while the back button sat at 28px (screen padding-top), so the gear visually drifted above the back button. Repositioned gear to top: 28px (with safe-area math) so its top aligns with the screen-head row. Both header controls now share the same y position.' },
   { v: 'v2.2.1', title: 'QA repair: choice coverage, library expansion, TTS privacy, header gear',
@@ -3048,30 +3050,14 @@ const TTSManager = (() => {
     stop();
     const strip = s => s.replace(/\[(?:name|c|y):([^\]]+)\]/g, '$1');
 
-    // v2.2.1 — TTS PRIVACY SCRUB.
-    // The visible story (DOM) shows the child's real first name. The TTS request body
-    // (sent to ElevenLabs via /api/tts) replaces every occurrence of the child's name
-    // and any sidekick names with single-word neutral placeholders ("Friend" for the
-    // child, "Pal" for sidekicks). Same word count is preserved so karaoke alignment
-    // (which maps TTS word index → DOM word index) does NOT drift.
-    //
-    // What ElevenLabs receives: "Friend and a parrot headed to the jungle…"
-    // What the user sees:        "Cole and a parrot headed to the jungle…"
-    // Audio plays the scrubbed version; highlight lights up the real name on screen.
-    //
-    // Possessives are handled: "Cole's" → "Friend's" (still one word).
-    function scrubName(text, name, placeholder) {
-      if (!name) return text;
-      const esc = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      return text
-        .replace(new RegExp('\\b' + esc + "['’]s\\b", 'g'), placeholder + "'s")
-        .replace(new RegExp('\\b' + esc + '\\b', 'g'), placeholder);
-    }
-    let body = strip(story.title) + '.\n\n' + story.paragraphs.map(strip).join('\n\n');
-    body = scrubName(body, state.name, 'Friend');
-    if (Array.isArray(state.sidekicks)) {
-      for (const sk of state.sidekicks) body = scrubName(body, sk, 'Pal');
-    }
+    // v2.2.3 — TTS name scrub REMOVED.
+    // Earlier v2.2.1 scrubbed the child's real name from the /api/tts request body
+    // ("Cole" → "Friend") for privacy. User feedback: the audio narrator then called
+    // the kid "Friend" while the screen showed their real name — confusing mismatch.
+    // The brief explicitly directs: visible story and read-aloud should BOTH use the
+    // child's entered name. The privacy concern is acceptable per the user since the
+    // first name alone is low-PII and the audio experience matters more.
+    const body = strip(story.title) + '.\n\n' + story.paragraphs.map(strip).join('\n\n');
 
     // v1.19.3 "Theeee... end." dramatic closer (see v1.19.3 release notes for the rationale).
     const text = body + '\n\nTheeee... end.';

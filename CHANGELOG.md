@@ -4,6 +4,86 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.2.3 — 2026-05-16
+**Bug-fix triage from 60-story audit + LLM Council review**
+
+User-mandated deep audit surfaced three confirmed bugs. This release ships ONLY the safe fixes — the larger content/engine plan from the council goes in a separate build.
+
+### The 60-story audit
+
+5 stories per age × 12 ages = 60. Findings:
+
+| Metric | Result |
+|---|---|
+| Name "Cole" visible in body | 60/60 ✓ |
+| Empty-subject bug | **23/60 ✗** (38%) |
+| Highlight tokens present | **0/60 ✗** (100% missing) |
+| Pet / Food / Place / Creature coverage | All ≥ 56/60 ✓ |
+| Move sprinkled | 32/60 (worst, but a content concern not a bug) |
+
+### Fix 1 — `resolveSlot` empty-subject bug (`src/engine-v2.js`)
+
+**Root cause:** `cap` branch returned `capitalize(slot.text)` but the kid slot is `{ name, cap, lc }` with no `text` property. `capitalize(undefined) === ''`. Beats using `{kid.cap}` rendered "  had a plan" (double space, missing subject). All coverage callbacks templated on `{kid.cap}` produced the same artifact.
+
+**Fix:** added `baseText` fallback (`slot.text ?? slot.name ?? ''`) propagated through `text`, `titleText`, `cap`. Verified 0/5 empty-subject sentences in the acceptance run (down from 38%).
+
+### Fix 2 — Highlight restoration
+
+**Root cause:** v1 templates embedded `[name:X]` / `[c:X]` / `[y:X]` tokens directly. `parseStoryLine()` wraps those tokens in CSS chip styles. v2 stories render plain text — `parseStoryLine` had nothing to wrap. **60/60 v2 stories had zero highlights.**
+
+**Fix:** post-processing pass at the end of `generateStoryV2()` walks title + each paragraph and wraps:
+- Kid + sidekick names → `[name:X]` (chip)
+- User-picked pet/food/creature/color/move/mood → `[c:X]` (orange pop)
+- User-picked place + locked setting place + freeword → `[y:X]` (yellow pop)
+
+Regex lookbehind prevents re-wrapping tokens. Longer terms processed first so multi-word values ("electric blue") win before single-word substrings ("blue").
+
+### Fix 3 — TTS audio matches visible name (`TTSManager.speak()`)
+
+**Root cause:** v2.2.1 added a TTS request-body scrub (`Cole → Friend`) for privacy. Audio narrator then said "Friend" while screen showed "Cole" — confusing mismatch.
+
+**Fix:** removed the scrub. TTS request now sends rendered story text exactly as displayed. The user accepts the privacy trade-off: first names alone are low-PII and the audio coherence matters more.
+
+### New: `window.qaStoryMatrix()` DevTools helper
+
+Reproduces the 60-story audit in-browser. Returns `{ stories, aggregate }` with per-story checks. Usage:
+
+```js
+qaStoryMatrix()                        // 5 × 12 ages = 60
+qaStoryMatrix({ samplesPerAge: 10 })   // 120 total
+qaStoryMatrix({ ages: [6, 7] })        // kid tier only
+```
+
+### LLM Council findings (for the NEXT build)
+
+The council convened on the deeper "why are stories weak as STORIES?" question. Five advisors, peer-reviewed, chairman synthesis.
+
+**Consensus diagnosis:**
+1. The engine is a **coverage engine**; it needs to be a **causality engine**. 100% slot coverage means the slot was filled, not that it mattered.
+2. **Cole is a witness, not a protagonist.** Verbs the kid owns are reactive. The creature drives more action than the kid.
+3. **`move` missing 28/60 is the diagnosis, not a stat.** Move is the only slot that forces the kid to *do* something. The engine is structurally biased toward describing over acting.
+4. **Kid humor needs the second beat.** Repetition + escalation + reversal. Current beats deliver repetition only.
+5. **Peer-review blind spot:** stories are *performed*, not read silently. No pause cues, no parent-kid exchange hooks, no kid-interjectable moments.
+
+**Chairman's recommendation for the next build:**
+
+- Add a `goal` slot to seeds (30+ entries: "find the missing X", "wake up the moon", "win the bubble race")
+- Three new beat types: `goal_stated`, `goal_obstacle`, `goal_resolved`
+- Rewrite recipes around the spine: `setting_anchor → goal_stated → middle (chosen words act as obstacle/tool) → goal_obstacle → kid_decides → goal_resolved → bedtime_landing`
+- Add a `punchline` field to beat cards (40 punchlines focused on physical absurdity, scale violations, loud nonsense)
+- Add `pauseCue` field for read-aloud performance moments
+- **Validate with 3–5 real kids BEFORE the rewrite, not after.**
+- Don't touch grammar helpers, V2_WORDS pool sizes, or add a sixth tier. Don't build an LLM fallback. Don't pursue serialized worlds / printable books / grandparent voice yet — they amplify whatever exists; right now that's not enough to amplify.
+
+---
+
+## v2.2.2 — 2026-05-16
+**Align Parent Settings gear with back button**
+
+Gear at `top: 14px` while the back button sat at `top: 28px` (screen padding) — visual drift. Aligned gear to `top: 28px` with safe-area math so both header controls share the same y-position.
+
+---
+
 ## v2.2.1 — 2026-05-16
 **QA repair release — choice coverage contract, library expansion, TTS privacy, header gear, child agency**
 
