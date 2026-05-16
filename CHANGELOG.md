@@ -4,6 +4,24 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v1.16.2 — 2026-05-15
+**Dramatic "The End" — elongated closer with finality**
+
+The narrator was saying "The End" at normal speed (~0.6s total). Now it stretches dramatically:
+
+- TTS text suffix changed from `"\n\nThe End."` to `"\n\nTheeeeeeeeeeeee... End."`
+- Repeated `e`s tell ElevenLabs to elongate the vowel (~2-2.5s on "Thheeeeeeeee")
+- Ellipsis adds a beat of silence (~0.5s)
+- Period on `End.` gives natural sentence-end finality
+
+Net duration: ~3 seconds of dramatic closure instead of 0.6s normal speech.
+
+The rendered "✦ The End ✦" in the DOM is unchanged — still reads clean visually. The karaoke highlight on "The" stays lit for the full elongation (because the word indices map TTS-word-N → DOM-word-N regardless of spelling), then jumps to "End" for the final beat. Visually you see "**The**" hold for ~2.5 seconds, then "**End**" land.
+
+Side effect: IndexedDB audio cache invalidated for all stories (SHA-256 of the TTS text changed). Users get one cache miss per story after deploy, then everything's fast again.
+
+---
+
 ## v1.16.1 — 2026-05-15
 **Logo composition fix + little tier emoji deduplication**
 

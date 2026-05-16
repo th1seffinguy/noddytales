@@ -865,6 +865,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v1.16.2', title: 'Dramatic "The End" closer',
+    detail: 'The narrator now stretches "The" for ~2.5 seconds with a pause before landing "End" — proper bedtime-story finality instead of a quick read.' },
   { v: 'v1.16.1', title: 'Logo fix + little tier emoji cleanup',
     detail: 'The book in the app icon was sitting flush with the bottom border (4px margin out of 1024). Lifted and scaled the book group so it floats with proper breathing room. Also fixed turtle/rabbit duplicates in little tier creature pool.' },
   { v: 'v1.16.0', title: 'Callback motif tracking',
@@ -2487,7 +2489,12 @@ const TTSManager = (() => {
   async function speak(story) {
     stop();
     const strip = s => s.replace(/\[(?:name|c|y):([^\]]+)\]/g, '$1');
-    const text  = strip(story.title) + '.\n\n' + story.paragraphs.map(strip).join('\n\n') + '\n\nThe End.';
+    // "Theeeeeeeeeeeee... End." — repeated vowels tell ElevenLabs to elongate the "ee" sound,
+    // ellipsis adds a beat of silence, period gives final-sentence finality. ~3 seconds total
+    // for a dramatic closer. The rendered DOM still shows clean "The End" (karaoke maps by word
+    // index, so the elongated "Theeeeeeeeeeeee..." TTS word stays mapped to the DOM "The" span,
+    // which keeps the highlight lit for the full elongation).
+    const text  = strip(story.title) + '.\n\n' + story.paragraphs.map(strip).join('\n\n') + '\n\nTheeeeeeeeeeeee... End.';
     try {
       setLoading(true);
       await openDB();
