@@ -4,6 +4,21 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v1.18.2 — 2026-05-15
+**Fix: duplicate "The End" at story close (defect log entry)**
+
+Bug filed in the Defect Log database: every story ended with "The End" twice — once inside the last paragraph (template-hardcoded "THE END." for kid tier, "The end! 🌟" for tot tier) and once again as the renderer's `<p class="story-end">✦ The End ✦</p>` marker. The narrator was reading both. Visually doubled too.
+
+**Root cause:** "The End" had two sources of truth — string templates and the story screen display component.
+
+**Fix:** Stripped the in-paragraph end markers from 8 kid Goofy Shorts templates + 5 tot templates (13 instances total via two `replace_all` passes). The renderer's `✦ The End ✦` is now the single source of truth, paired with the dramatic elongated TTS closer added in v1.16.2 (`Theeeeeeeeeeeee... End.`).
+
+**Karaoke check:** Word-count alignment between DOM and TTS-spoken text stays in sync because both lose the same words (kid templates lost "THE" + "END" → 2 words; tot templates lost "The" + "end" → 2 words). The `.story-end` paragraph still gets karaoke-wrapped by `wrapStoryWords()` at line 2341.
+
+**Verification:** `grep -n " The end[!.]\\| The End[!.]\\| THE END[!.]"` returns zero matches across the entire codebase.
+
+---
+
 ## v1.18.1 — 2026-05-15
 **Name persistence — skip the "What's your name?" prompt on repeat sessions**
 

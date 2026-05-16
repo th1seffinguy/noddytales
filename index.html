@@ -872,6 +872,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v1.18.2', title: 'Fix: duplicate "The End" at story close',
+    detail: 'Every story was ending twice — last paragraph said "THE END." (kid) or "The end! 🌟" (tot), and the renderer added "✦ The End ✦" right below it. The narrator was reading both. Stripped the in-paragraph markers from 8 kid + 5 tot templates. The renderer\'s "✦ The End ✦" is now the single source of truth, paired with the dramatic elongated TTS closer from v1.16.2. Karaoke word-counts stay in sync (both DOM and TTS lose the same words). Logged as defect log entry "Duplicate \'The End\' rendering".' },
   { v: 'v1.18.1', title: 'Name remembered between stories',
     detail: 'Tap "Start over" and the kid\'s name is still there — no more re-typing "Cole" every time. The name persists to local storage (same way sidekicks already do) and the welcome flow jumps straight to age selection. To change the name, tap "← back" from the age screen and use the × on the name chip. Built for back-to-back bedtime stories without UX friction.' },
   { v: 'v1.18.0', title: 'Goofy Shorts — kid tier rewrite',
@@ -1213,7 +1215,7 @@ function buildStory(name, picks, age) {
           `A little [c:${COL}] [c:${PET}] said HI! Then it said HI again!`,
           `It hid behind a bush and yelled BOO! They both giggled.`,
           `They sat under the big [c:${SKY}] and ate [y:${FOOD}]. The ${PET} ate it BACKWARD.`,
-          `Then they went [c:${MOV}], [c:${MOV}], and one more time [c:${MOV}]! The end! 🌟`,
+          `Then they went [c:${MOV}], [c:${MOV}], and one more time [c:${MOV}]!`,
         ],
       },
       {
@@ -1223,7 +1225,7 @@ function buildStory(name, picks, age) {
           `The [c:${PET}] loved to [c:${MOV_BASE}]. And to [c:${MOV_BASE}] AGAIN. And SOMETIMES it [c:${MOV}] sideways!`,
           `They shared [y:${FOOD}] under the [c:${SKY}]. The [c:${PET}] tried to share with the [c:${SKY}] too. The [c:${SKY}] was confused.`,
           `Then the [c:${PET}] did a silly little dance. [name:${N}] joined in. So did a passing bug!`,
-          `"Again!" said [name:${N}]. So they did. And again. And one more time. The end! 🌟`,
+          `"Again!" said [name:${N}]. So they did. And again. And one more time.`,
         ],
       },
       {
@@ -1233,7 +1235,7 @@ function buildStory(name, picks, age) {
           `It was the [c:${FOOD}]! It said "BOOP!" Then "BOOP!" again, but LOUDER!`,
           `A [c:${PET}] heard the BOOPs and ran over very fast.`,
           `"BOOP!" said the [c:${FOOD}]. "BOOP!" said the [c:${PET}]. "BOOP!" said [name:${N}].`,
-          `Even the [c:${SKY}] tried to BOOP. But it was too high up. Hee hee! The end! 🌟`,
+          `Even the [c:${SKY}] tried to BOOP. But it was too high up. Hee hee!`,
         ],
       },
       {
@@ -1263,7 +1265,7 @@ function buildStory(name, picks, age) {
           `It said "YUM" when it meant "PHEW!" And it called shoes "snacks." Uh oh.`,
           `They went to the [y:${PLC}] together, all mixed up and very silly.`,
           `The [c:${PET}] pointed at the [c:${SKY}] and said "FLOOR." It pointed at the [c:${FOOD}] and said "[c:${COL}]." Nothing matched!`,
-          `[name:${N}] laughed so hard they got the hiccups. Hic! Hic! Hic! Even the [c:${PET}] got the hiccups. The end! 🌟`,
+          `[name:${N}] laughed so hard they got the hiccups. Hic! Hic! Hic! Even the [c:${PET}] got the hiccups.`,
         ],
       },
       {
@@ -1283,7 +1285,7 @@ function buildStory(name, picks, age) {
           `[name:${N}] looked up. It was a [c:${COL}] [c:${FOOD}]! How did it get up there?`,
           `A very silly [c:${PET}] giggled from behind a tree. "I throw [c:${FOOD}]!" it said. "It's my hobby!"`,
           `They all played catch at the [y:${PLC}], tossing the [y:${FOOD}] back and forth under the [c:${SKY}].`,
-          `Nobody bonked anybody else again. Well, the [c:${SKY}] got bonked once. Sorry, ${SKY}! The end! 🌟`,
+          `Nobody bonked anybody else again. Well, the [c:${SKY}] got bonked once. Sorry, ${SKY}!`,
         ],
       },
     ]);
@@ -1405,7 +1407,7 @@ function buildStory(name, picks, age) {
           `[name:${N}] found a [c:${SADJ}] [c:${STHING}] under the bed. It had eyes. It had feet. It had a tiny hat. "${fwTok}!" said the [c:${STHING}].`,
           `[name:${SK}] poked it with a spoon. BAD IDEA. The [c:${STHING}] went BOING BOING BOING and stuck to the ceiling.`,
           `[name:${N}] yelled, "${fwTok}!" [name:${SK}] yelled, "${fwTok} BUT LOUDER!" The [c:${STHING}] fell down and landed on Dad's head.`,
-          `Dad said, "I am the [c:${STHING}] king now." Everybody clapped. The [c:${STHING}] burped. THE END.`,
+          `Dad said, "I am the [c:${STHING}] king now." Everybody clapped. The [c:${STHING}] burped.`,
         ],
       },
       // 2. The Snack Heist — sidekick orchestrates, freeword is the codeword
@@ -1415,7 +1417,7 @@ function buildStory(name, picks, age) {
           `Somebody hid the [c:${FOOD}]. [name:${N}] checked the cupboard. EMPTY. [name:${SK}] checked the fridge. ALSO EMPTY. This was an emergency.`,
           `[name:${SK}] whispered, "We need a codeword. If we find the [c:${FOOD}], we say ${fwTok}." [name:${N}] nodded. Very serious. Mostly serious.`,
           `They [c:${MOV}] into the kitchen on tiptoes. [name:${SK}] opened a drawer. Inside the drawer: the [c:${FOOD}]. AND a [c:${SADJ}] [c:${STHING}]. "${fwTok}! ${fwTok}!" they both shouted.`,
-          `The dog ran in. The dog ate the [c:${SADJ}] [c:${STHING}]. The dog burped a tiny rainbow. They ate the [c:${FOOD}] anyway. THE END.`,
+          `The dog ran in. The dog ate the [c:${SADJ}] [c:${STHING}]. The dog burped a tiny rainbow. They ate the [c:${FOOD}] anyway.`,
         ],
       },
       // 3. The Magic Word That Got Out of Hand — freeword as spell, escalating chaos
@@ -1425,7 +1427,7 @@ function buildStory(name, picks, age) {
           `[name:${SK}] taught [name:${N}] a magic word. The word was ${fwTok}. "Only use it once," said [name:${SK}]. "Trust me."`,
           `[name:${N}] said it once. A [c:${SADJ}] [c:${STHING}] appeared. Cool. [name:${N}] said it again. ANOTHER [c:${STHING}] appeared. Even more [c:${SADJ}].`,
           `[name:${N}] said it FIVE MORE TIMES. The whole room filled up with [c:${SADJ}] [c:${STHING}]s. [name:${SK}] yelled, "I TOLD YOU!" The [c:${STHING}]s started singing.`,
-          `[name:${N}] said "${fwTok}" one last time. Everything turned upside down. Then it all popped like bubbles. [name:${SK}] said, "Don't tell Mom." THE END.`,
+          `[name:${N}] said "${fwTok}" one last time. Everything turned upside down. Then it all popped like bubbles. [name:${SK}] said, "Don't tell Mom."`,
         ],
       },
       // 4. The Loud Pet — kid + sidekick try to quiet a [c:${PET}]
@@ -1435,7 +1437,7 @@ function buildStory(name, picks, age) {
           `[name:${N}]'s [c:${PET}] would NOT stop yelling. All it said was "${fwTok}! ${fwTok}! ${fwTok}!" At three in the morning. Not okay.`,
           `[name:${SK}] came over with a plan. The plan was: feed it a [c:${SADJ}] [c:${STHING}]. [name:${N}] said, "That's not a real food." [name:${SK}] said, "It is now."`,
           `The [c:${PET}] ate the [c:${SADJ}] [c:${STHING}]. Chewed. Swallowed. Burped. Then said, in a tiny polite voice, "Thank you. ${fwTok}." Then fell asleep on [name:${N}]'s head.`,
-          `[name:${N}] couldn't move. [name:${SK}] took a picture. The [c:${PET}] snored. The snore sounded EXACTLY like "${fwTok}". THE END.`,
+          `[name:${N}] couldn't move. [name:${SK}] took a picture. The [c:${PET}] snored. The snore sounded EXACTLY like "${fwTok}".`,
         ],
       },
       // 5. The Bouncy Disaster — silly object goes wild, sidekick saves the day
@@ -1445,7 +1447,7 @@ function buildStory(name, picks, age) {
           `[name:${N}] brought a [c:${SADJ}] [c:${STHING}] to the [y:${PLC}]. Big mistake. The [c:${STHING}] bounced. Then it bounced HIGHER. Then it bounced ONTO THE ROOF.`,
           `[name:${SK}] yelled, "${fwTok}! ${fwTok}!" Apparently that was the magic word for the [c:${STHING}], because it came back down and landed in [name:${N}]'s hood.`,
           `A [c:${CRE}] walked by and said, "Is that a [c:${SADJ}] [c:${STHING}]? I had one of those once." Then it asked to hold it. Then it ran off with it. RUDE.`,
-          `[name:${N}] and [name:${SK}] chased the [c:${CRE}] all the way home. They caught it. They got the [c:${STHING}] back. They also got [y:${FOOD}] out of the deal. THE END.`,
+          `[name:${N}] and [name:${SK}] chased the [c:${CRE}] all the way home. They caught it. They got the [c:${STHING}] back. They also got [y:${FOOD}] out of the deal.`,
         ],
       },
       // 6. The Sandwich That Was Just Plain Wrong — disgusting-on-purpose, kid humor
@@ -1455,7 +1457,7 @@ function buildStory(name, picks, age) {
           `[name:${SK}] made a sandwich. It had [y:${FOOD}], a [c:${SADJ}] [c:${STHING}], and one whole [c:${COL}] crayon. [name:${SK}] said, "Try it." [name:${N}] said NOPE.`,
           `So [name:${SK}] ate it. The whole thing. In one bite. Chewed twice. Then said, "${fwTok}." Then made a face. Then said "${fwTok}" again, but quieter.`,
           `[name:${N}] said, "Are you okay?" [name:${SK}] said, "I can taste colors now." Then [name:${SK}] burped a tiny [c:${COL}] cloud. The cloud floated up and POPPED.`,
-          `[name:${N}] decided maybe one bite wouldn't hurt. It hurt. "${fwTok}!" yelled [name:${N}]. They drank a LOT of water. THE END.`,
+          `[name:${N}] decided maybe one bite wouldn't hurt. It hurt. "${fwTok}!" yelled [name:${N}]. They drank a LOT of water.`,
         ],
       },
       // 7. The Underpants Emergency — Captain-Underpants tier silliness
@@ -1465,7 +1467,7 @@ function buildStory(name, picks, age) {
           `[name:${N}] put on underpants this morning. The underpants were [c:${SADJ}]. They were also TALKING. They said, "${fwTok}!" every time [name:${N}] sat down.`,
           `[name:${SK}] heard them all the way from across the street. [name:${SK}] ran over and yelled, "WHY ARE YOUR UNDERPANTS YELLING?" [name:${N}] said, "I DO NOT KNOW."`,
           `They went to the [y:${PLC}]. Every single step: "${fwTok}!" said the underpants. A [c:${CRE}] laughed so hard it fell over. A grown-up pretended not to notice. The grown-up was lying.`,
-          `Finally [name:${SK}] said, "Maybe they're just happy." [name:${N}] said, "Maybe." The underpants yelled "${fwTok}!" one more time. Then they took a nap. THE END.`,
+          `Finally [name:${SK}] said, "Maybe they're just happy." [name:${N}] said, "Maybe." The underpants yelled "${fwTok}!" one more time. Then they took a nap.`,
         ],
       },
       // 8. The Mysterious Burp — small mystery with a silly payoff
@@ -1475,7 +1477,7 @@ function buildStory(name, picks, age) {
           `[name:${N}] burped at breakfast. The burp said a word. The word was ${fwTok}. Everybody stopped. [name:${SK}] dropped a spoon.`,
           `[name:${N}] tried to do it again. Just a normal burp. Tried again. "${fwTok}!" said the burp. WHAT. WHY.`,
           `They went outside. Every burp [name:${N}] did said "${fwTok}". A [c:${SADJ}] [c:${STHING}] rolled out of a bush and joined them. It also burped "${fwTok}". So at least [name:${N}] wasn't alone.`,
-          `By bedtime, the burps were back to normal. [name:${SK}] said, "Good while it lasted." [name:${N}] burped one last quiet "${fwTok}". Then went to sleep smiling. THE END.`,
+          `By bedtime, the burps were back to normal. [name:${SK}] said, "Good while it lasted." [name:${N}] burped one last quiet "${fwTok}". Then went to sleep smiling.`,
         ],
       },
     ].filter(tpl => !tpl.tags || tpl.tags.includes(FW_SUBTYPE)));
