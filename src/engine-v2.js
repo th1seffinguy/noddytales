@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v1.23.0-segment-D';
+const ENGINE_V2_VERSION = 'v2.0.0';
 
 /* ================================================================
    GRAMMAR HELPERS
