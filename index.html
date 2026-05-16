@@ -844,10 +844,17 @@ function loadSidekicks() {
   try { return JSON.parse(localStorage.getItem('nt_sidekicks') || '[]').slice(0, 3); }
   catch { return []; }
 }
+function loadName() {
+  try { return (localStorage.getItem('nt_name') || '').slice(0, 14); }
+  catch { return ''; }
+}
+const savedName = loadName();
 const state = {
   screen: 'welcome',         // welcome | words | story
-  welcomeStep: 'name',       // name | age | sidekicks
-  name: '',
+  // welcomeStep: skip 'name' on subsequent sessions when a name is already saved —
+  // user can still tap "← back" from 'age' to edit/clear it.
+  welcomeStep: savedName ? 'age' : 'name',
+  name: savedName,
   age: null,
   teenUnlocked: false,       // never persisted — resets to false on every page load
   picks: {},                 // category => { w, e }
@@ -865,6 +872,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v1.18.1', title: 'Name remembered between stories',
+    detail: 'Tap "Start over" and the kid\'s name is still there — no more re-typing "Cole" every time. The name persists to local storage (same way sidekicks already do) and the welcome flow jumps straight to age selection. To change the name, tap "← back" from the age screen and use the × on the name chip. Built for back-to-back bedtime stories without UX friction.' },
   { v: 'v1.18.0', title: 'Goofy Shorts — kid tier rewrite',
     detail: 'Playtests with real 6–7 year olds revealed the kid tier had drifted toward adult-ironic humor over 19 versions. Full rewrite to the voice kids actually laugh at: shorter (4 paragraphs), sidekick drives the plot (not a 60%-chance cameo), silly adjective + silly noun forms the central absurd thing (wobbly pickle, stinky pancake, boingy underpants), and the freeword becomes a shoutable spell repeated 2–3× per story. 18 old kid templates → 8 new Goofy Shorts. Adult-ironic asides still fire for tot/little/big/tween where they work.' },
   { v: 'v1.17.0', title: 'Five new kid templates — more variety',
@@ -1753,23 +1762,37 @@ function renderWelcome() {
   ${step === 'name' ? `
     <div class="stack gap-20 grow" style="justify-content:center">
       <h1 class="display display--mega" style="text-align:center;margin-bottom:4px">
-        Hi there!<br>
-        <span style="color:var(--orange-dark)">What's your name?</span>
+        ${state.name.trim()
+          ? `Hi again,<br><span style="color:var(--orange-dark)">${name}!</span>`
+          : `Hi there!<br><span style="color:var(--orange-dark)">What's your name?</span>`
+        }
       </h1>
       <p class="lede" style="text-align:center;margin-top:-8px">
-        We'll make a silly story just for you.
+        ${state.name.trim()
+          ? `Tap × to change it, or just hit Next.`
+          : `We'll make a silly story just for you.`
+        }
       </p>
-      <input
-        class="name-input"
-        id="input-name"
-        type="text"
-        placeholder="Type here"
-        value="${name}"
-        autocomplete="off"
-        spellcheck="false"
-        autocapitalize="words"
-        maxlength="14"
-      />
+      ${state.name.trim() ? `
+        <div class="sidekick-list" style="justify-content:center">
+          <span class="sidekick-chip">
+            <span>${name}</span>
+            <button class="sidekick-chip-x" id="btn-name-clear" aria-label="Change name">×</button>
+          </span>
+        </div>
+      ` : `
+        <input
+          class="name-input"
+          id="input-name"
+          type="text"
+          placeholder="Type here"
+          value=""
+          autocomplete="off"
+          spellcheck="false"
+          autocapitalize="words"
+          maxlength="14"
+        />
+      `}
       <div class="footer">
         <button class="btn" id="btn-name-next" ${state.name.trim() ? '' : 'disabled'}>
           Next →
@@ -2094,10 +2117,22 @@ function attachWelcomeHandlers(el) {
   if (inp) {
     inp.addEventListener('input', () => {
       state.name = inp.value.slice(0, 14);
+      // Persist on every keystroke so the name survives reloads and "Start over".
+      try { localStorage.setItem('nt_name', state.name); } catch {}
       if (btnNext) btnNext.disabled = !state.name.trim();
     });
     inp.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && state.name.trim()) advanceToAge();
+    });
+  }
+
+  // Chip-X to clear a saved name and return to the empty input.
+  const btnNameClear = el.querySelector('#btn-name-clear');
+  if (btnNameClear) {
+    btnNameClear.addEventListener('click', () => {
+      state.name = '';
+      try { localStorage.removeItem('nt_name'); } catch {}
+      rerender();
     });
   }
 
@@ -2543,10 +2578,12 @@ function attachStoryHandlers(el) {
 }
 
 function resetApp() {
+  // v1.18.1 — keep state.name across "Start over" so the user can roll multiple stories
+  // quickly without re-typing the kid's name. If a name is saved we skip directly to the
+  // age step. User can tap "← back" to edit or clear via the chip X.
   TTSManager.stop();
   state.screen       = 'welcome';
-  state.welcomeStep  = 'name';
-  state.name         = '';
+  state.welcomeStep  = state.name.trim() ? 'age' : 'name';
   state.age          = null;
   state.teenUnlocked = false;
   state.picks        = {};

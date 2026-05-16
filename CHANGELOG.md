@@ -4,6 +4,26 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v1.18.1 — 2026-05-15
+**Name persistence — skip the "What's your name?" prompt on repeat sessions**
+
+Back-to-back bedtime stories were friction-laden because every "Start over" forced a re-type of the kid's name. v1.18.1 fixes the multi-story session flow.
+
+**What changed:**
+- `state.name` now persists to `localStorage` under key `nt_name` on every keystroke (mirrors how `nt_sidekicks` already works).
+- `loadName()` runs on init and pre-populates `state.name`.
+- `resetApp()` no longer clears `state.name` — it preserves the saved name and sets `welcomeStep` to `'age'` so the user skips the name prompt entirely.
+- On the name step (reached via "← back" from the age screen), a saved name now renders as a sidekick-style chip with an × button. The heading changes from "What's your name?" to "Hi again, {name}!" and the helper copy tells the user how to change it. Tap × to clear and re-enter.
+
+**Behavior summary:**
+- First-time user: standard "What's your name?" prompt → age → sidekicks → story
+- Returning user (same device, same name): "Start over" → straight to age → sidekicks (already populated too) → story
+- Edit path: "← back" from age → chip × → empty input returns
+
+Nothing about the kid Goofy Shorts content from v1.18.0 changes. This is pure UX speed-up for parents reading multiple stories in one session.
+
+---
+
 ## v1.18.0 — 2026-05-15
 **Goofy Shorts — kid tier rewrite (the playtest fix)**
 
