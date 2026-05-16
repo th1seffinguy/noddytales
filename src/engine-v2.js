@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v2.3.0';
+const ENGINE_V2_VERSION = 'v2.3.1';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -925,6 +925,32 @@ const V2_RECIPES = {
     id: 'goal_spine',
     beats: ['goal_stated', 'goal_obstacle', 'kid_decides', 'goal_resolved', 'bedtime_landing'],
   },
+  /* v2.3.1 — INTEGRATED FROM v3 PLAN.
+     Three new blueprints that share the causality DNA of goal_spine but produce
+     distinctly different story shapes. The engine picks one of these four
+     blueprints at random per story, so replays of the same picks produce visible
+     variety. Each blueprint uses a 5-beat sequence:
+
+       SETUP → PROBLEM → KID ACTS → RESOLUTION → BEDTIME
+     Mapped per-blueprint:
+
+       goal_spine    : goal_stated → goal_obstacle → kid_decides → goal_resolved → bedtime_landing
+       lost_snack    : snack_missing → wrong_suspect → kid_investigates → true_culprit → bedtime_landing
+       show_wrong    : show_setup → show_disaster → kid_improvises → show_triumph → bedtime_landing
+       rule_loophole : rule_imposed → rule_blocks → kid_finds_loophole → loophole_works → bedtime_landing
+     */
+  lost_snack: {
+    id: 'lost_snack',
+    beats: ['snack_missing', 'wrong_suspect', 'kid_investigates', 'true_culprit', 'bedtime_landing'],
+  },
+  show_wrong: {
+    id: 'show_wrong',
+    beats: ['show_setup', 'show_disaster', 'kid_improvises', 'show_triumph', 'bedtime_landing'],
+  },
+  rule_loophole: {
+    id: 'rule_loophole',
+    beats: ['rule_imposed', 'rule_blocks', 'kid_finds_loophole', 'loophole_works', 'bedtime_landing'],
+  },
 };
 
 /* ================================================================
@@ -1509,19 +1535,19 @@ const V2_BEATS = [
      ============================================================ */
 
   /* GOAL STATED — kid declares the goal in P1 */
-  { id:'gs_kid_1', beatType:'goal_stated', tiers:['kid','big'], requiredSlots:['kid','goal','companion'],
+  { id:'gs_kid_1', beatType:'goal_stated', tiers:['kid','big'], requiredSlots:['kid','goal','companion','place'],
     lines: [
-      '{kid.name} woke up with a plan. Today, {kid.name} was going to {goal.text}. The {companion.text} was in. The {companion.text} was always in.',
-      'Today was the day. {kid.name} had decided yesterday and slept on it and decided again this morning: {kid.name} was going to {goal.text}. The {companion.text} agreed before {kid.name} even finished saying it.',
+      '{kid.name} woke up with a plan. Today, at the {place.text}, {kid.name} was going to {goal.text}. The {companion.text} was in. The {companion.text} was always in.',
+      'Today was the day. {kid.name} had decided yesterday at the {place.text} and slept on it and decided again this morning: today, {kid.name} was going to {goal.text}. The {companion.text} agreed before {kid.name} even finished saying it.',
     ] },
   { id:'gs_kid_2', beatType:'goal_stated', tiers:['kid','big'], requiredSlots:['kid','goal','place'],
     lines: [
       'It started at the {place.text}. {kid.name} looked around and made up their mind: today they would {goal.text}. No matter what.',
     ] },
-  { id:'gs_tween_1', beatType:'goal_stated', tiers:['tween'], requiredSlots:['kid','goal'],
+  { id:'gs_tween_1', beatType:'goal_stated', tiers:['tween'], requiredSlots:['kid','goal','place'],
     lines: [
-      '{kid.name} woke up with a goal. Specifically: {goal.text}. {kid.name} did not love announcing goals out loud, but this one felt different.',
-      'There was one objective today, and {kid.name} had committed to it: {goal.text}. {kid.cap} would deal with the consequences after.',
+      'At the {place.text}, {kid.name} woke up with a goal. Specifically: {goal.text}. {kid.name} did not love announcing goals out loud, but this one felt different.',
+      'There was one objective today at the {place.text}, and {kid.name} had committed to it: {goal.text}. {kid.cap} would deal with the consequences after.',
     ] },
 
   /* GOAL OBSTACLE — a chosen pick BLOCKS the goal */
@@ -1592,6 +1618,207 @@ const V2_BEATS = [
   { id:'bl_goal_2', beatType:'bedtime_landing', tiers:['tween'], requiredSlots:['kid','goal'],
     lines: [
       'In bed that night, {kid.name} thought about how they {goal.past}. Quietly proud. Not posting about it. Some wins are just for you.',
+    ] },
+
+  /* ============================================================
+     v2.3.1 — BLUEPRINT: LOST SNACK RESCUE
+     Shape: food disappears → wrong suspect → kid investigates → true culprit → bedtime
+     Required picks driving the plot: food (the missing thing), creature (false suspect),
+     companion (revealer), object (the clue), color (visual gag)
+     ============================================================ */
+
+  /* SNACK MISSING — food is gone, kid notices */
+  { id:'ls_miss_1', beatType:'snack_missing', tiers:['kid','big'], requiredSlots:['kid','food','place'],
+    lines: [
+      '{kid.name} set down the {food.text} on the counter and turned around for one second. ONE second. When {kid.name} turned back, the {food.text} was gone. Just gone. There was a crumb. That was it.',
+      'At the {place.text}, {kid.name} had been saving the {food.text} all morning. Then it vanished. {kid.cap} did a slow look around. Nothing.',
+    ] },
+  { id:'ls_miss_2', beatType:'snack_missing', tiers:['kid','big'], requiredSlots:['kid','food','companion','place'],
+    lines: [
+      'At the {place.text}, {kid.name} looked at the empty plate. "Where is the {food.text}?" The {companion.text} looked too. Someone had taken the {food.text}.',
+    ] },
+  { id:'ls_miss_tween', beatType:'snack_missing', tiers:['tween'], requiredSlots:['kid','food','place'],
+    lines: [
+      '{kid.name} had specifically saved the {food.text} at the {place.text}. Specifically. And now: gone. {kid.cap} did not love this development.',
+    ] },
+
+  /* WRONG SUSPECT — creature looks guilty */
+  { id:'ls_susp_1', beatType:'wrong_suspect', tiers:['kid','big'], requiredSlots:['kid','visitor','color'],
+    lines: [
+      '{kid.name} spotted the {visitor.text} nearby, looking VERY innocent. Suspiciously innocent. There was a {color.text} crumb on its chin. Case closed.',
+      'The {visitor.text} was right there. The {visitor.text} had a {color.text} smudge on its face. {kid.name} narrowed their eyes. "It was you."',
+    ] },
+  { id:'ls_susp_2', beatType:'wrong_suspect', tiers:['kid','big'], requiredSlots:['kid','visitor','mood'],
+    lines: [
+      '"I know what you did," {kid.name} said, feeling {mood.text} about it. The {visitor.text} stared. The {visitor.text} did not deny it. The {visitor.text} also did not confess. Suspicious!',
+    ] },
+  { id:'ls_susp_tween', beatType:'wrong_suspect', tiers:['tween'], requiredSlots:['kid','visitor'],
+    lines: [
+      'The {visitor.text} was making strong eye contact. The kind of eye contact that says guilt, in {kid.name}\'s opinion. {kid.cap} kept their cool. Mostly.',
+    ] },
+
+  /* KID INVESTIGATES — kid uses object to find the truth */
+  { id:'ls_inv_1', beatType:'kid_investigates', tiers:['kid','big'], requiredSlots:['kid','object','companion'],
+    lines: [
+      '{kid.name} pulled out {object.articleText} and held it up like a detective. The {companion.text} watched. {kid.cap} followed the trail of crumbs. The trail did NOT lead to the {visitor.text}.',
+      'But {kid.name} was thorough. {kid.cap} pulled out {object.articleText} and examined the scene. Something did not add up. The {visitor.text}\'s alibi was suddenly suspicious in a different way.',
+    ] },
+  { id:'ls_inv_2', beatType:'kid_investigates', tiers:['kid','big'], requiredSlots:['kid','object','move'],
+    lines: [
+      '{kid.name} {move.text} around the room, holding {object.articleText} out for clues. The {object.text} pointed past the {visitor.text} entirely. It pointed at the cupboard.',
+    ] },
+  { id:'ls_inv_tween', beatType:'kid_investigates', tiers:['tween'], requiredSlots:['kid','object'],
+    lines: [
+      '{kid.name} did some detective work. Specifically: looked at {object.articleText}, then at the room, then at the floor. The trail was, in fact, leading somewhere else entirely.',
+    ] },
+
+  /* TRUE CULPRIT — companion is the actual culprit, twist reveal */
+  { id:'ls_cul_1', beatType:'true_culprit', tiers:['kid','big'], requiredSlots:['kid','food','companion'],
+    lines: [
+      'Then {kid.name} saw it: a single {food.text} crumb on the {companion.text}\'s whiskers. "YOU?" said {kid.name}. The {companion.text} looked away politely. Mystery solved.',
+      'The truth came out: the {companion.text} had been the {food.text} thief all along. The {companion.text} was very sorry. The {companion.text} also wanted more {food.text}. Both things were true.',
+    ] },
+  { id:'ls_cul_2', beatType:'true_culprit', tiers:['kid','big'], requiredSlots:['kid','companion','food','visitor'],
+    lines: [
+      'Plot twist: it was the {companion.text}. The {visitor.text} had been framed. The {visitor.text} demanded an apology. {kid.name} gave one. Everyone agreed to share the next {food.text}.',
+    ] },
+  { id:'ls_cul_tween', beatType:'true_culprit', tiers:['tween'], requiredSlots:['kid','companion','food'],
+    lines: [
+      'The truth: the {companion.text}. Obviously. {kid.name} sighed in a way that meant "I should have known." The {companion.text} accepted accountability, mostly, in exchange for the remaining {food.text}.',
+    ] },
+
+  /* ============================================================
+     v2.3.1 — BLUEPRINT: SHOW GOES WRONG
+     Shape: kid prepares show → something breaks → kid improvises with freeword/move → triumph → bedtime
+     Required picks driving the plot: place (stage), object (prop that breaks), move (improv),
+     freeword (the chant/cry that saves the show), companion (co-star)
+     ============================================================ */
+
+  /* SHOW SETUP */
+  { id:'sw_set_1', beatType:'show_setup', tiers:['kid','big'], requiredSlots:['kid','place','companion'],
+    lines: [
+      'There was going to be a show. {kid.name} had been planning it for days. The {companion.text} was the co-star. The stage was the {place.text}. The audience was three pillows and a confused {visitor.text}.',
+      '"This is going to be the greatest show," {kid.name} announced at the {place.text}. The {companion.text} agreed wholeheartedly. They had rehearsed. They were ready.',
+    ] },
+  { id:'sw_set_2', beatType:'show_setup', tiers:['kid','big'], requiredSlots:['kid','object','place'],
+    lines: [
+      'The {place.text} was the venue. {kid.name} had even brought {object.articleText} as a prop. The whole show kind of depended on the {object.text} working. The {object.text} had better work.',
+    ] },
+  { id:'sw_set_tween', beatType:'show_setup', tiers:['tween'], requiredSlots:['kid','place'],
+    lines: [
+      '{kid.name} had a whole bit planned at the {place.text}. Nobody had asked for the bit. {kid.cap} was doing it anyway.',
+    ] },
+
+  /* SHOW DISASTER — chosen object/picks fail */
+  { id:'sw_dis_1', beatType:'show_disaster', tiers:['kid','big'], requiredSlots:['kid','object'],
+    lines: [
+      'Then everything went wrong. The {object.text} broke. Actually broke. In half. {kid.name} froze. The pillows watched.',
+      'Disaster: the {object.text} fell. Right in the middle of the act. {kid.name} stared at the {object.text}, then at the audience, then at the {object.text} again.',
+    ] },
+  { id:'sw_dis_2', beatType:'show_disaster', tiers:['kid','big'], requiredSlots:['kid','companion'],
+    lines: [
+      'And then the {companion.text} forgot the next part. Just blanked. Total blank. {kid.name} was on their own. The pillows were judging. Pillows are tough crowds.',
+    ] },
+  { id:'sw_dis_tween', beatType:'show_disaster', tiers:['tween'], requiredSlots:['kid','object'],
+    lines: [
+      'Of course, the {object.text} broke. Of course. {kid.name} stood there with half a {object.text} and a decision to make.',
+    ] },
+
+  /* KID IMPROVISES — uses freeword/move */
+  { id:'sw_imp_1', beatType:'kid_improvises', tiers:['kid','big'], requiredSlots:['kid','freeword2','move'],
+    lines: [
+      'So {kid.name} improvised. "{freeword2.text}!" {kid.name} yelled. Then {move.text}. Then yelled "{freeword2.text}!" again, louder. The pillows were INTO IT now.',
+      '{kid.name} took a breath, {move.text} forward, and shouted whatever came to mind: "{freeword2.text}!" The audience leaned in. Sometimes nonsense lands.',
+    ] },
+  { id:'sw_imp_2', beatType:'kid_improvises', tiers:['kid','big'], requiredSlots:['kid','move','companion'],
+    lines: [
+      '{kid.name} {move.text} across the stage in a way that nobody had rehearsed. The {companion.text} watched, then joined in. They were inventing the show now. It was somehow working.',
+    ] },
+  { id:'sw_imp_tween', beatType:'kid_improvises', tiers:['tween'], requiredSlots:['kid','freeword2'],
+    lines: [
+      '{kid.name} just went for it. "{freeword2.text}," {kid.name} declared, with conviction. It was not in the script. {kid.cap} sold it anyway.',
+    ] },
+
+  /* SHOW TRIUMPH */
+  { id:'sw_tri_1', beatType:'show_triumph', tiers:['kid','big'], requiredSlots:['kid','place','companion'],
+    lines: [
+      'The pillows went wild. The confused {visitor.text} clapped a tiny clap. The {companion.text} took a bow. {kid.name} took a bigger bow. The {place.text} had never seen a better show.',
+      'It was a triumph. A real one. {kid.name} and the {companion.text} got a standing ovation, which was impressive given that pillows can\'t stand. Best show the {place.text} had ever hosted.',
+    ] },
+  { id:'sw_tri_2', beatType:'show_triumph', tiers:['kid','big'], requiredSlots:['kid','freeword2'],
+    lines: [
+      'And from that day on, "{freeword2.text}" was the official phrase of the show. Everyone said it. Everyone meant it. Nobody knew what it meant.',
+    ] },
+  { id:'sw_tri_tween', beatType:'show_triumph', tiers:['tween'], requiredSlots:['kid'],
+    lines: [
+      'It worked. Somehow. {kid.name} took a bow that was 30% real and 70% ironic. The pillows respected it. So did {kid.name}, secretly.',
+    ] },
+
+  /* ============================================================
+     v2.3.1 — BLUEPRINT: RULE LOOPHOLE
+     Shape: absurd rule imposed → kid blocked → kid finds object-based loophole → wins → bedtime
+     Required picks driving the plot: visitor (rule-imposer), object (the loophole),
+     move (the kid's escape), rule (the actual rule text), place
+     ============================================================ */
+
+  /* RULE IMPOSED — visitor states an absurd rule */
+  { id:'rl_imp_1', beatType:'rule_imposed', tiers:['kid','big'], requiredSlots:['kid','visitor','rule','place'],
+    lines: [
+      'At the {place.text}, {visitor.TheText} cleared their throat officially. "By order of the rule," {visitor.theText} announced, "{rule.text}. Effective immediately." {kid.name} had not heard of this rule before. The rule did not care.',
+      'A rule arrived at the {place.text}. {visitor.TheText} delivered it. "{rule.text}," it said, like that explained everything. It did not. But the rule was now in effect.',
+    ] },
+  { id:'rl_imp_2', beatType:'rule_imposed', tiers:['kid','big'], requiredSlots:['kid','visitor','place'],
+    lines: [
+      'At the {place.text}, {visitor.theText} put up a sign. A very official sign. The sign listed a rule {kid.name} had definitely not signed up for.',
+    ] },
+  { id:'rl_imp_tween', beatType:'rule_imposed', tiers:['tween'], requiredSlots:['kid','visitor','rule','place'],
+    lines: [
+      'At the {place.text}, {visitor.theText} explained, with full bureaucratic confidence, that the rule was now: "{rule.text}." {kid.name} did not look impressed. {kid.cap} also did not argue. Arguing rules is a trap.',
+    ] },
+
+  /* RULE BLOCKS — kid wants to do something, rule prevents */
+  { id:'rl_blk_1', beatType:'rule_blocks', tiers:['kid','big'], requiredSlots:['kid','food','visitor'],
+    lines: [
+      '{kid.name} reached for the {food.text}. {visitor.TheText} held up a hand. "Rule," {visitor.theText} reminded. {kid.name} froze, hand mid-reach. This was, technically, a stalemate.',
+      'The rule meant {kid.name} could not have the {food.text}. The {food.text} was right there. {kid.name} could see the {food.text}. The {food.text} was still off-limits. Cruel.',
+    ] },
+  { id:'rl_blk_2', beatType:'rule_blocks', tiers:['kid','big'], requiredSlots:['kid','place'],
+    lines: [
+      'Worse: the rule applied at the {place.text} too. {kid.name} could not go forward. Could not go back. Could only stand there and consider their options. The options, currently, were zero.',
+    ] },
+  { id:'rl_blk_tween', beatType:'rule_blocks', tiers:['tween'], requiredSlots:['kid'],
+    lines: [
+      'So {kid.name} was officially stuck. Rule-stuck. {kid.cap} considered defying it. {kid.cap} considered crying. {kid.cap} considered loopholes.',
+    ] },
+
+  /* KID FINDS LOOPHOLE — chosen object is the loophole */
+  { id:'rl_lp_1', beatType:'kid_finds_loophole', tiers:['kid','big'], requiredSlots:['kid','object','visitor'],
+    lines: [
+      'Then {kid.name} smiled. {kid.cap} held up {object.articleText}. "The rule does not say anything about {object.text}," {kid.name} pointed out. {visitor.TheText} squinted. {visitor.TheText} could not argue that.',
+      '"Wait." {kid.name} held {object.articleText} up. "Subsection seven mentions {object.text}, doesn\'t it?" It did not. But {visitor.theText} did not want to look like {visitor.theText} did not know the rules. {visitor.TheText} nodded slowly.',
+    ] },
+  { id:'rl_lp_2', beatType:'kid_finds_loophole', tiers:['kid','big'], requiredSlots:['kid','move','object'],
+    lines: [
+      '{kid.name} {move.text} sideways while holding {object.articleText}. Technically, this was a different action than the one the rule banned. Technically. {visitor.TheText} watched, suspicious. The rule held its tongue.',
+    ] },
+  { id:'rl_lp_tween', beatType:'kid_finds_loophole', tiers:['tween'], requiredSlots:['kid','object'],
+    lines: [
+      '{kid.name} located the loophole. It involved {object.articleText} and a very specific reading of the rule. {visitor.TheText} could not technically object. {kid.cap} did not point this out. Pointing it out is rookie behavior.',
+    ] },
+
+  /* LOOPHOLE WORKS */
+  { id:'rl_win_1', beatType:'loophole_works', tiers:['kid','big'], requiredSlots:['kid','food','visitor'],
+    lines: [
+      'And just like that, {kid.name} got the {food.text} anyway. {visitor.TheText} sighed. Rules with loopholes are still rules, technically. {kid.name} ate the {food.text} with both hands.',
+      'It worked. {kid.name} won. The rule was still in effect. The {food.text} was also, somehow, in {kid.name}\'s mouth. Both things were now true at once.',
+    ] },
+  { id:'rl_win_2', beatType:'loophole_works', tiers:['kid','big'], requiredSlots:['kid','companion'],
+    lines: [
+      'The {companion.text} watched the loophole work and looked impressed. The {companion.text} would be doing this trick later, probably. {kid.name} had set a precedent.',
+    ] },
+  { id:'rl_win_tween', beatType:'loophole_works', tiers:['tween'], requiredSlots:['kid','visitor'],
+    lines: [
+      'The loophole held. {visitor.TheText} could not really stop {kid.name}. Bureaucracy is just words and {kid.name} had found the right words. Quietly satisfying.',
     ] },
 ];
 
@@ -1691,14 +1918,17 @@ function generateStoryV2(name, picks, age) {
     goal,    // v2.3.0 — load-bearing goal slot
   };
 
-  // v2.3.0 — Route kid/big/tween to the GOAL SPINE recipe (causality engine).
+  // v2.3.0 — Route kid/big/tween to a CAUSALITY blueprint (one of four).
+  // v2.3.1 — Now picks from 4 blueprints (goal_spine + lost_snack + show_wrong + rule_loophole)
+  // so the same picks produce visibly different story shapes across replays.
   // tot and little keep their existing simpler recipes (tot_loop, gentle_quest)
-  // because they need less narrative complexity. The spine is what gives the
-  // older tiers a real arc with chosen-words as causes, not decoration.
+  // because they need less narrative complexity.
   let seed, recipe;
+  const BLUEPRINTS = ['goal_spine', 'lost_snack', 'show_wrong', 'rule_loophole'];
   if (tier === 'kid' || tier === 'big' || tier === 'tween') {
-    recipe = V2_RECIPES.goal_spine;
-    seed = { id: 'goal_spine_seed', tiers: [tier], recipe: 'goal_spine', requiredSlots: ['companion','visitor','food','object'] };
+    const blueprintId = rawPick(BLUEPRINTS);
+    recipe = V2_RECIPES[blueprintId];
+    seed = { id: blueprintId + '_seed', tiers: [tier], recipe: blueprintId, requiredSlots: ['companion','visitor','food','object'] };
   } else {
     // tot + little still use their tier-specific seeds + recipes.
     const compatibleSeeds = V2_SEEDS.filter(s => s.tiers.includes(tier));
@@ -1793,6 +2023,25 @@ function generateStoryV2(name, picks, age) {
       `The Day ${kidCap} Tried to ${tc(goal.text)}`,
       `${kidCap}'s ${tc(food.text)} Plan`,
       `${kidCap} and the ${tc(companion.text)} Try to ${tc(goal.text)}`,
+    ],
+    /* v2.3.1 — blueprint-specific titles for the three new arcs */
+    lost_snack: [
+      `Who Took the ${tc(food.text)}?`,
+      `${kidCap} and the Case of the Missing ${tc(food.text)}`,
+      `The Great ${tc(food.text)} Mystery`,
+      `${kidCap} Solves the ${tc(food.text)} Crime`,
+    ],
+    show_wrong: [
+      `${kidCap}'s Big Show`,
+      `The Day the ${tc(object.text)} Broke`,
+      `${kidCap} Saves the Show`,
+      `${kidCap} and the Show That Should Not Have Worked`,
+    ],
+    rule_loophole: [
+      `${kidCap} and the ${tc(visitor.text)}'s Impossible Rule`,
+      `How ${kidCap} Beat the Rule`,
+      `${kidCap} Finds a Loophole`,
+      `The ${tc(visitor.text)} vs ${kidCap}`,
     ],
   };
   const titlePool = [...universalTitlePatterns, ...(recipeTitlePatterns[seed.recipe] || [])];

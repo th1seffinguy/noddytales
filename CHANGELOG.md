@@ -4,6 +4,64 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.3.1 — 2026-05-16
+**Blueprint variety — integrates the v3 overhaul plan into v2.3.0 without scrapping it**
+
+The user submitted a v3 overhaul plan after the 4-year-old playtest. The plan called for: authored local engine, selections become plot roles, multiple blueprints with real arcs, structured story parts, role metadata on content. v2.3.0 had just shipped a causality engine that landed ~70% of the v3 principles (chosen words ARE roles in a goal_spine). This release adds the v3 plan's biggest gap — **multiple distinct story shapes** — without scrapping the v2.3.0 work.
+
+### What's new
+
+**3 new authored blueprints alongside `goal_spine`** — each with its own causal arc, each tier-aware:
+
+| Blueprint | Beat sequence | Plot driver |
+|---|---|---|
+| `goal_spine` (existing) | goal_stated → goal_obstacle → kid_decides → goal_resolved → bedtime | goal text drives plot |
+| **`lost_snack`** | snack_missing → wrong_suspect → kid_investigates → true_culprit → bedtime | food is the missing thing; creature is the false suspect; companion is the real culprit (twist) |
+| **`show_wrong`** | show_setup → show_disaster → kid_improvises → show_triumph → bedtime | object is the prop that breaks; move + freeword save the show |
+| **`rule_loophole`** | rule_imposed → rule_blocks → kid_finds_loophole → loophole_works → bedtime | visitor imposes the rule; object is the loophole |
+
+**36 new beat cards** across 12 new beat types, tier-tagged for kid/big/tween (with deadpan variants for tween).
+
+**Engine picks blueprints uniformly per story.** Same picks now produce 4 visibly different story shapes across replays.
+
+**Blueprint-aware titles:**
+- *"Who Took the Donuts?"* / *"Cole and the Case of the Missing Donuts"* (lost_snack)
+- *"Cole Saves the Show"* / *"The Day the Tiny Trophy Broke"* (show_wrong)
+- *"Cole and the Dinosaur's Impossible Rule"* / *"How Cole Beat the Rule"* (rule_loophole)
+- *"How Cole Won the Silly Race"* / *"The Day Cole Tried to Build the Perfect Hideout"* (goal_spine)
+
+### Smoke test (100 same-pick generations, age 6)
+
+| Metric | Result |
+|---|---|
+| Blueprint distribution (uniform expected) | goal_spine 31, lost_snack 18, rule_loophole 26, show_wrong 25 |
+| Null returns | 0/100 ✓ |
+| Pet (parrot) in body | 100/100 ✓ |
+| Food (donuts) in body | 100/100 ✓ |
+| Place (jungle) in P1 | 94/100 |
+
+### Sample (Lost Snack Rescue)
+
+> **Cole and the Case of the Missing Donuts**
+> At the jungle, Cole looked at the empty plate. "Where is the donuts?" The parrot looked too. Someone had taken the donuts.
+> "I know what you did," Cole said, feeling silly about it. The dinosaur stared. The dinosaur did not deny it. The dinosaur also did not confess. Suspicious!
+> Cole pulled out a jar of buttons and held it up like a detective. The parrot watched. Cole followed the trail of crumbs. The trail did NOT lead to the dinosaur.
+> Then Cole saw it: a single donuts crumb on the parrot's whiskers. "YOU?" said Cole. The parrot looked away politely. Mystery solved.
+> Cole climbed into bed. The parrot curled up at the foot.
+
+→ Food as the goal. Creature as the false suspect. Object as the detective's tool. Companion revealed as the true culprit. **Every pick has a load-bearing role.**
+
+### What's NOT in this build (deferred to v2.4.0 / v2.5.0)
+
+The user's v3 plan calls for two more big shifts the council also endorsed:
+
+- **Structured story parts** (`paragraphs: [{ parts: [{ text, kind, sourceSlot }] }]`) replacing regex highlight post-processing. Real upgrade — would make highlighting robust, no more fragile token wrapping. But it's a 4–6 hour refactor that touches `renderStory()`, `parseStoryLine()`, `wrapStoryWords()` (karaoke), and `TTSManager.speak()`. Ships better as a focused v2.4.0 build with its own QA pass.
+- **Role metadata on content** (`foods` get `bribe`/`messy`/`shareable` tags; `objects` get `tool`/`clue`/`runaway`). High-value when paired with role-aware beat filtering (5+ more blueprints that pick beats by content role). Right scope for v2.5.0 — adding metadata without using it is busywork.
+
+The path is clear: v2.3.1 (now) → real-kid playtest → v2.4.0 (typed parts) → v2.5.0 (role metadata + more blueprints) → v3.0.0 (production with v2 retired).
+
+---
+
 ## v2.3.0 — 2026-05-16
 **The causality engine — chosen words drive the plot now**
 
