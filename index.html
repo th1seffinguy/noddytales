@@ -865,6 +865,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v1.16.1', title: 'Logo fix + little tier emoji cleanup',
+    detail: 'The book in the app icon was sitting flush with the bottom border (4px margin out of 1024). Lifted and scaled the book group so it floats with proper breathing room. Also fixed turtle/rabbit duplicates in little tier creature pool.' },
   { v: 'v1.16.0', title: 'Callback motif tracking',
     detail: 'Stories that feel authored: a recurring "rule" is set up in P1, violated in P3, and paid off in P5. New "The Time [Name] Broke a Rule" template uses one of 12 absurd rules (no soup after moonrise, three hops before any door, etc.) as a callback woven through the whole story.' },
   { v: 'v1.15.0', title: 'Semantically-routed freetext',

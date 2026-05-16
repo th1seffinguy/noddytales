@@ -4,7 +4,7 @@
    Story template logic lives in index.html (buildStory).
    ================================================================ */
 
-const APP_VERSION = 'v1.16.0';
+const APP_VERSION = 'v1.16.1';
 
 /* Verb form lookup — maps each past-tense move-pool entry to its base + gerund forms.
    Templates use moveBase()/moveGerund() to derive the right form for the syntactic slot
@@ -175,7 +175,7 @@ const WORD_BANK = {
     { cat: 'color',   label: 'Choose a color',     options: [{w:'pink',     e:'🌸'}, {w:'green',     e:'🌿'}, {w:'yellow',  e:'🌻'}, {w:'orange',  e:'🍊'}, {w:'purple',    e:'💜'}, {w:'silver',  e:'🥈'}, {w:'rainbow',  e:'🌈'}, {w:'teal',      e:'🌊'}, {w:'lavender', e:'💐'}, {w:'crimson',  e:'🔴'}, {w:'golden',   e:'🥇'}, {w:'striped',  e:'🦓'}] },
     { cat: 'food',    label: 'Choose a treat',     options: [{w:'pizza',    e:'🍕'}, {w:'cookies',   e:'🍪'}, {w:'muffins', e:'🧁'}, {w:'grapes',  e:'🍇'}, {w:'noodles',   e:'🍜'}, {w:'popcorn', e:'🍿'}, {w:'sandwich', e:'🥪'}, {w:'waffles',   e:'🧇'}, {w:'strawberries',e:'🍓'},{w:'dumplings',e:'🥟'}, {w:'soup',     e:'🍲'}, {w:'candy',       e:'🍬'}] },
     { cat: 'place',   label: 'Choose a spot',      options: [{w:'beach',    e:'🏖️'}, {w:'forest',    e:'🌲'}, {w:'garden',  e:'🌷'}, {w:'meadow',  e:'🌾'}, {w:'village',   e:'🏘️'}, {w:'castle',  e:'🏰'}, {w:'cave',     e:'🕳️'}, {w:'island',    e:'🏝️'}, {w:'mountain', e:'🏔️'}, {w:'river',    e:'🏞️'}, {w:'treehouse',e:'🌳'}, {w:'volcano',  e:'🌋'}] },
-    { cat: 'creature',label: 'Choose a creature',  options: [{w:'frog',     e:'🐸'}, {w:'fish',      e:'🐠'}, {w:'beetle',  e:'🐞'}, {w:'turtle',  e:'🐢'}, {w:'rabbit',    e:'🐰'}, {w:'snail',   e:'🐌'}, {w:'owl',      e:'🦉'}, {w:'fox',       e:'🦊'}, {w:'deer',     e:'🦌'}, {w:'penguin',  e:'🐧'}, {w:'crab',     e:'🦀'}, {w:'bee',         e:'🐝'}] },
+    { cat: 'creature',label: 'Choose a creature',  options: [{w:'frog',     e:'🐸'}, {w:'fish',      e:'🐠'}, {w:'beetle',  e:'🐞'}, {w:'butterfly', e:'🦋'}, {w:'mouse',     e:'🐭'}, {w:'snail',   e:'🐌'}, {w:'owl',      e:'🦉'}, {w:'fox',       e:'🦊'}, {w:'deer',     e:'🦌'}, {w:'penguin',  e:'🐧'}, {w:'crab',     e:'🦀'}, {w:'bee',         e:'🐝'}] },
     { cat: 'move',    label: 'Choose a move',      options: [{w:'jumped',   e:'🦘'}, {w:'danced',    e:'💃'}, {w:'wiggled', e:'🐛'}, {w:'galloped',e:'🏇'}, {w:'twirled',   e:'🌀'}, {w:'bounced', e:'🏀'}, {w:'splashed', e:'💦'}, {w:'tiptoed',   e:'👣'}, {w:'zoomed',   e:'💨'}, {w:'hopped',   e:'🐇'}, {w:'skidded',  e:'🛷'}, {w:'flopped',  e:'🐟'}] },
     { cat: 'weather', label: 'Choose the weather', options: [{w:'sunny',    e:'☀️'}, {w:'snowy',     e:'❄️'}, {w:'windy',   e:'🌬️'}, {w:'rainy',   e:'🌧️'}, {w:'cloudy',    e:'☁️'}, {w:'foggy',   e:'🌫️'}, {w:'stormy',   e:'⛈️'}, {w:'frosty',    e:'🌨️'}, {w:'breezy',   e:'🍃'}, {w:'misty',    e:'🌁'}, {w:'thundery', e:'⚡'}, {w:'glittery', e:'✨'}] },
   ],

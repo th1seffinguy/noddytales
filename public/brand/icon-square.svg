@@ -58,7 +58,7 @@
   <path d="M 664 592 Q 614 584 564 580" stroke="#1F1A12" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.55"></path>
   <path d="M 644 622 Q 594 614 554 612" stroke="#1F1A12" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.5"></path>
 
-  <g transform="translate(512 800) rotate(-3)">
+  <g transform="translate(512 728) scale(0.88) rotate(-3)">
     <rect x="-320" y="-10" width="640" height="230" rx="28" fill="#3D3528" opacity="0.12"></rect>
     <rect x="-316" y="-30" width="306" height="230" rx="22" fill="#FFF8EE"></rect>
     <rect x="10" y="-30" width="306" height="230" rx="22" fill="#FFF8EE"></rect>

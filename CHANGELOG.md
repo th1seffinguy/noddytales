@@ -4,6 +4,19 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v1.16.1 — 2026-05-15
+**Logo composition fix + little tier emoji deduplication**
+
+**Logo:** the book at the bottom of the app icon was sitting almost flush with the bottom border — only 4px of bottom margin out of 1024 in `icon.svg` / `icon-square.svg`, and 2px out of 64 in `favicon.svg`. Lifted the book group up and scaled it slightly so it floats with proper breathing room:
+
+- `icon.svg` / `icon-square.svg` (1024×1024): book group transform changed from `translate(512 800) rotate(-3)` → `translate(512 728) scale(0.88) rotate(-3)`. Bottom margin now 120px (11.7%) instead of 4px.
+- `favicon.svg` (64×64): book rects lifted from y=50 → y=46, spine from y=48 → y=44. Bottom margin now 8px (12.5%) instead of 2px.
+- All 10 PNG variants (`icon-76/120/152/180/192/512/1024.png` and `favicon-16/32/48.png`) regenerated from the updated SVGs.
+
+**Emoji cleanup (Codex #3 light):** the little tier had `turtle 🐢` and `bunny 🐰` in **both** the pet AND creature rounds. Same emoji could appear in two rounds back-to-back. Replaced creature `turtle` with `butterfly 🦋` and creature `rabbit` with `mouse 🐭` — both fit the little-tier friendly-animals vibe.
+
+---
+
 ## v1.16.0 — 2026-05-15
 **Callback motif tracking (Codex Option A, item #8)**
 
