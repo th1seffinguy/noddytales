@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v2.0.0';
+const ENGINE_V2_VERSION = 'v2.1.0';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -604,6 +604,95 @@ const V2_WORDS = {
 };
 
 /* ================================================================
+   v2.1.0 — STORY SETTING MODES (Notion Build Idea "Story Setting Modes")
+   ================================================================
+   Each setting grounds a story in a relatable real-world location with
+   appropriate vocabulary. The user picks the setting on a dedicated UI
+   screen before word selection. The setting:
+     - Locks the `place` slot (e.g. "diner", "mall", "football game")
+     - Biases the visitor pool toward setting-appropriate characters
+       (diner → waiter; mall → store clerk; football game → coach)
+     - Adds setting-specific objects (diner → menu; mall → escalator)
+     - Optionally seeds a setting-flavored opening beat
+
+   "surprise" is the default — current v2 behavior, picks from anything.
+
+   Settings carry their own articles so "the diner" / "the mall" /
+   "the football game" render correctly. Each has a UI label, emoji,
+   and copy for the selector screen.
+   ================================================================ */
+const V2_SETTINGS = [
+  { id: 'surprise',
+    label: 'Surprise me',
+    emoji: '✨',
+    note: 'Anywhere the story takes us',
+    place: null,                               // null → pick from V2_WORDS.places
+    visitorBias: [],                           // empty → no bias, use full pool
+    objectBias: [] },
+  { id: 'diner',
+    label: 'The Diner',
+    emoji: '🍔',
+    note: 'Pancakes, milkshakes, a jukebox',
+    place: { id:'diner', text:'diner', emoji:'🍔', article:'the' },
+    visitorBias: ['stressed_barista','jester','wizard','knight'],
+    objectBias: ['noisy_spoon','clipboard','suspicious_envelope','pickle_jar','rubber_chicken'] },
+  { id: 'mall',
+    label: 'The Mall',
+    emoji: '🛍️',
+    note: 'Escalators, food court, fountains',
+    place: { id:'mall', text:'mall', emoji:'🛍️', article:'the' },
+    visitorBias: ['stressed_barista','wifi_ghost','vending_machine','sub_teacher','group_chat'],
+    objectBias: ['shiny_rock','wind_up_toy','glittery_helmet','dramatic_cape','umbrella'] },
+  { id: 'football_game',
+    label: 'The Football Game',
+    emoji: '🏈',
+    note: 'Bleachers, mascots, halftime',
+    place: { id:'football_game', text:'football game', emoji:'🏈', article:'the' },
+    visitorBias: ['jester','knight','pirate','dinosaur'],
+    objectBias: ['whistle','rubber_chicken','dramatic_cape','sleepy_megaphone','noisy_spoon'] },
+  { id: 'school',
+    label: 'School',
+    emoji: '🏫',
+    note: 'Cafeteria, recess, the long hallway',
+    place: { id:'school', text:'school', emoji:'🏫', article:'the' },
+    visitorBias: ['sub_teacher','feral_librarian','knight','goblin','jester'],
+    objectBias: ['clipboard','tiny_clipboard','whistle','apology_balloon','suspicious_envelope'] },
+  { id: 'backyard',
+    label: 'The Backyard',
+    emoji: '🌳',
+    note: 'Grass, sprinklers, a tiny adventure',
+    place: { id:'backyard', text:'backyard', emoji:'🌳', article:'the' },
+    visitorBias: ['fairy','gnome','dinosaur','goblin','ghost'],
+    objectBias: ['shiny_rock','umbrella','crumb_map','tiny_key','invisible_box'] },
+  { id: 'grocery_store',
+    label: 'The Grocery Store',
+    emoji: '🛒',
+    note: 'Cart wheels, free samples, the cereal aisle',
+    place: { id:'grocery_store', text:'grocery store', emoji:'🛒', article:'the' },
+    visitorBias: ['stressed_barista','wizard','witch','goblin'],
+    objectBias: ['pickle_jar','jar_of_buttons','noisy_spoon','crumb_map','clipboard'] },
+  { id: 'zoo',
+    label: 'The Zoo',
+    emoji: '🦁',
+    note: 'Animals, snacks, a long walk',
+    place: { id:'zoo', text:'zoo', emoji:'🦁', article:'the' },
+    visitorBias: ['knight','pirate','wizard','jester','dinosaur'],
+    objectBias: ['crumb_map','wobbly_telescope','whistle','umbrella','tiny_key'] },
+  { id: 'bus',
+    label: 'On the Bus',
+    emoji: '🚌',
+    note: 'Bumpy ride, weird strangers, snacks',
+    place: { id:'bus', text:'bus', emoji:'🚌', article:'the' },
+    visitorBias: ['sub_teacher','wifi_ghost','goblin','stressed_barista','gnome'],
+    objectBias: ['banana_phone','wind_up_toy','suspicious_envelope','umbrella','whistle'] },
+];
+
+/* Helper: look up a setting by id, with safe fallback to "surprise". */
+function getSetting(id) {
+  return V2_SETTINGS.find(s => s.id === id) || V2_SETTINGS[0];
+}
+
+/* ================================================================
    STORY SEEDS — premise anchors
    Each seed defines required slots and which recipe(s) it works with.
    Phase 1 ships 5 seeds, all Quest-compatible.
@@ -1064,20 +1153,21 @@ const V2_BEATS = [
       '{kid.name} heard a {sound.text}. It was {companion.articleText}! {companion.cap}! Hi {companion.text}!',
     ] },
 
-  /* TOT SILLY MEET — silly little event */
+  /* TOT SILLY MEET — silly little event
+     v2.1.0: sound usage capped at 1 per beat (defect 9 fix — total per story ≤3) */
   { id:'to_silly1', beatType:'tot_silly_meet', tiers:['tot'], requiredSlots:['companion','sound'],
     lines: [
-      'The {companion.text} said "{sound.text}!" That is a funny noise. {sound.text}! {sound.text}! Hee hee.',
+      'The {companion.text} said "{sound.text}!" That is a funny noise. Hee hee.',
     ] },
   { id:'to_silly2', beatType:'tot_silly_meet', tiers:['tot'], requiredSlots:['companion','food'],
     lines: [
       'The {companion.text} had {food.articleText}. The {companion.text} ate {food.articleText}. The {companion.text} ate all of it. Oh no!',
     ] },
 
-  /* TOT SILLY REPEAT — repeat the joke */
+  /* TOT SILLY REPEAT — call-and-response (sound used at most twice in this beat) */
   { id:'to_repeat1', beatType:'tot_silly_repeat', tiers:['tot'], requiredSlots:['kid','companion','sound'],
     lines: [
-      'Then {kid.name} said "{sound.text}!" too. So did the {companion.text}. "{sound.text}!" "{sound.text}!" Everybody laughed.',
+      'Then {kid.name} said "{sound.text}!" too. So did the {companion.text}. Everybody laughed.',
     ] },
   { id:'to_repeat2', beatType:'tot_silly_repeat', tiers:['tot'], requiredSlots:['kid','companion'],
     lines: [
@@ -1139,6 +1229,49 @@ const V2_BEATS = [
     lines: [
       'They ate one last bite of {food.text}. The {companion.text} yawned. {kid.name} yawned too. Time to sleep.',
     ] },
+
+  /* ============================================================
+     v2.1.0 — SETTING ANCHOR BEATS (Story Setting Modes)
+     When a non-"surprise" setting is locked, the engine REPLACES the
+     normal first beat with one of these so the very first paragraph
+     grounds the story in the chosen place. Tier-specific voice.
+     ============================================================ */
+  { id:'sa_tot1', beatType:'setting_anchor', tiers:['tot'], requiredSlots:['kid','place','companion'],
+    lines: [
+      'Today, {kid.name} went to the {place.text}! Hi, {place.text}! A {companion.text} was there too.',
+    ] },
+  { id:'sa_tot2', beatType:'setting_anchor', tiers:['tot'], requiredSlots:['kid','place'],
+    lines: [
+      '{kid.name} loves the {place.text}. Yay, {place.text}! Off we go!',
+    ] },
+  { id:'sa_little1', beatType:'setting_anchor', tiers:['little'], requiredSlots:['kid','place','companion'],
+    lines: [
+      'One sunny morning, {kid.name} and a {companion.text} headed to the {place.text}. It was going to be a great day. They could feel it.',
+    ] },
+  { id:'sa_little2', beatType:'setting_anchor', tiers:['little'], requiredSlots:['kid','place'],
+    lines: [
+      '{kid.name} got to the {place.text} early. Nobody else was there yet. The {place.text} felt extra big when it was empty.',
+    ] },
+  { id:'sa_kid1', beatType:'setting_anchor', tiers:['kid','big'], requiredSlots:['kid','place','companion'],
+    lines: [
+      '{kid.name} and a {companion.text} ended up at the {place.text}. Not on purpose, exactly. Not entirely by accident either.',
+    ] },
+  { id:'sa_kid2', beatType:'setting_anchor', tiers:['kid','big'], requiredSlots:['kid','place','sound'],
+    lines: [
+      'The {place.text} was supposed to be normal. Then "{sound.text}" came from somewhere near the back. {kid.name} froze.',
+    ] },
+  { id:'sa_kid3', beatType:'setting_anchor', tiers:['kid','big'], requiredSlots:['kid','place','object'],
+    lines: [
+      '{kid.name} walked into the {place.text} holding {object.articleText}. The {place.text} reacted. Not visibly. Spiritually.',
+    ] },
+  { id:'sa_tween1', beatType:'setting_anchor', tiers:['tween'], requiredSlots:['kid','place'],
+    lines: [
+      '{kid.name} ended up at the {place.text}, somehow. The vibes were, like, weirdly specific. {kid.name} chose to lean into it.',
+    ] },
+  { id:'sa_tween2', beatType:'setting_anchor', tiers:['tween'], requiredSlots:['kid','place','companion'],
+    lines: [
+      'The {place.text} hits different when you go with {companion.articleText}. {kid.name} did not have a reason for being there. The {companion.text} did not ask.',
+    ] },
 ];
 
 /* ================================================================
@@ -1157,6 +1290,11 @@ function generateStoryV2(name, picks, age) {
 
   const rawPick = arr => arr[Math.floor(Math.random() * arr.length)];
 
+  // v2.1.0 — read setting from picks (default: surprise). Setting locks the place slot
+  // and biases the visitor/object pools toward setting-appropriate characters.
+  // Falls back gracefully to "surprise" (the existing v2 behavior) if no setting given.
+  const setting = getSetting(picks.setting?.id || picks.setting?.w || 'surprise');
+
   // Build the slots map for this story.
   // Map user picks (v1 format: {w: 'dragon'}) to rich v2 word objects when possible.
   function mapPickToWord(pickValue, lib) {
@@ -1165,11 +1303,30 @@ function generateStoryV2(name, picks, age) {
     return hit || rawPick(lib);
   }
 
+  // Bias helper: prefer items from biasIds when present, fall back to full library.
+  function pickWithBias(lib, biasIds) {
+    if (!biasIds || !biasIds.length) return rawPick(lib);
+    // 70% chance to pick from biased subset (if any match), 30% from full library — keeps
+    // variety alive while making the setting feel grounded.
+    if (Math.random() < 0.7) {
+      const biased = lib.filter(w => biasIds.includes(w.id));
+      if (biased.length) return rawPick(biased);
+    }
+    return rawPick(lib);
+  }
+
   const companion = mapPickToWord(picks.pet?.w,      V2_WORDS.companions);
-  const visitor   = mapPickToWord(picks.creature?.w, V2_WORDS.visitors);
-  const place     = mapPickToWord(picks.place?.w,    V2_WORDS.places);
+  // Visitor: bias to setting-appropriate visitors when no explicit user pick.
+  const visitor   = picks.creature?.w
+                    ? mapPickToWord(picks.creature.w, V2_WORDS.visitors)
+                    : pickWithBias(V2_WORDS.visitors, setting.visitorBias);
+  // Place: setting locks it. Only fall back to user pick / random if setting is "surprise".
+  const place     = setting.place
+                    ? setting.place
+                    : mapPickToWord(picks.place?.w, V2_WORDS.places);
   const food      = mapPickToWord(picks.food?.w,     V2_WORDS.foods);
-  const object    = rawPick(V2_WORDS.objects);
+  // Object: bias to setting-appropriate objects when no explicit user pick.
+  const object    = pickWithBias(V2_WORDS.objects, setting.objectBias);
   const sound     = picks.freeword?.w ? { text: picks.freeword.w } : rawPick(V2_WORDS.sounds);
   const adverb    = rawPick(V2_WORDS.adverbs);
   const number    = rawPick(V2_WORDS.numbers);
@@ -1213,8 +1370,36 @@ function generateStoryV2(name, picks, age) {
     return s.replace(/^([a-z])/, (m) => m.toUpperCase());
   }
 
+  // v2.1.0 — when a non-surprise setting is locked, REPLACE the first recipe beat with a
+  // setting-anchor beat. This guarantees the very first paragraph grounds the story in the
+  // chosen place. If no setting-anchor is eligible for this tier+slots, fall back to the
+  // normal recipe-first-beat (story still works, just less explicitly setting-locked).
+  const isSetting = setting.id !== 'surprise';
+  const beatTypeSequence = recipe.beats.slice();
+  let useAnchor = false;
+  if (isSetting) {
+    const anchors = V2_BEATS.filter(b =>
+      b.beatType === 'setting_anchor' &&
+      b.tiers.includes(tier) &&
+      b.requiredSlots.every(s => slots[s] != null)
+    );
+    if (anchors.length) useAnchor = true;
+  }
+
   const paragraphs = [];
-  for (const beatType of recipe.beats) {
+  if (useAnchor) {
+    const anchors = V2_BEATS.filter(b =>
+      b.beatType === 'setting_anchor' &&
+      b.tiers.includes(tier) &&
+      b.requiredSlots.every(s => slots[s] != null)
+    );
+    const card = rawPick(anchors);
+    const line = rawPick(card.lines);
+    paragraphs.push(ensureSentenceStart(V2Grammar.render(line, slots)));
+    // Skip the first recipe beat — anchor replaces it
+    beatTypeSequence.shift();
+  }
+  for (const beatType of beatTypeSequence) {
     const candidates = eligibleFor(beatType);
     if (candidates.length === 0) return null; // fallback to v1 if any beat type unfillable
     const card = rawPick(candidates);
@@ -1262,5 +1447,7 @@ if (typeof window !== 'undefined') {
   window.V2_SEEDS = V2_SEEDS;
   window.V2_RECIPES = V2_RECIPES;
   window.V2_BEATS = V2_BEATS;
+  window.V2_SETTINGS = V2_SETTINGS;     // v2.1.0
+  window.getSetting = getSetting;        // v2.1.0
   window.V2Grammar = V2Grammar;
 }

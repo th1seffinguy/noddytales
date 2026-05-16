@@ -4,6 +4,73 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.1.0 — 2026-05-16
+**Story Setting Modes + Defect Log sweep**
+
+### Story Setting Modes (Notion Build Idea, High priority)
+
+Replaces generic fantasy locations (jungle/castle/cavern) with **named relatable settings** the user picks before word selection. Setting grounds every story in a specific real-world place — addressing the Story Test Log root cause that "generic templates produce generic stories" by giving each story a spine before any words are chosen.
+
+**The 9 settings (8 + Surprise default):**
+
+| Setting | Place | Visitor bias | Object bias |
+|---|---|---|---|
+| ✨ Surprise | random | full pool | full pool |
+| 🍔 The Diner | diner | stressed barista, jester, wizard | noisy spoon, pickle jar, rubber chicken |
+| 🛍️ The Mall | mall | stressed barista, wifi ghost, vending machine | shiny rock, glittery helmet, umbrella |
+| 🏈 The Football Game | football game | jester, knight, pirate, dinosaur | whistle, rubber chicken, sleepy megaphone |
+| 🏫 School | school | substitute teacher, feral librarian, knight | clipboard, whistle, apology balloon |
+| 🌳 The Backyard | backyard | fairy, gnome, dinosaur, goblin | shiny rock, crumb map, tiny key |
+| 🛒 The Grocery Store | grocery store | stressed barista, wizard, witch | pickle jar, jar of buttons, noisy spoon |
+| 🦁 The Zoo | zoo | knight, pirate, wizard, dinosaur | crumb map, wobbly telescope, whistle |
+| 🚌 On the Bus | bus | substitute teacher, wifi ghost, goblin | banana phone, wind-up toy, umbrella |
+
+**UI flow:** `name → age → sidekicks → setting → words`. The setting step appears as a 3-col tile grid with emoji + label + dynamic note. State persists across "Start over" so a parent picking a setting for the kid doesn't re-pick every story. v1-mode users (`?engine=v1`) skip the setting step entirely.
+
+**Engine:** New `V2_SETTINGS` data + `getSetting(id)` helper in `src/engine-v2.js`. `generateStoryV2` now reads `picks.setting.id`, locks the `place` slot, and biases `visitor` + `object` pulls toward setting-appropriate IDs (70% chance to pull from bias subset, 30% from full library — keeps variety alive).
+
+**Setting-anchor beats:** New beat type `setting_anchor` with 9 tier-tagged variants. When a non-surprise setting is locked, the engine REPLACES the recipe's first beat with a setting-anchor beat so the very first paragraph grounds the story in the chosen place:
+
+> "Cole and a dragon ended up at **the diner**. Not on purpose, exactly. Not entirely by accident either."
+
+**Smoke test (30 stories × 8 settings = 240 setting-locked stories):**
+- 30/30 per setting mention the chosen place (was ~50% before setting-anchor beats added)
+- 0 grammar errors
+- Cross-tier regression check (Diner setting × all 5 tiers): 30/30 non-null per tier, 0 grammar errs
+
+### Defect Log re-audit
+
+Of 5 open defects, **4 were resolved automatically by the v2.0 architecture** — verified in this build and marked Fixed in Notion with detailed fix notes:
+
+| Defect | Severity | v2.0 status |
+|---|---|---|
+| Typo: noun not pluralized | Medium | ✅ Resolved — `food.articleText` handles plurals via `isPlural` flag |
+| Pre-reader template recycling | **Critical** | ✅ Resolved — 14 unique skeletons across 30 same-pick tot stories |
+| "Bouncy castle smell" hardcoded phrase | Medium | ✅ Resolved — no hardcoded prose in v2 beats |
+| Verb word produces double-verb | High | ✅ Resolved — tot recipe doesn't use the move slot |
+
+**The 5th open defect (Sound repeated 7+ times in pre-reader)** was an actual v2 bug. Fixed in this build:
+
+```diff
+- 'The {companion.text} said "{sound.text}!" That is a funny noise. {sound.text}! {sound.text}! Hee hee.',
++ 'The {companion.text} said "{sound.text}!" That is a funny noise. Hee hee.',
+```
+
+Tot beats `to_silly1` and `to_repeat1` now use the sound at most once each, capping any tot story at **max 3 sound occurrences** total (was up to 7). Verified across 100 tot stories: max 3, 0 stories exceed the 3-cap.
+
+### Cumulative v2.1.0 architecture
+
+| Layer | v2.0.0 | v2.1.0 |
+|---|---:|---:|
+| Rich word objects | 250+ | 250+ |
+| Recipes | 8 | 8 |
+| Seeds | 23 | 23 |
+| Beats | 91 | **100** (+9 setting-anchor) |
+| Settings | — | **9** (new) |
+| Tier coverage | 5/5 | 5/5 |
+
+---
+
 ## v2.0.0 — 2026-05-15  🚀
 **v2 engine is now the default. NoddyTales is now an authored comedy engine.**
 

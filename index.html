@@ -253,6 +253,67 @@
     opacity: 0.7;
   }
 
+  /* v2.1.0 — Setting tiles (Story Setting Modes). Reuses age-tile chassis but adds
+     emoji + label + short note layout instead of just a number. 3-up grid. */
+  .setting-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .setting-tile {
+    aspect-ratio: 1;
+    border: none;
+    border-radius: 24px;
+    background: white;
+    font-family: 'Fredoka', sans-serif;
+    color: var(--ink);
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    box-shadow: 0 6px 0 rgba(61,53,40,0.10), 0 10px 20px rgba(0,0,0,0.05);
+    transition: transform 0.15s ease, background 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+  }
+  .setting-tile::before {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    border-radius: 18px;
+    background: var(--cream-deep);
+    opacity: 0.4;
+    transition: opacity 0.2s;
+  }
+  .setting-tile > * { position: relative; z-index: 1; }
+  .setting-tile .setting-emoji {
+    font-size: 30px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .setting-tile .setting-label {
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.15;
+  }
+  .setting-tile:active { transform: translateY(3px) scale(0.97); }
+  .setting-tile.is-selected {
+    background: var(--yellow);
+    box-shadow: 0 6px 0 var(--yellow-dark), 0 10px 20px rgba(242,184,56,0.35);
+    transform: translateY(-2px) rotate(-1.5deg);
+  }
+  .setting-tile.is-selected::before { background: white; opacity: 0.4; }
+  .setting-note {
+    font-size: 13px;
+    color: var(--ink-soft);
+    text-align: center;
+    margin-top: 8px;
+    min-height: 18px;
+  }
+
   /* Potty mode toggle (age-select screen) */
   .potty-toggle {
     display: flex; align-items: center; gap: 12px;
@@ -874,6 +935,7 @@ const state = {
   screen: 'welcome',         // welcome | words | story
   // welcomeStep: skip 'name' on subsequent sessions when a name is already saved —
   // user can still tap "← back" from 'age' to edit/clear it.
+  // v2.1.0: added 'setting' step between 'sidekicks' and the word screen.
   welcomeStep: savedName ? 'age' : 'name',
   name: savedName,
   age: null,
@@ -885,6 +947,7 @@ const state = {
   story: null,               // cached buildStory() result — set once on goTo('story'), reused on rerender
   pottyMode: localStorage.getItem('nt_potty_mode') === '1',  // persists across sessions
   sidekicks: loadSidekicks(), // siblings / friends — persist across sessions, max 3
+  setting: 'surprise',       // v2.1.0 — story setting mode (diner/mall/football_game/etc.). 'surprise' = no constraint.
 };
 
 // Wire version badge — tap to surface the What's New panel
@@ -893,6 +956,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v2.1.0', title: 'Story Setting Modes — pick where the story happens',
+    detail: 'Eight relatable settings + Surprise: Diner, Mall, Football Game, School, Backyard, Grocery Store, Zoo, On the Bus. Settings appear as a tile grid after the sidekick step. Each setting locks the story\'s place ("The diner", "the mall") AND biases the visitor + object pools so a Diner story leans toward stressed-barista-style visitors and diner-flavored objects, while a Football Game story leans toward whistles and dramatic capes. New "setting-anchor" beats guarantee the first paragraph mentions the chosen location: 30/30 stories per setting reference the place (verified across 240 generated stories). Surprise mode is the default and behaves exactly like before. Defect Log re-audit: 4 of 5 open defects were resolved automatically by the v2.0 architecture (template recycling, plural foods, double-verb, hardcoded bouncy-castle-smell phrase). The 5th (sound repeated 7+ times in pre-reader) is now fixed by trimming tot beat sound usage to cap at 3 per story.' },
   { v: 'v2.0.0', title: 'v2 engine is now the default — authored comedy engine across all 5 tiers',
     detail: 'Five segments later, NoddyTales is now an authored comedy engine instead of a template-substitution app. Every story is assembled from rich word objects + beat cards + story-shape recipes. The architecture supports 8 recipes (Quest, Mystery, Trial, Performance, Bureaucracy, Social Embarrassment, Tot Loop, Gentle Quest), 23 seeds, 91 beats, and 250+ rich word objects across all 5 age tiers. Tier-specific voice: tot gets gentle repetition, little gets confused-animals whimsy, kid gets Goofy-Shorts spell-chants, big gets dry mock-bureaucracy, tween gets internet deadpan. The v1 templates remain in the codebase as a runtime fallback — if v2 ever returns null or throws, v1 quietly takes over so users never see a broken screen. Opt back to v1 anytime with ?engine=v1.' },
   { v: 'v1.23.0', title: 'v2 engine — Phase 4 (Segment D): tot + little tiers — v2 covers all 5 tiers',
@@ -1060,10 +1125,13 @@ function capitalize(s) {
 function buildStory(name, picks, age) {
   // v1.20.0 — v2 engine entry point (behind feature flag).
   // v1.22.0 extended to kid/big/tween. v1.23.0 added tot + little — v2 now covers all 5 tiers.
+  // v2.0.0 made v2 the default.
+  // v2.1.0 — inject state.setting into picks so the v2 engine can lock the place slot.
   // Silent fallback to v1 if generateStoryV2 returns null/throws for any reason.
   if (isEngineV2Enabled() && typeof generateStoryV2 === 'function') {
     try {
-      const v2Result = generateStoryV2(name, picks, age);
+      const picksWithSetting = { ...picks, setting: { id: (state.setting || 'surprise') } };
+      const v2Result = generateStoryV2(name, picksWithSetting, age);
       if (v2Result && v2Result.title && Array.isArray(v2Result.paragraphs) && v2Result.paragraphs.length > 0) {
         return v2Result;
       }
@@ -1948,7 +2016,7 @@ function renderWelcome() {
         </button>
       </div>
     </div>
-  ` : `
+  ` : step === 'sidekicks' ? `
     <div class="stack gap-20 grow">
       <div>
         <h1 class="display" style="text-align:center">
@@ -1985,8 +2053,44 @@ function renderWelcome() {
         }
       </div>
       <div class="footer">
-        <button class="btn" id="btn-sidekicks-go">
-          ${state.sidekicks.length === 0 ? 'Skip & start ✨' : "Let's go! ✨"}
+        <button class="btn" id="btn-sidekicks-next">
+          Next →
+        </button>
+      </div>
+    </div>
+  ` : `
+    <!-- v2.1.0 — Setting selector step (Story Setting Modes) -->
+    <div class="stack gap-20 grow">
+      <div>
+        <h1 class="display" style="text-align:center">
+          Where should<br>
+          <span style="color:var(--orange-dark)">the story happen?</span>
+        </h1>
+        <p class="lede" style="text-align:center;margin-top:10px">
+          Pick a place that feels right today.
+        </p>
+      </div>
+      <div class="setting-grid">
+        ${(typeof V2_SETTINGS !== 'undefined' ? V2_SETTINGS : []).map(s => `
+          <button
+            class="setting-tile${state.setting === s.id ? ' is-selected' : ''}"
+            data-setting="${esc(s.id)}"
+            aria-label="${esc(s.label)}"
+          >
+            <span class="setting-emoji">${s.emoji}</span>
+            <span class="setting-label">${esc(s.label)}</span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="setting-note">
+        ${(() => {
+          const cur = (typeof V2_SETTINGS !== 'undefined' ? V2_SETTINGS : []).find(s => s.id === state.setting);
+          return cur ? esc(cur.note) : '';
+        })()}
+      </div>
+      <div class="footer">
+        <button class="btn" id="btn-setting-go">
+          Let's go! ✨
         </button>
       </div>
     </div>
@@ -2213,8 +2317,10 @@ function attachWelcomeHandlers(el) {
   const pottyToggle = el.querySelector('#toggle-potty');
   const skInput = el.querySelector('#input-sidekick');
   const btnSkAdd = el.querySelector('#btn-sidekick-add');
-  const btnSkGo = el.querySelector('#btn-sidekicks-go');
+  const btnSkNext = el.querySelector('#btn-sidekicks-next');     // v2.1.0 (was btn-sidekicks-go)
   const skChipXs = el.querySelectorAll('.sidekick-chip-x');
+  const settingTiles = el.querySelectorAll('.setting-tile');     // v2.1.0
+  const btnSettingGo = el.querySelector('#btn-setting-go');      // v2.1.0
 
   if (pottyToggle) {
     pottyToggle.addEventListener('change', () => {
@@ -2255,8 +2361,9 @@ function attachWelcomeHandlers(el) {
   });
 
   if (btnBack) btnBack.addEventListener('click', () => {
-    // Back from age → name, back from sidekicks → age
-    state.welcomeStep = state.welcomeStep === 'sidekicks' ? 'age' : 'name';
+    // v2.1.0 — back chain extended: setting → sidekicks → age → name
+    const back = { setting: 'sidekicks', sidekicks: 'age', age: 'name' };
+    state.welcomeStep = back[state.welcomeStep] || 'name';
     rerender();
   });
 
@@ -2305,7 +2412,27 @@ function attachWelcomeHandlers(el) {
     });
   });
 
-  if (btnSkGo) btnSkGo.addEventListener('click', () => {
+  // v2.1.0 — sidekicks → setting (if v2 engine) → words; v1 mode skips the setting step.
+  if (btnSkNext) btnSkNext.addEventListener('click', () => {
+    if (!state.age) return;
+    if (isEngineV2Enabled()) advanceToSetting();
+    else startWords();
+  });
+
+  // v2.1.0 — Setting tile clicks.
+  settingTiles.forEach(tile => {
+    tile.addEventListener('click', () => {
+      state.setting = tile.dataset.setting;
+      settingTiles.forEach(t => t.classList.remove('is-selected'));
+      tile.classList.add('is-selected');
+      // Update note text live
+      const note = el.querySelector('.setting-note');
+      const cur = (typeof V2_SETTINGS !== 'undefined' ? V2_SETTINGS : []).find(s => s.id === state.setting);
+      if (note && cur) note.textContent = cur.note;
+    });
+  });
+
+  if (btnSettingGo) btnSettingGo.addEventListener('click', () => {
     if (state.age) startWords();
   });
 }
@@ -2317,6 +2444,11 @@ function advanceToAge() {
 
 function advanceToSidekicks() {
   state.welcomeStep = 'sidekicks';
+  rerender();
+}
+
+function advanceToSetting() {
+  state.welcomeStep = 'setting';
   rerender();
 }
 
@@ -2725,6 +2857,8 @@ function resetApp() {
   // v1.18.1 — keep state.name across "Start over" so the user can roll multiple stories
   // quickly without re-typing the kid's name. If a name is saved we skip directly to the
   // age step. User can tap "← back" to edit or clear via the chip X.
+  // v2.1.0 — state.setting also persists across "Start over" so a parent picking a setting
+  // for the kid doesn't have to re-pick it every story.
   TTSManager.stop();
   state.screen       = 'welcome';
   state.welcomeStep  = state.name.trim() ? 'age' : 'name';
