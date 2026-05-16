@@ -406,7 +406,9 @@
   #version-badge {
     position: absolute;
     bottom: 7px;
-    right: 12px;
+    /* v1.18.3: nudged left from 12px → 24px so the badge clears the
+       corner cutoff on small mobile devices (notch + rounded corners). */
+    right: 24px;
     font-size: 10px;
     color: rgba(61,53,40,0.28);
     font-family: 'Nunito', sans-serif;
