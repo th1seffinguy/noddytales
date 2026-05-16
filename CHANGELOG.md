@@ -4,6 +4,60 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v1.23.0 — 2026-05-15
+**v2 engine — Phase 4 (Segment D): tot + little — v2 covers all 5 tiers**
+
+Fourth segment of the v2.0 rebuild. **v2 engine now generates stories for every age tier behind the `?engine=v2` flag.** Tot (2–3) and little (4–5) were intentionally built last — per the design spec, the youngest tiers need restraint (shorter sentences, more repetition, lower absurdity, no irony). The engine architecture supports this through tier-specific recipes and beat cards.
+
+### Two new recipes (8 total)
+
+| Recipe | Tier | Beat sequence | Voice |
+|---|---|---|---|
+| **tot_loop** | tot (2–3) | tot_intro → tot_silly_meet → tot_silly_repeat → tot_cozy_end | "Hi! Cole met a dragon." Heavy repetition. Very short sentences. Soft sounds. |
+| **gentle_quest** | little (4–5) | little_intro → little_companion → little_silly_event → little_cozy_end | "The dragon had a tiny hat on. The hat was a little too big." Tiny jobs, confused animals, gentle. No irony. |
+
+### Library totals
+
+| Type | v1.22.0 | v1.23.0 | Δ |
+|---|---:|---:|---:|
+| Recipes | 6 | **8** | +2 |
+| Seeds | 17 | **23** | +6 (3 tot + 3 little) |
+| Beats | 74 | **91** | +17 (8 tot + 9 little) |
+
+### Smoke test (50 generations per tier)
+
+| Tier | Non-null | Grammar | Unresolved | Titles | Paragraphs |
+|---|---:|---:|---:|---:|---:|
+| tot (2–3) | 50/50 | 0 | 0 | 10 | 4 |
+| little (4–5) | 50/50 | 0 | 0 | 15 | 4 |
+| kid (6–7) | 50/50 | 0 | 0 | 22 | 5 |
+| big (8–10) | 50/50 | 0 | 0 | 23 | 5 |
+| tween (11–13) | 50/50 | 0 | 0 | 17 | 5 |
+
+### Sample (tot age 3)
+
+> **Cole and the Dragon**
+> Hi! Cole met a dragon. The dragon said hi. Cole said hi back.
+> The dragon said "BOING!" That is a funny noise. BOING! BOING! Hee hee.
+> Then Cole said "BOING!" too. So did the dragon. "BOING!" "BOING!" Everybody laughed.
+> Now Cole is sleepy. The dragon is sleepy too. Good night, dragon. Good night, Cole.
+
+### Sample (little age 5)
+
+> **Maya's Tacos Adventure**
+> Maya found a tiny clipboard on the doorstep. What a surprise! What was it for?
+> "BOING!" said the dragon. Maya giggled. "BOING!" said the dragon again. Maya giggled even more.
+> The dragon found some tacos. They shared some tacos together. The dragon took the biggest bite. Maya did not mind.
+> By the end of the day, Maya and the dragon were tired and happy. They hugged. Then they went to bed. Goodnight.
+
+### Engine status
+
+`buildStory()` in `index.html` now routes ALL ages to v2 when the flag is on (previously only kid/big/tween). v1 fallback remains for any v2 null/exception path.
+
+Next: **v2.0.0** — flip v2 to default, remove the feature flag, retire v1 templates.
+
+---
+
 ## v1.22.0 — 2026-05-15
 **v2 engine — Phase 3 (Segment C): big + tween tiers**
 

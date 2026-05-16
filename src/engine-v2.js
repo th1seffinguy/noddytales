@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v1.22.0-segment-C';
+const ENGINE_V2_VERSION = 'v1.23.0-segment-D';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -633,6 +633,14 @@ const V2_SEEDS = [
   { id:'wrong_post',      tiers:['tween'], recipe:'social_embarrassment', requiredSlots:['companion','visitor','object'] },
   { id:'mall_quest',      tiers:['tween'], recipe:'quest',     requiredSlots:['companion','visitor','place','food'] },
   { id:'school_mystery',  tiers:['tween'], recipe:'mystery',   requiredSlots:['companion','visitor','place'] },
+  /* Segment D — Tot seeds (gentle loops with strong repetition) */
+  { id:'tot_meet_friend', tiers:['tot'], recipe:'tot_loop', requiredSlots:['companion','sound'] },
+  { id:'tot_silly_snack', tiers:['tot'], recipe:'tot_loop', requiredSlots:['companion','food'] },
+  { id:'tot_at_park',     tiers:['tot'], recipe:'tot_loop', requiredSlots:['companion','place'] },
+  /* Segment D — Little seeds (gentle quest with no irony) */
+  { id:'little_visit',    tiers:['little'], recipe:'gentle_quest', requiredSlots:['companion','place','food'] },
+  { id:'little_silly_pet',tiers:['little'], recipe:'gentle_quest', requiredSlots:['companion','sound'] },
+  { id:'little_lost_thing',tiers:['little'], recipe:'gentle_quest', requiredSlots:['companion','object','place'] },
 ];
 
 /* ================================================================
@@ -672,6 +680,18 @@ const V2_RECIPES = {
     // setup → mistake → witnesses → spiral → tiny redemption
     id: 'social_embarrassment',
     beats: ['ordinary_setup', 'public_mistake', 'witnesses', 'spiral', 'bedtime_landing'],
+  },
+  /* Segment D — tot recipe. Very short loop with strong repetition. */
+  tot_loop: {
+    // hello → silly thing → silly repeat → cozy goodbye
+    id: 'tot_loop',
+    beats: ['tot_intro', 'tot_silly_meet', 'tot_silly_repeat', 'tot_cozy_end'],
+  },
+  /* Segment D — little recipe. Gentle quest with no irony. */
+  gentle_quest: {
+    // start → companion arrives → tiny silly problem → cozy end
+    id: 'gentle_quest',
+    beats: ['little_intro', 'little_companion', 'little_silly_event', 'little_cozy_end'],
   },
 };
 
@@ -1027,16 +1047,110 @@ const V2_BEATS = [
     lines: [
       'It was {visitor.theText}. Of course it was. {visitor.TheText} had been holding {object.articleText} the whole time. {kid.name} sighed at the sky.',
     ] },
+
+  /* ============================================================
+     Segment D — Tot (ages 2-3) beat library
+     Voice: very short sentences, repetition, gentle reversal,
+     soft sounds. No irony, no long words.
+     ============================================================ */
+
+  /* TOT INTRO — meet the character */
+  { id:'to_intro1', beatType:'tot_intro', tiers:['tot'], requiredSlots:['kid','companion'],
+    lines: [
+      'Hi! {kid.name} met {companion.articleText}. The {companion.text} said hi. {kid.name} said hi back.',
+    ] },
+  { id:'to_intro2', beatType:'tot_intro', tiers:['tot'], requiredSlots:['kid','companion','sound'],
+    lines: [
+      '{kid.name} heard a {sound.text}. It was {companion.articleText}! {companion.cap}! Hi {companion.text}!',
+    ] },
+
+  /* TOT SILLY MEET — silly little event */
+  { id:'to_silly1', beatType:'tot_silly_meet', tiers:['tot'], requiredSlots:['companion','sound'],
+    lines: [
+      'The {companion.text} said "{sound.text}!" That is a funny noise. {sound.text}! {sound.text}! Hee hee.',
+    ] },
+  { id:'to_silly2', beatType:'tot_silly_meet', tiers:['tot'], requiredSlots:['companion','food'],
+    lines: [
+      'The {companion.text} had {food.articleText}. The {companion.text} ate {food.articleText}. The {companion.text} ate all of it. Oh no!',
+    ] },
+
+  /* TOT SILLY REPEAT — repeat the joke */
+  { id:'to_repeat1', beatType:'tot_silly_repeat', tiers:['tot'], requiredSlots:['kid','companion','sound'],
+    lines: [
+      'Then {kid.name} said "{sound.text}!" too. So did the {companion.text}. "{sound.text}!" "{sound.text}!" Everybody laughed.',
+    ] },
+  { id:'to_repeat2', beatType:'tot_silly_repeat', tiers:['tot'], requiredSlots:['kid','companion'],
+    lines: [
+      '{kid.name} did a little dance. The {companion.text} did a little dance too. So did a tiny bug. Everyone danced. Hee hee.',
+    ] },
+
+  /* TOT COZY END */
+  { id:'to_end1', beatType:'tot_cozy_end', tiers:['tot'], requiredSlots:['kid','companion'],
+    lines: [
+      'Now {kid.name} is sleepy. The {companion.text} is sleepy too. Good night, {companion.text}. Good night, {kid.name}.',
+    ] },
+  { id:'to_end2', beatType:'tot_cozy_end', tiers:['tot'], requiredSlots:['kid','companion'],
+    lines: [
+      'Time for a hug. A big hug. Then a little nap. Goodnight!',
+    ] },
+
+  /* ============================================================
+     Segment D — Little (ages 4-5) beat library
+     Voice: tiny jobs, confused animals, weather nonsense, gentle.
+     Slightly more structure than tot, but no irony.
+     ============================================================ */
+
+  { id:'li_intro1', beatType:'little_intro', tiers:['little'], requiredSlots:['kid','place'],
+    lines: [
+      'One sunny morning, {kid.name} headed to the {place.text}. It was a perfect day for an adventure.',
+    ] },
+  { id:'li_intro2', beatType:'little_intro', tiers:['little'], requiredSlots:['kid','object'],
+    lines: [
+      '{kid.name} found {object.articleText} on the doorstep. What a surprise! What was it for?',
+    ] },
+
+  { id:'li_comp1', beatType:'little_companion', tiers:['little'], requiredSlots:['kid','companion'],
+    lines: [
+      'A friendly {companion.text} came to say hello. The {companion.text} had a tiny hat on. The hat was a little too big.',
+    ] },
+  { id:'li_comp2', beatType:'little_companion', tiers:['little'], requiredSlots:['kid','companion','sound'],
+    lines: [
+      '"{sound.text}!" said the {companion.text}. {kid.name} giggled. "{sound.text}!" said the {companion.text} again. {kid.name} giggled even more.',
+    ] },
+
+  { id:'li_silly1', beatType:'little_silly_event', tiers:['little'], requiredSlots:['kid','companion','food'],
+    lines: [
+      'The {companion.text} found {food.articleText}. They shared {food.articleText} together. The {companion.text} took the biggest bite. {kid.name} did not mind.',
+    ] },
+  { id:'li_silly2', beatType:'little_silly_event', tiers:['little'], requiredSlots:['kid','companion','sound'],
+    lines: [
+      'Then the wind blew "{sound.text}!" right past their ears. The {companion.text} jumped. {kid.name} jumped higher. They both laughed.',
+    ] },
+  { id:'li_silly3', beatType:'little_silly_event', tiers:['little'], requiredSlots:['kid','companion','object'],
+    lines: [
+      'The {companion.text} carried {object.articleText} very carefully. Then it dropped it. Oops! They picked it up together.',
+    ] },
+
+  { id:'li_end1', beatType:'little_cozy_end', tiers:['little'], requiredSlots:['kid','companion'],
+    lines: [
+      'By the end of the day, {kid.name} and the {companion.text} were tired and happy. They hugged. Then they went to bed. Goodnight.',
+    ] },
+  { id:'li_end2', beatType:'little_cozy_end', tiers:['little'], requiredSlots:['kid','companion','food'],
+    lines: [
+      'They ate one last bite of {food.text}. The {companion.text} yawned. {kid.name} yawned too. Time to sleep.',
+    ] },
 ];
 
 /* ================================================================
    ENGINE — generateStoryV2
    ================================================================ */
 function generateStoryV2(name, picks, age) {
-  // Phase 1: kid only. Segment C (v1.22.0): big + tween added.
-  // Returns null for unsupported tiers (tot/little still on v1 — Segment D adds them).
+  // Phase 1: kid only. Segment C: big + tween. Segment D (v1.23.0): tot + little.
+  // v2 now covers all 5 tiers.
   let tier;
-  if (age >= 6 && age <= 7)        tier = 'kid';
+  if (age >= 2 && age <= 3)        tier = 'tot';
+  else if (age >= 4 && age <= 5)   tier = 'little';
+  else if (age >= 6 && age <= 7)   tier = 'kid';
   else if (age >= 8 && age <= 10)  tier = 'big';
   else if (age >= 11 && age <= 13) tier = 'tween';
   else                              return null;
@@ -1129,6 +1243,9 @@ function generateStoryV2(name, picks, age) {
     performance: [`${kidCap}'s Big Show`, `${kidCap} Takes the Stage`, `The ${tc(companion.text)} Performance`],
     bureaucracy: [`${kidCap} and the Impossible Form`, `${kidCap}'s Official Disaster`, `The ${tc(job.text)} Crisis`],
     quest:       [`${kidCap}'s Adventure to the ${tc(place.text)}`, `${kidCap} Goes to the ${tc(place.text)}`],
+    /* Segment D — simpler titles for tot + little */
+    tot_loop:    [`${kidCap} and the ${tc(companion.text)}`, `${kidCap} Says Hi!`, `Hi, ${tc(companion.text)}!`],
+    gentle_quest:[`${kidCap} and the ${tc(companion.text)}`, `${kidCap}'s ${tc(place.text)} Day`, `The ${tc(companion.text)} with the Tiny Hat`],
   };
   const titlePool = [...universalTitlePatterns, ...(recipeTitlePatterns[seed.recipe] || [])];
   const title = rawPick(titlePool);

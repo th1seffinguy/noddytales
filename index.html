@@ -891,6 +891,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v1.23.0', title: 'v2 engine — Phase 4 (Segment D): tot + little tiers — v2 covers all 5 tiers',
+    detail: 'v2 engine now generates stories for every age tier behind the ?engine=v2 flag. Added 2 new recipes tuned for the youngest audiences: tot_loop (4 beats: tot_intro → tot_silly_meet → tot_silly_repeat → tot_cozy_end, heavy repetition, very short sentences) and gentle_quest (4 beats: little_intro → little_companion → little_silly_event → little_cozy_end, no irony, tiny-jobs/confused-animals/weather-nonsense register). 6 new tot+little seeds, 18 new restraint-tuned beat cards. Tot stories produce 4 paragraphs of "Hi! Cole met a dragon. The dragon said hi. Cole said hi back."; little stories produce 4 paragraphs of "The dragon had a tiny hat on. The hat was a little too big." Smoke test: 50/50 across all 5 tiers, 0 grammar errors, 0 unresolved tokens. Recipe count 6→8, seeds 17→23, beats 74→91. Next: v2.0.0 flips v2 to default and removes v1 fallback.' },
   { v: 'v1.22.0', title: 'v2 engine — Phase 3 (Segment C): big + tween tiers',
     detail: 'Extended the v2 engine from kid-only to kid + big (8–10) + tween (11–13). Tot and little still run v1 (Segment D adds them). Added 5 tween-flavored companions (crow, hamster, chameleon, raccoon, red panda), 7 tween visitors (stressed barista, feral librarian, wifi ghost, cryptid, sentient vending machine, mysterious substitute teacher, group chat), and 10 tween places (abandoned mall, skatepark, parking garage, arcade, etc.). New recipe: social_embarrassment (ordinary_setup → public_mistake → witnesses → spiral → bedtime_landing) — captures the deadpan internet-flavored register the spec specifies for tween. 7 new big-tier seeds and 18 new tween-specific beat cards bring totals to 6 recipes / 17 seeds / 74 beats. Smoke test: 50/50 generation across all 3 supported tiers with 0 grammar errors. Big tier nails dry mock-bureaucratic voice; tween nails "Nobody had asked" / "It was, somehow, a vibe" register.' },
   { v: 'v1.21.0', title: 'v2 engine — Phase 2 (Segment B): kid library expansion + 5 recipes',
@@ -1052,10 +1054,10 @@ function capitalize(s) {
 
 /* Tokens: [name:X] [c:X] [y:X] — rendered as highlighted spans */
 function buildStory(name, picks, age) {
-  // v1.20.0 — v2 engine entry point (behind feature flag). v1.22.0 extended to kid/big/tween.
+  // v1.20.0 — v2 engine entry point (behind feature flag).
+  // v1.22.0 extended to kid/big/tween. v1.23.0 added tot + little — v2 now covers all 5 tiers.
   // Silent fallback to v1 if generateStoryV2 returns null/throws for any reason.
-  const tierEarly = tierFor(age);
-  if (isEngineV2Enabled() && (tierEarly === 'kid' || tierEarly === 'big' || tierEarly === 'tween') && typeof generateStoryV2 === 'function') {
+  if (isEngineV2Enabled() && typeof generateStoryV2 === 'function') {
     try {
       const v2Result = generateStoryV2(name, picks, age);
       if (v2Result && v2Result.title && Array.isArray(v2Result.paragraphs) && v2Result.paragraphs.length > 0) {
