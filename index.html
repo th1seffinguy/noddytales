@@ -874,6 +874,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v1.19.0', title: 'Goofy Shorts: Little Edition (ages 4–5)',
+    detail: 'Story Test Log Entry 001 ("The Sunny Island Adventure", age 5) scored 2/1/3/2/1 across humor / substance / age-fit / name-integration / replayability — failing on the core promise. The Goofy Shorts voice from v1.18.0 (which scored 5/4/5/5/5 in Entry 002) was rolled out to the little tier. 7 old little templates replaced with 8 new Goofy Shorts: Little Edition. Same structural rules as kid (sidekick drives action, silly adjective + silly noun, freeword 2–3× as shoutable spell, 4 paragraphs, punchline ending) tuned for 4–5 year olds with simpler vocab and heavier repetition. Little PARAGRAPH_LIMIT dropped 5→4. Adult-ironic asides + 60% cameo injection now skipped for both kid and little tiers.' },
   { v: 'v1.18.2', title: 'Fix: duplicate "The End" at story close',
     detail: 'Every story was ending twice — last paragraph said "THE END." (kid) or "The end! 🌟" (tot), and the renderer added "✦ The End ✦" right below it. The narrator was reading both. Stripped the in-paragraph markers from 8 kid + 5 tot templates. The renderer\'s "✦ The End ✦" is now the single source of truth, paired with the dramatic elongated TTS closer from v1.16.2. Karaoke word-counts stay in sync (both DOM and TTS lose the same words). Logged as defect log entry "Duplicate \'The End\' rendering".' },
   { v: 'v1.18.1', title: 'Name remembered between stories',
@@ -1078,8 +1080,9 @@ function buildStory(name, picks, age) {
   // Keep first 2 (setup) + last (LIMIT-2) (climax → resolution → closer). The previous formula
   // (first 4 + last 1) cut load-bearing climax paragraphs and left dangling references.
   // v1.18.0 — kid tier dropped to 4 paragraphs (Goofy Shorts: punchy, bedtime-friendly,
-  // sidekick-driven). Other tiers unchanged.
-  const PARAGRAPH_LIMIT = { tot: 5, little: 5, kid: 4, big: 6, tween: 6 }[t];
+  // sidekick-driven). v1.19.0 — little tier joined kid at 4 paragraphs (Goofy Shorts Phase 2
+  // after Story Test Log Entry 001 revealed little templates were failing on humor + substance).
+  const PARAGRAPH_LIMIT = { tot: 5, little: 4, kid: 4, big: 6, tween: 6 }[t];
   const trimToLimit = (story) => {
     if (!PARAGRAPH_LIMIT || story.paragraphs.length <= PARAGRAPH_LIMIT) return story;
     const ps = story.paragraphs;
@@ -1119,15 +1122,17 @@ function buildStory(name, picks, age) {
 
   // pick auto-corrects articles, trims to length, injects a tier-appropriate aside,
   // and adds a sidekick cameo (60% of the time when sidekicks exist).
-  // v1.18.0: kid tier skips both aside + cameo injection — Goofy Shorts templates are
-  // self-contained, sidekick is baked into the prose, and asides drift toward adult-ironic
-  // register which playtests confirmed kids don't read as funny.
+  // v1.18.0: kid tier skips both aside + cameo injection. v1.19.0: little tier joins kid
+  // in skipping — Story Test Log Entry 001 traced the failing register directly to the
+  // little aside bank ("the wind agreed politely") and the throwaway cameo style.
+  // Goofy Shorts templates handle sidekick + closer inline.
+  const SKIP_INJECTIONS = t === 'kid' || t === 'little';
   const pick = arr => {
     const r = rawPick(arr);
     if (r && typeof r === 'object' && Array.isArray(r.paragraphs)) {
       let story = { title: fixArticles(r.title), paragraphs: r.paragraphs.map(fixArticles) };
       story = trimToLimit(story);
-      if (t !== 'kid') {
+      if (!SKIP_INJECTIONS) {
         story = injectTierAside(story);
         story = injectSidekick(story);
       }
@@ -1294,101 +1299,91 @@ function buildStory(name, picks, age) {
   }
 
   if (t === 'little') {
+    // v1.19.0 Goofy Shorts: Little Edition — full little-tier rewrite after Story Test Log
+    // Entry 001 ("The Sunny Island Adventure") failed on humor (2), substance (1), and
+    // replayability (1). Same structural rules as kid Goofy Shorts (sidekick drives, SADJ+STHING
+    // is the central absurd thing, freeword 2-3x as shoutable spell, 4 paragraphs) but with
+    // simpler vocab and heavier repetition for 4-5 year olds.
+    const fwTok = `[y:${FW_SAFE}]`;
     return pick([
+      // 1. The Thing Under the Bed — direct mirror of kid #1, simpler sentences
       {
-        title: `${N} and the ${capitalize(WX)} ${capitalize(PLC)}`,
+        title: `${capitalize(N)} and the ${capitalize(SADJ)} ${capitalize(STHING)}`,
         paragraphs: [
-          `It was a very [y:${WX}] morning when [name:${N}] put on a [c:${COL}] hat that was definitely too big.`,
-          `Waiting by the gate was a tiny [c:${PET}] holding a plate of [c:${FOOD}] and looking deeply concerned.`,
-          `"We are LATE," said the ${PET}. [name:${N}] did not know what they were late for. The [c:${PET}] would not explain.`,
-          `Off they went to the [y:${PLC}], where a friendly [c:${CRE}] was waiting with a tiny clipboard.`,
-          `"You're just in time!" said the [c:${CRE}]. The clipboard had only one item on it: "have fun." That was the whole list.`,
-          `They [c:${MOV}] in a big silly circle. Then a second circle, on purpose, but backward. Then a third one, by accident.`,
-          `By the time the sun came out properly, [name:${N}] had laughed so much that the [c:${COL}] hat had fallen off twice. "Best ${WX} day EVER!" everyone agreed.`,
+          `[name:${N}] found a [c:${SADJ}] [c:${STHING}] under the bed. It had a little face. It had two tiny feet. "${fwTok}!" it said.`,
+          `[name:${SK}] came to look. [name:${SK}] poked it. UH OH. The [c:${STHING}] went BOING! Right up to the ceiling!`,
+          `[name:${N}] yelled, "${fwTok}!" [name:${SK}] yelled, "${fwTok}!" And the [c:${STHING}] came BOING right back down. PLOP! On Dad's head.`,
+          `Dad said, "I have a [c:${STHING}] hat now." Everybody clapped. The [c:${STHING}] giggled. So did Dad.`,
         ],
       },
+      // 2. The Sneaky Snack — sidekick + kid hunt for the missing food
       {
-        title: `${N} and the ${capitalize(CRE)} of the ${capitalize(PLC)}`,
+        title: `Where Did All the ${capitalize(FOOD)} Go?`,
         paragraphs: [
-          `Nobody expected a [y:${WX}] day to start with a [c:${CRE}] knocking on the window. But here we are.`,
-          `[name:${N}] opened the door. The [c:${CRE}] said, "Quick! Bring [c:${FOOD}]! And courage!" Then it ran away. Very rude.`,
-          `[name:${N}] grabbed a [c:${COL}] basket and a [c:${PET}] who was VERY excited and headed to the [y:${PLC}].`,
-          `The [c:${CRE}] was there, standing on a rock. "We have a SITUATION," it announced. The situation was: a tiny mouse had hiccups.`,
-          `Everyone tried to help. The [c:${PET}] told a joke. [name:${N}] held its breath. The [c:${CRE}] sang very loudly and slightly off-key.`,
-          `They [c:${MOV}] in three different ways to startle the hiccups out. It worked! The mouse cheered and squeaked thank-you in seven different squeaks.`,
-          `They all went home full of [y:${FOOD}] and silly stories. The [c:${CRE}] now knocks on the window every Tuesday. Just in case.`,
+          `The [c:${FOOD}] was gone. ALL of it! [name:${N}] looked everywhere. [name:${SK}] looked everywhere. No [c:${FOOD}] anywhere.`,
+          `"Maybe we should say the magic word," whispered [name:${SK}]. "What magic word?" said [name:${N}]. "${fwTok}!" said [name:${SK}], like it was obvious.`,
+          `They both yelled, "${fwTok}!" A drawer popped open. Inside the drawer: the [c:${FOOD}]! AND one [c:${SADJ}] [c:${STHING}] who said, "Hi!"`,
+          `The [c:${STHING}] had hidden the [c:${FOOD}] for a tea party. There was no tea. There was only [c:${FOOD}]. It was the best tea party ever.`,
         ],
       },
+      // 3. The Magic Word That Went WHOOPS — direct mirror of kid #3 (the playtest benchmark)
       {
-        title: `The ${capitalize(WX)} ${capitalize(PLC)} Adventure`,
+        title: `${capitalize(N)} Says "${FW_SAFE.toUpperCase()}" Too Many Times`,
         paragraphs: [
-          `On a very [y:${WX}] afternoon, [name:${N}] decided to do something brave. Or maybe just a little brave. We'll see.`,
-          `[name:${N}] put on the [c:${COL}] boots — one on the wrong foot, but it felt right that way — and headed to the [y:${PLC}].`,
-          `A tiny [c:${PET}] was already there. And so was a very chatty [c:${CRE}] who would not stop talking about hats.`,
-          `"Hats!" said the [c:${CRE}]. "HATS! Did you know hats go on heads? It's amazing!" Yes, said [name:${N}], very amazing indeed.`,
-          `They traded some [c:${FOOD}] and learned how to [c:${MOV_BASE}] backward, which is harder than it looks and made everyone giggle.`,
-          `Then a bee flew by carrying a tiny suitcase. Nobody knew why. Nobody asked. It was just that kind of day.`,
-          `By sunset, [name:${N}] was very tired, very happy, and now extremely curious about where the bee was going. Maybe tomorrow we find out!`,
+          `[name:${SK}] taught [name:${N}] a magic word. The word was ${fwTok}. "Only say it ONE TIME," said [name:${SK}]. [name:${N}] nodded.`,
+          `[name:${N}] said it one time. A [c:${SADJ}] [c:${STHING}] popped up! Cool! [name:${N}] said it AGAIN. Another one popped up. Even more [c:${SADJ}].`,
+          `[name:${N}] said it FOUR MORE TIMES. The whole room was FULL of [c:${SADJ}] [c:${STHING}]s. "I TOLD YOU!" yelled [name:${SK}]. The [c:${STHING}]s started to sing!`,
+          `[name:${N}] said "${fwTok}" one tiny last time. POP POP POP! All gone. [name:${SK}] said, "Let's not tell Mom." [name:${N}] agreed.`,
         ],
       },
+      // 4. The Loud, LOUD Pet — heavy repetition for emergent tier
       {
-        title: `The Day the Weather Got Confused`,
+        title: `${capitalize(N)}'s ${capitalize(PET)} Is SO Loud`,
         paragraphs: [
-          `It was supposed to be a [y:${WX}] morning. The weather had OTHER ideas.`,
-          `Snow fell, then sunshine, then a little bit of glitter — yes, glitter — all in five minutes!`,
-          `[name:${N}] put on a [c:${COL}] coat, a swimsuit, a scarf, and one flipper. Just in case.`,
-          `At the [y:${PLC}], a [c:${PET}] was wearing sunglasses AND a winter hat. A [c:${CRE}] was carrying an umbrella upside down on purpose.`,
-          `"The weather is being SILLY today!" the [c:${CRE}] announced. So they all decided to be silly too.`,
-          `They [c:${MOV}] in funny ways depending on what fell from the sky. Hop for sunshine! Stomp for rain! Cartwheel for glitter!`,
-          `When the weather finally calmed down, everyone had eaten three pieces of [y:${FOOD}], invented six new dances, and agreed that confused weather was, secretly, the very best kind.`,
+          `[name:${N}]'s [c:${PET}] would NOT stop yelling. "${fwTok}! ${fwTok}! ${fwTok}!" Loud. LOUDER. LOUDEST.`,
+          `[name:${SK}] ran over with an idea. The idea was: feed it one [c:${SADJ}] [c:${STHING}]. "Will that work?" asked [name:${N}]. "We will see," said [name:${SK}].`,
+          `The [c:${PET}] ate the [c:${SADJ}] [c:${STHING}] in one big chomp. CHOMP! Then it burped. Then it said, very quietly, "${fwTok}." And fell asleep!`,
+          `It slept on [name:${N}]'s lap. It snored. The snore sounded like "${fwTok}". [name:${SK}] said, "Shhh." They all took a nap.`,
         ],
       },
+      // 5. The Bouncy Disaster — central object goes on adventure, sidekick saves the day
       {
-        title: `${N} and the Pet That Forgot Everything`,
+        title: `The Day the ${capitalize(SADJ)} ${capitalize(STHING)} Got Loose`,
         paragraphs: [
-          `A [c:${PET}] knocked on [name:${N}]'s door looking deeply confused on a [y:${WX}] morning.`,
-          `"What's a [c:${PET}]?" said the [c:${PET}]. "What am I doing here? Why does my hat have buttons? Are those FEET?"`,
-          `[name:${N}] said, "Don't worry, I'll help!" So they walked to the [y:${PLC}] together, very slowly, because the [c:${PET}] kept forgetting how walking worked.`,
-          `Along the way they met a [c:${CRE}] who had also forgotten things — like which direction was "up." Very inconvenient!`,
-          `A [y:${WX}] wind blew by and lifted memories like leaves. They had to chase them and catch them, one at a time.`,
-          `The [c:${PET}] remembered it loved [c:${FOOD}]. The [c:${CRE}] remembered "up." Then both remembered they LOVED a good silly [c:${COL}] hat. And dancing.`,
-          `By the end, they remembered everything, and they [c:${MOV}] home in a wibbly-wobbly happy line. Even the wind looked pleased.`,
+          `[name:${N}] brought a [c:${SADJ}] [c:${STHING}] to the [y:${PLC}]. BOING! It bounced. BOING! Higher! BOING! Over a tree!`,
+          `"OH NO!" yelled [name:${N}]. [name:${SK}] yelled, "${fwTok}! ${fwTok}!" That was the magic word for the [c:${STHING}]! Down it came! WHOOSH!`,
+          `It landed right on [name:${N}]'s hat. A [c:${CRE}] walked by. It said, "Is that a [c:${SADJ}] [c:${STHING}]? I want one!" And ran off with it!`,
+          `[name:${SK}] and [name:${N}] chased the [c:${CRE}]. They got the [c:${STHING}] back. The [c:${CRE}] said sorry and gave them all some [y:${FOOD}].`,
         ],
       },
+      // 6. The Funny Sandwich — Captain-Underpants tier physical comedy, but bedtime-friendly
       {
-        title: `The ${capitalize(FOOD)} That Wouldn't Behave`,
+        title: `${capitalize(SK)} Makes a ${capitalize(SADJ)} Sandwich`,
         paragraphs: [
-          `[name:${N}] made a snack of [c:${COL}] [c:${FOOD}] for lunch. It was supposed to sit on the plate.`,
-          `The [c:${FOOD}] did NOT sit on the plate. It hopped onto the counter and announced, very dramatically, "I LIVE NOW."`,
-          `A [c:${PET}] came in to investigate, with its ears perked all the way up. The [c:${FOOD}] hid behind the toaster.`,
-          `"We need help," said [name:${N}]. They marched to the [y:${PLC}] in [y:${WX}] weather to find an expert.`,
-          `A [c:${CRE}] there was apparently a famous food-negotiator. It had a tiny suit and a much tinier briefcase.`,
-          `Back home, the [c:${CRE}] sat the [c:${FOOD}] down for a SERIOUS chat. There was nodding. There was sighing. There was even a handshake.`,
-          `The [c:${FOOD}] finally agreed to be eaten — as long as everyone said please. So they did. It was, all in all, the politest lunch in history.`,
+          `[name:${SK}] made a sandwich. Inside the sandwich: [y:${FOOD}], one [c:${SADJ}] [c:${STHING}], and a [c:${COL}] crayon. "Want a bite?" asked [name:${SK}]. [name:${N}] said NO WAY.`,
+          `So [name:${SK}] ate the whole thing. Chomp chomp chomp! "${fwTok}!" said [name:${SK}]. Then BURP. A tiny [c:${COL}] bubble came out!`,
+          `The bubble floated up. POP! Glitter everywhere! [name:${N}] laughed so hard. "Okay, ONE bite," said [name:${N}]. CHOMP. "${fwTok}!" yelled [name:${N}].`,
+          `Now they both had glitter burps. They burped a glitter rainbow all afternoon. Mom said, "What did you eat?" They did not tell.`,
         ],
       },
+      // 7. The Hat That Spoke — small mystery with sidekick + payoff, mirror of kid #8
       {
-        title: `The Pet Parade Nobody Planned`,
+        title: `The Hat That Said "${FW_SAFE.toUpperCase()}"`,
         paragraphs: [
-          `[name:${N}] looked out the window and saw a [c:${PET}] walking by. Then ANOTHER. Then SEVEN!`,
-          `A whole parade of pets was marching toward the [y:${PLC}] in a wibbly [y:${WX}] line! Nobody knew where it came from!`,
-          `[name:${N}] grabbed a [c:${COL}] hat and joined right in. Nobody had organized this. It just happened.`,
-          `A [c:${CRE}] popped out of a flower bed and started keeping time with a tiny pretend drum: BOOM tap tap, BOOM tap tap!`,
-          `They [c:${MOV}] through the village, picking up more pets, two confused snails, and one extremely surprised cat as they went.`,
-          `Somebody handed out [c:${FOOD}]. Nobody knew where it came from. Nobody asked questions. It was that kind of parade.`,
-          `The parade ended at the [y:${PLC}], where everybody bowed at the same time. Nobody could remember what they'd been celebrating, but they all agreed it had been VERY important. Bedtime!`,
+          `[name:${N}] put on a hat. The hat said, "${fwTok}!" [name:${N}] said, "Whoa." Hats do NOT usually talk.`,
+          `[name:${SK}] tried the hat. The hat said, "${fwTok}!" again! Every time anybody put it on, it said the same thing. "${fwTok}!"`,
+          `They put it on a [c:${PET}]. "${fwTok}!" said the hat. They put it on a [c:${SADJ}] [c:${STHING}]. "${fwTok}!" the hat said happily!`,
+          `By dinner the hat was tired. It said one last quiet "${fwTok}" and fell asleep on the table. [name:${N}] gave it a tiny blanket.`,
         ],
       },
+      // 8. The Big Tickle — physical comedy, the rescue, kid + sidekick co-star
       {
-        title: `The Wibble Wobble Day`,
+        title: `${capitalize(N)} and the Stuck ${capitalize(CRE)}`,
         paragraphs: [
-          `One [y:${WX}] day, EVERYTHING got a little wibble-wobbly. Wibble. Wobble. Wibble.`,
-          `The [c:${COL}] gate wobbled. The trees wibbled. Even the [y:${FOOD}] on the plate did a tiny dance!`,
-          `"What's happening?" [name:${N}] asked a passing [c:${PET}]. The [c:${PET}] was too wobbly to answer properly. It just wobbled some more.`,
-          `They [c:${MOV}] to the [y:${PLC}] in wibbly-wobbly steps, which took twice as long but was three times as funny.`,
-          `A [c:${CRE}] there announced, "Oh! Today is The Wibble Wobble! It happens once a year! Did nobody tell you?"`,
-          `Nobody had told [name:${N}], but it didn't matter now. They wibbled. They wobbled. The [c:${PET}] did somersaults by accident and was very surprised.`,
-          `By evening the wibble wore off. But everyone still wibbled a little while brushing their teeth. Just in case. Just in case. 🌟`,
+          `A [c:${CRE}] got STUCK in the [y:${PLC}]. Wedged tight. Couldn't move. Looking grumpy.`,
+          `[name:${N}] had an idea. "Let's tickle it!" said [name:${N}]. "${fwTok}!" agreed [name:${SK}], which wasn't really an answer but felt right.`,
+          `They tickled the [c:${CRE}]. Tickle tickle tickle! It giggled. It snorted. It POPPED right out! "${fwTok}!" it yelled. "I'M FREE!"`,
+          `The [c:${CRE}] gave them a [c:${SADJ}] [c:${STHING}] as a thank-you gift. They took it home. It snored. Quietly. Happily.`,
         ],
       },
     ]);

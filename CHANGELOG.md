@@ -4,6 +4,49 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v1.19.0 — 2026-05-15
+**Goofy Shorts: Little Edition — ages 4–5 content rewrite (Story Test Log Entry 001 fix)**
+
+Story Test Log Entry 001 ("The Sunny Island Adventure", Cole, age 5) graded the little tier as **failing** on the app's core promise:
+
+| Dimension | Score | Note |
+|---|---|---|
+| Humor | 2/5 | One genuinely funny moment (bee with suitcase); everything else flat |
+| Substance | 1/5 | Nothing actually happens; events listed but never connect or escalate |
+| Age-fit | 3/5 | Vocab fine; needs silliness, not ambient whimsy |
+| Name integration | 2/5 | Name inserted, not woven in |
+| Replayability | 1/5 | Nothing memorable enough to want again |
+
+Same playtest in Entry 002 with a v1.18.0 kid Goofy Shorts template scored **5/4/5/5/5**. The diagnosis was clear: extend Goofy Shorts to the little tier.
+
+**Implementation:**
+- All 7 little tier templates replaced with **8 new Goofy Shorts: Little Edition templates** (Talking Thing Under Bed, Sneaky Snack, Magic Word, Loud Pet, Bouncy Disaster, Funny Sandwich, Talking Hat, Stuck Creature)
+- Same structural rules as kid Goofy Shorts:
+  - 4 paragraphs (little `PARAGRAPH_LIMIT` dropped 5→4)
+  - Sidekick (user-defined or `DEFAULT_SIDEKICKS` fallback) **drives** the action — not a 60% grafted cameo
+  - `SILLY_ADJ` + `SILLY_NOUN` combo as central absurd thing
+  - Freeword appears 2–3× as shoutable spell / chant / closer
+  - Punchline ending woven into the prose
+- Simplified for 4–5 year olds: shorter sentences, heavier repetition, more onomatopoeia (BOING, BONK, CHOMP), bedtime-friendly endings
+- `injectTierAside` + `injectSidekick` (the 60% cameo) now skipped for **both kid and little** tiers — the failing adult-ironic asides ("the wind agreed politely", "a small flower nodded along") that Entry 001 flagged are now disabled for ages 4–7
+- Entry 001's exact failing prose ("Or maybe just a little brave. We'll see.", "a bee flew by carrying a tiny suitcase. Nobody knew why. Nobody asked.") is gone from the codebase
+
+**Smoke test (200 little stories, age 5):**
+- 4 paragraphs per story
+- 0 grammar issues
+- ≥2 freeword shouts per story
+- Sidekick name present
+- Zero matches for the Entry-001 failing phrases
+
+---
+
+## v1.18.3 — 2026-05-15
+**Version badge nudged left to clear mobile corner cutoff**
+
+Badge was getting clipped by rounded corners / notch safe area on mobile. Bumped `#version-badge` right offset 12px → 24px.
+
+---
+
 ## v1.18.2 — 2026-05-15
 **Fix: duplicate "The End" at story close (defect log entry)**
 
