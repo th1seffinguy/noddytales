@@ -4,6 +4,71 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.2.0 — 2026-05-16
+**Local Profile + Parent Settings foundation**
+
+The boring-but-powerful floor under the fun stuff. Reduces friction for repeat sessions and creates the safe surface for future parent-facing controls (Potty Mode, Save Story, future paid-tier gating) without accounts, server sync, or analytics.
+
+### Profile module — single source of truth for persistence
+
+All persistent state now flows through a `Profile` object. Each piece of profile data has typed getters/setters with input validation:
+
+| Key | Type | Validation |
+|---|---|---|
+| `nt_name` | string ≤14 | HTML-significant chars stripped |
+| `nt_age` | integer 2–13 | Out-of-range rejected |
+| `nt_sidekicks` | array ≤3 strings | Each name capped at 14 chars |
+| `nt_setting` | string ≤32 | "surprise" treated as default (removed from storage) |
+| `nt_potty_mode` | boolean | Stored as '1'/'0' |
+
+`Profile.load()` returns a typed snapshot. `Profile.save<X>()` writes a single field. `Profile.clear()` wipes all profile keys but **preserves** the engine flag (`nt_engine_v2`) and parental PIN (`nt_pin`) — those are device-level controls, not child profile data.
+
+All 5 prior raw `localStorage.setItem/getItem` call sites for profile keys (name input, name clear, age tile, sidekick add/remove, setting tile, potty toggle) now route through Profile.
+
+### Returning-user welcome flow
+
+| Saved state | Welcome step | UX |
+|---|---|---|
+| Nothing | `name` | First-time intro |
+| Name only | `age` | "Hi again, Cole!" |
+| Name + age | **`sidekicks`** (new) | "Welcome back, Cole! Still age 6? Same crew?" |
+
+Returning users with both name and age remembered now skip **both** of those steps and land on the sidekick page. Saves 2 taps per repeat session. The sidekick page heading + lede swap to a returning-session treatment when name+age are present, signaling the user can verify the remembered values or tap "← back" to edit them.
+
+### Parent Settings overlay (⚙︎ gear icon)
+
+New gear icon in the bottom-left corner of every screen, opposite the version badge. Opens a modal showing:
+
+- **Saved on this device:** read-only summary of name, age, sidekicks, setting
+- **Future controls (disabled with "soon" tags):** Potty word mode, Save story, Story history — placeholders for the next builds in the backlog
+- **Clear saved profile:** danger-styled button with confirm dialog. Clears all profile keys and returns to first-time welcome flow
+
+Footnote spells out the COPPA-relevant promise: "Name, age, sidekicks, setting, and potty mode are stored only on this device. No data leaves your device."
+
+### What did NOT change
+
+- TTS API contract — Profile data is never sent to ElevenLabs or any server (verified: only the rendered story text reaches `/api/tts`)
+- v2 story engine — `generateStoryV2` and all 100 beats / 23 seeds / 8 recipes / 250+ words untouched
+- Engine flag (`?engine=v1` opt-out) — still works, lives in its own key separate from Profile
+- Parental PIN — still works, preserved across profile clear
+- Start Over button — still preserves the profile (was already the case; v2.2 makes this explicit by NOT calling Profile.clear() on reset)
+
+### Verification
+
+| Flow | Behavior |
+|---|---|
+| First-time | Empty Profile → `welcomeStep = 'name'` → full intro |
+| Returning (name only) | Loads name → step `'age'` → "Hi again, Cole!" |
+| Returning (name + age) | Loads both → step `'sidekicks'` → "Welcome back, Cole!" |
+| Start Over | Profile preserved, story reset, returns to welcomeStep based on what's saved |
+| Clear Profile | Profile wiped, in-memory state reset, returns to first-time mode |
+
+17 Profile-module unit tests pass: empty load defaults, save/load round-trips, HTML strip on name save, age range validation (rejects 99, accepts edges 2 and 13), sidekick cap at 3, surprise-setting removes its key, clear wipes Profile keys, clear preserves engine flag + PIN.
+
+v2 engine smoke test: unchanged — 240 setting-locked stories still hit 100% setting reference, 0 grammar errors, all 5 tiers render.
+
+---
+
 ## v2.1.1 — 2026-05-16
 **Mobile fix: Next button visible on age screen without scroll**
 
