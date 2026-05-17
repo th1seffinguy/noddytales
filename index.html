@@ -1148,6 +1148,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v2.4.4', title: 'Karaoke auto-scroll — follow the read-aloud without scrolling',
+    detail: 'Playtest feedback: during Speak playback, the karaoke highlight would roll off the bottom of the screen and the reader had to manually scroll to keep following along. v2.4.4 hooks auto-scroll into the existing word-change moment. When a new word lights up, the engine checks if it has drifted into the bottom 35% of the viewport — if so, it smooth-scrolls the word into view (centered, with upcoming text visible below). The spoken word now stays near the middle of the screen without any manual interaction. Respects user override: a one-time wheel + touchmove listener marks the user as in-control for 2.5s after a manual scroll, so re-reading a sentence works normally without auto-scroll fighting back. Programmatic smooth-scrolls get a 700ms grace window so they don\'t self-trigger the user-scroll guard. Implementation lives entirely in TTSManager — no DOM structure changes, no impact on cached audio alignment.' },
   { v: 'v2.4.3', title: 'Reading-level recalibration — drop tween-vocab from the 8-10 tier',
     detail: 'Playtest feedback from a 10-year-old: "the content is too mature for their reading level. Words are high vocabulary." A vocabulary audit of 200 big-tier stories flagged 32 distinct advanced words appearing 690 times — including "subsection," "stalemate," "wholeheartedly," "alibi," "plot twist," "ovation," "technically," "consecutive," "improvised." This was tween-level (11-13) language leaking into the shared kid+big content. v2.4.3 rewrites ~30 beats across all 4 blueprints and the punchline pool to use plain language while preserving the comedy structure. Examples: "stalemate" → "Now what?"; "Subsection seven mentions X, doesn\'t it?" → "Rule number seven says I can use X, right?"; "narrowed their eyes" → "stared hard"; "Plot twist:" → "Wait, WHAT?"; "standing ovation" → "huge clap"; "produced an enormous donut" → "pulled out one HUGE donut"; "fully intact" → "all in one piece"; "from absolutely nowhere" → "out of nowhere"; "satisfied" → "like nothing had happened". Tween-only beats (ages 11-13) are untouched — they keep their richer vocabulary by design. Result: 690 → 45 advanced-word occurrences (-93.5%). Eliminated entirely: subsection, stalemate, effective immediately, wholeheartedly, alibi, ovation, plot twist, technically, consecutive, improvised, satisfied, enormous, unstoppable, thorough, demanded, audience, rehearsed, venue. Regression test (400 stories ages 2-13): zero nulls, zero unresolved tokens.' },
   { v: 'v2.4.2', title: 'Cast introductions — the hamster no longer appears out of nowhere',
@@ -2927,6 +2929,12 @@ const TTSManager = (() => {
   let controller  = null;
   let wordTimings = null;
   let rafId       = null;
+  // v2.4.4 — auto-scroll state. The karaoke loop calls maybeAutoScroll(el) when a new
+  // word lights up; it scrolls only when the word is in the bottom 30% of the viewport
+  // and the user has not manually scrolled in the last 2.5s (so re-reading isn't fought).
+  let lastUserScrollAt = 0;
+  let lastAutoScrollAt = 0;
+  let scrollListenerInstalled = false;
 
   // ElevenLabs alignment is character-level. Convert to word-level by walking the TTS text
   // and pairing each word's first/last char with the alignment start/end times. Filter
@@ -2964,8 +2972,46 @@ const TTSManager = (() => {
     });
   }
 
+  // v2.4.4 — install a one-time scroll/touch/wheel listener that marks the user as
+  // "in control" for 2.5s so auto-scroll backs off while the user is re-reading.
+  // Auto-scroll moves the page itself, so a programmatic scroll fires the listener too;
+  // we filter those out by comparing against lastAutoScrollAt with a small grace window.
+  function installUserScrollListener() {
+    if (scrollListenerInstalled) return;
+    scrollListenerInstalled = true;
+    const onUserScroll = () => {
+      // Programmatic smooth-scroll fires "scroll" events too. If we triggered a scroll
+      // within the last 700ms (≈ smooth-scroll duration), treat this as our own scroll.
+      if (Date.now() - lastAutoScrollAt < 700) return;
+      lastUserScrollAt = Date.now();
+    };
+    // wheel + touchmove are real user intent. scroll alone fires from anything.
+    window.addEventListener('wheel',     onUserScroll, { passive: true });
+    window.addEventListener('touchmove', onUserScroll, { passive: true });
+  }
+
+  // v2.4.4 — when a new word lights up, scroll it into view if it's drifting off
+  // the bottom of the visible viewport. Centers the word so a few lines of upcoming
+  // text are visible (gives the reader/listener context).
+  function maybeAutoScroll(el) {
+    if (!el) return;
+    // Respect manual scrolls for 2.5s.
+    if (Date.now() - lastUserScrollAt < 2500) return;
+    const rect = el.getBoundingClientRect();
+    const vh   = window.innerHeight || document.documentElement.clientHeight;
+    // Scroll when the lit word is below 65% of the viewport (entering the bottom
+    // third) or has already gone off-screen below.
+    if (rect.bottom < vh * 0.65 && rect.top > 0) return;
+    lastAutoScrollAt = Date.now();
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
   function startKaraokeRAF() {
     stopKaraokeRAF();
+    installUserScrollListener();
+    // Reset manual-scroll state at the start of playback so the very first word can
+    // scroll into view if the user has scrolled the story off-screen before pressing Speak.
+    lastUserScrollAt = 0;
     let lastIdx = -1;
     // v1.19.1 — Defect Log "Read-aloud out of sync" fix.
     // Two improvements over the previous loop:
@@ -2994,7 +3040,12 @@ const TTSManager = (() => {
       }
       if (idx !== lastIdx) {
         if (lastIdx >= 0 && kwNodes[lastIdx]) kwNodes[lastIdx].classList.remove('is-lit');
-        if (idx     >= 0 && kwNodes[idx])     kwNodes[idx].classList.add('is-lit');
+        if (idx     >= 0 && kwNodes[idx]) {
+          kwNodes[idx].classList.add('is-lit');
+          // v2.4.4 — keep the current word visible. Only scrolls when it drifts to
+          // the bottom of the viewport AND the user hasn't manually scrolled recently.
+          maybeAutoScroll(kwNodes[idx]);
+        }
         lastIdx = idx;
       }
       rafId = requestAnimationFrame(tick);

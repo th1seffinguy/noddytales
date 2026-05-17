@@ -4,6 +4,34 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.4.4 — 2026-05-17
+**Karaoke auto-scroll — follow the read-aloud without manual scrolling**
+
+Playtest feedback: during Speak playback, the karaoke highlight rolls off the bottom of the screen and the reader has to manually scroll to keep following along. Now the page follows the spoken word automatically.
+
+### How it works
+
+The existing karaoke loop already calls `kwNodes[idx].classList.add('is-lit')` every time a new word lights up. We hook a `maybeAutoScroll()` call into that same moment:
+
+- Get the lit word's `getBoundingClientRect()`
+- If the word's bottom is in the bottom 35% of the viewport (or already off-screen below), scroll it into view with `scrollIntoView({ behavior: 'smooth', block: 'center' })`
+- If the word is comfortably visible above the threshold, do nothing
+
+The result: the spoken word stays near the middle of the screen, with a few lines of upcoming text visible below — so the reader can follow along without ever touching the screen.
+
+### Respects manual scroll
+
+A one-time `wheel` + `touchmove` listener marks the user as "in control" for 2.5 seconds whenever they manually scroll. During that window, auto-scroll backs off — so if the reader wants to scroll back up to re-read a sentence, they can. The auto-scroll resumes once they stop scrolling.
+
+Programmatic smooth-scrolls also fire scroll events, so we filter those by comparing against `lastAutoScrollAt` with a 700ms grace window (matches the smooth-scroll animation duration).
+
+### Files modified
+
+- `index.html` — TTSManager: added `lastUserScrollAt`, `lastAutoScrollAt`, `installUserScrollListener()`, `maybeAutoScroll()`. Karaoke `tick()` now calls `maybeAutoScroll(kwNodes[idx])` on word change.
+- `src/content.js` — `APP_VERSION` → `v2.4.4`
+
+---
+
 ## v2.4.3 — 2026-05-16
 **Reading-level recalibration — drop tween-vocab from kid+big tier**
 
