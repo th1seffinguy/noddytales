@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v2.4.2';
+const ENGINE_V2_VERSION = 'v2.4.3';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -1583,7 +1583,7 @@ const V2_BEATS = [
     ] },
   { id:'kd_object_1', beatType:'kid_decides', tiers:['kid','big'], requiredSlots:['kid','object','companion'],
     lines: [
-      '{kid.name} thought for a second, then produced {object.articleText} they had brought just in case. "Will this work?" asked {kid.name}. The {companion.text} considered it, then nodded once.',
+      '{kid.name} thought for a second, then pulled out {object.articleText} they had brought just in case. "Will this work?" asked {kid.name}. The {companion.text} looked at it, then nodded once.',
     ] },
   { id:'kd_move_1', beatType:'kid_decides', tiers:['kid','big'], requiredSlots:['kid','move'],
     lines: [
@@ -1648,46 +1648,49 @@ const V2_BEATS = [
       '{kid.name} had specifically saved the {food.text} at the {place.text}. Specifically. And now: gone. {kid.cap} did not love this development.',
     ] },
 
-  /* WRONG SUSPECT — creature looks guilty */
+  /* WRONG SUSPECT — creature looks guilty
+     v2.4.3 — "suspiciously innocent" → "WAY too innocent", "narrowed their eyes" → "stared". */
   { id:'ls_susp_1', beatType:'wrong_suspect', tiers:['kid','big'], requiredSlots:['kid','visitor','color'],
     lines: [
-      '{kid.name} spotted the {visitor.text} nearby, looking VERY innocent. Suspiciously innocent. There was a {color.text} crumb on its chin. Case closed.',
-      'The {visitor.text} was right there. The {visitor.text} had a {color.text} smudge on its face. {kid.name} narrowed their eyes. "It was you."',
+      '{kid.name} spotted the {visitor.text} nearby, looking VERY innocent. Way too innocent. There was a {color.text} crumb on its chin. Caught!',
+      'The {visitor.text} was right there. The {visitor.text} had a {color.text} smudge on its face. {kid.name} stared hard. "It was you."',
     ] },
   /* v2.4.2 — bridge the visitor's entrance so they don't pop in cold mid-paragraph. */
   { id:'ls_susp_2', beatType:'wrong_suspect', tiers:['kid','big'], requiredSlots:['kid','visitor','mood'],
     lines: [
-      'Right then {visitor.articleText} wandered into view, looking guilty. "I know what you did," {kid.name} said, feeling {mood.text} about it. The {visitor.text} stared. The {visitor.text} did not deny it. The {visitor.text} also did not confess. Suspicious!',
+      'Right then {visitor.articleText} wandered into view, looking guilty. "I know what you did," {kid.name} said, feeling {mood.text} about it. The {visitor.text} stared. The {visitor.text} did not say no. The {visitor.text} did not say yes either. Weird.',
     ] },
   { id:'ls_susp_tween', beatType:'wrong_suspect', tiers:['tween'], requiredSlots:['kid','visitor'],
     lines: [
       'The {visitor.text} was making strong eye contact. The kind of eye contact that says guilt, in {kid.name}\'s opinion. {kid.cap} kept their cool. Mostly.',
     ] },
 
-  /* KID INVESTIGATES — kid uses object to find the truth */
+  /* KID INVESTIGATES — kid uses object to find the truth
+     v2.4.3 — "thorough / examined the scene / alibi" → simpler detective language. */
   { id:'ls_inv_1', beatType:'kid_investigates', tiers:['kid','big'], requiredSlots:['kid','object','companion'],
     lines: [
-      '{kid.name} pulled out {object.articleText} and held it up like a detective. The {companion.text} watched. {kid.cap} followed the trail of crumbs. The trail did NOT lead to the {visitor.text}.',
-      'But {kid.name} was thorough. {kid.cap} pulled out {object.articleText} and examined the scene. Something did not add up. The {visitor.text}\'s alibi was suddenly suspicious in a different way.',
+      '{kid.name} pulled out {object.articleText} and held it up like a detective. The {companion.text} watched. {kid.cap} followed the trail of crumbs. The trail did NOT go to the {visitor.text}.',
+      'But {kid.name} was careful. {kid.cap} pulled out {object.articleText} and looked around the room. Something was off. The {visitor.text}\'s story didn\'t quite match up.',
     ] },
   { id:'ls_inv_2', beatType:'kid_investigates', tiers:['kid','big'], requiredSlots:['kid','object','move'],
     lines: [
-      '{kid.name} {move.text} around the room, holding {object.articleText} out for clues. The {object.text} pointed past the {visitor.text} entirely. It pointed at the cupboard.',
+      '{kid.name} {move.text} around the room, holding {object.articleText} out for clues. The {object.text} pointed past the {visitor.text} the whole time. It was pointing at the cupboard.',
     ] },
   { id:'ls_inv_tween', beatType:'kid_investigates', tiers:['tween'], requiredSlots:['kid','object'],
     lines: [
       '{kid.name} did some detective work. Specifically: looked at {object.articleText}, then at the room, then at the floor. The trail was, in fact, leading somewhere else entirely.',
     ] },
 
-  /* TRUE CULPRIT — companion is the actual culprit, twist reveal */
+  /* TRUE CULPRIT — companion is the actual culprit, twist reveal
+     v2.4.3 — "plot twist / demanded an apology" → simpler reveal. */
   { id:'ls_cul_1', beatType:'true_culprit', tiers:['kid','big'], requiredSlots:['kid','food','companion'],
     lines: [
-      'Then {kid.name} saw it: a single {food.text} crumb on the {companion.text}\'s whiskers. "YOU?" said {kid.name}. The {companion.text} looked away politely. Mystery solved.',
-      'The truth came out: the {companion.text} had been the {food.text} thief all along. The {companion.text} was very sorry. The {companion.text} also wanted more {food.text}. Both things were true.',
+      'Then {kid.name} saw it: a single {food.text} crumb on the {companion.text}\'s face. "YOU?" said {kid.name}. The {companion.text} looked away, super shy. Mystery solved!',
+      'The truth came out: the {companion.text} had taken the {food.text} the whole time. The {companion.text} was very sorry. The {companion.text} also wanted more {food.text}. Both things were true.',
     ] },
   { id:'ls_cul_2', beatType:'true_culprit', tiers:['kid','big'], requiredSlots:['kid','companion','food','visitor'],
     lines: [
-      'Plot twist: it was the {companion.text}. The {visitor.text} had been framed. The {visitor.text} demanded an apology. {kid.name} gave one. Everyone agreed to share the next {food.text}.',
+      'Wait, WHAT? It was the {companion.text} the whole time. The {visitor.text} had not done it. The {visitor.text} wanted a sorry. {kid.name} said sorry. Then everyone shared the next {food.text}.',
     ] },
   { id:'ls_cul_tween', beatType:'true_culprit', tiers:['tween'], requiredSlots:['kid','companion','food'],
     lines: [
@@ -1701,27 +1704,31 @@ const V2_BEATS = [
      freeword (the chant/cry that saves the show), companion (co-star)
      ============================================================ */
 
-  /* SHOW SETUP */
+  /* SHOW SETUP
+     v2.4.3 — simpler vocab (audience→crowd, announced→said, wholeheartedly→too,
+     rehearsed→practiced). */
   { id:'sw_set_1', beatType:'show_setup', tiers:['kid','big'], requiredSlots:['kid','place','companion'],
     lines: [
-      'There was going to be a show. {kid.name} had been planning it for days. The {companion.text} was the co-star. The stage was the {place.text}. The audience was three pillows and a confused {visitor.text}.',
-      '"This is going to be the greatest show," {kid.name} announced at the {place.text}. The {companion.text} agreed wholeheartedly. They had rehearsed. They were ready.',
+      'There was going to be a show. {kid.name} had been planning it for days. The {companion.text} was the co-star. The stage was the {place.text}. The crowd was three pillows and one very confused {visitor.text}.',
+      '"This is going to be the BEST show ever," {kid.name} said at the {place.text}. The {companion.text} agreed. They had practiced. They were ready.',
     ] },
+  /* v2.4.3 — replaced "venue" with "stage". */
   /* v2.4.2 — introduce companion in P1 so its later "co-star" role lands. */
   { id:'sw_set_2', beatType:'show_setup', tiers:['kid','big'], requiredSlots:['kid','object','place','companion'],
     lines: [
-      'The {place.text} was the venue. {kid.name} had brought {object.articleText} as a prop and the {companion.text} as the co-star. The whole show kind of depended on the {object.text} working. The {object.text} had better work.',
+      'The {place.text} was the stage. {kid.name} had brought {object.articleText} as a prop and the {companion.text} as the co-star. The whole show kind of depended on the {object.text} working. The {object.text} had better work.',
     ] },
   { id:'sw_set_tween', beatType:'show_setup', tiers:['tween'], requiredSlots:['kid','place'],
     lines: [
       '{kid.name} had a whole bit planned at the {place.text}. Nobody had asked for the bit. {kid.cap} was doing it anyway.',
     ] },
 
-  /* SHOW DISASTER — chosen object/picks fail */
+  /* SHOW DISASTER — chosen object/picks fail
+     v2.4.3 — "audience" → "pillows" (already named earlier in story). */
   { id:'sw_dis_1', beatType:'show_disaster', tiers:['kid','big'], requiredSlots:['kid','object'],
     lines: [
       'Then everything went wrong. The {object.text} broke. Actually broke. In half. {kid.name} froze. The pillows watched.',
-      'Disaster: the {object.text} fell. Right in the middle of the act. {kid.name} stared at the {object.text}, then at the audience, then at the {object.text} again.',
+      'Big problem: the {object.text} fell. Right in the middle of the show. {kid.name} stared at the {object.text}, then at the pillows, then at the {object.text} again.',
     ] },
   { id:'sw_dis_2', beatType:'show_disaster', tiers:['kid','big'], requiredSlots:['kid','companion'],
     lines: [
@@ -1732,30 +1739,33 @@ const V2_BEATS = [
       'Of course, the {object.text} broke. Of course. {kid.name} stood there with half a {object.text} and a decision to make.',
     ] },
 
-  /* KID IMPROVISES — uses freeword/move */
+  /* KID IMPROVISES — uses freeword/move
+     v2.4.3 — "improvised → made it up", "audience → pillows", "rehearsed → practiced",
+     "inventing → making up". */
   { id:'sw_imp_1', beatType:'kid_improvises', tiers:['kid','big'], requiredSlots:['kid','freeword2','move'],
     lines: [
-      'So {kid.name} improvised. "{freeword2.text}!" {kid.name} yelled. Then {move.text}. Then yelled "{freeword2.text}!" again, louder. The pillows were INTO IT now.',
-      '{kid.name} took a breath, {move.text} forward, and shouted whatever came to mind: "{freeword2.text}!" The audience leaned in. Sometimes nonsense lands.',
+      'So {kid.name} made it up. "{freeword2.text}!" {kid.name} yelled. Then {move.text}. Then yelled "{freeword2.text}!" again, louder. The pillows were INTO IT now.',
+      '{kid.name} took a breath, {move.text} forward, and yelled whatever came to mind: "{freeword2.text}!" The pillows leaned in. Sometimes silly stuff works.',
     ] },
   { id:'sw_imp_2', beatType:'kid_improvises', tiers:['kid','big'], requiredSlots:['kid','move','companion'],
     lines: [
-      '{kid.name} {move.text} across the stage in a way that nobody had rehearsed. The {companion.text} watched, then joined in. They were inventing the show now. It was somehow working.',
+      '{kid.name} {move.text} across the stage in a way that nobody had practiced. The {companion.text} watched, then joined in. They were making the show up as they went. And somehow it was working.',
     ] },
   { id:'sw_imp_tween', beatType:'kid_improvises', tiers:['tween'], requiredSlots:['kid','freeword2'],
     lines: [
       '{kid.name} just went for it. "{freeword2.text}," {kid.name} declared, with conviction. It was not in the script. {kid.cap} sold it anyway.',
     ] },
 
-  /* SHOW TRIUMPH */
+  /* SHOW TRIUMPH
+     v2.4.3 — "triumph" → "huge hit", "standing ovation" → "huge clap", drop "impressive". */
   { id:'sw_tri_1', beatType:'show_triumph', tiers:['kid','big'], requiredSlots:['kid','place','companion'],
     lines: [
       'The pillows went wild. The confused {visitor.text} clapped a tiny clap. The {companion.text} took a bow. {kid.name} took a bigger bow. The {place.text} had never seen a better show.',
-      'It was a triumph. A real one. {kid.name} and the {companion.text} got a standing ovation, which was impressive given that pillows can\'t stand. Best show the {place.text} had ever hosted.',
+      'It was a huge hit. A real one. {kid.name} and the {companion.text} got a huge clap, which was pretty cool because pillows do not even have hands. Best show the {place.text} had ever had.',
     ] },
   { id:'sw_tri_2', beatType:'show_triumph', tiers:['kid','big'], requiredSlots:['kid','freeword2'],
     lines: [
-      'And from that day on, "{freeword2.text}" was the official phrase of the show. Everyone said it. Everyone meant it. Nobody knew what it meant.',
+      'And from that day on, "{freeword2.text}" was the special word of the show. Everyone said it. Everyone meant it. Nobody knew what it meant.',
     ] },
   { id:'sw_tri_tween', beatType:'show_triumph', tiers:['tween'], requiredSlots:['kid'],
     lines: [
@@ -1769,60 +1779,65 @@ const V2_BEATS = [
      move (the kid's escape), rule (the actual rule text), place
      ============================================================ */
 
-  /* RULE IMPOSED — visitor states an absurd rule */
+  /* RULE IMPOSED — visitor states an absurd rule
+     v2.4.3 — simpler vocab for kid+big readers (no "officially / announced /
+     effective immediately"). Tween-tier variants keep richer wording below. */
   { id:'rl_imp_1', beatType:'rule_imposed', tiers:['kid','big'], requiredSlots:['kid','visitor','rule','place'],
     lines: [
-      'At the {place.text}, {visitor.TheText} cleared their throat officially. "By order of the rule," {visitor.theText} announced, "{rule.text}. Effective immediately." {kid.name} had not heard of this rule before. The rule did not care.',
-      'A rule arrived at the {place.text}. {visitor.TheText} delivered it. "{rule.text}," it said, like that explained everything. It did not. But the rule was now in effect.',
+      'At the {place.text}, {visitor.TheText} held up one hand. "New rule," {visitor.theText} said, "{rule.text}. Starting right now." {kid.name} had never heard of this rule. The rule did not care.',
+      'A new rule showed up at the {place.text}. {visitor.TheText} brought it. "{rule.text}," {visitor.theText} said, like that explained everything. It did not. But the rule was a rule now.',
     ] },
   { id:'rl_imp_2', beatType:'rule_imposed', tiers:['kid','big'], requiredSlots:['kid','visitor','place'],
     lines: [
-      'At the {place.text}, {visitor.theText} put up a sign. A very official sign. The sign listed a rule {kid.name} had definitely not signed up for.',
+      'At the {place.text}, {visitor.theText} put up a big sign. The sign had a rule on it. {kid.name} had not agreed to this rule. Nobody had asked {kid.name}.',
     ] },
   { id:'rl_imp_tween', beatType:'rule_imposed', tiers:['tween'], requiredSlots:['kid','visitor','rule','place'],
     lines: [
       'At the {place.text}, {visitor.theText} explained, with full bureaucratic confidence, that the rule was now: "{rule.text}." {kid.name} did not look impressed. {kid.cap} also did not argue. Arguing rules is a trap.',
     ] },
 
-  /* RULE BLOCKS — kid wants to do something, rule prevents */
+  /* RULE BLOCKS — kid wants to do something, rule prevents
+     v2.4.3 — simpler vocab (no "technically / stalemate / consider their options"). */
   { id:'rl_blk_1', beatType:'rule_blocks', tiers:['kid','big'], requiredSlots:['kid','food','visitor'],
     lines: [
-      '{kid.name} reached for the {food.text}. {visitor.TheText} held up a hand. "Rule," {visitor.theText} reminded. {kid.name} froze, hand mid-reach. This was, technically, a stalemate.',
-      'The rule meant {kid.name} could not have the {food.text}. The {food.text} was right there. {kid.name} could see the {food.text}. The {food.text} was still off-limits. Cruel.',
+      '{kid.name} reached for the {food.text}. {visitor.TheText} held up a hand. "Rule," {visitor.theText} said. {kid.name} froze, hand still in the air. Now what?',
+      'The rule meant {kid.name} could not have the {food.text}. The {food.text} was right there. {kid.name} could see it. {kid.cap} could not eat it. Not fair.',
     ] },
   { id:'rl_blk_2', beatType:'rule_blocks', tiers:['kid','big'], requiredSlots:['kid','place'],
     lines: [
-      'Worse: the rule applied at the {place.text} too. {kid.name} could not go forward. Could not go back. Could only stand there and consider their options. The options, currently, were zero.',
+      'Worse: the rule worked at the {place.text} too. {kid.name} could not go forward. Could not go back. Could only stand there and think. There was nothing to do.',
     ] },
   { id:'rl_blk_tween', beatType:'rule_blocks', tiers:['tween'], requiredSlots:['kid'],
     lines: [
       'So {kid.name} was officially stuck. Rule-stuck. {kid.cap} considered defying it. {kid.cap} considered crying. {kid.cap} considered loopholes.',
     ] },
 
-  /* KID FINDS LOOPHOLE — chosen object is the loophole */
+  /* KID FINDS LOOPHOLE — chosen object is the loophole
+     v2.4.3 — replaced "Subsection seven" / "technically" with plain language. */
   { id:'rl_lp_1', beatType:'kid_finds_loophole', tiers:['kid','big'], requiredSlots:['kid','object','visitor'],
     lines: [
-      'Then {kid.name} smiled. {kid.cap} held up {object.articleText}. "The rule does not say anything about {object.text}," {kid.name} pointed out. {visitor.TheText} squinted. {visitor.TheText} could not argue that.',
-      '"Wait." {kid.name} held {object.articleText} up. "Subsection seven mentions {object.text}, doesn\'t it?" It did not. But {visitor.theText} did not want to look like {visitor.theText} did not know the rules. {visitor.TheText} nodded slowly.',
+      'Then {kid.name} smiled. {kid.cap} held up {object.articleText}. "The rule does not say anything about {object.text}," {kid.name} said. {visitor.TheText} squinted. {visitor.TheText} could not argue with that.',
+      '"Wait." {kid.name} held {object.articleText} up. "Rule number seven says I can use {object.articleText}, right?" It did not. But {visitor.theText} did not want to look like {visitor.theText} had forgotten the rules. {visitor.TheText} nodded slowly.',
     ] },
   { id:'rl_lp_2', beatType:'kid_finds_loophole', tiers:['kid','big'], requiredSlots:['kid','move','object'],
     lines: [
-      '{kid.name} {move.text} sideways while holding {object.articleText}. Technically, this was a different action than the one the rule banned. Technically. {visitor.TheText} watched, suspicious. The rule held its tongue.',
+      '{kid.name} {move.text} sideways while holding {object.articleText}. This was a different move than the one the rule said no to. A different move! {visitor.TheText} watched, eyes narrow. The rule said nothing back.',
     ] },
   { id:'rl_lp_tween', beatType:'kid_finds_loophole', tiers:['tween'], requiredSlots:['kid','object'],
     lines: [
       '{kid.name} located the loophole. It involved {object.articleText} and a very specific reading of the rule. {visitor.TheText} could not technically object. {kid.cap} did not point this out. Pointing it out is rookie behavior.',
     ] },
 
-  /* LOOPHOLE WORKS */
+  /* LOOPHOLE WORKS
+     v2.4.3 — simpler vocab (no "in effect / precedent"). */
   { id:'rl_win_1', beatType:'loophole_works', tiers:['kid','big'], requiredSlots:['kid','food','visitor'],
     lines: [
-      'And just like that, {kid.name} got the {food.text} anyway. {visitor.TheText} sighed. Rules with loopholes are still rules, technically. {kid.name} ate the {food.text} with both hands.',
-      'It worked. {kid.name} won. The rule was still in effect. The {food.text} was also, somehow, in {kid.name}\'s mouth. Both things were now true at once.',
+      'And just like that, {kid.name} got the {food.text} anyway. {visitor.TheText} sighed. The rule was still a rule, but {kid.name} had won this round. {kid.cap} ate the {food.text} with both hands.',
+      'It worked. {kid.name} won. The rule was still there. The {food.text} was also, somehow, in {kid.name}\'s mouth. Both things were true at the same time.',
     ] },
   { id:'rl_win_2', beatType:'loophole_works', tiers:['kid','big'], requiredSlots:['kid','companion'],
     lines: [
-      'The {companion.text} watched the loophole work and looked impressed. The {companion.text} would be doing this trick later, probably. {kid.name} had set a precedent.',
+      'The {companion.text} watched the trick work and looked impressed. The {companion.text} was going to try this later. {kid.name} had taught the {companion.text} something brand new.',
     ] },
   { id:'rl_win_tween', beatType:'loophole_works', tiers:['tween'], requiredSlots:['kid','visitor'],
     lines: [
@@ -1845,7 +1860,7 @@ const V2_BEATS = [
     ] },
   { id:'pl_phys_2', beatType:'punchline', tiers:['kid','big'], requiredSlots:['companion','food'],
     lines: [
-      'Then the {companion.text} hiccuped and one entire {food.text} popped out of its mouth, fully intact, like it had been parking there. The {companion.text} looked just as surprised as everyone else.',
+      'Then the {companion.text} hiccuped and one whole {food.text} popped right out of its mouth, all in one piece, like it had been hiding in there. The {companion.text} looked just as shocked as everyone else.',
     ] },
   { id:'pl_phys_3', beatType:'punchline', tiers:['kid','big'], requiredSlots:['companion','food','sound'],
     lines: [
@@ -1855,7 +1870,7 @@ const V2_BEATS = [
   /* --- SCALE VIOLATIONS with OBJECT --- */
   { id:'pl_scale_1', beatType:'punchline', tiers:['kid','big'], requiredSlots:['object','sound'],
     lines: [
-      'Then the {object.text} did one tiny "{sound.text}." Then a much bigger "{sound.text}." Then the biggest "{sound.text}" ever recorded. Then it just sat there, satisfied.',
+      'Then the {object.text} did one tiny "{sound.text}." Then a much bigger "{sound.text}." Then the biggest "{sound.text}" ever. Then it just sat there, like nothing had happened.',
     ] },
   { id:'pl_scale_2', beatType:'punchline', tiers:['kid','big'], requiredSlots:['object'],
     lines: [
@@ -1863,7 +1878,7 @@ const V2_BEATS = [
     ] },
   { id:'pl_scale_3', beatType:'punchline', tiers:['kid','big'], requiredSlots:['object','number'],
     lines: [
-      'Then the {object.text} split into {number.text} smaller {object.plural}, and every single one of them looked offended. {number.cap} offended {object.plural}. That was the situation now.',
+      'Then the {object.text} split into {number.text} smaller {object.plural}, and every single one of them looked mad. {number.cap} mad little {object.plural}. That was the situation now.',
     ] },
 
   /* --- LOUD NONSENSE with SOUND/FREEWORD --- */
@@ -1877,13 +1892,13 @@ const V2_BEATS = [
     ] },
   { id:'pl_loud_3', beatType:'punchline', tiers:['kid','big'], requiredSlots:['sound','companion','number'],
     lines: [
-      'The {companion.text} let out {number.text} consecutive "{sound.text}" noises. {number.cap} of them. In a row. With increasing confidence each time.',
+      'The {companion.text} let out {number.text} "{sound.text}" noises in a row. {number.cap} of them. Each one a little louder than the last.',
     ] },
 
   /* --- WRONG-SIZED THINGS with VISITOR --- */
   { id:'pl_wrong_1', beatType:'punchline', tiers:['kid','big'], requiredSlots:['visitor','food'],
     lines: [
-      'Then the {visitor.text} produced one enormous {food.text}. Way too big to fit anywhere. Bigger than the {visitor.text}, even. Nobody knew where it had come from. The {visitor.text} also did not seem to know.',
+      'Then the {visitor.text} pulled out one HUGE {food.text}. Way too big to fit anywhere. Bigger than the {visitor.text}, even. Nobody knew where it had come from. The {visitor.text} did not know either.',
     ] },
   { id:'pl_wrong_2', beatType:'punchline', tiers:['kid','big'], requiredSlots:['visitor','object'],
     lines: [
@@ -1891,7 +1906,7 @@ const V2_BEATS = [
     ] },
   { id:'pl_wrong_3', beatType:'punchline', tiers:['kid','big'], requiredSlots:['visitor','sound'],
     lines: [
-      'And then the {visitor.text} burped. Not a small burp. A "{sound.text}" burp. A burp that should require a permit. {kid.name} clapped. It seemed rude not to.',
+      'And then the {visitor.text} burped. Not a small burp. A "{sound.text}" burp. A burp that should be against the rules. {kid.name} clapped. It would have been rude not to.',
     ] },
 
   /* --- SUDDENLY X (non-sequitur reversal) --- */
@@ -1901,7 +1916,7 @@ const V2_BEATS = [
     ] },
   { id:'pl_sudden_2', beatType:'punchline', tiers:['kid','big'], requiredSlots:['number','companion'],
     lines: [
-      'And then, from absolutely nowhere, {number.text} more {companion.plural} showed up. All identical. All carrying tiny hats. Nobody asked. Nobody answered.',
+      'And then, out of nowhere, {number.text} more {companion.plural} showed up. All exactly the same. All wearing tiny hats. Nobody asked. Nobody answered.',
     ] },
   { id:'pl_sudden_3', beatType:'punchline', tiers:['kid','big'], requiredSlots:['object','sound'],
     lines: [
@@ -1925,7 +1940,7 @@ const V2_BEATS = [
     ] },
   { id:'pl_show_2', beatType:'punchline', tiers:['kid','big'], requiredSlots:['move','freeword2'],
     lines: [
-      'So {kid.name} {move.text} one more time, yelled "{freeword2.text}!" so loud the walls flinched, and ended in a pose nobody had ever seen before. A new pose. {kid.cap} had invented it on the spot.',
+      'So {kid.name} {move.text} one more time, yelled "{freeword2.text}!" so loud the walls jumped, and ended in a pose nobody had ever seen before. A new pose. {kid.cap} had just made it up.',
     ] },
 
   /* --- BLUEPRINT-FRIENDLY: rule_loophole-flavored (rule visitor undone) --- */
@@ -1935,13 +1950,13 @@ const V2_BEATS = [
     ] },
   { id:'pl_rule_2', beatType:'punchline', tiers:['kid','big'], requiredSlots:['visitor','food'],
     lines: [
-      'The {visitor.text} tried one more rule. The new rule was about {food.plural}. Then a {food.text} flew through the window and hit {visitor.theText} on the head. The rule retired immediately.',
+      'The {visitor.text} tried one more rule. The new rule was about {food.plural}. Then a {food.text} flew through the window and hit {visitor.theText} on the head. That was the end of the rules.',
     ] },
 
   /* --- KID-OWN-BODY GAGS (no companion required) --- */
   { id:'pl_kid_1', beatType:'punchline', tiers:['kid','big'], requiredSlots:['kid','sound'],
     lines: [
-      'And then {kid.name} did one enormous laugh. Like, the kind of laugh that bends you in half. "{sound.text}!" {kid.name} kept saying. "{sound.text}!" It was unstoppable now. It was the law.',
+      'And then {kid.name} did one HUGE laugh. Like, the kind of laugh that bends you in half. "{sound.text}!" {kid.name} kept saying. "{sound.text}!" {kid.cap} could not stop. It was the law now.',
     ] },
   { id:'pl_kid_2', beatType:'punchline', tiers:['kid','big'], requiredSlots:['kid','move','object'],
     lines: [
@@ -2280,7 +2295,7 @@ function generateStoryV2(name, picks, age) {
         ? [' {kid.cap} pulled out {food.articleText} they had saved. Just in time.']
         : tier === 'tween'
           ? [' Eventually somebody mentioned {food.articleText}. That changed things.']
-          : [' Eventually, {kid.name} got around to the {food.text} they had been saving for exactly this moment.', ' Somebody finally produced {food.articleText}. The room shifted.'],
+          : [' Eventually, {kid.name} got around to the {food.text} they had been saving for exactly this moment.', ' Somebody finally pulled out {food.articleText}. Everyone perked up.'],
     place: [' The {place.text} hummed around them like it was in on the joke.', ' The {place.text} watched it all happen and said nothing.'],
     /* v2.4.2 — visitor callbacks now BRIDGE the entrance ("walked up", "showed up",
        "appeared") so the visitor doesn't pop into mid-paragraph as if they had always

@@ -4,6 +4,96 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.4.3 — 2026-05-16
+**Reading-level recalibration — drop tween-vocab from kid+big tier**
+
+Playtest feedback from a 10-year-old: *"the content is too mature for their reading level. Words are high vocabulary."* Vocabulary audit of 200 big-tier stories flagged **32 distinct advanced words appearing 690 times** — including "subsection," "stalemate," "wholeheartedly," "alibi," "plot twist," "ovation," "technically," "consecutive," "improvised." This was tween-level (11-13) language leaking into the kid+big shared beat content.
+
+### The vocab calibration error
+
+Beats tagged `tiers:['kid','big']` were authored assuming a sophisticated reader. But the actual audience is 6-10. Tween-tier (11-13) beats should keep their richer language; the shared kid+big content needs plain-language alternatives.
+
+### What changed
+
+**Rewrote the four blueprints' kid+big beats** to use plain language while preserving the comedy structure:
+
+| Tier-inappropriate | Replaced with |
+|---|---|
+| *"This was, technically, a stalemate."* | *"Now what?"* |
+| *"Subsection seven mentions {object}, doesn't it?"* | *"Rule number seven says I can use {object}, right?"* |
+| *"Rules with loopholes are still rules, technically."* | *"The rule was still a rule, but {kid} had won this round."* |
+| *"{kid} narrowed their eyes."* | *"{kid} stared hard."* |
+| *"Plot twist: it was the {companion}."* | *"Wait, WHAT? It was the {companion} the whole time."* |
+| *"{visitor} demanded an apology."* | *"{visitor} wanted a sorry."* |
+| *"{visitor} produced {number} alibis."* | (deprecated — beat was dead code) |
+| *"Standing ovation"* | *"huge clap"* |
+| *"{kid} improvised. The audience leaned in."* | *"{kid} made it up. The pillows leaned in."* |
+| *"The {place} was the venue."* | *"The {place} was the stage."* |
+| *"officially / effective immediately / Announced"* | *"out loud / starting right now / said"* |
+| *"composed seven different texts"* | (tween-only beat, kept) |
+| *"By order of the rule, announced {visitor}, effective immediately."* | *"New rule, said {visitor}, starting right now."* |
+| *"satisfied"* | *"like nothing had happened"* |
+| *"unstoppable now. It was the law."* | *"{kid} could not stop. It was the law now."* |
+| *"every single one of them looked offended"* | *"every single one of them looked mad"* |
+| *"{number} consecutive {sound} noises"* | *"{number} {sound} noises in a row"* |
+| *"from absolutely nowhere"* | *"out of nowhere"* |
+| *"All identical"* | *"All exactly the same"* |
+| *"set a precedent"* | *"taught the companion something brand new"* |
+| *"invented it on the spot"* | *"just made it up"* |
+| *"thorough / examined the scene"* | *"careful / looked around the room"* |
+| *"alibi was suddenly suspicious in a different way"* | *"story didn't quite match up"* |
+| *"produced one enormous {food}"* | *"pulled out one HUGE {food}"* |
+| *"a burp that should require a permit"* | *"a burp that should be against the rules"* |
+| *"fully intact"* | *"all in one piece"* |
+| *"ever recorded"* | *"ever"* |
+
+### Beats rewritten
+
+- `rl_imp_1`, `rl_imp_2`, `rl_blk_1`, `rl_blk_2`, `rl_lp_1`, `rl_lp_2`, `rl_win_1`, `rl_win_2` (rule_loophole)
+- `sw_set_1`, `sw_set_2`, `sw_dis_1`, `sw_imp_1`, `sw_imp_2`, `sw_tri_1`, `sw_tri_2` (show_wrong)
+- `ls_susp_1`, `ls_susp_2`, `ls_inv_1`, `ls_inv_2`, `ls_cul_1`, `ls_cul_2` (lost_snack)
+- `kd_object_1` (goal_spine — "produced" → "pulled out")
+- 10 punchline beats (pl_phys_2, pl_scale_1, pl_scale_3, pl_loud_3, pl_wrong_1, pl_wrong_3, pl_sudden_2, pl_kid_1, pl_show_2, pl_rule_2)
+- Coverage callback for food ("produced" → "pulled out")
+
+### Tween tier (ages 11-13) — untouched
+
+Tween-only beats (`tiers:['tween']`) keep their sophisticated vocabulary by design. "Specifically," "objective," "committed to it," "ironic," "iconic," "developed seven different texts and sent none" — these continue to fire for 11-13 year olds where they belong.
+
+### Audit result
+
+| Metric | v2.4.2 | v2.4.3 |
+|---|---|---|
+| Advanced words in big-tier (200 stories) | **690 occurrences** | **45 occurrences** |
+| Distinct flagged words | 32 | 6 (mostly word-pool, not beat content) |
+| Eliminated entirely | — | subsection, stalemate, effective immediately, wholeheartedly, alibi, ovation, plot twist, technically, consecutive, narrowed, improvised, satisfied, recorded, enormous, unstoppable, thorough, demanded, audience, rehearsed, inventing, suspiciously, venue, produced (in beats) |
+
+### Sample (rule_loophole, age 9, picks: dog/pizza/park/dragon/jumped/WHOOSH)
+
+> P1: *A new rule showed up at the meadow. The robot brought it. "every cart needs a captain," the robot said, like that explained everything. It did not. But the rule was a rule now.*
+> P2: *Cole reached for the pizza. The robot held up a hand. "Rule," the robot said. Cole froze, hand still in the air. Now what?*
+> P3: *Then Cole smiled. Cole held up a lunch tray. "The rule does not say anything about lunch tray," Cole said. The robot squinted. The robot could not argue with that.*
+> P4: *It worked. Cole won. The rule was still there. The pizza was also, somehow, in Cole's mouth. Both things were true at the same time.*
+> P5: *Then the robot pulled out one HUGE pizza. Way too big to fit anywhere. Bigger than the robot, even. Nobody knew where it had come from. The robot did not know either.*
+> P6: *Back home, Cole replayed it in their head: how they sang the loudest song, how the raccoon had been right there, how it had all worked out.*
+
+Same blueprint structure, same punchline, but every sentence now uses plain words a 4th grader can read aloud.
+
+### Regression (400 stories, ages 2-13)
+
+| Metric | Result |
+|---|---|
+| Null returns | 0/400 ✓ |
+| Unresolved `{slot}` tokens | 0/400 ✓ |
+| Wrong paragraph count (kid+) | 0 ✓ |
+
+### Files modified
+
+- `src/engine-v2.js` — `ENGINE_V2_VERSION` → `v2.4.3`; ~30 beats rewritten across 4 blueprints + punchlines; food callback simplified
+- `src/content.js` — `APP_VERSION` → `v2.4.3`
+
+---
+
 ## v2.4.2 — 2026-05-16
 **Cast introductions — fix the "hamster appears out of nowhere" bug**
 
