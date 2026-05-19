@@ -4,6 +4,71 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.4.5 — 2026-05-17
+**Story Test Log defect closure — v1 tot tier fallback hardening**
+
+Story Test Log audit (entries 001–006, May 2026 playtest with Cole age 2-5) confirmed three v1 tot defects were still open in the fallback engine: Entry 004 (BOING repetition cap + "ate banana" plural grammar), Entry 005 (hardcoded `"Skies don't usually do that!"` filler + recyclable template skeleton), Entry 006 (`"Then they went rolled, rolled, and one more time rolled!"` verb-noun POS conflict). v2 engine has been the live default since v2.0.0 and already addresses these structurally; this release sterilizes the v1 fallback so the same bugs cannot fire when `?engine=v1` is set or v2 returns null.
+
+### Rules derived from prior Goofy Shorts fixes
+
+Distilled from v1.18.0 (kid Goofy Shorts) + v1.19.0 (Little Edition) + the v2 engine causality work:
+
+1. **Escalation structure.** 3- or 4-beat arc: silly setup → escalating problem → absurd resolution + callback. No event listing. Each beat references the prior.
+2. **Word repetition cap.** User-selected word ≤3× tot/little, ≤4× kid+. Chant freewords get a 2–3× allowance; hardcoded onomatopoeia ("BOING", "BOOP") follow the same cap.
+3. **Part-of-speech slot discipline.** Past-tense MOV pool ("rolled", "ran", "spun") only slots where the sentence treats it as the main verb. Use `MOV_BASE` for infinitive positions ("loved to hop"), `MOV_GERUND` for "set off X-ing" patterns. FOOD uses `articleText` or `the` for grammatical singular/plural agnosticism.
+4. **Punchline placement.** Funniest image lands in the final paragraph as a callback to the central image, not buried mid-story.
+5. **Name integration.** `[name:${N}]` appears in every paragraph for tot/little (kid is subject, not witness). No phantom secondary names.
+6. **Hardcoded phrase policy.** Zero hardcoded full-sentence reactions that repeat verbatim across templates. Interjections OK; reactions forbidden.
+
+### Templates rewritten (v1 tot fallback only — kid tier already passes)
+
+**#1 Rainbow Duck** — fixes Entry 006. Was:
+```
+Then they went [c:${MOV}], [c:${MOV}], and one more time [c:${MOV}]!
+```
+With MOV=`rolled` this produced *"Then they went rolled, rolled, and one more time rolled!"* exactly. Now MOV slots as the main verb of its sentence:
+```
+Then they [c:${MOV}] home together. The [c:${PET}] was still chewing BACKWARD.
+```
+The closer also callbacks the central "ate BACKWARD" reversal instead of stacking MOV three times.
+
+**#3 Loud FOOD** — fixes Rule 2 + Rule 4. BOOP appeared 6+ times in a flat repetition. Now appears 5 times across a real escalation arc (one BOOP → echo → three-in-a-row → final tiny "boop" whisper) with a callback punchline.
+
+**#5 Bouncing SKY** — fixes Entries 004 + 005. Was:
+```
+The [c:${SKY}] went BOING! Then BOING! BOING! BOING!
+[name:${N}] looked up and said, "WHOA! Skies don't usually do that!"
+[…]
+BOING — [c:${MOV}] — BOING — [c:${MOV}] — BOING — clap!
+They ate [y:${FOOD}] between bounces…
+```
+3 separate violations: BOING density (7×), hardcoded "Skies don't usually do that!", bare-singular `ate [FOOD]`. Now: BOING capped at 3 with escalation arc (BOING BOING → MOV in time → ONE BIG BOING → No more BOING), no hardcoded reaction line, `shared a piece of [FOOD]` reads naturally regardless of food noun.
+
+**#8 Mystery Bonk** — fixes Rule 3 plural. *"I throw [c:${FOOD}]!"* with FOOD=`banana` produced *"I throw banana!"* (ungrammatical). Now: *"I throw the [c:${FOOD}]!"* → *"I throw the banana!"* (natural).
+
+### Templates left alone (already passing)
+
+v1 tot: #2 (Pet Day), #4 (Upside-Down), #6 (Wrong Words), #7 (Big Sneeze).
+v1 little (8 templates, all post-v1.19.0 Goofy Shorts).
+v1 kid (11 templates, all post-v1.18.0 Goofy Shorts).
+All v2 beat cards (v2.4.0–v2.4.3 already hardened).
+
+### Regression check (4 templates × 3 stress-test pick sets)
+
+| Bug pattern | Pre-v2.4.5 | Post-v2.4.5 |
+|---|---|---|
+| Double-verb ("went rolled", "went jumped", etc.) | Fires every Template #1 with verb MOV | **Eliminated** |
+| Hardcoded `"Skies don't usually do that!"` | Verbatim in every Template #5 story | **Removed** |
+| BOING/BOOP density unbounded | 6–7× per story | **Capped at ≤4** with escalation arc |
+| Bare-singular FOOD grammar ("ate banana") | Fires with singular foods | **Fixed via `the [FOOD]` and `a piece of [FOOD]`** |
+
+### Files modified
+
+- `index.html` — tot templates #1, #3, #5, #8 rewritten with rule-compliant structure
+- `src/content.js` — `APP_VERSION` → `v2.4.5`
+
+---
+
 ## v2.4.4 — 2026-05-17
 **Karaoke auto-scroll — follow the read-aloud without manual scrolling**
 
