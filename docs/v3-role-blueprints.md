@@ -1,22 +1,26 @@
 # v3 Role-Based Story Blueprints — Design + Implementation Notes
 
-**Status:** v2.5.0 ships the first working runtime behind `?engine=v3`. v2 remains default.
-**Authors:** v2.4.7 planning pass, v2.5.0 first runtime.
+**Status:** v2.6.x ships **all four v3 blueprints** behind `?engine=v3`. v2 remains default; v3 is opt-in. v3 returns null for tot (ages 2-3) and little (ages 4-5); router falls back to v2.
+**Authors:** v2.4.7 planning pass, v2.5.0 first runtime, v2.6.0 blueprint expansion, v2.6.1 QA patch.
 **Predecessor:** v2.3.x blueprints (`goal_spine`, `lost_snack`, `show_wrong`, `rule_loophole`) which proved that *causality* (chosen words drive plot) beats *coverage* (chosen words sprinkled in).
 
-## v2.5.0 implementation summary (what shipped vs. the original design)
+## Current implementation summary (v2.6.1)
 
-| Design element | v2.5.0 status | Notes |
+| Design element | Status | Notes |
 |---|---|---|
-| `V3_BLUEPRINTS` declarative registry | ✓ shipped | One entry: `lost_snack_v3`. Future builds add `goal_spine_v3`, `show_wrong_v3`, `rule_loophole_v3`. |
-| `V3_BEATS` keyed by stage + requiredRoles | ✓ shipped | ~16 beats covering the 6 stages × 2-3 variants. |
-| Role → slot map per blueprint | ✓ shipped | Slot construction reuses v2's `mapPickToWord` so the rich-word pool stays in v2. |
-| `{role.prop}` template syntax | ✓ shipped | Resolves through the blueprint's role map at render time. |
+| `V3_BLUEPRINTS` declarative registry | ✓ shipped | **Four entries:** `lost_snack_v3`, `goal_spine_v3`, `show_wrong_v3`, `rule_loophole_v3`. Each declares its own role map and stage progression. |
+| `V3_BEATS` keyed by stage + requiredRoles + blueprintId | ✓ shipped | ~50 beats across the 4 blueprints. `blueprintId` field added in v2.6.0 to scope beats and prevent cross-bleed when blueprints share role names. |
+| Role → slot map per blueprint | ✓ shipped | Slot construction reuses v2's `mapPickToWord` so the rich-word pool stays in v2. `object` is added to v3 slots (random pick, since picker has no `object` round) to support show_wrong's `prop` and rule_loophole's `loophole_tool`. |
+| `{role.prop}` template syntax | ✓ shipped | Resolves through the blueprint's role map at render time. Supports `text`, `cap`, `articleText`, `theText`, `TheText`, `plural`, plus the kid `name`. |
 | Highlight tokens emitted directly | ✓ shipped | Beats author `[name:{protagonist.name}]` / `[c:{ally.text}]` / `[y:{setting.text}]` inline. No `applyHighlightTokens` post-pass needed for v3 output. |
 | Feature flag (`?engine=v3`) | ✓ shipped | URL param sets `localStorage.nt_engine_v3` and `window.NODDY_ENGINE`. v2 fallback on any v3 failure. |
-| Coverage callback layer (originally "should shrink to nothing") | **partial — kept as v3 safety net** | The v2.5.0 v3 runtime still uses a small callback pass for optional flavor roles (signature_action / visual_signature / chant / payoff_word). With only ~3 beat variants per stage, random selection wouldn't hit every flavor role in every story. The callbacks emit highlight tokens directly, which is the cleaner v3 path. |
-| Tot/little support | not yet | v3 returns null for ages 2-5; router falls back to v2. |
+| Coverage callback layer | **kept as v3 safety net** | v3 runtime uses a callback pass for flavor roles (`signature_action`, `visual_signature`, `chant`, `payoff_word`, `mood_throughline`, `mcguffin`, `obstacle`). Each emits highlight tokens directly so the callback layer is fully token-aware. Required roles (protagonist, ally, setting, etc.) are guaranteed by stage-level beat requirements. |
+| Random blueprint selection | ✓ shipped | `generateStoryV3` picks uniformly at random from all eligible blueprints. `picks.__v3BlueprintId` forces a specific blueprint (used by `qaV3Blueprint` for isolated audits). |
+| Tot/little support | not yet | v3 returns null for ages 2-5; router falls back to v2. tot/little keep v2's simpler structure. |
 | `qaV3Blueprint` helper | ✓ shipped | Reports nulls, unresolved tokens, arc completeness, kid agency, per-role body/title/highlighted. |
+| Dynamic blueprint validation | ✓ shipped (v2.6.0) | Required-role set derived from `blueprint.stages[*].requiredRoles` union, not hardcoded. |
+| Plural-aware mcguffin rendering | ✓ shipped (v2.6.1) | Beats that previously rendered "a donuts" now use `[c:{mcguffin.articleText}]` which returns "donuts" for plural foods and "a pizza" / "an apple" for singulars. |
+| Smart title casing | ✓ shipped (v2.6.1) | `titleCase` keeps small words (a, an, the, of, in, on, at, to, for, by, with, and, or, but, vs, from, as, if, nor) lowercase unless they're the first or last word. Fixes "Rescue A Stuck Friend" → "Rescue a Stuck Friend". |
 
 ## Lessons from the first runtime
 

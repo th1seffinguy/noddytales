@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v2.6.0';
+const ENGINE_V2_VERSION = 'v2.6.1';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -59,10 +59,25 @@ const V2Grammar = (() => {
 
   // Capitalize every word in a phrase — used for multi-word things in titles.
   // "sleepy megaphone" → "Sleepy Megaphone"
+  /* v2.6.1 — small words stay lowercase unless they're the first or last token of
+     the input fragment. Fixes "Rescue A Stuck Friend" → "Rescue a Stuck Friend".
+     Single-word inputs always title-case fully. */
+  const TITLE_SMALL_WORDS = /^(a|an|the|and|or|but|nor|of|in|on|at|to|for|by|with|vs|from|as|if)$/i;
   function titleCase(str) {
     if (!str) return '';
-    return String(str).split(/(\s+)/).map(part => {
+    const parts = String(str).split(/(\s+)/);
+    // Find indices of the first and last word parts (non-whitespace)
+    let firstIdx = -1, lastIdx = -1;
+    for (let i = 0; i < parts.length; i++) {
+      if (!/^\s+$/.test(parts[i])) {
+        if (firstIdx === -1) firstIdx = i;
+        lastIdx = i;
+      }
+    }
+    return parts.map((part, i) => {
       if (/^\s+$/.test(part)) return part;
+      const isEdge = i === firstIdx || i === lastIdx;
+      if (!isEdge && TITLE_SMALL_WORDS.test(part)) return part.toLowerCase();
       return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
     }).join('');
   }
@@ -2190,7 +2205,7 @@ const V2_BEATS = [
   /* HELPER beats: kid actively decides / proposes */
   { id:'ag_h1', beatType:'helper', tiers:['kid','big'], requiredSlots:['kid','food'],
     lines: [
-      '{kid.name} decided this was a {food.text} problem. {kid.name} reached into a pocket for {food.articleText} they had been saving.',
+      '{kid.name} decided this called for {food.articleText}. {kid.name} reached into a pocket for {food.articleText} they had been saving.',
     ] },
   { id:'ag_h2', beatType:'helper', tiers:['kid','big'], requiredSlots:['kid','companion','object'],
     lines: [
@@ -2452,7 +2467,7 @@ const V2_BEATS = [
      v2.4.3 — "plot twist / demanded an apology" → simpler reveal. */
   { id:'ls_cul_1', beatType:'true_culprit', tiers:['kid','big'], requiredSlots:['kid','food','companion'],
     lines: [
-      'Then {kid.name} saw it: a single {food.text} crumb on the {companion.text}\'s face. "YOU?" said {kid.name}. The {companion.text} looked away, super shy. Mystery solved!',
+      'Then {kid.name} saw it: a single crumb of {food.text} on the {companion.text}\'s face. "YOU?" said {kid.name}. The {companion.text} looked away, super shy. Mystery solved!',
       'The truth came out: the {companion.text} had taken the {food.text} the whole time. The {companion.text} was very sorry. The {companion.text} also wanted more {food.text}. Both things were true.',
     ] },
   { id:'ls_cul_2', beatType:'true_culprit', tiers:['kid','big'], requiredSlots:['kid','companion','food','visitor'],
@@ -2631,7 +2646,7 @@ const V2_BEATS = [
     ] },
   { id:'pl_phys_3', beatType:'punchline', tiers:['kid','big'], requiredSlots:['companion','food','sound'],
     lines: [
-      'Suddenly the {companion.text} yelled "{sound.text}!" at a volume that should not have come out of a {companion.text}, and a single {food.text} fell out of the ceiling. The ceiling. Nobody questioned it.',
+      'Suddenly the {companion.text} yelled "{sound.text}!" at a volume that should not have come out of a {companion.text}, and a single piece of {food.text} fell out of the ceiling. The ceiling. Nobody questioned it.',
     ] },
 
   /* --- SCALE VIOLATIONS with OBJECT --- */
@@ -2717,7 +2732,7 @@ const V2_BEATS = [
     ] },
   { id:'pl_rule_2', beatType:'punchline', tiers:['kid','big'], requiredSlots:['visitor','food'],
     lines: [
-      'The {visitor.text} tried one more rule. The new rule was about {food.plural}. Then a {food.text} flew through the window and hit {visitor.theText} on the head. That was the end of the rules.',
+      'The {visitor.text} tried one more rule. The new rule was about {food.plural}. Then {food.articleText} flew through the window and hit {visitor.theText} on the head. That was the end of the rules.',
     ] },
 
   /* --- KID-OWN-BODY GAGS (no companion required) --- */
@@ -3426,7 +3441,7 @@ const V3_BEATS = [
 
   { id:'v3_ls_escalation_1', stage:'escalation', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','mcguffin'],
     lines: [
-      'The trail led to the [c:{ally.text}]. Of course. The [c:{ally.text}] had a single [c:{mcguffin.text}] crumb on its face. "YOU?" said [name:{protagonist.name}]. The [c:{ally.text}] looked away politely.',
+      'The trail led to the [c:{ally.text}]. Of course. The [c:{ally.text}] had a single crumb of [c:{mcguffin.text}] on its face. "YOU?" said [name:{protagonist.name}]. The [c:{ally.text}] looked away politely.',
       'Plot twist nobody saw coming except maybe the [c:{ally.text}]: it was the [c:{ally.text}]. The [c:{ally.text}] had been the [c:{mcguffin.text}] thief the whole time. It was very sorry. Mostly.',
     ] },
   { id:'v3_ls_escalation_tween', stage:'escalation', blueprintId:'lost_snack_v3', tiers:['tween'], requiredRoles:['protagonist','ally','mcguffin'],
@@ -3444,7 +3459,7 @@ const V3_BEATS = [
     ] },
   { id:'v3_ls_payoff_plain', stage:'payoff', blueprintId:'lost_snack_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','mcguffin'],
     lines: [
-      'Everyone got a [c:{mcguffin.text}] in the end, even the [c:{ally.text}], which was technically the criminal. Justice was unevenly served. The [c:{mcguffin.text}] was very good.',
+      'Everyone got [c:{mcguffin.articleText}] in the end, even the [c:{ally.text}], which was technically the criminal. Justice was unevenly served. The [c:{mcguffin.text}] was very good.',
     ] },
   { id:'v3_ls_payoff_tween', stage:'payoff', blueprintId:'lost_snack_v3', tiers:['tween'], requiredRoles:['protagonist','ally','mcguffin'],
     lines: [
@@ -3504,12 +3519,12 @@ const V3_BEATS = [
 
   { id:'v3_gs_escalation_1', stage:'escalation', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','obstacle','mcguffin'],
     lines: [
-      'The [c:{obstacle.text}] was not done. It produced a [c:{mcguffin.text}], waved it like a tiny threat, and said, "Now what?" [name:{protagonist.name}] had not seen that coming. [name:{protagonist.name}] kept going anyway.',
+      'The [c:{obstacle.text}] was not done. It produced [c:{mcguffin.articleText}] and waved that around like a tiny threat. "Now what?" [name:{protagonist.name}] had not seen that coming. [name:{protagonist.name}] kept going anyway.',
       'The [c:{obstacle.text}] doubled down. "[c:{mcguffin.text}] or nothing," it said, which barely made sense. [name:{protagonist.name}] decided "or nothing" was not on the table.',
     ] },
   { id:'v3_gs_escalation_tween', stage:'escalation', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','obstacle','mcguffin'],
     lines: [
-      'The [c:{obstacle.text}] tried to introduce a [c:{mcguffin.text}] into the negotiation. It was a stretch. [name:{protagonist.name}] did not negotiate. [name:{protagonist.name}] kept moving.',
+      'The [c:{obstacle.text}] tried to introduce [c:{mcguffin.articleText}] into the negotiation. It was a stretch. [name:{protagonist.name}] did not negotiate. [name:{protagonist.name}] kept moving.',
     ] },
 
   { id:'v3_gs_payoff_chant', stage:'payoff', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','mcguffin','chant'],
@@ -3577,7 +3592,14 @@ const V3_BEATS = [
       'A [c:{obstacle.text}] in the audience laughed too loudly. The [c:{ally.text}] mistook it for applause and bowed. [name:{protagonist.name}] decided to roll with it. The show was a different show now.',
       'The [c:{obstacle.text}] heckled. Genuinely heckled. The [c:{ally.text}] hissed back. [name:{protagonist.name}] kept performing. Conflict made the bit better.',
     ] },
-  { id:'v3_sw_escalation_tween', stage:'escalation', blueprintId:'show_wrong_v3', tiers:['tween'], requiredRoles:['protagonist','ally'],
+  /* v2.6.1 — tween escalation rewritten to reference obstacle so picks.creature
+     always lands in body for show_wrong_v3 at ages 11-13. Two variants. */
+  { id:'v3_sw_escalation_tween', stage:'escalation', blueprintId:'show_wrong_v3', tiers:['tween'], requiredRoles:['protagonist','ally','obstacle'],
+    lines: [
+      'A [c:{obstacle.text}] in the audience filmed the whole thing on a phone. The [c:{ally.text}] noticed and started playing to the camera. [name:{protagonist.name}] decided this was now content. It might even go viral.',
+      'The [c:{obstacle.text}] critiqued the show out loud. The [c:{ally.text}] glared. [name:{protagonist.name}] absorbed the feedback in real time and kept going. The bit improved.',
+    ] },
+  { id:'v3_sw_escalation_tween_alt', stage:'escalation', blueprintId:'show_wrong_v3', tiers:['tween'], requiredRoles:['protagonist','ally'],
     lines: [
       'The [c:{ally.text}] picked up [name:{protagonist.name}]\'s energy and ran with it. Now it was a duet. Neither of them had agreed to this. It was happening.',
     ] },
@@ -3854,11 +3876,17 @@ function generateStoryV3(name, picks, age) {
       'Throughout, [name:{protagonist.name}] stayed [c:{mood_throughline.text}]. Steadily [c:{mood_throughline.text}].',
     ],
     mcguffin: [
-      'A [c:{mcguffin.text}] sat off to the side, mostly forgotten, definitely still part of the day.',
+      '[c:{mcguffin.articleText}] sat off to the side, mostly forgotten, definitely still part of the day.',
       'Somebody had brought [c:{mcguffin.text}]. Nobody knew when. Nobody minded.',
     ],
+    /* v2.6.1 — obstacle added as a safety net. show_wrong_v3 tween escalation didn't
+       always reference the chosen creature even though it was in the role map. */
+    obstacle: [
+      'A [c:{obstacle.text}] watched the whole thing happen and offered no comment.',
+      'Off to the side, the [c:{obstacle.text}] was processing all of this with visible difficulty.',
+    ],
   };
-  const FLAVOR_KEYS = ['signature_action', 'visual_signature', 'chant', 'payoff_word', 'mood_throughline', 'mcguffin'];
+  const FLAVOR_KEYS = ['signature_action', 'visual_signature', 'chant', 'payoff_word', 'mood_throughline', 'mcguffin', 'obstacle'];
   for (const role of FLAVOR_KEYS) {
     const slot = roles[role];
     if (!slot) continue;                       // role not picked or not mapped

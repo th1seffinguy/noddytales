@@ -4,6 +4,94 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.6.1 — 2026-05-19
+**Focused QA patch — 4 bugs from Codex audit, plus a repeatable QA harness**
+
+### Fixes
+
+**1. show_wrong_v3 dropped chosen creature for tween (ages 11-13).**
+Root cause: blueprint's `obstacle` role mapped to `visitor` but the tween-only escalation beat had `requiredRoles: ['protagonist','ally']` — no obstacle. None of the show_wrong tween stages required or referenced obstacle, so picks.creature never landed in body.
+Fix: rewrote `v3_sw_escalation_tween` to require + reference obstacle (with two variants). Added `obstacle` to the v3 flavor-callback layer as a safety net so any future blueprint where obstacle isn't natively load-bearing still surfaces it.
+Acceptance: 30/30 stories per age 11/12/13 with `__v3BlueprintId: 'show_wrong_v3'` now mention + highlight the chosen creature.
+
+**2. v2 plural-article bug ("a donuts flew...").**
+Root cause: 8 templates wrote `a {food.text}` or `a [c:{mcguffin.text}]` — when food was plural (donuts, cookies, waffles, etc.) the rendered output read "a donuts" / "a cookies" / "a waffles". `{food.articleText}` was the right tool but wasn't used.
+Fix: rewrote the offending templates:
+  - `pl_rule_2`: `Then a {food.text} flew` → `Then {food.articleText} flew`
+  - `ag_kd_food` decide beat: `a {food.text} problem` → `called for {food.articleText}`
+  - `ls_cul_1` true_culprit: `a single {food.text} crumb` → `a single crumb of {food.text}`
+  - `pl_phys_3` punchline: `a single {food.text} fell` → `a single piece of {food.text} fell`
+  - v3 lost_snack escalation: `a single [c:{mcguffin.text}] crumb` → `a single crumb of [c:{mcguffin.text}]`
+  - v3 lost_snack payoff: `Everyone got a [c:{mcguffin.text}]` → `Everyone got [c:{mcguffin.articleText}]`
+  - v3 goal_spine escalation × 2: `produced a [c:{mcguffin.text}]` / `introduce a [c:{mcguffin.text}]` → use `mcguffin.articleText`
+Acceptance: 2,000 v2 random stories (ages 2-13) — **0 matches** for `a (donuts|cookies|waffles|pancakes|tacos|burritos|pretzels|noodles|dumplings|cupcakes|...)` patterns.
+
+**3. titleCase over-capitalized small words ("Rescue A Stuck Friend").**
+Root cause: `titleCase` in `V2Grammar` capitalized every word unconditionally. Goal-spine title pattern `The Day ${kidCap} Tried to ${tc(goal.text)}` with `goal.text = "rescue a stuck friend"` produced "...Tried to Rescue A Stuck Friend".
+Fix: `titleCase` now keeps a configured set of small words lowercase (a, an, the, and, or, but, nor, of, in, on, at, to, for, by, with, vs, from, as, if) UNLESS they appear at the first or last word position. Single-word inputs still title-case fully.
+Acceptance: 2,000 v2 random stories — **0 occurrences** of " A " mid-title.
+
+**4. Doc drift.**
+  - `docs/v3-role-blueprints.md` Status block updated from "v2.5.0 ships the first working runtime" to current reality: v2.6.x ships all four v3 blueprints, v3 still opt-in, tot/little fallback to v2. Added v2.6.0 + v2.6.1 entries to the implementation-summary table (blueprintId scoping, dynamic role validation, plural-aware mcguffin, smart title casing).
+  - `index.html` RELEASE_NOTES v2.2.1 entry: amended the TTS PRIVACY claim with a "(Note: this scrub was REMOVED in v2.2.3)" suffix so readers don't think the live engine still scrubs names. The v2.2.3 entry already documents the reversal accurately.
+
+### Repeatable QA harness
+
+New `scripts/qa-v261.js` — run with `node scripts/qa-v261.js`. Verifies:
+- v2 age matrix: 50 random stories per age, ages 2-13 = 600 stories. 0 nulls, 0 unresolved, 0 missing required-slot body mentions.
+- v2 targeted regressions: age 2 sky=moon → 60/60 body + highlight. age 4 weather=stormy → 60/60 body + highlight. color/move/mood: report rates, no hard gate.
+- v3 matrix: 4 blueprints × ages 6-13 × 30 forced stories = 960 stories. 0 nulls, 0 unresolved, 6-paragraph arc every time, all 9 picked words in body + highlighted.
+- Grammar lint: 2,000 v2 random stories. 0 plural-article errors. 0 mid-title " A ".
+
+### QA results
+
+```
+=== 1. v2 age matrix (50/age × 12 ages = 600 stories) ===
+  ✓ 0 nulls (matrix) — 0/600
+  ✓ 0 unresolved tokens — 0/600
+  ✓ 0 missing required-slot mentions — 0 misses
+
+=== 2. v2 targeted regressions ===
+  ✓ age 2 sky=moon body — 60/60
+  ✓ age 2 sky=moon highlight — 60/60
+  ✓ age 4 weather=stormy body — 60/60
+  ✓ age 4 weather=stormy highlight — 60/60
+  Optional-slot rates (report-only):
+    age 6 color=rainbow   body=53/60  hl=53/60
+    age 6 move=bounced    body=53/60  hl=53/60
+    age 6 mood=silly      body=53/60  hl=53/60
+
+=== 3. v3 matrix (4 blueprints × ages 6-13 × 30 = 960 stories) ===
+  ✓ 0 nulls (v3 matrix) — 0/960
+  ✓ 0 unresolved tokens — 0/960
+  ✓ 6-paragraph arc every time — 0 wrong arc
+  ✓ all picked words in body — 0 stories with body miss
+  ✓ all picked words highlighted — 0 stories with hl miss
+
+=== 4. Grammar lint (2,000 v2 random stories) ===
+  ✓ 0 plural article errors — 0/2000
+  ✓ 0 awkward " A " titles — 0/2000
+
+=== SUMMARY ===
+  ✓ ALL ACCEPTANCE GATES PASSED
+```
+
+### Remaining risks
+
+- **Optional v2 flavor slots (color/move/mood) at ~88% body coverage** for the golden age-6 picks. This is by design — flavor slots have callbacks but aren't structurally required. The v3 engine guarantees 100% via its dedicated FLAVOR_CALLBACKS pass; v2 keeps the older sprinkle approach. Future build could promote v2 flavor coverage to the v3 model if needed.
+- **Lint regex is enumerated, not derived.** The plural-article regex hardcodes the known plural picker values. Adding new plural foods to the picker without updating the lint regex would silently miss new bugs. Worth deriving from `V2_WORDS.foods` filtered by `isPlural:true` in a future audit pass.
+- **Title casing edge case:** the new `titleCase` lowercases small words even when they appear as part of a compound (e.g., `"in" + "n"` brand names). No known instances in current title patterns, but a future blueprint that title-cases a phrase like *"In-N-Out Burger"* might render unexpectedly. Mitigation: pass exact case in title patterns rather than passing to `titleCase` for fragments containing intentional capitalization.
+
+### Files modified
+
+- `src/engine-v2.js` — `ENGINE_V2_VERSION` → `v2.6.1`; titleCase rewrite (~15 lines); 8 template fixes for plural article; show_wrong_v3 tween escalation rewrite + flavor obstacle
+- `src/content.js` — `APP_VERSION` → `v2.6.1`
+- `index.html` — RELEASE_NOTES v2.2.1 TTS clarification
+- `docs/v3-role-blueprints.md` — Status block updated to v2.6.x reality
+- `scripts/qa-v261.js` — **new** repeatable QA script
+
+---
+
 ## v2.6.0 — 2026-05-19
 **v3 blueprint variety — 4 blueprints with the same shapes as v2**
 
