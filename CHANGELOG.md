@@ -4,6 +4,40 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.6.3 — 2026-05-20
+**HOTFIX — restore renderWelcome after broken ternary in v2.6.2**
+
+v2.6.2 introduced the bedtime/anytime story-mode picker but broke the welcome-screen render in the process. The user saw a blank green screen on app load with only the settings cog visible (and non-functional, because the click handler was never attached).
+
+**Root cause:** the `renderWelcome` function uses a chained ternary `step === 'name' ? \`...\` : step === 'age' ? \`...\` : step === 'sidekicks' ? (() => ...)() : \`<setting block>\``. The setting block was the implicit ELSE branch. My v2.6.2 edit appended `: step === 'storyMode' ? \`<storyMode block>\` : ''` **after** the closed ternary — producing invalid JS (stray colon after a completed conditional). Parser threw `Missing } in template expression`, the whole `<script>` block never executed, no handlers attached, screen rendered as the initial green welcome wrapper with no content.
+
+**Fix:** convert the setting block from an implicit ELSE to an explicit `step === 'setting' ? \`...\` :` branch. The storyMode block becomes the new explicit branch. Chain is now syntactically clean:
+
+```
+step === 'name'      ? <name>
+: step === 'age'     ? <age>
+: step === 'sidekicks' ? <sidekicks IIFE>
+: step === 'setting' ? <setting>
+: step === 'storyMode' ? <storyMode>
+: ''
+```
+
+**Verification:** Node `new Function(scriptBody)` parses cleanly. Full QA harness runs green. App loads to the welcome screen.
+
+**Why the QA harness didn't catch this in v2.6.2:** the harness exercises engine logic only (generateStoryV2, generateStoryV3) — it does NOT load index.html or evaluate the page's `<script>` block. A separate gate is needed to syntax-check the inline script. Added as a future risk note.
+
+### Files modified
+
+- `index.html` — one-line edit: `})() : \`<setting block>\`` → `})() : step === 'setting' ? \`<setting block>\``
+- `src/content.js` — `APP_VERSION` → `v2.6.3`
+- `src/engine-v2.js` — `ENGINE_V2_VERSION` → `v2.6.3`
+
+### Follow-up risk noted
+
+Add `node -e "new Function(scriptBody)"` syntax check on the inline `<script>` block to the QA harness so this class of regression can't ship again. Will add in next release.
+
+---
+
 ## v2.6.2 — 2026-05-20
 **Karaoke alignment + bedtime/anytime story mode**
 
