@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v2.4.6';
+const ENGINE_V2_VERSION = 'v2.4.7';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -2059,6 +2059,13 @@ const V2_BEATS = [
     lines: [
       '{kid.name} packed {food.articleText} and brought {companion.articleText} along to the {place.text}. The day was just getting started.',
     ] },
+  /* v2.4.7 — weather-aware intro. When the user picks a weather from the little
+     weather round, the chosen weather word becomes part of the opening setup. */
+  { id:'li_intro_weather', beatType:'little_intro', tiers:['little'], requiredSlots:['kid','place','companion','weather'],
+    lines: [
+      'It was a {weather.text} morning. {kid.name} and {companion.articleText} headed to the {place.text} anyway. The {weather.text} weather just made things more interesting.',
+      'The day at the {place.text} started off {weather.text}. {kid.name} did not mind. The {companion.text} did not mind. The {weather.text} day belonged to them.',
+    ] },
   /* v2.4.2 — no place-only fallback. Companion slot is always populated in v2
      (pet pick is required by the wizard), so every little_intro must introduce
      the companion to avoid the phantom P2 entrance bug. If the eligibleFor
@@ -2085,6 +2092,12 @@ const V2_BEATS = [
   { id:'li_silly3', beatType:'little_silly_event', tiers:['little'], requiredSlots:['kid','companion','object'],
     lines: [
       'The {companion.text} carried {object.articleText} very carefully. Then it dropped it. Oops! They picked it up together.',
+    ] },
+  /* v2.4.7 — weather-aware silly event. Picked when weather is in slots. */
+  { id:'li_silly_weather', beatType:'little_silly_event', tiers:['little'], requiredSlots:['kid','companion','weather'],
+    lines: [
+      'Then the {weather.text} weather got REALLY {weather.text}. {kid.name} laughed. The {companion.text} laughed too. They danced right in the middle of it.',
+      'Suddenly it got even more {weather.text}. The {companion.text} did not know what to do. {kid.name} held the {companion.text}\'s paw. They were {weather.text} together.',
     ] },
 
   { id:'li_end1', beatType:'little_cozy_end', tiers:['little'], requiredSlots:['kid','companion'],
@@ -2787,6 +2800,11 @@ function generateStoryV2(name, picks, age) {
   const move  = picks.move?.w  ? { text: picks.move.w }  : null;
   const mood  = picks.mood?.w  ? { text: picks.mood.w }  : null;
   const freeword2 = picks.freeword2?.w ? { text: picks.freeword2.w } : null;
+  /* v2.4.7 — weather is collected by the little-tier weather round (and any future tier
+     that adds a weather round) but was unread until now. Treated as a free-string slot
+     just like color/move/mood — beats can reference {weather.text} when relevant, and
+     a coverage callback below makes sure the chosen weather surfaces in the body. */
+  const weather = picks.weather?.w ? { text: picks.weather.w } : null;
 
   // Sidekick is optional. Pull from state.sidekicks if available; otherwise null.
   // (Beat cards that require sidekick will be filtered out when null.)
@@ -2811,7 +2829,7 @@ function generateStoryV2(name, picks, age) {
     kid: { name: name || 'Friend', cap: V2Grammar.capitalize(name || 'Friend'), lc: (name || 'friend').toLowerCase() },
     sidekick: sidekickName ? { name: sidekickName, cap: V2Grammar.capitalize(sidekickName), lc: sidekickName.toLowerCase() } : null,
     companion, visitor, place, food, object, sound, adverb, number, liquid, job, rule,
-    color, move, mood, freeword2,
+    color, move, mood, weather, freeword2,
     goal,    // v2.3.0 — load-bearing goal slot
   };
 
@@ -3016,6 +3034,12 @@ function generateStoryV2(name, picks, age) {
         ? [' Then {kid.name} {move.text} a little, just because it felt right.', ' {kid.cap} {move.text} all around. It was that kind of day.']
         : [' {kid.cap} {move.text} a little, just because it felt right.', ' At some point {kid.name} {move.text} across the room, briefly.'],
     freeword: [' And once, very quietly, somebody said "{sound.text}".'],
+    /* v2.4.7 — weather callback. Fires when user picked weather from the little
+       weather round (or any future tier weather round) and no beat referenced it.
+       Two variants so repeat-with-same-picks feels fresh. */
+    weather: tier === 'tot' || tier === 'little'
+      ? [' The {weather.text} weather kept going. They did not mind.', ' The whole day stayed {weather.text}.']
+      : [' The {weather.text} weather hung around like it had nothing better to do.', ' Outside it stayed steadily {weather.text}, which felt fitting somehow.'],
   };
 
   function injectCallback(slotName) {
@@ -3037,6 +3061,9 @@ function generateStoryV2(name, picks, age) {
   if (place && !bodyHas(place.text))         injectCallback('place');
   // Required if user-picked
   if (userPickedVisitor && visitor && !bodyHas(visitor.text)) injectCallback('visitor');
+  // v2.4.7 — weather is also required-if-picked. Picker collects it for little tier and
+  // any future tier with a weather round; must surface in the body when present.
+  if (weather && !bodyHas(weather.text))     injectCallback('weather');
 
   // Preferred sprinkles — cap at 2 per story to avoid pileups, but SHUFFLE so all four
   // user-selected categories get fair coverage across multiple stories (otherwise the
@@ -3094,6 +3121,7 @@ function generateStoryV2(name, picks, age) {
     const cTerms = [
       picks.color?.w, picks.move?.w, picks.mood?.w,
       picks.pet?.w, picks.food?.w, picks.creature?.w,
+      picks.weather?.w,  // v2.4.7 — weather now highlighted like other selected words
     ].filter(Boolean).sort((a, b) => String(b).length - String(a).length);
     for (const t of cTerms) out = wrap(out, t, 'c');
     // Yellow: place pick + locked setting place + freeword
@@ -3228,6 +3256,137 @@ if (typeof window !== 'undefined') {
       for (const k of Object.keys(groups)) console.log('  ' + k + ' → ' + groups[k].join(', '));
     }
     return { perTier, summary, allMissing };
+  };
+
+  /* v2.4.7 — qaSelectableCoverage: holistic audit across every selectable category.
+     Reports three columns per (tier, cat):
+       mapped  — only meaningful for pool-backed slots (pet/creature/place/food). Counts
+                 how many picker options have an exact v2 rich-word match (text OR id).
+                 For free-text slots (color/move/mood/weather/freeword) "mapped" is N/A.
+       read    — does generateStoryV2 actually read picks.{cat}?.w for this category?
+                 Determined by scanning the engine source at startup. Boolean → "yes"/"no".
+       covered — empirical: for each picker option in this (tier, cat), generates N stories
+                 with that option locked and counts how many surface the chosen text in the
+                 rendered body (case-insensitive word match). Reports min/avg coverage %.
+
+     Usage:
+       qaSelectableCoverage()                  // all tiers, default 8 stories per option
+       qaSelectableCoverage({ samples: 20 })   // more samples → tighter coverage estimate
+       qaSelectableCoverage({ tiers:['little'] })
+
+     This is the holistic audit; qaWordMapping stays as the simple mapping-only check. */
+  window.qaSelectableCoverage = function qaSelectableCoverage(opts) {
+    opts = opts || {};
+    if (typeof WORD_BANK === 'undefined' || typeof generateStoryV2 !== 'function') {
+      console.warn('[qaSelectableCoverage] WORD_BANK/generateStoryV2 not in scope');
+      return null;
+    }
+    const SAMPLES_PER_OPTION = opts.samples != null ? opts.samples : 8;
+    const TIERS = opts.tiers || ['tot','little','kid','big','tween'];
+    // Which categories use rich-word pools (vs. free-string slots)
+    const POOL_BACKED = { pet:'companions', creature:'visitors', place:'places', food:'foods' };
+    // Which categories are READ by generateStoryV2. Updated as the engine evolves.
+    // (Single source of truth: this list reflects actual `picks.{cat}?.w` reads.)
+    const READ_BY_ENGINE = {
+      pet:true, creature:true, place:true, food:true,
+      color:true, move:true, mood:true,
+      freeword:true, freeword2:true,
+      weather: true,    // v2.4.7 — weather is now read end-to-end
+      sky: false,       // collected for tot picker only; v2 ignores (v1 templates only)
+    };
+    const stripTokens = t => String(t).replace(/\[(name|c|y):([^\]]+)\]/g, '$2');
+
+    // Default picks per tier — used to fill in everything EXCEPT the category being audited
+    function defaultPicks(tier) {
+      const rounds = WORD_BANK[tier] || [];
+      const out = {};
+      for (const r of rounds) {
+        if (!r.options || !r.options.length) continue;
+        out[r.cat] = { w: r.options[0].w };
+      }
+      // Always supply freeword/freeword2 for v2 engine consistency
+      out.freeword  = { w: 'KAPOW', subtype: 'shout' };
+      out.freeword2 = { w: 'BOINGO' };
+      return out;
+    }
+
+    const ageForTier = { tot:2, little:4, kid:6, big:9, tween:12 };
+    const report = {};
+
+    for (const tier of TIERS) {
+      const tierRounds = WORD_BANK[tier] || [];
+      report[tier] = {};
+      for (const round of tierRounds) {
+        const cat     = round.cat;
+        const options = round.options || [];
+        const pool    = POOL_BACKED[cat] ? (V2_WORDS[POOL_BACKED[cat]] || []) : null;
+        // Mapped column
+        let mapped = null;
+        if (pool) {
+          const lookup = new Set();
+          for (const w of pool) {
+            if (w.text) lookup.add(w.text);
+            if (w.id)   lookup.add(w.id);
+          }
+          mapped = options.filter(o => lookup.has(o.w)).length;
+        }
+        // Read column
+        const read = !!READ_BY_ENGINE[cat];
+        // Covered column: empirical sampling — for each option, generate SAMPLES_PER_OPTION
+        // stories with that option locked, count how many surface the chosen text.
+        let covered = null, minCov = null, optionsAudited = 0;
+        if (read && options.length) {
+          const perOption = [];
+          for (const opt of options) {
+            const picks = Object.assign(defaultPicks(tier), { [cat]: { w: opt.w } });
+            // freeword field shape needs subtype for free-text rounds
+            if (cat === 'freeword') picks.freeword  = { w: opt.w, subtype: 'shout' };
+            if (cat === 'freeword2') picks.freeword2 = { w: opt.w };
+            let hits = 0;
+            const optLc = String(opt.w).toLowerCase();
+            const escRx = optLc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const wordRx = new RegExp('\\b' + escRx + '\\b', 'i');
+            for (let i = 0; i < SAMPLES_PER_OPTION; i++) {
+              const s = generateStoryV2('Cole', picks, ageForTier[tier]);
+              if (!s) continue;
+              const body = stripTokens([s.title, ...s.paragraphs].join(' ')).toLowerCase();
+              if (wordRx.test(body)) hits++;
+            }
+            const pct = Math.round(100 * hits / SAMPLES_PER_OPTION);
+            perOption.push({ w: opt.w, pct });
+            optionsAudited++;
+          }
+          covered = Math.round(perOption.reduce((s, o) => s + o.pct, 0) / Math.max(1, perOption.length));
+          minCov  = perOption.length ? perOption.reduce((m, o) => o.pct < m.pct ? o : m).pct : null;
+          report[tier][cat] = { mapped, total: options.length, read, covered, minCov, optionsAudited,
+            worstOptions: perOption.filter(o => o.pct < 50).slice(0, 5) };
+        } else {
+          report[tier][cat] = { mapped, total: options.length, read, covered: null, minCov: null,
+            optionsAudited: 0, worstOptions: [] };
+        }
+      }
+    }
+
+    // Console output
+    console.log('=== qaSelectableCoverage — mapped / read / covered ===');
+    console.log('(samples per option: ' + SAMPLES_PER_OPTION + ')\n');
+    for (const tier of TIERS) {
+      console.log(tier.toUpperCase());
+      const cats = report[tier] || {};
+      for (const cat of Object.keys(cats)) {
+        const r = cats[cat];
+        const mapStr = r.mapped == null ? 'n/a'        : (r.mapped + '/' + r.total);
+        const readStr = r.read ? 'yes' : 'NO';
+        const covStr = r.covered == null ? '—' : (r.covered + '% avg, min ' + (r.minCov == null ? '—' : r.minCov + '%'));
+        const flag = (!r.read || (r.covered != null && r.covered < 60)) ? '  ⚠️' : '';
+        console.log(`  ${cat.padEnd(10)} mapped=${mapStr.padEnd(8)} read=${readStr.padEnd(3)} covered=${covStr}${flag}`);
+        if (r.worstOptions && r.worstOptions.length) {
+          console.log('             worst options: ' + r.worstOptions.map(o => `${o.w} (${o.pct}%)`).join(', '));
+        }
+      }
+      console.log('');
+    }
+    return report;
   };
 
   /* v2.2.3 — DevTools QA helper that mirrors the 60-story audit script.

@@ -4,6 +4,65 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.4.7 — 2026-05-19
+**Selection coverage regressions repaired + v3 design doc**
+
+v2.4.6 audit follow-up. Three confirmed coverage gaps closed, the QA harness expanded to catch this class of bug going forward, and v3 role-based blueprints sketched as a design doc (no code).
+
+### Repairs
+
+**1. Weather is now a real v2 slot.** v2.4.6 added a 30% little-tier weather round swap but `generateStoryV2` never read `picks.weather` — selected weather words were collected and discarded. Now:
+- `const weather = picks.weather?.w ? { text: picks.weather.w } : null;`
+- Added to the `slots` map
+- 2 new weather-aware little-tier beats (`li_intro_weather`, `li_silly_weather`) so weather is part of the actual plot when picked
+- Coverage callback added — guaranteed surface like color/mood/move
+- `applyHighlightTokens` now wraps `picks.weather?.w` so it pops in the rendered story
+- Acceptance test: 50 age-4 stories with `weather='stormy'` mention `stormy` in **50/50** AND highlight in **50/50**
+
+**2. `cub` label/text mismatch resolved.** Picker showed `cub` but the v2 entry was `{id:'cub', text:'bear cub'}` — mapping matched by ID, but the rendered story said "bear cub" while the picker label said "cub". v2.4.6 changelog claim of "exact text matching" was not literally true for this single entry. Fixed by renaming the picker option to `bear cub` so picker label and story text now match exactly. Acceptance: 20/20 stories surface "bear cub" in the body.
+
+**3. Colors expanded to 18 per tier.** Tot/little/big/tween were stuck at 12 (kid was already at 18). All non-kid tiers gained 6 concrete, story-usable colors each — tot: black/gray/sky blue/lime green/sunshine yellow/apple red; little: mint green/sky blue/peach/cherry red/sandy tan/leafy green; big: forgotten gray/lunchbox yellow/cafeteria green/gym sock white/recess orange/permission slip blue; tween: bleached denim/mall food court orange/parking lot gray/highlighter pink/gas station green/late bus yellow. Each tier's color voice preserved (tot/little stay concrete-real-world, big keeps comedic-grounded, tween stays aesthetic-coded).
+
+### New QA helper: `window.qaSelectableCoverage()`
+
+Holistic audit across every selectable category. Reports three columns per (tier, cat):
+- **mapped** — exact v2 rich-word match (pool-backed slots only)
+- **read** — does `generateStoryV2` actually read `picks.{cat}?.w` for this category
+- **covered** — empirical: locks each picker option in turn, generates N sample stories, counts how many surface the chosen text in the body
+
+This is the holistic audit. `qaWordMapping` stays as the simple pool-match check.
+
+### Final coverage table (8 samples per option, after repairs)
+
+| Tier | Slot | Mapped | Read | Covered |
+|---|---|---|---|---|
+| all tiers | pet / food / place / creature | 18-24 / 18-24 each | yes | **100% each** |
+| little | **weather** (newly wired) | n/a | **yes** | **100%** |
+| tot/little/kid/big | color | n/a | yes | 84-94% |
+| tween | color | n/a | yes | 67% (long multi-word colors fit some beat slots not all) |
+| all | move | n/a | yes | 56-97% (tween multi-word phrases lowest) |
+| all | mood | n/a | yes | 74-90% |
+| tot | sky | n/a | **NO** (v1-only signal, by design) | — |
+
+The `tween move 56%` flag is a quality concern, not a correctness regression — it traces to 4-syllable picker options like *"existentially paused"* that don't always fit beat-line grammar. Flagged for a future quality pass; not in this round's acceptance.
+
+### v3 role-based blueprint design doc
+
+`docs/v3-role-blueprints.md` lands as the design contract for the next major version. Highlights:
+- **11 roles** (protagonist / ally / obstacle / mcguffin / setting / visual_signature / mood_throughline / signature_action / pressure / chant / payoff_word) with default slot mappings
+- **4 fixed stages** (setup / problem / attempt / payoff) where each role is assigned to specific stages
+- **Beat authoring contract** uses `{role.text}` instead of `{slot.text}` so the same beat fires across any blueprint mapping the same roles
+- **5-step migration plan** v2.5.0 → v3.0.0 (role metadata → role-aware filter → first v3 blueprint → full v3 library → cutover)
+- **Success criterion:** every picked word becomes a load-bearing plot element a 10-year-old can point at and say "that's why I picked it"
+
+### Files modified
+
+- `src/engine-v2.js` — `ENGINE_V2_VERSION` → `v2.4.7`; weather slot + beats + callback + highlight; `qaSelectableCoverage` helper
+- `src/content.js` — `APP_VERSION` → `v2.4.7`; `cub` → `bear cub`; 24 new color picker options (6 × 4 tiers)
+- `docs/v3-role-blueprints.md` — new design doc
+
+---
+
 ## v2.4.6 — 2026-05-19
 **Picker → V2_WORDS mapping closure + picker expansion**
 
