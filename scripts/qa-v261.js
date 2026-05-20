@@ -222,6 +222,42 @@ if (lintNulls) gate('lint pass: 0 nulls', lintNulls === 0, lintNulls + ' nulls')
 if (pluralSamples.length) pluralSamples.forEach(s => console.log('    ' + s));
 if (titleSamples.length)  titleSamples.forEach(s => console.log('    ' + s));
 
+/* === 5. STORY MODE (bedtime vs anytime) === */
+console.log('\n=== 5. Story-mode regression (v2.6.2) ===');
+function endingAudit(storyMode, age, samples) {
+  const tier = tierFor(age);
+  let nulls = 0, bedtimeWords = 0, anytimeFootprint = 0;
+  const BEDTIME_RX  = /\b(goodnight|good night|asleep|sleep|bedtime|sleepy|fell asleep|time to sleep|tonight)\b/i;
+  const ANYTIME_RX  = /\b(walking home|walking back|walked back|walk home|onto the next|see you|tomorrow|onward|head home|headed back|heading off|next thing|next caper|what to do next|do next|home base|find the next|retell this|retelling)\b/i;
+  for (let i = 0; i < samples; i++) {
+    const picks = randomPicks(tier);
+    picks.storyMode = storyMode;
+    const s = ctx.generateStoryV2('Cole', picks, age);
+    if (!s) { nulls++; continue; }
+    const body = strip(s.paragraphs.join(' '));
+    if (BEDTIME_RX.test(body))  bedtimeWords++;
+    if (ANYTIME_RX.test(body))  anytimeFootprint++;
+  }
+  return { nulls, bedtimeWords, anytimeFootprint };
+}
+
+// Default (bedtime) baseline — most stories should have bedtime imagery.
+const bedAt9 = endingAudit('bedtime', 9, 60);
+console.log(`  bedtime age 9 (60 stories): bedtime-words=${bedAt9.bedtimeWords}/60 anytime-footprint=${bedAt9.anytimeFootprint}/60 nulls=${bedAt9.nulls}`);
+
+// Anytime — bedtime words should drop dramatically, anytime footprint should rise.
+const anyAt9 = endingAudit('anytime', 9, 60);
+console.log(`  anytime age 9 (60 stories): bedtime-words=${anyAt9.bedtimeWords}/60 anytime-footprint=${anyAt9.anytimeFootprint}/60 nulls=${anyAt9.nulls}`);
+
+gate('storyMode=anytime stories DON\'T close with sleep (≤10%)', anyAt9.bedtimeWords <= 6, anyAt9.bedtimeWords + '/60');
+gate('storyMode=anytime stories use day-ending language (≥60%)', anyAt9.anytimeFootprint >= 36, anyAt9.anytimeFootprint + '/60');
+
+// Tot tier check
+const totBed = endingAudit('bedtime', 2, 40);
+const totAny = endingAudit('anytime', 2, 40);
+console.log(`  tot bedtime: bedtime-words=${totBed.bedtimeWords}/40   tot anytime: bedtime-words=${totAny.bedtimeWords}/40`);
+gate('tot storyMode=anytime DOES NOT default to bedtime (≤25%)', totAny.bedtimeWords <= 10, totAny.bedtimeWords + '/40');
+
 /* === SUMMARY === */
 console.log('\n=== SUMMARY ===');
 if (failures === 0) {

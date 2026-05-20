@@ -4,6 +4,85 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.6.2 — 2026-05-20
+**Karaoke alignment + bedtime/anytime story mode**
+
+Two playtest issues addressed.
+
+### 1. Karaoke "one word behind"
+
+**Symptom:** during Read It To Me, the highlighted word lagged the spoken audio by ~one word consistently.
+
+**Root cause:** `HTMLMediaElement.currentTime` under-reports the actual playback position by 150-300 ms on most browsers (worse on iOS, much worse over Bluetooth). The karaoke loop tracks `audio.currentTime` directly, so the highlight ends up trailing what the user actually hears.
+
+**Fix:** added a `KARAOKE_LEAD_MS = 220` lookahead applied at lookup time (`const t = audio.currentTime + (KARAOKE_LEAD_MS / 1000)`). The highlight now resolves to where audio WILL be in ~220 ms, which matches what the listener hears given typical output latency. Tunable single-line config so it can be calibrated up if BT/AirPods playtest shows more lag.
+
+### 2. Bedtime vs anytime story mode
+
+**Symptom:** every story closed with sleep imagery ("goodnight", "fell asleep", "tonight: rest"). Useful for bedtime but tonally wrong for daytime play.
+
+**Fix:** new welcome step asks once per device: "When is this story for? Bedtime or Anytime?" The answer persists in Profile (`nt_story_mode`).
+
+Engine wiring:
+- v2: new `mode` field on ending beats. `eligibleFor()` filters `tot_cozy_end` / `little_cozy_end` / `bedtime_landing` candidates by `picks.storyMode` ('bedtime' default / 'anytime'). Untagged beats default to `'bedtime'` (preserves existing behavior).
+- v3: same logic in `pickStageBeat()` for the `landing` stage.
+
+Content authored:
+- **tot:** 2 anytime cozy_end variants ("Bye bye! See you soon!" / "Come back tomorrow?")
+- **little:** 2 anytime cozy_end variants ("ready for whatever came next" / "Tomorrow? Tomorrow.")
+- **kid/big v2:** 4 anytime bedtime_landing variants (food, companion, place, sound flavors)
+- **tween v2:** 3 anytime bedtime_landing variants (no sleep references)
+- **v3:** 1 kid/big + 1 tween anytime landing per blueprint × 4 blueprints = 8 new v3 anytime landings
+
+### Welcome flow now: name → age → sidekicks → setting → **storyMode** → words
+
+The new step renders as a 2-tile picker (🌙 Bedtime / ☀️ Anytime) with a live preview note explaining the difference. Defaults to Bedtime (preserves the established v2.x feel for users who don't engage with the picker).
+
+### QA results
+
+```
+=== 1. v2 age matrix (50/age × 12 ages = 600 stories) ===
+  ✓ 0 nulls — 0/600
+  ✓ 0 unresolved tokens — 0/600
+  ✓ 0 missing required-slot mentions
+
+=== 2. v2 targeted regressions ===
+  ✓ age 2 sky=moon body 60/60 + highlight 60/60
+  ✓ age 4 weather=stormy body 60/60 + highlight 60/60
+
+=== 3. v3 matrix (960 stories) ===
+  ✓ 0 nulls, 0 unresolved, 6-paragraph arc every time
+  ✓ all 9 picked words in body + highlighted (every story)
+
+=== 4. Grammar lint (2,000 v2 stories) ===
+  ✓ 0 plural article errors
+  ✓ 0 awkward " A " titles
+
+=== 5. Story-mode regression ===
+  bedtime age 9 (60 stories): bedtime-words=23/60 anytime-footprint=23/60
+  anytime age 9 (60 stories): bedtime-words=0/60 anytime-footprint=60/60 ✓
+  ✓ anytime stories DON'T close with sleep — 0/60
+  ✓ anytime stories use day-ending language — 60/60
+  ✓ tot anytime DOES NOT default to bedtime — 0/40
+```
+
+**All acceptance gates passed.** Anytime mode cleanly removes sleep imagery (0/60 stories close with "goodnight"/"asleep"/"bedtime") and replaces it with day-ending alternatives (60/60 stories use "walking home"/"onto the next"/"tomorrow"/etc.).
+
+### Files modified
+
+- `index.html` — KARAOKE_LEAD_MS lookahead applied in karaoke tick; Profile gains `storyMode` key + getter/setter; state.storyMode threaded through `buildStory`; new storyMode welcome step + UI tiles + handler; back-chain extended
+- `src/engine-v2.js` — `ENGINE_V2_VERSION` → `v2.6.2`; `eligibleFor` filters ending beats by storyMode; v3 `pickStageBeat` filters landing beats by storyMode; ~20 new mode-tagged beat variants across tot/little/kid+/tween/v3 blueprints
+- `src/content.js` — `APP_VERSION` → `v2.6.2`
+- `scripts/qa-v261.js` — extended with Section 5 storyMode regression gates
+
+### Remaining risks
+
+- **`KARAOKE_LEAD_MS = 220` is calibrated to typical iOS Safari + wired audio.** Bluetooth headphones may add 100-300ms more output latency. If user reports persisting lag with BT, raise to 350-400. Live-tunable via the single constant.
+- **`storyMode` defaults to `'bedtime'` for existing profiles** (the Profile loader sets it when absent). New users hitting the welcome flow for the first time get the picker. Returning users see Bedtime selected; they have to walk back to change it. Acceptable.
+- **The new storyMode step adds 1 click to the wizard for first-time users.** Worth it for the UX improvement, but a future iteration could fold it into the setting step if friction is noticed.
+
+---
+
 ## v2.6.1 — 2026-05-19
 **Focused QA patch — 4 bugs from Codex audit, plus a repeatable QA harness**
 

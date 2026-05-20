@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v2.6.1';
+const ENGINE_V2_VERSION = 'v2.6.2';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -1738,6 +1738,25 @@ const V2_BEATS = [
     lines: [
       'On the way home, {kid.name} tucked {object.articleText} into a pocket for safekeeping. {companion.TheText} approved.',
     ] },
+  /* v2.6.2 — anytime variants for kid/big bedtime_landing. Mode-tagged so they only
+     fire when picks.storyMode === 'anytime'. No sleep imagery; close on a walking-home
+     or what's-next note instead. */
+  { id:'b_any1', beatType:'bedtime_landing', tiers:['kid','big'], mode:'anytime', requiredSlots:['kid','companion','food'],
+    lines: [
+      'Back at home base, {kid.name} ate {food.articleText} and rated the day a solid win. {companion.TheText} agreed without saying anything. Onto the next thing.',
+    ] },
+  { id:'b_any2', beatType:'bedtime_landing', tiers:['kid','big'], mode:'anytime', requiredSlots:['kid','companion'],
+    lines: [
+      '{kid.name} stretched, grinned at {companion.theText}, and started thinking about what to do next. The {companion.text} was already three moves ahead.',
+    ] },
+  { id:'b_any3', beatType:'bedtime_landing', tiers:['kid','big'], mode:'anytime', requiredSlots:['kid','companion','place'],
+    lines: [
+      '{kid.name} and {companion.theText} headed back from the {place.text} replaying the best bits. Tomorrow would have to be impressive to top this. {companion.cap} thought it could.',
+    ] },
+  { id:'b_any4', beatType:'bedtime_landing', tiers:['kid','big'], mode:'anytime', requiredSlots:['kid','companion','sound'],
+    lines: [
+      'Walking back, {kid.name} kept hearing a tiny "{sound.text}" in their head. {companion.cap} heard it too. They grinned. Best day so far.',
+    ] },
 
   /* ============================================================
      Segment B — Mystery recipe beats
@@ -1958,6 +1977,19 @@ const V2_BEATS = [
     lines: [
       'One last group chat ping: "{sound.text}." Cryptic. Unprompted. Iconic. {kid.name} did not respond. {kid.name} fell asleep instead.',
     ] },
+  /* v2.6.2 — anytime variants for tween. No sleep references; deadpan day-ending vibe. */
+  { id:'tw_bed_any1', beatType:'bedtime_landing', tiers:['tween'], mode:'anytime', requiredSlots:['kid'],
+    lines: [
+      'On the walk home {kid.name} mentally drafted three different ways to retell this. None of them would be quite accurate. All of them would be funnier than the original.',
+    ] },
+  { id:'tw_bed_any2', beatType:'bedtime_landing', tiers:['tween'], mode:'anytime', requiredSlots:['kid','companion'],
+    lines: [
+      '{kid.name} and {companion.theText} walked back debriefing the entire incident. The retelling was already 40% embellished. By next week it would be canon.',
+    ] },
+  { id:'tw_bed_any3', beatType:'bedtime_landing', tiers:['tween'], mode:'anytime', requiredSlots:['kid','sound'],
+    lines: [
+      'On the way back, the group chat pinged: "{sound.text}." Cryptic. Unprompted. Iconic. {kid.name} did not respond. {kid.name} screenshotted it for later.',
+    ] },
 
   /* Extra tween-flavored beats for OTHER recipes (mystery + quest), tagged tween-only */
   { id:'tw_clue1', beatType:'strange_clue', tiers:['tween'], requiredSlots:['kid','object','place'],
@@ -2050,6 +2082,17 @@ const V2_BEATS = [
   { id:'to_end2', beatType:'tot_cozy_end', tiers:['tot'], requiredSlots:['kid','companion'],
     lines: [
       'Time for a hug. A big hug. Then a little nap. Goodnight!',
+    ] },
+  /* v2.6.2 — tot anytime cozy_end variants. Mode-tagged so the bedtime defaults
+     above still fire when storyMode is 'bedtime' (the default). Anytime variants
+     swap sleep imagery for walking home / waving / coming back later. */
+  { id:'to_end_any1', beatType:'tot_cozy_end', tiers:['tot'], mode:'anytime', requiredSlots:['kid','companion'],
+    lines: [
+      'Then {kid.name} waved bye. The {companion.text} waved too. Bye bye! See you soon!',
+    ] },
+  { id:'to_end_any2', beatType:'tot_cozy_end', tiers:['tot'], mode:'anytime', requiredSlots:['kid','companion'],
+    lines: [
+      '{kid.name} hugged the {companion.text} one more time. "Come back tomorrow?" said {kid.name}. The {companion.text} nodded. Yay!',
     ] },
 
   /* v2.5.0 — tot sky-aware variants. One per beat type so picking a sky word
@@ -2146,6 +2189,15 @@ const V2_BEATS = [
   { id:'li_end2', beatType:'little_cozy_end', tiers:['little'], requiredSlots:['kid','companion','food'],
     lines: [
       'They ate one last bite of {food.text}. The {companion.text} yawned. {kid.name} yawned too. Time to sleep.',
+    ] },
+  /* v2.6.2 — little anytime cozy_end variants. Fire when picks.storyMode === 'anytime'. */
+  { id:'li_end_any1', beatType:'little_cozy_end', tiers:['little'], mode:'anytime', requiredSlots:['kid','companion'],
+    lines: [
+      'By the end of the day, {kid.name} and the {companion.text} were happy and ready for whatever came next. They high-fived and headed home. Good day!',
+    ] },
+  { id:'li_end_any2', beatType:'little_cozy_end', tiers:['little'], mode:'anytime', requiredSlots:['kid','companion','food'],
+    lines: [
+      'They each had one more bite of {food.text}. The {companion.text} grinned. {kid.name} grinned back. "Tomorrow?" "Tomorrow."',
     ] },
 
   /* ============================================================
@@ -2934,12 +2986,24 @@ function generateStoryV2(name, picks, age) {
   }
   if (!recipe) return null;
 
+  // v2.6.2 — storyMode controls whether the story ends with bedtime imagery (default)
+  // or an "anytime" close (walking home, looking forward to tomorrow, no sleep cues).
+  const storyMode = picks.storyMode === 'anytime' ? 'anytime' : 'bedtime';
+  // Ending beat types that get filtered by storyMode. Other beat types ignore it.
+  const ENDING_BEAT_TYPES = new Set(['tot_cozy_end','little_cozy_end','bedtime_landing']);
+
   // For each beat in the recipe, find an eligible beat card.
-  // Eligibility: tier matches AND all required slots are present in `slots`.
+  // Eligibility: tier matches AND all required slots are present AND, if this beat
+  // type is an ending, its `mode` tag matches the requested storyMode (untagged
+  // beats default to bedtime — existing behavior pre-v2.6.2).
   function eligibleFor(beatType) {
     return V2_BEATS.filter(b => {
       if (b.beatType !== beatType) return false;
       if (!b.tiers.includes(tier)) return false;
+      if (ENDING_BEAT_TYPES.has(beatType)) {
+        const beatMode = b.mode || 'bedtime';
+        if (beatMode !== storyMode) return false;
+      }
       return b.requiredSlots.every(slotName => slots[slotName] != null);
     });
   }
@@ -3474,6 +3538,15 @@ const V3_BEATS = [
     lines: [
       '[name:{protagonist.name}] went home thinking about it. The [c:{ally.text}] followed, looking satisfied. Some mysteries solve themselves. This one had the [c:{ally.text}] on its face the whole time.',
     ] },
+  /* v2.6.2 — lost_snack_v3 anytime landings */
+  { id:'v3_ls_landing_any', stage:'landing', blueprintId:'lost_snack_v3', mode:'anytime', tiers:['kid','big'], requiredRoles:['protagonist','ally'],
+    lines: [
+      'Back home, [name:{protagonist.name}] high-fived the [c:{ally.text}] over the case being officially closed. They both started planning the next caper. Justice, snacks, then more justice.',
+    ] },
+  { id:'v3_ls_landing_any_tween', stage:'landing', blueprintId:'lost_snack_v3', mode:'anytime', tiers:['tween'], requiredRoles:['protagonist','ally'],
+    lines: [
+      'Walking home, [name:{protagonist.name}] mentally workshopped how to retell this. The [c:{ally.text}], still chewing, deserved to be in the story. As a hero. Definitely as a hero.',
+    ] },
 
   /* ============================================================
      goal_spine_v3 — kid declares a goal, hits an obstacle, decides,
@@ -3552,6 +3625,15 @@ const V3_BEATS = [
     lines: [
       'In bed that night, [name:{protagonist.name}] thought about how it had gone. The [c:{ally.text}] was a co-conspirator now. Quietly proud. Not posting about it. Some wins are just for you.',
     ] },
+  /* v2.6.2 — goal_spine_v3 anytime landings */
+  { id:'v3_gs_landing_any', stage:'landing', blueprintId:'goal_spine_v3', mode:'anytime', tiers:['kid','big'], requiredRoles:['protagonist','ally'],
+    lines: [
+      'On the way home, [name:{protagonist.name}] replayed the moment everything turned around. The [c:{ally.text}] kept bouncing along, already ready for whatever was next. Win logged. Onward.',
+    ] },
+  { id:'v3_gs_landing_any_tween', stage:'landing', blueprintId:'goal_spine_v3', mode:'anytime', tiers:['tween'], requiredRoles:['protagonist','ally'],
+    lines: [
+      'Walking home, [name:{protagonist.name}] thought about how it had gone. The [c:{ally.text}] was a co-conspirator now. Quietly proud. Not posting about it. Some wins are just for you.',
+    ] },
 
   /* ============================================================
      show_wrong_v3 — kid + ally prepare a show; prop breaks or co-star
@@ -3625,6 +3707,15 @@ const V3_BEATS = [
   { id:'v3_sw_landing_tween', stage:'landing', blueprintId:'show_wrong_v3', tiers:['tween'], requiredRoles:['protagonist','ally'],
     lines: [
       'Later, [name:{protagonist.name}] replayed the whole disaster in their head. The [c:{ally.text}] was already asleep. The story would get better every time [name:{protagonist.name}] told it. That was definitely allowed.',
+    ] },
+  /* v2.6.2 — show_wrong_v3 anytime landings */
+  { id:'v3_sw_landing_any', stage:'landing', blueprintId:'show_wrong_v3', mode:'anytime', tiers:['kid','big'], requiredRoles:['protagonist','ally'],
+    lines: [
+      'Backstage, [name:{protagonist.name}] high-fived the [c:{ally.text}]. The show was unrepeatable, which felt right. Time to pack up and find the next thing.',
+    ] },
+  { id:'v3_sw_landing_any_tween', stage:'landing', blueprintId:'show_wrong_v3', mode:'anytime', tiers:['tween'], requiredRoles:['protagonist','ally'],
+    lines: [
+      'Walking out, [name:{protagonist.name}] was already rewriting the encore in their head. The [c:{ally.text}] kept asking when the next show was. Soon. Definitely soon.',
     ] },
 
   /* ============================================================
@@ -3703,6 +3794,15 @@ const V3_BEATS = [
   { id:'v3_rl_landing_tween', stage:'landing', blueprintId:'rule_loophole_v3', tiers:['tween'], requiredRoles:['protagonist','ally'],
     lines: [
       'On the way home, [name:{protagonist.name}] mentally filed the loophole away for next time. The [c:{ally.text}] was definitely going to use it on [name:{protagonist.name}] eventually. That was fair.',
+    ] },
+  /* v2.6.2 — rule_loophole_v3 anytime landings */
+  { id:'v3_rl_landing_any', stage:'landing', blueprintId:'rule_loophole_v3', mode:'anytime', tiers:['kid','big'], requiredRoles:['protagonist','ally'],
+    lines: [
+      'Heading home, [name:{protagonist.name}] explained the loophole to the [c:{ally.text}] one more time. The [c:{ally.text}] was nodding seriously, clearly planning to deploy it later. Knowledge: transferred.',
+    ] },
+  { id:'v3_rl_landing_any_tween', stage:'landing', blueprintId:'rule_loophole_v3', mode:'anytime', tiers:['tween'], requiredRoles:['protagonist','ally'],
+    lines: [
+      'On the walk home, [name:{protagonist.name}] mentally filed the loophole for future use. The [c:{ally.text}] was definitely going to use it on [name:{protagonist.name}] eventually. That was fair.',
     ] },
 ];
 
@@ -3808,16 +3908,27 @@ function generateStoryV3(name, picks, age) {
     });
   }
 
+  /* v2.6.2 — v3 also reads picks.storyMode. Landing beats can be tagged
+     `mode:'bedtime'` or `mode:'anytime'`; untagged landing beats default to bedtime.
+     Other stages ignore mode. */
+  const v3StoryMode = picks && picks.storyMode === 'anytime' ? 'anytime' : 'bedtime';
+
   /* Pick a stage beat from V3_BEATS where stage matches, blueprintId matches (or
      beat has no blueprintId — wildcard), tier is allowed, and all required roles
-     are non-null. Prefers more-specific (more required roles) beats to break ties. */
+     are non-null. For landing-stage beats, the beat's mode must match v3StoryMode
+     (untagged → bedtime). Prefers more-specific (more required roles) beats. */
   function pickStageBeat(stage) {
-    const candidates = V3_BEATS.filter(b =>
-      b.stage === stage.name &&
-      (!b.blueprintId || b.blueprintId === blueprint.id) &&
-      b.tiers.includes(tier) &&
-      (b.requiredRoles || []).every(r => roles[r] != null)
-    );
+    const candidates = V3_BEATS.filter(b => {
+      if (b.stage !== stage.name) return false;
+      if (b.blueprintId && b.blueprintId !== blueprint.id) return false;
+      if (!b.tiers.includes(tier)) return false;
+      if (!(b.requiredRoles || []).every(r => roles[r] != null)) return false;
+      if (stage.name === 'landing') {
+        const beatMode = b.mode || 'bedtime';
+        if (beatMode !== v3StoryMode) return false;
+      }
+      return true;
+    });
     if (!candidates.length) return null;
     const maxRoles = Math.max(...candidates.map(c => (c.requiredRoles || []).length));
     const top = candidates.filter(c => (c.requiredRoles || []).length === maxRoles);

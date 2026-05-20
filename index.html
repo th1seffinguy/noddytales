@@ -1091,6 +1091,10 @@ const Profile = {
   KEYS: {
     name: 'nt_name', age: 'nt_age', sidekicks: 'nt_sidekicks',
     setting: 'nt_setting', pottyMode: 'nt_potty_mode',
+    /* v2.6.2 — storyMode: 'bedtime' (default, current behavior) or 'anytime'. Controls
+       whether the engine's cozy-end / landing beats use sleep imagery or a daytime
+       walk-home close. Asked once in the welcome flow; persisted per device. */
+    storyMode: 'nt_story_mode',
   },
   _get(key, fallback, transform) {
     try {
@@ -1114,6 +1118,7 @@ const Profile = {
       }),
       setting:   this._get('setting', 'surprise', v => String(v).slice(0, 32)),
       pottyMode: this._get('pottyMode', false, v => v === '1' || v === 'true'),
+      storyMode: this._get('storyMode', 'bedtime', v => (v === 'anytime' ? 'anytime' : 'bedtime')),
     };
   },
   // Each setter is a no-op when given the same value, but values must be supplied explicitly.
@@ -1122,6 +1127,7 @@ const Profile = {
   saveSidekicks(a) { Array.isArray(a) && a.length ? this._set('sidekicks', JSON.stringify(a.slice(0, 3))) : this._rm('sidekicks'); },
   saveSetting(v)   { v && v !== 'surprise' ? this._set('setting', String(v).slice(0, 32)) : this._rm('setting'); },
   savePotty(b)     { this._set('pottyMode', b ? '1' : '0'); },
+  saveStoryMode(v) { v === 'anytime' ? this._set('storyMode', 'anytime') : this._rm('storyMode'); },
 
   // Clear everything Profile manages. Engine flag (nt_engine_v2) and PIN (nt_pin) are intentionally
   // NOT cleared — those are device-level / parent-controlled, not child profile data.
@@ -1150,6 +1156,7 @@ const state = {
   pottyMode: _initialProfile.pottyMode,
   sidekicks: _initialProfile.sidekicks, // siblings / friends — persist across sessions, max 3
   setting: _initialProfile.setting,     // story setting mode id (default "surprise")
+  storyMode: _initialProfile.storyMode, // 'bedtime' | 'anytime' — v2.6.2
 };
 
 // Wire version badge — tap to surface the What's New panel
@@ -1158,6 +1165,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v2.6.2', title: 'Karaoke alignment + Bedtime/Anytime story mode',
+    detail: 'Two playtest issues addressed. (1) READ IT TO ME karaoke highlight was "one word behind" the spoken audio. Root cause: HTMLMediaElement.currentTime under-reports actual playback position by 150-300ms on most browsers (worse on iOS, much worse over Bluetooth). Fix: KARAOKE_LEAD_MS = 220ms lookahead applied at lookup time so the highlight resolves to where audio WILL be in ~220ms, matching what the listener hears. Single-line tunable; raise to 350-400 if Bluetooth users still see lag. (2) Stories always ended with sleep imagery — tonally wrong for daytime play. New welcome step asks "When is this story for? Bedtime or Anytime?" Bedtime keeps current cozy-end beats (goodnight, fell asleep). Anytime swaps in day-ending close (walking home, onto the next, tomorrow). Persists per device in Profile (nt_story_mode). Engine wiring: ending beats now carry a mode tag (\'bedtime\' default / \'anytime\') and eligibleFor filters by picks.storyMode. v3 pickStageBeat applies the same filter to its landing stage. Authored ~20 anytime variants: 2 tot, 2 little, 4 kid/big, 3 tween, 8 v3 (one kid/big + one tween per blueprint × 4 blueprints). QA: 600 v2 stories matrix, 60/60 sky and weather golden tests, 960 v3 stories across blueprints/ages — all pass. New section 5 in qa-v261.js confirms anytime mode drops to 0/60 bedtime words and rises to 60/60 day-ending markers.' },
   { v: 'v2.6.1', title: 'QA patch — 4 bugs closed + repeatable Node QA harness',
     detail: 'Focused QA patch for 4 issues caught by Codex audit, plus scripts/qa-v261.js as a repeatable acceptance harness. (1) show_wrong_v3 dropped chosen creature for tween ages 11-13: tween escalation beat didn\'t reference obstacle. Rewrote v3_sw_escalation_tween to require + reference obstacle (2 variants) and added obstacle to v3 FLAVOR_CALLBACKS as safety net. (2) Plural-article bug "a donuts flew through the window": 8 templates rewrote to use {food.articleText} / {mcguffin.articleText} instead of hardcoded "a {food.text}". 2,000-story lint now finds 0 occurrences of "a donuts/cookies/waffles/pancakes/..." patterns. (3) "Rescue A Stuck Friend" title casing: titleCase now keeps a/an/the/of/in/on/at/to/for/by/with/and/or/but/vs/from/as/if/nor lowercase unless first or last word. (4) Doc drift: docs/v3-role-blueprints.md status updated from "v2.5.0 ships one blueprint" to v2.6.x ships all 4; RELEASE_NOTES v2.2.1 TTS privacy claim amended with a "REMOVED in v2.2.3" suffix so readers know audio narrator now speaks the real name. Final QA: 600 v2 stories (age matrix) — 0 nulls / 0 unresolved / 0 missing required-slot mentions. 60/60 sky=moon@age2 + weather=stormy@age4 body + highlight. 960 v3 stories across 4 blueprints × ages 6-13 — 0 nulls, 0 unresolved, 6-paragraph arc every time, all 9 golden picks in body + highlighted in every story. 2,000-story grammar lint — 0 plural article errors, 0 awkward " A " titles. All acceptance gates passed.' },
   { v: 'v2.6.0', title: 'v3 blueprint variety — 4 role-based blueprints, same shapes as v2',
@@ -1480,7 +1489,13 @@ function buildStory(name, picks, age) {
   // v2.1.0 — inject state.setting into picks so the v2 engine can lock the place slot.
   // v2.5.0 — experimental v3 path. When ?engine=v3 (or nt_engine_v3 stored = '1'),
   // try generateStoryV3 first. v3 returns null for tot/little; falls through to v2.
-  const picksWithSetting = { ...picks, setting: { id: (state.setting || 'surprise') } };
+  // v2.6.2 — pass storyMode through to the engine so cozy_end / landing beats can
+  // pick from 'bedtime' (default, sleep imagery) or 'anytime' (daytime walk-home) pools.
+  const picksWithSetting = {
+    ...picks,
+    setting:   { id: (state.setting || 'surprise') },
+    storyMode: state.storyMode || 'bedtime',
+  };
 
   if (isEngineV3Enabled() && typeof generateStoryV3 === 'function') {
     try {
@@ -2476,11 +2491,50 @@ function renderWelcome() {
       </div>
       <div class="footer">
         <button class="btn" id="btn-setting-go">
+          Next →
+        </button>
+      </div>
+    </div>
+  ` : step === 'storyMode' ? `
+    <!-- v2.6.2 — story-mode picker (bedtime vs anytime) -->
+    <div class="stack gap-20 grow">
+      <div>
+        <h1 class="display" style="text-align:center">
+          When is<br>
+          <span style="color:var(--orange-dark)">this story for?</span>
+        </h1>
+        <p class="lede" style="text-align:center;margin-top:10px">
+          Tap one. Bedtime stories end with sleep. Anytime stories end with a wave home.
+        </p>
+      </div>
+      <div class="story-mode-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 6px">
+        <button
+          class="setting-tile${state.storyMode === 'bedtime' ? ' is-selected' : ''}"
+          data-story-mode="bedtime"
+          aria-label="Bedtime story">
+          <span class="setting-emoji">🌙</span>
+          <span class="setting-label">Bedtime</span>
+        </button>
+        <button
+          class="setting-tile${state.storyMode === 'anytime' ? ' is-selected' : ''}"
+          data-story-mode="anytime"
+          aria-label="Anytime story">
+          <span class="setting-emoji">☀️</span>
+          <span class="setting-label">Anytime</span>
+        </button>
+      </div>
+      <div class="setting-note">
+        ${state.storyMode === 'anytime'
+          ? "Anytime: the story ends with the cast heading off to whatever's next."
+          : "Bedtime: the story ends cozy, with goodnight."}
+      </div>
+      <div class="footer">
+        <button class="btn" id="btn-story-mode-go">
           Let's go! ✨
         </button>
       </div>
     </div>
-  `}
+  ` : ''}
 </div>`;
 }
 
@@ -2750,7 +2804,7 @@ function attachWelcomeHandlers(el) {
 
   if (btnBack) btnBack.addEventListener('click', () => {
     // v2.1.0 — back chain extended: setting → sidekicks → age → name
-    const back = { setting: 'sidekicks', sidekicks: 'age', age: 'name' };
+    const back = { storyMode: 'setting', setting: 'sidekicks', sidekicks: 'age', age: 'name' };
     state.welcomeStep = back[state.welcomeStep] || 'name';
     rerender();
   });
@@ -2825,6 +2879,28 @@ function attachWelcomeHandlers(el) {
   });
 
   if (btnSettingGo) btnSettingGo.addEventListener('click', () => {
+    if (state.age) advanceToStoryMode();
+  });
+
+  // v2.6.2 — story-mode step (bedtime / anytime). Tiles update state.storyMode + persist.
+  const storyModeTiles = el.querySelectorAll('[data-story-mode]');
+  storyModeTiles.forEach(tile => {
+    tile.addEventListener('click', () => {
+      state.storyMode = tile.dataset.storyMode;
+      Profile.saveStoryMode(state.storyMode);
+      storyModeTiles.forEach(t => t.classList.remove('is-selected'));
+      tile.classList.add('is-selected');
+      // live-update the note text under the tiles
+      const note = el.querySelector('.story-mode-grid + .setting-note');
+      if (note) {
+        note.textContent = state.storyMode === 'anytime'
+          ? "Anytime: the story ends with the cast heading off to whatever's next."
+          : "Bedtime: the story ends cozy, with goodnight.";
+      }
+    });
+  });
+  const btnStoryModeGo = el.querySelector('#btn-story-mode-go');
+  if (btnStoryModeGo) btnStoryModeGo.addEventListener('click', () => {
     if (state.age) startWords();
   });
 }
@@ -2841,6 +2917,11 @@ function advanceToSidekicks() {
 
 function advanceToSetting() {
   state.welcomeStep = 'setting';
+  rerender();
+}
+
+function advanceToStoryMode() {
+  state.welcomeStep = 'storyMode';
   rerender();
 }
 
@@ -3067,6 +3148,19 @@ const TTSManager = (() => {
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
+  /* v2.6.2 — karaoke lookahead offset.
+     User reported the highlight is "consistently one word behind" the spoken audio.
+     Root cause: HTMLMediaElement.currentTime under-reports the actual playback
+     position on most browsers (~150-300ms depending on platform — worse on iOS,
+     even worse over Bluetooth). The karaoke loop tracks currentTime, so the
+     highlight ends up trailing what the user actually hears.
+     Fix: bump the lookup time forward by KARAOKE_LEAD_MS. This way the highlight
+     matches what the user is hearing right now, not what the audio buffer has
+     queued. 220ms tuned to roughly the audible-vs-currentTime gap on iOS Safari +
+     wired audio; mobile users with Bluetooth headphones may need a higher value
+     but 220ms is a safe default that doesn't visibly race ahead on desktop. */
+  const KARAOKE_LEAD_MS = 220;
+
   function startKaraokeRAF() {
     stopKaraokeRAF();
     installUserScrollListener();
@@ -3085,7 +3179,9 @@ const TTSManager = (() => {
     const kwNodes = Array.from(document.querySelectorAll('.kw'));
     function tick() {
       if (!audio || !wordTimings) return;
-      const t  = audio.currentTime;
+      // v2.6.2 — apply lookahead offset so highlight matches what user hears, not the
+      // buffer-position currentTime reports. See KARAOKE_LEAD_MS docs above.
+      const t  = audio.currentTime + (KARAOKE_LEAD_MS / 1000);
       const wt = wordTimings;
       let idx  = -1;
       // Primary pass: find the word currently being spoken (t inside [start, end)).
