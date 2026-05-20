@@ -4,6 +4,68 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.6.0 — 2026-05-19
+**v3 blueprint variety — 4 blueprints with the same shapes as v2**
+
+v2.5.0 shipped the first v3 blueprint (`lost_snack_v3`). v2.6.0 expands v3 to **4 blueprints** so the experimental engine has the same variety as v2, plus a few engine improvements to support the expansion.
+
+### New blueprints
+
+**`goal_spine_v3`** — kid declares a goal in P1, hits an obstacle, decides to push through, resolves with the ally's help. Role map: `obstacle = visitor`, `mcguffin = food`, `signature_action = move`. 10 new beats across the 6 stages.
+
+**`show_wrong_v3`** — kid prepares a show, the prop (object) breaks or the co-star (ally) forgets, kid improvises with their signature move and chant, triumph. Role map: `prop = object`, `obstacle = visitor` (heckler), `chant = sound`, `payoff_word = freeword2`. Also has `mcguffin = food` as a side-flavor so the chosen food still appears. 11 new beats.
+
+**`rule_loophole_v3`** — visitor imposes an absurd rule that blocks the mcguffin; kid uses the loophole_tool (object) + signature_action to win. Role map: `rule_imposer = visitor`, `loophole_tool = object`, `mcguffin = food`. 12 new beats.
+
+### Engine changes
+
+- **`blueprintId` field on V3_BEATS** — beats scope to their blueprint by tag. Beats without `blueprintId` are wildcards (currently unused; reserved for shared landing/punchline beats in future builds).
+- **Existing lost_snack_v3 beats tagged with `blueprintId: 'lost_snack_v3'`** so they don't bleed into other blueprints when role requirements overlap.
+- **Dynamic blueprint validation** — `generateStoryV3` now derives the required-role set from `blueprint.stages[*].requiredRoles` instead of using a hardcoded list. Each blueprint declares its own required roles via stage definitions.
+- **Engine adds `object` to v3 slots** — show_wrong_v3 needs an object for `prop`, rule_loophole_v3 needs an object for `loophole_tool`. Picked randomly from `V2_WORDS.objects` since the picker has no `object` round.
+- **Flavor callbacks extended** — `mood_throughline` and `mcguffin` added to the v3 coverage pass so any blueprint where those roles aren't natively load-bearing (e.g. show_wrong's mcguffin) still surfaces the chosen word.
+- **Random blueprint selection** — `generateStoryV3` picks uniformly at random from all eligible blueprints when no override is set. `picks.__v3BlueprintId` forces a specific blueprint (used by `qaV3Blueprint` for isolated audits).
+
+### Acceptance (all 4 blueprints, golden picks Cole/parrot/donuts/jungle/dinosaur/rainbow/bounced/silly/KABLAM/BOINGO, 30 samples each, age 6)
+
+| Blueprint | Nulls | Unresolved | 6-para arc | Kid in P1 | Min word coverage |
+|---|---|---|---|---|---|
+| lost_snack_v3 | 0/30 | 0/30 | 30/30 | 30/30 | **100%** |
+| goal_spine_v3 | 0/30 | 0/30 | 30/30 | 30/30 | **100%** |
+| show_wrong_v3 | 0/30 | 0/30 | 30/30 | 30/30 | **100%** |
+| rule_loophole_v3 | 0/30 | 0/30 | 30/30 | 30/30 | **100%** |
+
+**Random-pick distribution across 200 stories at age 9:** lost_snack 62, goal_spine 52, show_wrong 52, rule_loophole 34 — roughly even with a slight bias toward blueprints with larger beat pools.
+
+**v2 regression:** 60 stories ages 2-13, 0 nulls, 0 unresolved tokens, `qaWordMapping` still 366/366 (100%).
+
+### Sample stories per blueprint (Cole, age 6, golden picks)
+
+**lost_snack_v3** — *Cole and the donuts Mystery*
+> P1: Cole and the parrot were at the jungle. Cole had been saving the donuts all morning. They were excited. The parrot was extra excited.
+> P4: The trail led to the parrot. Of course. The parrot had a single donuts crumb on its face. "YOU?" said Cole. The parrot looked away politely. A distant "KABLAM" echoed from somewhere, possibly a memory.
+
+**goal_spine_v3** — *The Day Cole Beat the dinosaur*
+> P1: It started at the jungle. Cole looked around, glanced at the parrot, and made up their mind: today was the day. No matter what.
+> P5: It worked. It actually worked. Cole got past the dinosaur right in front of everyone. "KABLAM!" yelled Cole. The parrot took a small bow on Cole's behalf. Everyone got donuts eventually.
+
+**show_wrong_v3** — *The tiny key Broke But Cole Did Not*
+> P1: At the jungle, Cole set everything up. The parrot practiced its part. The tiny key sat front and center. The whole show kind of depended on the tiny key working.
+> P5: It was a huge hit. A real one. Cole and the parrot got a huge clap. The new catchphrase "BOINGO" was now official. Everything in the room had picked up a faint rainbow tint.
+
+**rule_loophole_v3** — *How Cole Outsmarted the dinosaur*
+> P2: The dinosaur declared the donuts forbidden. Cole felt silly about this development. Possibly more silly than the dinosaur had bargained for.
+> P5: And just like that, Cole got the donuts anyway. The dinosaur sighed. "KABLAM!" yelled Cole. The rule was still a rule, but Cole had won this round.
+
+Every selected word lands in every blueprint with appropriate plot weight.
+
+### Files modified
+
+- `src/engine-v2.js` — `ENGINE_V2_VERSION` → `v2.6.0`; 3 new blueprints in `V3_BLUEPRINTS`; ~33 new beats; `blueprintId` scoping on V3_BEATS; dynamic required-role derivation; `object` added to v3 slots; flavor callbacks extended; `__v3BlueprintId` override for QA
+- `src/content.js` — `APP_VERSION` → `v2.6.0`
+
+---
+
 ## v2.5.0 — 2026-05-19
 **QA stricter + remaining coverage gaps closed + v3 experimental engine behind flag**
 
