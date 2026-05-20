@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v2.4.7';
+const ENGINE_V2_VERSION = 'v2.5.0';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -2037,6 +2037,30 @@ const V2_BEATS = [
       'Time for a hug. A big hug. Then a little nap. Goodnight!',
     ] },
 
+  /* v2.5.0 — tot sky-aware variants. One per beat type so picking a sky word
+     (moon/kite/balloon/star/etc.) means the chosen thing actually shows up in the
+     little story. Language stays very simple — short sentences, repetition, no irony. */
+  { id:'to_intro_sky', beatType:'tot_intro', tiers:['tot'], requiredSlots:['kid','sky'],
+    lines: [
+      '{kid.name} looked up. There was a {sky.text}! Hi, {sky.text}!',
+      '{kid.name} saw the {sky.text}. The {sky.text} was right there. "Hi {sky.text}!" said {kid.name}.',
+    ] },
+  { id:'to_silly_sky', beatType:'tot_silly_meet', tiers:['tot'], requiredSlots:['companion','sky'],
+    lines: [
+      'The {companion.text} waved at the {sky.text}. Hello {sky.text}! Hello!',
+      'The {companion.text} pointed at the {sky.text}. The {sky.text} was up high. Way up.',
+    ] },
+  { id:'to_repeat_sky', beatType:'tot_silly_repeat', tiers:['tot'], requiredSlots:['kid','companion','sky'],
+    lines: [
+      '{kid.name} waved at the {sky.text}. The {companion.text} waved too. The {sky.text} just smiled.',
+      '"{sky.text}!" said {kid.name}. "{sky.text}!" said the {companion.text}. The {sky.text} stayed put. So pretty.',
+    ] },
+  { id:'to_end_sky', beatType:'tot_cozy_end', tiers:['tot'], requiredSlots:['kid','sky'],
+    lines: [
+      'Goodnight, {sky.text}. Goodnight, {kid.name}. Sweet dreams.',
+      'The {sky.text} watched {kid.name} fall asleep. The {sky.text} stayed up all night. Just to keep watch.',
+    ] },
+
   /* ============================================================
      Segment D — Little (ages 4-5) beat library
      Voice: tiny jobs, confused animals, weather nonsense, gentle.
@@ -2303,6 +2327,42 @@ const V2_BEATS = [
   { id:'kd_tween_1', beatType:'kid_decides', tiers:['tween'], requiredSlots:['kid','food'],
     lines: [
       '{kid.name} pulled out {food.articleText} and gave a look. The kind of look that says "this is the move." Sometimes the move is just snacks. {kid.cap} accepted it.',
+    ] },
+  /* v2.5.0 — tween move load-bearing beats. The kid's chosen move IS the action
+     that changes the situation. Replaces generic "moved a little because it felt
+     right" sprinkles. Designed so phrases like "dramatically sighed", "rage-walked",
+     "existentially paused", "casually yeeted everything", "nodded knowingly" all
+     read naturally as the verb that turns the scene. */
+  { id:'kd_tween_move_vend', beatType:'kid_decides', tiers:['tween'], requiredSlots:['kid','move'],
+    lines: [
+      '{kid.name} {move.text} so hard the vending machine reset. Nobody understood what just happened. {kid.cap} kept walking like that had been the plan.',
+      '{kid.cap} {move.text}. The vending machine made a sound it should not have been able to make. The lights flickered once. Then everything was fine. Sort of.',
+    ] },
+  { id:'kd_tween_move_room', beatType:'kid_decides', tiers:['tween'], requiredSlots:['kid','move'],
+    lines: [
+      'So {kid.name} {move.text}. The whole room read it as a statement. {kid.cap} had not meant it that way. Too late. The statement was made.',
+    ] },
+  { id:'ls_inv_tween_move', beatType:'kid_investigates', tiers:['tween'], requiredSlots:['kid','move','object'],
+    lines: [
+      '{kid.name} {move.text} past the scene with {object.articleText}. That motion alone caught two new clues nobody else had noticed. {kid.cap} did not mention this out loud.',
+      '{kid.cap} {move.text} around the room exactly once. That was enough. {kid.name} now knew three things they had not known thirty seconds ago.',
+    ] },
+  { id:'sw_imp_tween_move', beatType:'kid_improvises', tiers:['tween'], requiredSlots:['kid','move','freeword2'],
+    lines: [
+      '{kid.name} {move.text} center stage and yelled "{freeword2.text}!" once, with conviction. The crowd interpreted it as performance art. {kid.cap} did not correct anyone.',
+      'Then {kid.cap} {move.text} across the stage in a way nobody had rehearsed. "{freeword2.text}!" {kid.name} added, for effect. Somehow the whole thing landed.',
+    ] },
+  { id:'rl_lp_tween_move', beatType:'kid_finds_loophole', tiers:['tween'], requiredSlots:['kid','move','visitor'],
+    lines: [
+      '{kid.name} {move.text} past the rule sign. Technically, that motion was not banned. The {visitor.text} squinted but could not technically object. The loophole held.',
+      '{kid.cap} {move.text}. The {visitor.text} interpreted this as compliance. It was not compliance. It was the loophole, executed with style.',
+    ] },
+  /* v2.5.0 — tween move escalation: also fires as a punchline variant so the
+     selected move can land in the climax rather than only the attempt stage. */
+  { id:'pl_tw_move_climax', beatType:'punchline', tiers:['tween'], requiredSlots:['kid','move'],
+    lines: [
+      'Then {kid.name} {move.text} one more time. Just to settle it. Nobody knew what had been settled, including {kid.name}. The story now belonged to history.',
+      'Final move of the evening: {kid.name} {move.text}. The group chat would later refer to this as "the {move.text} moment." It would not be explained.',
     ] },
 
   /* GOAL RESOLVED — the chosen pick succeeds; kid wins */
@@ -2805,6 +2865,12 @@ function generateStoryV2(name, picks, age) {
      just like color/move/mood — beats can reference {weather.text} when relevant, and
      a coverage callback below makes sure the chosen weather surfaces in the body. */
   const weather = picks.weather?.w ? { text: picks.weather.w } : null;
+  /* v2.5.0 — sky was unread until now. Tot tier has a `sky` round (sun/moon/star/cloud/kite/
+     plane/rainbow/balloon/comet/snowflake/butterfly/firework/bubbles/rocket/rain/helicopter/
+     leaf/high bubbles). Sky is wired as a free-string slot the same way; tot beats below
+     reference {sky.text}, a coverage callback ensures it surfaces, and the highlight pass
+     wraps it. */
+  const sky = picks.sky?.w ? { text: picks.sky.w } : null;
 
   // Sidekick is optional. Pull from state.sidekicks if available; otherwise null.
   // (Beat cards that require sidekick will be filtered out when null.)
@@ -2829,7 +2895,7 @@ function generateStoryV2(name, picks, age) {
     kid: { name: name || 'Friend', cap: V2Grammar.capitalize(name || 'Friend'), lc: (name || 'friend').toLowerCase() },
     sidekick: sidekickName ? { name: sidekickName, cap: V2Grammar.capitalize(sidekickName), lc: sidekickName.toLowerCase() } : null,
     companion, visitor, place, food, object, sound, adverb, number, liquid, job, rule,
-    color, move, mood, weather, freeword2,
+    color, move, mood, weather, sky, freeword2,
     goal,    // v2.3.0 — load-bearing goal slot
   };
 
@@ -3040,6 +3106,9 @@ function generateStoryV2(name, picks, age) {
     weather: tier === 'tot' || tier === 'little'
       ? [' The {weather.text} weather kept going. They did not mind.', ' The whole day stayed {weather.text}.']
       : [' The {weather.text} weather hung around like it had nothing better to do.', ' Outside it stayed steadily {weather.text}, which felt fitting somehow.'],
+    /* v2.5.0 — sky callback. Safety net for tot stories when no sky beat fired
+     but the kid picked a sky thing (moon/kite/balloon/etc.). Language stays simple. */
+    sky: [' The {sky.text} was right there. Just hanging out.', ' Above them: the {sky.text}. {sky.cap}!'],
   };
 
   function injectCallback(slotName) {
@@ -3064,6 +3133,8 @@ function generateStoryV2(name, picks, age) {
   // v2.4.7 — weather is also required-if-picked. Picker collects it for little tier and
   // any future tier with a weather round; must surface in the body when present.
   if (weather && !bodyHas(weather.text))     injectCallback('weather');
+  // v2.5.0 — sky is required-if-picked for tot tier (no other tier has a sky round).
+  if (sky && !bodyHas(sky.text))             injectCallback('sky');
 
   // Preferred sprinkles — cap at 2 per story to avoid pileups, but SHUFFLE so all four
   // user-selected categories get fair coverage across multiple stories (otherwise the
@@ -3121,7 +3192,8 @@ function generateStoryV2(name, picks, age) {
     const cTerms = [
       picks.color?.w, picks.move?.w, picks.mood?.w,
       picks.pet?.w, picks.food?.w, picks.creature?.w,
-      picks.weather?.w,  // v2.4.7 — weather now highlighted like other selected words
+      picks.weather?.w,  // v2.4.7
+      picks.sky?.w,      // v2.5.0 — sky highlighted (tot only) when picked
     ].filter(Boolean).sort((a, b) => String(b).length - String(a).length);
     for (const t of cTerms) out = wrap(out, t, 'c');
     // Yellow: place pick + locked setting place + freeword
@@ -3140,6 +3212,331 @@ function generateStoryV2(name, picks, age) {
   return { title: highlightedTitle, paragraphs: highlightedParagraphs };
 }
 
+/* ================================================================
+   v3 ENGINE (experimental) — role-based story generation behind ?engine=v3
+
+   Design lives in docs/v3-role-blueprints.md. This is the first working runtime.
+   v2 remains the default. v3 only fires when window.NODDY_ENGINE === 'v3'
+   (set from index.html when the URL has ?engine=v3 or localStorage 'nt_engine_v3').
+
+   Architecture
+   ------------
+   • V3_BLUEPRINTS declare a roleMap (role → slot name) and a stage progression.
+   • V3_BEATS are tagged by stage and required ROLES (not slots). The same beat
+     can fire for any blueprint whose role map satisfies its required roles.
+   • generateStoryV3 builds slots (reusing v2's mapPickToWord), applies the role
+     map to produce a `roles` object, then walks stages picking eligible beats.
+   • Beat lines reference {role.text} / {role.cap} / {role.articleText} etc.
+     The render layer resolves role → slot at render time, so the same beat
+     reads correctly across blueprints with different role-to-slot mappings.
+   • Highlight tokens ([name:X]/[c:X]/[y:X]) are emitted DIRECTLY by beat lines
+     instead of post-processed by regex. Token-aware authoring is the v3 path
+     toward retiring applyHighlightTokens in a future cutover.
+
+   First blueprint shipped: lost_snack_v3 (kid/big/tween).
+   ================================================================ */
+
+const V3_VERSION = 'v3.0.0-experimental';
+
+const V3_BLUEPRINTS = {
+  lost_snack_v3: {
+    id: 'lost_snack_v3',
+    tiers: ['kid', 'big', 'tween'],
+    /* Role mapping for this blueprint. Each role maps to a v2 slot name; the engine
+       resolves slots first (reusing v2's slot construction) then materialises roles. */
+    roleMap: {
+      protagonist:       'kid',
+      ally:              'companion',
+      mcguffin:          'food',
+      setting:           'place',
+      false_suspect:     'visitor',
+      signature_action:  'move',      // optional — falls back if not picked
+      visual_signature:  'color',     // optional
+      mood_throughline:  'mood',      // optional
+      chant:             'sound',     // sound.text == freeword.w when user picked
+      payoff_word:       'freeword2', // optional
+    },
+    /* Stages in order. Each stage requires ≥1 eligible V3_BEATS entry to fire;
+       stages can be optional (skipIfEmpty: true) to keep the engine robust. */
+    stages: [
+      { name: 'setup',      requiredRoles: ['protagonist','ally','setting','mcguffin'] },
+      { name: 'problem',    requiredRoles: ['protagonist','mcguffin','false_suspect'] },
+      { name: 'attempt',    requiredRoles: ['protagonist','false_suspect'] },
+      { name: 'escalation', requiredRoles: ['protagonist','ally','mcguffin'] },
+      { name: 'payoff',     requiredRoles: ['protagonist','ally','mcguffin'] },
+      { name: 'landing',    requiredRoles: ['protagonist','ally'] },
+    ],
+    titlePatterns: [
+      'Who Took the [c:{mcguffin.text}]?',
+      '[name:{protagonist.name}] and the [c:{mcguffin.text}] Mystery',
+      'The Day the [c:{mcguffin.text}] Vanished',
+      '[name:{protagonist.name}] vs the [c:{false_suspect.text}]',
+    ],
+  },
+};
+
+const V3_BEATS = [
+  /* SETUP — kid + ally + setting + mcguffin together. Highlight tokens emitted directly. */
+  { id:'v3_setup_1', stage:'setup', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting','mcguffin'],
+    lines: [
+      '[name:{protagonist.name}] and the [c:{ally.text}] were at the [y:{setting.text}]. [name:{protagonist.name}] had been saving the [c:{mcguffin.text}] all morning. They were excited. The [c:{ally.text}] was extra excited.',
+      'At the [y:{setting.text}], [name:{protagonist.name}] set the [c:{mcguffin.text}] down for one second. The [c:{ally.text}] watched. [name:{protagonist.name}] turned to grab a napkin. Just one second.',
+    ] },
+  { id:'v3_setup_2', stage:'setup', tiers:['tween'], requiredRoles:['protagonist','ally','setting','mcguffin'],
+    lines: [
+      'At the [y:{setting.text}], [name:{protagonist.name}] had committed to one thing: the [c:{mcguffin.text}]. The [c:{ally.text}] was technically the witness. The [c:{mcguffin.text}] was technically the mission.',
+    ] },
+
+  /* PROBLEM — mcguffin gone, false_suspect spotted. Uses "had vanished" so works
+     for both singular ("the donut had vanished") and plural ("the donuts had vanished"). */
+  { id:'v3_problem_1', stage:'problem', tiers:['kid','big'], requiredRoles:['protagonist','mcguffin','false_suspect'],
+    lines: [
+      'When [name:{protagonist.name}] turned back, the [c:{mcguffin.text}] had VANISHED. Just gone. A [c:{false_suspect.text}] stood nearby, looking very innocent. WAY too innocent.',
+      'The [c:{mcguffin.text}] had vanished. [name:{protagonist.name}] looked around. The [c:{false_suspect.text}] was right there, suspiciously casual. "It was you, wasn\'t it," said [name:{protagonist.name}].',
+    ] },
+  { id:'v3_problem_mood', stage:'problem', tiers:['kid','big','tween'], requiredRoles:['protagonist','mcguffin','false_suspect','mood_throughline'],
+    lines: [
+      'The [c:{mcguffin.text}] had vanished. [name:{protagonist.name}] felt [c:{mood_throughline.text}] about it, in a way that meant business. The [c:{false_suspect.text}] noticed and tried to act normal. It was not working.',
+    ] },
+  { id:'v3_problem_tween', stage:'problem', tiers:['tween'], requiredRoles:['protagonist','mcguffin','false_suspect'],
+    lines: [
+      'The [c:{mcguffin.text}]: gone. The [c:{false_suspect.text}]: present, suspiciously well-rehearsed. [name:{protagonist.name}] did not love this development.',
+    ] },
+
+  /* ATTEMPT — kid investigates, signature_action drives it when present. */
+  { id:'v3_attempt_move', stage:'attempt', tiers:['kid','big'], requiredRoles:['protagonist','false_suspect','signature_action'],
+    lines: [
+      '[name:{protagonist.name}] [c:{signature_action.text}] over to the [c:{false_suspect.text}] and squinted. "Where is it?" The [c:{false_suspect.text}] said nothing. [name:{protagonist.name}] [c:{signature_action.text}] around the room again, looking for crumbs.',
+      'So [name:{protagonist.name}] [c:{signature_action.text}] across the scene. The [c:{false_suspect.text}] watched the whole thing. The trail of crumbs did NOT lead to the [c:{false_suspect.text}]. Interesting.',
+    ] },
+  { id:'v3_attempt_color', stage:'attempt', tiers:['kid','big'], requiredRoles:['protagonist','false_suspect','visual_signature'],
+    lines: [
+      '[name:{protagonist.name}] spotted it: a tiny [c:{visual_signature.text}] crumb on the floor. Then another. Then another. The crumbs were leading somewhere. They were not leading to the [c:{false_suspect.text}].',
+    ] },
+  { id:'v3_attempt_plain', stage:'attempt', tiers:['kid','big','tween'], requiredRoles:['protagonist','false_suspect'],
+    lines: [
+      '[name:{protagonist.name}] did some detective work. Looked at the floor. Looked at the [c:{false_suspect.text}]. Followed a faint trail. The trail led somewhere else entirely.',
+    ] },
+  { id:'v3_attempt_tween_move', stage:'attempt', tiers:['tween'], requiredRoles:['protagonist','false_suspect','signature_action'],
+    lines: [
+      '[name:{protagonist.name}] [c:{signature_action.text}] past the [c:{false_suspect.text}] in a way that read as deliberate. It was not deliberate. It happened to be exactly right.',
+    ] },
+
+  /* ESCALATION — twist: the ally is the actual culprit. */
+  { id:'v3_escalation_1', stage:'escalation', tiers:['kid','big'], requiredRoles:['protagonist','ally','mcguffin'],
+    lines: [
+      'The trail led to the [c:{ally.text}]. Of course. The [c:{ally.text}] had a single [c:{mcguffin.text}] crumb on its face. "YOU?" said [name:{protagonist.name}]. The [c:{ally.text}] looked away politely.',
+      'Plot twist nobody saw coming except maybe the [c:{ally.text}]: it was the [c:{ally.text}]. The [c:{ally.text}] had been the [c:{mcguffin.text}] thief the whole time. It was very sorry. Mostly.',
+    ] },
+  { id:'v3_escalation_tween', stage:'escalation', tiers:['tween'], requiredRoles:['protagonist','ally','mcguffin'],
+    lines: [
+      'The real culprit, obviously, was the [c:{ally.text}]. [name:{protagonist.name}] should have known. The [c:{ally.text}] had crumbs of [c:{mcguffin.text}] on its face and zero regret in its eyes.',
+    ] },
+
+  /* PAYOFF — mcguffin resolved, chant fires, payoff_word lands. */
+  { id:'v3_payoff_chant', stage:'payoff', tiers:['kid','big'], requiredRoles:['protagonist','ally','mcguffin','chant'],
+    lines: [
+      '"[y:{chant.text}]!" yelled [name:{protagonist.name}]. The [c:{ally.text}] squawked back. Everyone agreed to share the next batch of [c:{mcguffin.text}]. The [c:{false_suspect.text}] demanded a formal apology. [name:{protagonist.name}] gave one. Case closed.',
+    ] },
+  { id:'v3_payoff_payword', stage:'payoff', tiers:['kid','big'], requiredRoles:['protagonist','ally','mcguffin','payoff_word'],
+    lines: [
+      'The [c:{ally.text}] hiccuped one more time and a tiny crumb of [c:{mcguffin.text}] popped out. [name:{protagonist.name}] laughed so hard. "[y:{payoff_word.text}]!" yelled [name:{protagonist.name}]. The [c:{ally.text}] echoed back, mouth full.',
+    ] },
+  { id:'v3_payoff_plain', stage:'payoff', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','mcguffin'],
+    lines: [
+      'Everyone got a [c:{mcguffin.text}] in the end, even the [c:{ally.text}], which was technically the criminal. Justice was unevenly served. The [c:{mcguffin.text}] was very good.',
+    ] },
+  { id:'v3_payoff_tween', stage:'payoff', tiers:['tween'], requiredRoles:['protagonist','ally','mcguffin'],
+    lines: [
+      'In the end the [c:{mcguffin.text}] was shared. Sort of. The [c:{ally.text}] got the biggest piece, which felt correct, given the circumstances. [name:{protagonist.name}] did not press charges.',
+    ] },
+
+  /* LANDING — cozy close, callbacks. */
+  { id:'v3_landing_1', stage:'landing', tiers:['kid','big'], requiredRoles:['protagonist','ally'],
+    lines: [
+      'That night, [name:{protagonist.name}] curled up. The [c:{ally.text}], full of stolen crumbs, curled up too. Tomorrow: more snacks. Tonight: rest.',
+    ] },
+  { id:'v3_landing_tween', stage:'landing', tiers:['tween'], requiredRoles:['protagonist','ally'],
+    lines: [
+      '[name:{protagonist.name}] went home thinking about it. The [c:{ally.text}] followed, looking satisfied. Some mysteries solve themselves. This one had the [c:{ally.text}] on its face the whole time.',
+    ] },
+];
+
+/* generateStoryV3 — role-based story generation. Mirrors v2's slot construction
+   then applies the blueprint's role map. Each stage picks an eligible beat
+   whose required roles are all present. Lines are rendered with role-aware
+   resolution: {role.prop} resolves to slots[blueprint.roleMap[role]][prop].
+
+   Returns {title, paragraphs} compatible with renderStory(). Highlight tokens
+   are emitted by beat authors directly; no regex post-processing required. */
+function generateStoryV3(name, picks, age) {
+  let tier;
+  if (age >= 2 && age <= 3)        tier = 'tot';
+  else if (age >= 4 && age <= 5)   tier = 'little';
+  else if (age >= 6 && age <= 7)   tier = 'kid';
+  else if (age >= 8 && age <= 10)  tier = 'big';
+  else if (age >= 11 && age <= 13) tier = 'tween';
+  else                              return null;
+
+  // v3 (currently) only covers kid/big/tween. Tot + little fall back to v2.
+  if (tier === 'tot' || tier === 'little') return null;
+
+  // Pick the first blueprint eligible for this tier. Currently there's only one;
+  // future versions will round-robin or weight by user preference.
+  const blueprints = Object.values(V3_BLUEPRINTS).filter(bp => bp.tiers.includes(tier));
+  if (!blueprints.length) return null;
+  const blueprint = blueprints[Math.floor(Math.random() * blueprints.length)];
+
+  // Reuse v2's slot construction by calling the helpers directly. We build slots
+  // the same way generateStoryV2 does so role resolution mirrors v2 grammar.
+  const setting = getSetting(picks.setting?.id || picks.setting?.w || 'surprise');
+  function mapPickToWord(pickValue, lib) {
+    if (!pickValue) return rawPick(lib);
+    const hit = lib.find(w => w.text === pickValue || w.id === pickValue);
+    return hit || rawPick(lib);
+  }
+  function rawPick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  const companion = mapPickToWord(picks.pet?.w, V2_WORDS.companions);
+  const userPickedVisitor = !!picks.creature?.w;
+  const visitor   = userPickedVisitor
+                    ? mapPickToWord(picks.creature.w, V2_WORDS.visitors)
+                    : rawPick(V2_WORDS.visitors);
+  const place     = setting.place ? setting.place : mapPickToWord(picks.place?.w, V2_WORDS.places);
+  const food      = mapPickToWord(picks.food?.w, V2_WORDS.foods);
+  const sound     = picks.freeword?.w ? { text: picks.freeword.w } : rawPick(V2_WORDS.sounds);
+  const color     = picks.color?.w ? { text: picks.color.w } : null;
+  const move      = picks.move?.w  ? { text: picks.move.w }  : null;
+  const mood      = picks.mood?.w  ? { text: picks.mood.w }  : null;
+  const weather   = picks.weather?.w ? { text: picks.weather.w } : null;
+  const freeword2 = picks.freeword2?.w ? { text: picks.freeword2.w } : null;
+
+  const slots = {
+    kid: { name: name || 'Friend', cap: V2Grammar.capitalize(name || 'Friend'), lc: (name || 'friend').toLowerCase() },
+    companion, visitor, place, food, sound,
+    color, move, mood, weather, freeword2,
+  };
+
+  // Resolve role → slot
+  const roles = {};
+  for (const [role, slotName] of Object.entries(blueprint.roleMap)) {
+    roles[role] = slots[slotName] || null;
+  }
+
+  // Validate required roles for the blueprint as a whole
+  const blueprintRequired = ['protagonist','ally','mcguffin','setting','false_suspect'];
+  for (const r of blueprintRequired) {
+    if (!roles[r]) return null;
+  }
+
+  /* Render a v3 line: resolve {role.prop} → slot value, leave [name:]/[c:]/[y:] tokens intact. */
+  function renderV3Line(line) {
+    return line.replace(/\{([a-zA-Z][\w]*)\.([\w]+)\}/g, (_, roleName, prop) => {
+      const slot = roles[roleName];
+      if (slot == null) return '?';
+      if (typeof slot === 'string') return slot;
+      const baseText = slot.text != null ? slot.text : (slot.name != null ? slot.name : '');
+      if (!prop || prop === 'text')      return baseText;
+      if (prop === 'cap')                return V2Grammar.capitalize(baseText);
+      if (prop === 'name')               return slot.name || baseText;
+      if (prop === 'articleText')        return V2Grammar.articleText(slot);
+      if (prop === 'theText')            return V2Grammar.theText(slot);
+      if (prop === 'TheText')            return V2Grammar.TheText(slot);
+      if (prop === 'plural')             return V2Grammar.plural(slot);
+      return slot[prop] != null ? String(slot[prop]) : '?';
+    });
+  }
+
+  /* Pick a stage beat from V3_BEATS where stage matches, tier is allowed, and all
+     required roles are non-null. Prefers more-specific (more required roles) beats
+     to break ties so role-rich beats are favored. */
+  function pickStageBeat(stage) {
+    const candidates = V3_BEATS.filter(b =>
+      b.stage === stage.name &&
+      b.tiers.includes(tier) &&
+      (b.requiredRoles || []).every(r => roles[r] != null)
+    );
+    if (!candidates.length) return null;
+    // Bias toward beats that consume more roles (more "load-bearing" picks)
+    const maxRoles = Math.max(...candidates.map(c => (c.requiredRoles || []).length));
+    const top = candidates.filter(c => (c.requiredRoles || []).length === maxRoles);
+    const card = top[Math.floor(Math.random() * top.length)];
+    return card;
+  }
+
+  const paragraphs = [];
+  for (const stage of blueprint.stages) {
+    const card = pickStageBeat(stage);
+    if (!card) return null;
+    const line = card.lines[Math.floor(Math.random() * card.lines.length)];
+    paragraphs.push(renderV3Line(line));
+  }
+
+  /* v3 coverage pass — guarantees every picked flavor role surfaces somewhere
+     in the body. With ~6 beat variants per stage, random beat selection only
+     surfaces optional roles (signature_action/visual_signature/chant/payoff_word)
+     ~50% of the time. This pass appends a short flavor sentence with highlight
+     tokens for any picked role that didn't land. Required roles already hit
+     100% by stage construction; this only patches the flavor ones. */
+  function bodyHas(needle) {
+    const re = new RegExp('\\b' + String(needle).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
+    return paragraphs.some(p => re.test(p.replace(/\[(name|c|y):([^\]]+)\]/g, '$2')));
+  }
+  function appendToMiddle(sentence) {
+    const targetIdx = paragraphs.length >= 4
+      ? 2 + Math.floor(Math.random() * Math.max(1, paragraphs.length - 3))
+      : Math.max(0, paragraphs.length - 2);
+    paragraphs[targetIdx] = paragraphs[targetIdx].trimEnd() + ' ' + sentence;
+  }
+  /* Each flavor role has a short, role-aware safety-net sentence. These mirror v2's
+     coverage callbacks but emit highlight tokens directly so they highlight too. */
+  const FLAVOR_CALLBACKS = {
+    signature_action: [
+      '[name:{protagonist.name}] [c:{signature_action.text}] one more time, just to make a point.',
+      'Somewhere in there, [name:{protagonist.name}] [c:{signature_action.text}] for emphasis.',
+    ],
+    visual_signature: [
+      'A faint [c:{visual_signature.text}] glow hung over the scene by then.',
+      'Everything in the room had picked up a faint [c:{visual_signature.text}] tint.',
+    ],
+    chant: [
+      'Once, very quietly, [name:{protagonist.name}] muttered "[y:{chant.text}]" under their breath.',
+      'A distant "[y:{chant.text}]" echoed from somewhere, possibly a memory.',
+    ],
+    payoff_word: [
+      'And one of them, very quietly, said "[y:{payoff_word.text}]."',
+      'Later someone would swear they heard "[y:{payoff_word.text}]" in the rafters.',
+    ],
+  };
+  const FLAVOR_KEYS = ['signature_action', 'visual_signature', 'chant', 'payoff_word'];
+  for (const role of FLAVOR_KEYS) {
+    const slot = roles[role];
+    if (!slot) continue;                       // role not picked or not mapped
+    const needle = slot.text || slot.name;
+    if (!needle) continue;
+    if (bodyHas(needle)) continue;             // already surfaced — skip
+    const variants = FLAVOR_CALLBACKS[role];
+    const line = variants[Math.floor(Math.random() * variants.length)];
+    appendToMiddle(renderV3Line(line));
+  }
+
+  const titleLine = blueprint.titlePatterns[Math.floor(Math.random() * blueprint.titlePatterns.length)];
+  const title = renderV3Line(titleLine);
+
+  return { title, paragraphs };
+}
+
+/* Engine router — index.html reads window.NODDY_ENGINE to opt into v3. */
+function generateStoryRouted(name, picks, age) {
+  const engineFlag = (typeof window !== 'undefined' && window.NODDY_ENGINE) || null;
+  if (engineFlag === 'v3') {
+    const v3 = generateStoryV3(name, picks, age);
+    if (v3) return v3;
+    // v3 fell through (e.g. tot/little, or blueprint unfulfillable) — fall back to v2.
+  }
+  return generateStoryV2(name, picks, age);
+}
+
 /* Expose globals for use from index.html. Browser-global pattern so we don't
    need a module loader — matches the existing src/content.js convention. */
 if (typeof window !== 'undefined') {
@@ -3152,6 +3549,16 @@ if (typeof window !== 'undefined') {
   window.V2_SETTINGS = V2_SETTINGS;     // v2.1.0
   window.getSetting = getSetting;        // v2.1.0
   window.V2Grammar = V2Grammar;
+
+  /* v2.5.0 — v3 experimental engine, exposed behind ?engine=v3 query param or
+     localStorage 'nt_engine_v3' flag. index.html reads those signals and sets
+     window.NODDY_ENGINE = 'v3'. generateStoryRouted picks v3 when the flag is set,
+     falls back to v2 when v3 returns null (e.g. tot/little). v2 stays default. */
+  window.generateStoryV3 = generateStoryV3;
+  window.generateStoryRouted = generateStoryRouted;
+  window.V3_VERSION = V3_VERSION;
+  window.V3_BLUEPRINTS = V3_BLUEPRINTS;
+  window.V3_BEATS = V3_BEATS;
 
   /* v2.4.1 — DevTools helpers to inspect and reset the recent-beat memory.
      Usage:
@@ -3171,19 +3578,18 @@ if (typeof window !== 'undefined') {
     console.log('[NoddyTales] beat memory cleared');
   };
 
-  /* v2.4.6 — picker → v2 mapping audit.
-     generateStoryV2's mapPickToWord matches a picker selection (picks.pet.w etc.)
-     against V2_WORDS[lib] by exact text OR id. Misses silently fall back to
-     rawPick(lib), which makes selected words disappear from stories. This helper
-     compares WORD_BANK[tier][cat].options[].w against the appropriate v2 pool for
-     every tier and reports gaps. 100% coverage means every picker word the user
-     can ever select has a matching rich-word entry.
+  /* qaWordMapping — RICH-OBJECT MAPPING ONLY.
+     This helper answers a narrow question: does every picker option for the four
+     pool-backed slots (pet → companions, creature → visitors, place → places,
+     food → foods) have an exact text/id match in V2_WORDS? It does NOT measure
+     whether the chosen word actually surfaces in a generated story.
+
+     For real user-selection coverage (body vs. title, highlighted tokens, null
+     stories, unresolved placeholders) use `qaSelectableCoverage()` instead.
 
      Usage from browser console:
        qaWordMapping()                  // full audit, console table + return value
-       qaWordMapping({ verbose:true })  // also logs the missing words inline
-
-     Returns { perTier:{...}, summary:{...}, allMissing:[...] }. */
+       qaWordMapping({ verbose:true })  // also logs the missing words inline */
   window.qaWordMapping = function qaWordMapping(opts) {
     opts = opts || {};
     if (typeof WORD_BANK === 'undefined') {
@@ -3258,23 +3664,32 @@ if (typeof window !== 'undefined') {
     return { perTier, summary, allMissing };
   };
 
-  /* v2.4.7 — qaSelectableCoverage: holistic audit across every selectable category.
-     Reports three columns per (tier, cat):
-       mapped  — only meaningful for pool-backed slots (pet/creature/place/food). Counts
-                 how many picker options have an exact v2 rich-word match (text OR id).
-                 For free-text slots (color/move/mood/weather/freeword) "mapped" is N/A.
-       read    — does generateStoryV2 actually read picks.{cat}?.w for this category?
-                 Determined by scanning the engine source at startup. Boolean → "yes"/"no".
-       covered — empirical: for each picker option in this (tier, cat), generates N stories
-                 with that option locked and counts how many surface the chosen text in the
-                 rendered body (case-insensitive word match). Reports min/avg coverage %.
+  /* v2.5.0 — qaSelectableCoverage: STRICT body-vs-title audit.
+     Earlier versions counted title hits as coverage, which made categories look
+     100% covered when the picked word only appeared in "Cole vs the {pick}"-style
+     titles. Now reports separately:
+       mapped            — pool-backed entries with exact v2 rich-word match (text or id).
+                           N/A for free-string slots (color/move/mood/weather/freeword).
+       read              — does generateStoryV2 actually read picks.{cat}?.w?
+       bodyCovered       — % of (option × story) pairs where chosen text appears in PARAGRAPHS
+                           (titles excluded). This is the release-gate metric.
+       titleOnly         — % of pairs where chosen text appears in title but NOT in body.
+                           High titleOnly is a smell: the word is being borrowed by the
+                           title but never landing in the actual story.
+       highlighted       — % of pairs where the chosen text appears wrapped in a
+                           [name:]/[c:]/[y:] token inside a paragraph.
+       nulls             — count of null generateStoryV2 returns across the sample.
+       unresolvedTokens  — count of stories with surviving {slot.prop} placeholders.
+       avgBodyCoverage / minBodyCoverage — derived from per-option pct.
+       worstOptions      — options with body coverage below 75% threshold.
 
-     Usage:
-       qaSelectableCoverage()                  // all tiers, default 8 stories per option
-       qaSelectableCoverage({ samples: 20 })   // more samples → tighter coverage estimate
-       qaSelectableCoverage({ tiers:['little'] })
+     Body coverage is the new gate. Title-only never counts as covered.
 
-     This is the holistic audit; qaWordMapping stays as the simple mapping-only check. */
+     Usage from browser console:
+       qaSelectableCoverage()                  // all tiers, 8 samples per option
+       qaSelectableCoverage({ samples: 20 })   // tighter estimate
+       qaSelectableCoverage({ tiers:['tween'] })
+       qaSelectableCoverage({ verbose: true }) // include per-option breakdown */
   window.qaSelectableCoverage = function qaSelectableCoverage(opts) {
     opts = opts || {};
     if (typeof WORD_BANK === 'undefined' || typeof generateStoryV2 !== 'function') {
@@ -3283,20 +3698,16 @@ if (typeof window !== 'undefined') {
     }
     const SAMPLES_PER_OPTION = opts.samples != null ? opts.samples : 8;
     const TIERS = opts.tiers || ['tot','little','kid','big','tween'];
-    // Which categories use rich-word pools (vs. free-string slots)
     const POOL_BACKED = { pet:'companions', creature:'visitors', place:'places', food:'foods' };
-    // Which categories are READ by generateStoryV2. Updated as the engine evolves.
-    // (Single source of truth: this list reflects actual `picks.{cat}?.w` reads.)
     const READ_BY_ENGINE = {
       pet:true, creature:true, place:true, food:true,
       color:true, move:true, mood:true,
       freeword:true, freeword2:true,
-      weather: true,    // v2.4.7 — weather is now read end-to-end
-      sky: false,       // collected for tot picker only; v2 ignores (v1 templates only)
+      weather: true,    // v2.4.7
+      sky: true,        // v2.5.0 — wired in this release
     };
     const stripTokens = t => String(t).replace(/\[(name|c|y):([^\]]+)\]/g, '$2');
 
-    // Default picks per tier — used to fill in everything EXCEPT the category being audited
     function defaultPicks(tier) {
       const rounds = WORD_BANK[tier] || [];
       const out = {};
@@ -3304,7 +3715,6 @@ if (typeof window !== 'undefined') {
         if (!r.options || !r.options.length) continue;
         out[r.cat] = { w: r.options[0].w };
       }
-      // Always supply freeword/freeword2 for v2 engine consistency
       out.freeword  = { w: 'KAPOW', subtype: 'shout' };
       out.freeword2 = { w: 'BOINGO' };
       return out;
@@ -3320,7 +3730,6 @@ if (typeof window !== 'undefined') {
         const cat     = round.cat;
         const options = round.options || [];
         const pool    = POOL_BACKED[cat] ? (V2_WORDS[POOL_BACKED[cat]] || []) : null;
-        // Mapped column
         let mapped = null;
         if (pool) {
           const lookup = new Set();
@@ -3330,46 +3739,87 @@ if (typeof window !== 'undefined') {
           }
           mapped = options.filter(o => lookup.has(o.w)).length;
         }
-        // Read column
         const read = !!READ_BY_ENGINE[cat];
-        // Covered column: empirical sampling — for each option, generate SAMPLES_PER_OPTION
-        // stories with that option locked, count how many surface the chosen text.
-        let covered = null, minCov = null, optionsAudited = 0;
-        if (read && options.length) {
-          const perOption = [];
-          for (const opt of options) {
-            const picks = Object.assign(defaultPicks(tier), { [cat]: { w: opt.w } });
-            // freeword field shape needs subtype for free-text rounds
-            if (cat === 'freeword') picks.freeword  = { w: opt.w, subtype: 'shout' };
-            if (cat === 'freeword2') picks.freeword2 = { w: opt.w };
-            let hits = 0;
-            const optLc = String(opt.w).toLowerCase();
-            const escRx = optLc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const wordRx = new RegExp('\\b' + escRx + '\\b', 'i');
-            for (let i = 0; i < SAMPLES_PER_OPTION; i++) {
-              const s = generateStoryV2('Cole', picks, ageForTier[tier]);
-              if (!s) continue;
-              const body = stripTokens([s.title, ...s.paragraphs].join(' ')).toLowerCase();
-              if (wordRx.test(body)) hits++;
-            }
-            const pct = Math.round(100 * hits / SAMPLES_PER_OPTION);
-            perOption.push({ w: opt.w, pct });
-            optionsAudited++;
-          }
-          covered = Math.round(perOption.reduce((s, o) => s + o.pct, 0) / Math.max(1, perOption.length));
-          minCov  = perOption.length ? perOption.reduce((m, o) => o.pct < m.pct ? o : m).pct : null;
-          report[tier][cat] = { mapped, total: options.length, read, covered, minCov, optionsAudited,
-            worstOptions: perOption.filter(o => o.pct < 50).slice(0, 5) };
-        } else {
-          report[tier][cat] = { mapped, total: options.length, read, covered: null, minCov: null,
-            optionsAudited: 0, worstOptions: [] };
+        if (!read || !options.length) {
+          report[tier][cat] = {
+            mapped, total: options.length, read,
+            bodyCovered: null, titleOnly: null, highlighted: null,
+            nulls: 0, unresolvedTokens: 0,
+            avgBodyCoverage: null, minBodyCoverage: null,
+            optionsAudited: 0, worstOptions: [], perOption: [],
+          };
+          continue;
         }
+
+        const perOption = [];
+        let nulls = 0, unresolvedTokens = 0, totalPairs = 0;
+        let bodyHits = 0, titleOnlyHits = 0, highlightedHits = 0;
+
+        for (const opt of options) {
+          const picks = Object.assign(defaultPicks(tier), { [cat]: { w: opt.w } });
+          if (cat === 'freeword')  picks.freeword  = { w: opt.w, subtype: 'shout' };
+          if (cat === 'freeword2') picks.freeword2 = { w: opt.w };
+
+          const optLc = String(opt.w).toLowerCase();
+          const escRx = optLc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const wordRx = new RegExp('\\b' + escRx + '\\b', 'i');
+          // Token regex: [name:X] / [c:X] / [y:X] containing the chosen word
+          const tokRx = new RegExp('\\[(?:name|c|y):[^\\]]*\\b' + escRx + '\\b[^\\]]*\\]', 'i');
+          const placeholderRx = /\{[a-zA-Z][\w.]*\}/;
+
+          let optBodyHits = 0, optTitleOnly = 0, optHighlighted = 0;
+
+          for (let i = 0; i < SAMPLES_PER_OPTION; i++) {
+            const s = generateStoryV2('Cole', picks, ageForTier[tier]);
+            totalPairs++;
+            if (!s) { nulls++; continue; }
+            const titleRaw    = String(s.title || '');
+            const paraRaw     = (s.paragraphs || []).join(' ');
+            const wholeRaw    = titleRaw + ' ' + paraRaw;
+            const titleClean  = stripTokens(titleRaw).toLowerCase();
+            const paraClean   = stripTokens(paraRaw).toLowerCase();
+
+            if (placeholderRx.test(wholeRaw)) unresolvedTokens++;
+
+            const inBody  = wordRx.test(paraClean);
+            const inTitle = wordRx.test(titleClean);
+            const inToken = tokRx.test(paraRaw); // unstripped, look for tokens in paragraphs
+
+            if (inBody)                 { optBodyHits++; bodyHits++; }
+            else if (inTitle)           { optTitleOnly++; titleOnlyHits++; }
+            if (inToken)                { optHighlighted++; highlightedHits++; }
+          }
+
+          const denom = SAMPLES_PER_OPTION;
+          perOption.push({
+            w: opt.w,
+            body: Math.round(100 * optBodyHits / denom),
+            titleOnly: Math.round(100 * optTitleOnly / denom),
+            highlighted: Math.round(100 * optHighlighted / denom),
+          });
+        }
+
+        const totalSamples = Math.max(1, totalPairs);
+        const avgBody = Math.round(perOption.reduce((s, o) => s + o.body, 0) / Math.max(1, perOption.length));
+        const minBody = perOption.length ? perOption.reduce((m, o) => o.body < m.body ? o : m).body : null;
+        report[tier][cat] = {
+          mapped, total: options.length, read,
+          bodyCovered:    Math.round(100 * bodyHits / totalSamples),
+          titleOnly:      Math.round(100 * titleOnlyHits / totalSamples),
+          highlighted:    Math.round(100 * highlightedHits / totalSamples),
+          nulls,
+          unresolvedTokens,
+          avgBodyCoverage: avgBody,
+          minBodyCoverage: minBody,
+          optionsAudited: options.length,
+          worstOptions: perOption.filter(o => o.body < 75).slice(0, 8),
+          perOption,
+        };
       }
     }
 
-    // Console output
-    console.log('=== qaSelectableCoverage — mapped / read / covered ===');
-    console.log('(samples per option: ' + SAMPLES_PER_OPTION + ')\n');
+    console.log('=== qaSelectableCoverage (strict body/title separation) ===');
+    console.log('(samples per option: ' + SAMPLES_PER_OPTION + '; gate metric: bodyCovered)\n');
     for (const tier of TIERS) {
       console.log(tier.toUpperCase());
       const cats = report[tier] || {};
@@ -3377,16 +3827,160 @@ if (typeof window !== 'undefined') {
         const r = cats[cat];
         const mapStr = r.mapped == null ? 'n/a'        : (r.mapped + '/' + r.total);
         const readStr = r.read ? 'yes' : 'NO';
-        const covStr = r.covered == null ? '—' : (r.covered + '% avg, min ' + (r.minCov == null ? '—' : r.minCov + '%'));
-        const flag = (!r.read || (r.covered != null && r.covered < 60)) ? '  ⚠️' : '';
-        console.log(`  ${cat.padEnd(10)} mapped=${mapStr.padEnd(8)} read=${readStr.padEnd(3)} covered=${covStr}${flag}`);
-        if (r.worstOptions && r.worstOptions.length) {
-          console.log('             worst options: ' + r.worstOptions.map(o => `${o.w} (${o.pct}%)`).join(', '));
+        if (!r.read) {
+          console.log(`  ${cat.padEnd(10)} mapped=${mapStr.padEnd(8)} read=NO ⚠️ unread by engine`);
+          continue;
+        }
+        if (r.bodyCovered == null) {
+          console.log(`  ${cat.padEnd(10)} mapped=${mapStr.padEnd(8)} read=yes (no options)`);
+          continue;
+        }
+        const bodyStr  = `body=${r.bodyCovered}%`;
+        const titleStr = `titleOnly=${r.titleOnly}%`;
+        const hlStr    = `hl=${r.highlighted}%`;
+        const avgStr   = `avg ${r.avgBodyCoverage}%, min ${r.minBodyCoverage}%`;
+        const flags    = [];
+        if (r.bodyCovered < 80) flags.push('LOW BODY');
+        if (r.titleOnly > 10)   flags.push('TITLE LEAKING');
+        if (r.nulls)            flags.push(r.nulls + ' nulls');
+        if (r.unresolvedTokens) flags.push(r.unresolvedTokens + ' unresolved');
+        const flagStr = flags.length ? '  ⚠️ ' + flags.join(', ') : '';
+        console.log(`  ${cat.padEnd(10)} mapped=${mapStr.padEnd(8)} read=${readStr} ${bodyStr.padEnd(11)} ${titleStr.padEnd(15)} ${hlStr.padEnd(8)} (${avgStr})${flagStr}`);
+        if (opts.verbose && r.worstOptions && r.worstOptions.length) {
+          console.log('             worst (<75% body): ' + r.worstOptions.map(o => `${o.w} body=${o.body}% hl=${o.highlighted}%`).join(', '));
         }
       }
       console.log('');
     }
     return report;
+  };
+
+  /* v2.5.0 — qaV3Blueprint: empirical audit for the experimental v3 engine.
+     Generates N stories for a target age using generateStoryV3 directly (no router
+     fallback), measures role coverage, body coverage of every selected word,
+     title-only leakage, highlight rate, child agency (kid is the subject of P1),
+     plot arc completeness (does every stage produce a paragraph), and nulls.
+
+     Usage from browser console:
+       qaV3Blueprint()                          // golden test picks, age 6, 20 samples
+       qaV3Blueprint({ age: 9, samples: 50 })
+       qaV3Blueprint({ picks: {...} })          // custom picks
+       qaV3Blueprint({ verbose: true })         // print sample stories */
+  window.qaV3Blueprint = function qaV3Blueprint(opts) {
+    opts = opts || {};
+    if (typeof generateStoryV3 !== 'function') {
+      console.warn('[qaV3Blueprint] generateStoryV3 not in scope');
+      return null;
+    }
+    const age = opts.age || 6;
+    const samples = opts.samples || 20;
+    // Default to the golden test in the spec.
+    const defaultPicks = {
+      pet:       { w: 'parrot' },
+      food:      { w: 'donuts' },
+      place:     { w: 'jungle' },
+      creature:  { w: 'dinosaur' },
+      color:     { w: 'rainbow' },
+      move:      { w: 'bounced' },
+      mood:      { w: 'silly' },
+      freeword:  { w: 'KABLAM', subtype: 'shout' },
+      freeword2: { w: 'BOINGO' },
+    };
+    const picks = opts.picks || defaultPicks;
+    const name  = opts.name  || 'Cole';
+
+    const stripTokens = t => String(t).replace(/\[(name|c|y):([^\]]+)\]/g, '$2');
+
+    // Words we expect to see in the body — picker values for major slots.
+    const expected = {
+      protagonist:      name,
+      ally:             picks.pet?.w,
+      mcguffin:         picks.food?.w,
+      setting:          picks.place?.w,
+      false_suspect:    picks.creature?.w,
+      signature_action: picks.move?.w,
+      visual_signature: picks.color?.w,
+      mood_throughline: picks.mood?.w,
+      chant:            picks.freeword?.w,
+      payoff_word:      picks.freeword2?.w,
+    };
+
+    const results = {
+      total: 0, nulls: 0, unresolvedTokens: 0,
+      arcCompleteness: 0,         // stories with 6 paragraphs
+      kidIsSubject: 0,            // P1 starts with [name:...] or "{name}"
+      roleCoverage: {},           // role → count of stories that surfaced it in body
+      titleOnly: {},              // role → count of stories where word was only in title
+      highlighted: {},            // role → count where role-tied word appeared as a token in paragraphs
+      samplesShown: [],
+    };
+    for (const role of Object.keys(expected)) {
+      results.roleCoverage[role] = 0;
+      results.titleOnly[role] = 0;
+      results.highlighted[role] = 0;
+    }
+
+    for (let i = 0; i < samples; i++) {
+      const s = generateStoryV3(name, picks, age);
+      results.total++;
+      if (!s) { results.nulls++; continue; }
+      const titleRaw = String(s.title || '');
+      const paraRaw  = (s.paragraphs || []).join(' ');
+      const wholeRaw = titleRaw + ' ' + paraRaw;
+      const titleClean = stripTokens(titleRaw).toLowerCase();
+      const paraClean  = stripTokens(paraRaw).toLowerCase();
+      if (/\{[a-zA-Z][\w.]*\}/.test(wholeRaw)) results.unresolvedTokens++;
+      if (s.paragraphs && s.paragraphs.length === 6) results.arcCompleteness++;
+      // Kid agency: P1 mentions the kid in the first ~40 chars
+      const p1 = (s.paragraphs || [''])[0];
+      const p1Clean = stripTokens(p1).slice(0, 50).toLowerCase();
+      if (p1Clean.includes(name.toLowerCase())) results.kidIsSubject++;
+      // Per-role coverage
+      for (const [role, w] of Object.entries(expected)) {
+        if (!w) continue;
+        const lc = String(w).toLowerCase();
+        const re = new RegExp('\\b' + lc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
+        const tokenRe = new RegExp('\\[(?:name|c|y):[^\\]]*\\b' + lc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b[^\\]]*\\]', 'i');
+        const inBody  = re.test(paraClean);
+        const inTitle = re.test(titleClean);
+        const inToken = tokenRe.test(paraRaw);
+        if (inBody) results.roleCoverage[role]++;
+        else if (inTitle) results.titleOnly[role]++;
+        if (inToken) results.highlighted[role]++;
+      }
+      if (opts.verbose && results.samplesShown.length < 2) results.samplesShown.push(s);
+    }
+
+    console.log('=== qaV3Blueprint — experimental v3 audit ===');
+    console.log(`age=${age} samples=${samples} engine=v3-only (no v2 fallback)`);
+    console.log(`name=${name}, picks=`, picks);
+    console.log('');
+    console.log(`Total:               ${results.total}`);
+    console.log(`Nulls:               ${results.nulls}${results.nulls ? ' ⚠️' : ' ✓'}`);
+    console.log(`Unresolved tokens:   ${results.unresolvedTokens}${results.unresolvedTokens ? ' ⚠️' : ' ✓'}`);
+    console.log(`Arc completeness:    ${results.arcCompleteness}/${results.total - results.nulls} (6-paragraph stories)`);
+    console.log(`Kid agency (P1):     ${results.kidIsSubject}/${results.total - results.nulls}`);
+    console.log('');
+    console.log('Role coverage (body / title-only / highlighted):');
+    for (const role of Object.keys(expected)) {
+      if (!expected[role]) continue;
+      const denom = results.total - results.nulls;
+      const body = results.roleCoverage[role];
+      const tit  = results.titleOnly[role];
+      const hl   = results.highlighted[role];
+      const pct  = denom ? Math.round(100 * body / denom) : 0;
+      const flag = pct < 80 ? '  ⚠️' : '';
+      console.log(`  ${role.padEnd(18)} ${String(expected[role]).padEnd(12)} body=${body}/${denom} (${pct}%) titleOnly=${tit} hl=${hl}${flag}`);
+    }
+    if (opts.verbose && results.samplesShown.length) {
+      console.log('\nSample stories:');
+      results.samplesShown.forEach((s, i) => {
+        console.log(`\n--- sample ${i+1} ---`);
+        console.log('TITLE:', stripTokens(s.title));
+        s.paragraphs.forEach((p, j) => console.log('P' + (j+1) + ':', stripTokens(p)));
+      });
+    }
+    return results;
   };
 
   /* v2.2.3 — DevTools QA helper that mirrors the 60-story audit script.

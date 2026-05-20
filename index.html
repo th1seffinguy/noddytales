@@ -1041,11 +1041,21 @@ if (typeof WORD_BANK === 'undefined') throw new Error('content.js must load befo
     const urlEngine = params.get('engine');
     if (urlEngine === 'v2') localStorage.setItem('nt_engine_v2', '1');
     if (urlEngine === 'v1') localStorage.setItem('nt_engine_v2', '0');
+    /* v2.5.0 — experimental v3 flag. ?engine=v3 persists nt_engine_v3=1;
+       ?engine=v2 (or v1) clears it. window.NODDY_ENGINE is read by the engine
+       router; absent or unrecognised values fall back to v2 silently. */
+    if (urlEngine === 'v3') localStorage.setItem('nt_engine_v3', '1');
+    if (urlEngine === 'v2' || urlEngine === 'v1') localStorage.setItem('nt_engine_v3', '0');
+    if (localStorage.getItem('nt_engine_v3') === '1') window.NODDY_ENGINE = 'v3';
   } catch {}
 })();
 function isEngineV2Enabled() {
   // Default: v2 enabled. Only opt-out via explicit `?engine=v1` (sets localStorage to '0').
   try { return localStorage.getItem('nt_engine_v2') !== '0'; } catch { return true; }
+}
+function isEngineV3Enabled() {
+  // v3 is OPT-IN only. ?engine=v3 sets it; default off.
+  try { return localStorage.getItem('nt_engine_v3') === '1'; } catch { return false; }
 }
 
 /* ---- HTML escape (prevent XSS from name input) ---- */
@@ -1148,6 +1158,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v2.5.0', title: 'Strict QA + tot sky + tween move + v3 experimental engine behind flag',
+    detail: 'Closes the v2.4.7 audit follow-ups and opens the v3 phase. (A) qaSelectableCoverage() rewritten to report body, titleOnly, highlighted, nulls, unresolvedTokens, avgBodyCoverage, minBodyCoverage, and worstOptions separately. Title matches no longer count as coverage — body is the gate metric. qaWordMapping() relabeled as pool-mapping audit only. (B) Tot sky wired as a real v2 slot. picks.sky.w now reads into the engine, 4 new tot beats reference {sky.text} (intro/silly_meet/silly_repeat/cozy_end variants), coverage callback added, highlight tokens wrap the chosen sky word. 50/50 body + 50/50 highlight for moon@age2 AND kite@age3. (C) Tween move went from 56% to 88% body coverage average with 6 new load-bearing beats — the chosen move now causes the vending machine reset, defeats the rule sign, drives the investigation, climaxes the show. (D) Honest QA reporting: body coverage thresholds 100% for required slots, 80%+ for color/mood/move, 85%+ tween move. titleOnly = 0% across all categories. (E) v3 experimental engine landed behind ?engine=v3. lost_snack_v3 blueprint runs: protagonist/ally/mcguffin/setting/false_suspect required; signature_action/visual_signature/mood_throughline/chant/payoff_word optional. 6-stage arc (setup → problem → attempt → escalation → payoff → landing). Role-based beat library; tokens emitted directly during render. v2 stays default; v3 falls back to v2 on any failure. New qaV3Blueprint() helper. Golden test (Cole/parrot/donuts/jungle/dinosaur/rainbow/bounced/silly/KABLAM/BOINGO, 30 samples, age 6): 100% body coverage for all 10 expected roles, 0 nulls, 0 unresolved tokens, 30/30 6-paragraph arc, 30/30 kid agency.' },
   { v: 'v2.4.7', title: 'Selection coverage repairs + qaSelectableCoverage + v3 design doc',
     detail: 'v2.4.6 audit follow-up. Three regressions closed: (1) WEATHER is now a real v2 slot. v2.4.6 added a 30% little-tier weather round but generateStoryV2 never read picks.weather. Now wired end-to-end: slot read, 2 new weather-aware little-tier beats, coverage callback, highlight token. Acceptance: 50/50 mention + 50/50 highlight for weather=stormy at age 4. (2) "cub" picker label was mapping by ID to v2 entry text "bear cub" — story rendered "bear cub" while picker said "cub". Renamed picker option to "bear cub" so label = story exactly. (3) Colors expanded to 18 per tier (tot/little/big/tween were at 12; kid already at 18). New colors are concrete and story-usable — tot: black, gray, sky blue, lime green, sunshine yellow, apple red; little: mint green, sky blue, peach, cherry red, sandy tan, leafy green; big: forgotten gray, lunchbox yellow, cafeteria green, gym sock white, recess orange, permission slip blue; tween: bleached denim, mall food court orange, parking lot gray, highlighter pink, gas station green, late bus yellow. New QA helper: window.qaSelectableCoverage() reports mapped/read/covered separately across every category — caught all three regressions and confirms 100% coverage for pet/food/place/creature/weather, 84-97% for color/move/mood. Also lands: docs/v3-role-blueprints.md design doc for the next major version (role-based plot blueprints where every selected word gets a plot role before generation — protagonist/ally/obstacle/mcguffin/chant/signature_action — with a 5-step migration plan v2.5.0 → v3.0.0).' },
   { v: 'v2.4.6', title: 'Picker → V2_WORDS 100% mapping + picker expansion',
@@ -1462,10 +1474,24 @@ function buildStory(name, picks, age) {
   // v1.22.0 extended to kid/big/tween. v1.23.0 added tot + little — v2 now covers all 5 tiers.
   // v2.0.0 made v2 the default.
   // v2.1.0 — inject state.setting into picks so the v2 engine can lock the place slot.
+  // v2.5.0 — experimental v3 path. When ?engine=v3 (or nt_engine_v3 stored = '1'),
+  // try generateStoryV3 first. v3 returns null for tot/little; falls through to v2.
+  const picksWithSetting = { ...picks, setting: { id: (state.setting || 'surprise') } };
+
+  if (isEngineV3Enabled() && typeof generateStoryV3 === 'function') {
+    try {
+      const v3Result = generateStoryV3(name, picksWithSetting, age);
+      if (v3Result && v3Result.title && Array.isArray(v3Result.paragraphs) && v3Result.paragraphs.length > 0) {
+        return v3Result;
+      }
+    } catch (err) {
+      try { console.warn('[engine-v3] fallback to v2:', err); } catch {}
+    }
+  }
+
   // Silent fallback to v1 if generateStoryV2 returns null/throws for any reason.
   if (isEngineV2Enabled() && typeof generateStoryV2 === 'function') {
     try {
-      const picksWithSetting = { ...picks, setting: { id: (state.setting || 'surprise') } };
       const v2Result = generateStoryV2(name, picksWithSetting, age);
       if (v2Result && v2Result.title && Array.isArray(v2Result.paragraphs) && v2Result.paragraphs.length > 0) {
         return v2Result;

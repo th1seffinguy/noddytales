@@ -1,8 +1,31 @@
-# v3 Role-Based Story Blueprints — Design
+# v3 Role-Based Story Blueprints — Design + Implementation Notes
 
-**Status:** Draft, no code. Targets v3.0.0.
-**Author:** v2.4.7 planning pass.
+**Status:** v2.5.0 ships the first working runtime behind `?engine=v3`. v2 remains default.
+**Authors:** v2.4.7 planning pass, v2.5.0 first runtime.
 **Predecessor:** v2.3.x blueprints (`goal_spine`, `lost_snack`, `show_wrong`, `rule_loophole`) which proved that *causality* (chosen words drive plot) beats *coverage* (chosen words sprinkled in).
+
+## v2.5.0 implementation summary (what shipped vs. the original design)
+
+| Design element | v2.5.0 status | Notes |
+|---|---|---|
+| `V3_BLUEPRINTS` declarative registry | ✓ shipped | One entry: `lost_snack_v3`. Future builds add `goal_spine_v3`, `show_wrong_v3`, `rule_loophole_v3`. |
+| `V3_BEATS` keyed by stage + requiredRoles | ✓ shipped | ~16 beats covering the 6 stages × 2-3 variants. |
+| Role → slot map per blueprint | ✓ shipped | Slot construction reuses v2's `mapPickToWord` so the rich-word pool stays in v2. |
+| `{role.prop}` template syntax | ✓ shipped | Resolves through the blueprint's role map at render time. |
+| Highlight tokens emitted directly | ✓ shipped | Beats author `[name:{protagonist.name}]` / `[c:{ally.text}]` / `[y:{setting.text}]` inline. No `applyHighlightTokens` post-pass needed for v3 output. |
+| Feature flag (`?engine=v3`) | ✓ shipped | URL param sets `localStorage.nt_engine_v3` and `window.NODDY_ENGINE`. v2 fallback on any v3 failure. |
+| Coverage callback layer (originally "should shrink to nothing") | **partial — kept as v3 safety net** | The v2.5.0 v3 runtime still uses a small callback pass for optional flavor roles (signature_action / visual_signature / chant / payoff_word). With only ~3 beat variants per stage, random selection wouldn't hit every flavor role in every story. The callbacks emit highlight tokens directly, which is the cleaner v3 path. |
+| Tot/little support | not yet | v3 returns null for ages 2-5; router falls back to v2. |
+| `qaV3Blueprint` helper | ✓ shipped | Reports nulls, unresolved tokens, arc completeness, kid agency, per-role body/title/highlighted. |
+
+## Lessons from the first runtime
+
+- **Role-based beat reuse works as designed.** The same beat (e.g. `v3_setup_1`) renders correctly under any blueprint that maps `protagonist/ally/setting/mcguffin` to slots — the line authors don't know or care which slot is which.
+- **The "every selected word becomes load-bearing" promise still depends on enough beat variants per stage.** With 2-3 variants per stage, randomly selected, only ~50% of stories surface the optional flavor roles without help. A v3 safety net is still needed until each stage has 6-8 variants — at which point random pick will naturally hit all flavor roles.
+- **Token-direct authoring is a real improvement.** Authoring `[c:{ally.text}]` directly inside a beat line is easier to read than relying on a regex pass to wrap chosen words. The downside: beat authors have to remember to use `[c:]` for things like color/move/mood and `[y:]` for place/freeword. A linter could enforce this if it becomes a problem.
+- **Plural agreement is still a v2 wart.** v3 inherited the "the donuts had vanished" workaround (use `had vanished` instead of `was/were gone` to avoid plural-aware verb agreement). Better fix is to thread `isPlural` through role resolution so `{mcguffin.was}` resolves correctly — deferred to a future build.
+
+## What still matches the original design
 
 ---
 
