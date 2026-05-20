@@ -4,6 +4,71 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.4.6 — 2026-05-19
+**Picker → V2_WORDS mapping closure + picker expansion**
+
+Audit revealed `generateStoryV2`'s `mapPickToWord` was matching picker selections against `V2_WORDS` rich-word pools by exact text/id, and **58% of picker words had no v2 entry** (107/252 mapped baseline). On a miss, the engine silently replaced the user's choice with a random rich word — selected pet/food/place/creature could simply vanish from the story. This release closes the entire gap and expands the picker per the v2.4.6 spec.
+
+### Three priorities, all met
+
+**1. New dev helper: `window.qaWordMapping()`** — compares `WORD_BANK[tier][cat].options[].w` against the appropriate `V2_WORDS` pool (`companions` for pet, `visitors` for creature, `places` for place, `foods` for food) across all 5 tiers. Reports missing words per tier/category with totals and percentage coverage. Sits alongside `qaChoiceCoverage`, `qaStoryMatrix`, `qaBeatMemoryStats` as the fourth standing audit helper.
+
+**2. v2 rich-word backfill** — every currently-selectable picker word now has a matching rich-word entry. Authored ~145 new entries across companions/visitors/places/foods with traits/actions/sounds (and tier-appropriate comedy metadata for big/tween). Exact text matching against the picker `w` field — no alias layer needed.
+
+**3. Picker expansion per the v2.4.6 spec:**
+
+| Tier | Before | After |
+|---|---|---|
+| tot | 12 per category | 18 per category |
+| little | 12 per category | 18 per category |
+| kid | 18 per category | 24 per category |
+| big | 12 per category | 18 per category |
+| tween | 12 per category | 18 per category |
+
+New picker words also get matching v2 entries (~80 more), so the picker stays at 100% mapping after expansion.
+
+### Mapping coverage progression
+
+| Tier | Baseline | After v2 backfill | After picker expansion |
+|---|---|---|---|
+| tot | 1/36 (3%) | 36/36 | 54/54 (100%) |
+| little | 22/48 (46%) | 48/48 | 72/72 (100%) |
+| kid | 68/72 (94%) | 72/72 | 96/96 (100%) |
+| big | 0/48 (0%) | 48/48 | 72/72 (100%) |
+| tween | 22/48 (46%) | 48/48 | 72/72 (100%) |
+| **Total** | **107/252 (42%)** | **252/252** | **366/366 (100%)** |
+
+### Little tier weather round
+
+The 12-option weather pool in `WORD_BANK.little` existed but `ROUND_PLAN` never used it. v2.4.6 wires it into `buildRounds()` as a 30% chance to swap the creature round for a weather round — occasional/swappable per the spec, not always-on.
+
+### Two grammar fixes caught in the same pass
+
+- Color callback `' The whole scene had a {color.text} tint by then.'` rendered "a orange tint" / "a iridescent tint" / "a electric blue tint" — rewritten to `' The whole scene turned {color.text} by then.'` which drops the indefinite article entirely.
+- `sw_dis_tween` rendered "half a umbrella" when object slot was `umbrella`. Now uses `{object.articleText}` → "half an umbrella" reads correctly regardless of object.
+
+### Acceptance results
+
+| Check | Result |
+|---|---|
+| qaWordMapping coverage | **366/366 (100%)** across all 5 tiers |
+| qaChoiceCoverage age 6 (50 stories) | companion / food / place / visitor all 0 missing |
+| 60-story sample audit (5 stories × ages 2-13) | 0 nulls, 0 unresolved tokens |
+| 240-story broken-article regex | 0 hits (was 2 — fixed in same pass) |
+| WORD_BANK internal duplicate options | 0 across all tiers and categories |
+
+### Files modified
+
+- `src/engine-v2.js` — `ENGINE_V2_VERSION` → `v2.4.6`; +`window.qaWordMapping`; ~225 new rich-word entries; 2 grammar template fixes
+- `src/content.js` — `APP_VERSION` → `v2.4.6`; WORD_BANK expanded per spec across all 5 tiers
+- `index.html` — `buildRounds()` little tier weather-round swap; RELEASE_NOTES entry
+
+### Image asset strategy
+
+Per the spec, emoji remain the default. Recommended image-asset groups, file specs, and generative prompts are filed for a future v2.5.x or v3.0.0 visual-overhaul pass.
+
+---
+
 ## v2.4.5 — 2026-05-17
 **Story Test Log defect closure — v1 tot tier fallback hardening**
 

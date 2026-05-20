@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v2.4.3';
+const ENGINE_V2_VERSION = 'v2.4.6';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -274,6 +274,275 @@ const V2_WORDS = {
       actions:['cupped its paws together','tilted its head politely','climbed a tree slowly'],
       sounds:['huff','tiny squeak','soft chirp'],
       comedy:{ energy:'calm', dignity:'high', absurdity:4, bedtimeSoftness:9 } },
+    /* ============================================================
+       v2.4.6 — picker → V2_WORDS coverage backfill (companions).
+       Every WORD_BANK pet picker word that previously had no v2 match
+       now has a rich-word entry here, so generateStoryV2's mapPickToWord
+       stops silently replacing user choices with random rich words. */
+
+    /* ----- tot pet pool (12 entries) ----- */
+    { id:'dog',     text:'dog',     emoji:'🐕', article:'a',
+      traits:['friendly','wiggly','loyal'],
+      actions:['wagged its tail','rolled over for belly rubs','chased its own tail'],
+      sounds:['woof','bork','happy panting'] },
+    { id:'cat',     text:'cat',     emoji:'🐈', article:'a',
+      traits:['sleepy','dignified','suddenly chaotic'],
+      actions:['knocked something off the table','stretched dramatically','curled into a perfect circle'],
+      sounds:['meow','purr','tiny chirp'] },
+    { id:'fish',    text:'fish',    emoji:'🐟', article:'a', plural:'fish',
+      traits:['bubbly','silvery','curious'],
+      actions:['blew a stream of bubbles','wiggled in a tiny circle','peeked from behind a rock'],
+      sounds:['bloop','tiny splash','glub'] },
+    { id:'bird',    text:'bird',    emoji:'🐦', article:'a',
+      traits:['cheerful','tilty-headed','tiny'],
+      actions:['hopped along a branch','fluffed up its feathers','tilted its head twice'],
+      sounds:['tweet','chirp','tiny whistle'] },
+    { id:'frog',    text:'frog',    emoji:'🐸', article:'a',
+      traits:['bouncy','green','wide-eyed'],
+      actions:['hopped onto a lily pad','blinked very slowly','caught a fly mid-air'],
+      sounds:['ribbit','plop','tiny burp'] },
+    { id:'duck',    text:'duck',    emoji:'🦆', article:'a',
+      traits:['waddly','splashy','very serious about bread'],
+      actions:['waddled in a tiny line','splashed dramatically','demanded a snack'],
+      sounds:['quack','splash','honk'] },
+    { id:'bunny',   text:'bunny',   emoji:'🐰', article:'a',
+      traits:['hoppy','fluffy','twitchy-nosed'],
+      actions:['hopped twice on purpose','wiggled its nose','flopped onto its side'],
+      sounds:['thump thump','tiny snuffle','soft squeak'] },
+    { id:'bear',    text:'bear',    emoji:'🐻', article:'a',
+      traits:['cozy','snacky','very into naps'],
+      actions:['rolled onto its back','found another snack','yawned enormously'],
+      sounds:['grrumph','soft snore','happy chuff'] },
+    { id:'lamb',    text:'lamb',    emoji:'🐑', article:'a',
+      traits:['wobbly','soft','brand-new at walking'],
+      actions:['hopped on shaky legs','nuzzled into something soft','let out a tiny baa'],
+      sounds:['baa','soft bleat','wobble wobble'] },
+    { id:'mouse',   text:'mouse',   emoji:'🐭', article:'a', plural:'mice',
+      traits:['tiny','sneaky','always hungry'],
+      actions:['scurried under the table','nibbled on a crumb','peeked out very carefully'],
+      sounds:['squeak','tiny nibble','rustle'] },
+    { id:'pig',     text:'pig',     emoji:'🐷', article:'a',
+      traits:['pink','muddy','enthusiastic'],
+      actions:['rolled in the mud','wiggled its curly tail','snuffled at something interesting'],
+      sounds:['oink','snort','happy grunt'] },
+    { id:'cow',     text:'cow',     emoji:'🐄', article:'a',
+      traits:['big','spotted','very patient'],
+      actions:['chewed thoughtfully','swished its tail','wandered toward the grass'],
+      sounds:['moo','soft huff','tail swish'] },
+
+    /* ----- little pet pool (7 missing) ----- */
+    { id:'puppy',     text:'puppy',     emoji:'🐶', article:'a',
+      traits:['bouncy','clumsy','very excited'],
+      actions:['tripped over its own paws','wagged its whole body','tried to fetch everything'],
+      sounds:['yip','playful bark','tiny growl'] },
+    { id:'kitten',    text:'kitten',    emoji:'🐱', article:'a',
+      traits:['tiny','pouncy','easily distracted'],
+      actions:['pounced on a leaf','chased a sunbeam','curled up in a teacup'],
+      sounds:['meow','tiny purr','squeak'] },
+    { id:'turtle',    text:'turtle',    emoji:'🐢', article:'a',
+      traits:['slow','wise-looking','very prepared'],
+      actions:['took one careful step','retreated into its shell','blinked very thoughtfully'],
+      sounds:['scrape','soft thump','contemplative sigh'] },
+    { id:'piglet',    text:'piglet',    emoji:'🐷', article:'a',
+      traits:['pink','round','very excited about lunch'],
+      actions:['rolled in a tiny puddle','squealed with delight','wiggled its tiny tail'],
+      sounds:['snort','happy oink','squeal'] },
+    { id:'foal',      text:'foal',      emoji:'🐴', article:'a',
+      traits:['leggy','soft-eyed','still figuring out walking'],
+      actions:['took one wobbly step','nuzzled the fence','tried to gallop and tripped'],
+      sounds:['soft neigh','snuffle','tiny hoof tap'] },
+    /* bunny + lamb already added above with tot pool — share the same rich word */
+
+    /* ----- kid pet missing (wolf) ----- */
+    { id:'wolf',      text:'wolf',      emoji:'🐺', article:'a',
+      traits:['dramatic','howly','secretly polite'],
+      actions:['howled at the moon','padded silently across the room','tilted its head at a question'],
+      sounds:['ahwooo','low growl','tiny whuff'],
+      comedy:{ energy:'deadpan', dignity:'high', absurdity:5, bedtimeSoftness:6 } },
+
+    /* ----- big pet pool (12 entries, comedic adjective+noun voice) ----- */
+    { id:'mischievous_fox',     text:'mischievous fox',     emoji:'🦊', article:'a',
+      traits:['sneaky','sly','always plotting'],
+      actions:['stole a single sock','watched from a suspicious distance','smirked like it knew something'],
+      sounds:['snicker','tiny yip','rustle'],
+      comedy:{ energy:'deadpan', dignity:'medium', absurdity:6 } },
+    { id:'glittering_octopus',  text:'glittering octopus',  emoji:'🐙', article:'a',
+      traits:['shimmery','many-armed','dramatic'],
+      actions:['waved all eight arms at once','arranged shells in a tidy line','sparkled deliberately'],
+      sounds:['blorp','glitter shimmer','tiny ahem'],
+      comedy:{ energy:'chaotic', dignity:'high', absurdity:7 } },
+    { id:'ancient_tortoise',    text:'ancient tortoise',    emoji:'🐢', article:'an',
+      traits:['wise','wrinkly','two centuries old'],
+      actions:['offered a slow nod','recited a memory from 1832','retracted into its shell on principle'],
+      sounds:['deep sigh','slow scrape','contemplative hum'],
+      comedy:{ energy:'deadpan', dignity:'high', absurdity:5 } },
+    { id:'bewildered_penguin',  text:'bewildered penguin',  emoji:'🐧', article:'a',
+      traits:['confused','formal','easily startled'],
+      actions:['waddled in a confused circle','adjusted its invisible tie','stared into the middle distance'],
+      sounds:['honk','tiny ahem','soft squawk'],
+      comedy:{ energy:'deadpan', dignity:'high', absurdity:6 } },
+    { id:'melodramatic_cat',    text:'melodramatic cat',    emoji:'🐱', article:'a',
+      traits:['theatrical','offended','very loud'],
+      actions:['fainted onto the rug','demanded an apology','draped itself across a chair'],
+      sounds:['MROOOW','dramatic sigh','indignant chirp'],
+      comedy:{ energy:'chaotic', dignity:'high', absurdity:7 } },
+    { id:'philosophical_owl',   text:'philosophical owl',   emoji:'🦉', article:'a',
+      traits:['wise','overthinking','slightly judgmental'],
+      actions:['posed a rhetorical question','blinked slowly twice','quoted itself from earlier'],
+      sounds:['hoot','contemplative who','soft feather rustle'],
+      comedy:{ energy:'deadpan', dignity:'high', absurdity:5 } },
+    { id:'imperious_corgi',     text:'imperious corgi',     emoji:'👑', article:'an',
+      traits:['short','regal','convinced of its own importance'],
+      actions:['issued a tiny royal decree','demanded a throne','accepted compliments graciously'],
+      sounds:['regal bark','royal sniff','tiny harrumph'],
+      comedy:{ energy:'bouncy', dignity:'high', absurdity:7 } },
+    { id:'overconfident_raccoon', text:'overconfident raccoon', emoji:'🦝', article:'an',
+      traits:['cocky','striped','always plotting a heist'],
+      actions:['climbed into a trash can on purpose','winked at no one in particular','presented stolen goods'],
+      sounds:['chitter','tiny cackle','rummage'],
+      comedy:{ energy:'chaotic', dignity:'low', absurdity:7 } },
+    { id:'anxious_hedgehog',    text:'anxious hedgehog',    emoji:'🦔', article:'an',
+      traits:['prickly','worried','easily startled'],
+      actions:['curled into a tiny anxious ball','double-checked the exits','fidgeted with a leaf'],
+      sounds:['tiny snuffle','worried huff','soft sigh'],
+      comedy:{ energy:'deadpan', dignity:'medium', absurdity:5 } },
+    { id:'exasperated_flamingo',text:'exasperated flamingo',emoji:'🦩', article:'an',
+      traits:['leggy','pink','at the end of its patience'],
+      actions:['rolled all four of its eyes','crossed its absurdly long legs','sighed at the entire situation'],
+      sounds:['honk','exasperated squawk','tiny groan'],
+      comedy:{ energy:'deadpan', dignity:'high', absurdity:6 } },
+    { id:'suspicious_seagull',  text:'suspicious seagull',  emoji:'🐦', article:'a',
+      traits:['shifty','beach-coded','always watching'],
+      actions:['stared at the snack','sidled closer','let out an accusatory shriek'],
+      sounds:['shriek','squawk','suspicious caw'],
+      comedy:{ energy:'chaotic', dignity:'low', absurdity:6 } },
+    { id:'theatrical_moth',     text:'theatrical moth',     emoji:'🦋', article:'a',
+      traits:['dramatic','fluttery','obsessed with lamps'],
+      actions:['flung itself at a lamp on principle','performed a tiny monologue','fainted into a teacup'],
+      sounds:['flutter','tiny gasp','dramatic flap'],
+      comedy:{ energy:'chaotic', dignity:'high', absurdity:8 } },
+
+    /* ----- tween pet pool (5 missing) ----- */
+    { id:'mantis_shrimp',  text:'mantis shrimp',  emoji:'🦐', article:'a',
+      traits:['punchy','vibrant','technically terrifying'],
+      actions:['threw an extremely fast punch','flexed all its colors','glared from a tide pool'],
+      sounds:['ka-pow','tiny snap','underwater shink'],
+      comedy:{ energy:'chaotic', dignity:'medium', absurdity:8 } },
+    { id:'rat',            text:'rat',            emoji:'🐀', article:'a',
+      traits:['scrappy','smart','street-coded'],
+      actions:['darted into a tiny alley','sized up the situation','offered an unsolicited opinion'],
+      sounds:['squeak','tiny scurry','chk chk'],
+      comedy:{ energy:'deadpan', dignity:'medium', absurdity:5 } },
+    { id:'pigeon',         text:'pigeon',         emoji:'🕊️', article:'a',
+      traits:['bobbing','unbothered','possibly running a small business'],
+      actions:['bobbed its head exactly twice','strutted past important things','accepted a single crumb'],
+      sounds:['coo','flutter','tiny bok'],
+      comedy:{ energy:'deadpan', dignity:'low', absurdity:5 } },
+    { id:'quokka',         text:'quokka',         emoji:'🦘', article:'a',
+      traits:['smiley','cheerful','very online'],
+      actions:['posed for an imaginary photo','hopped over for a hello','flashed an unreasonable smile'],
+      sounds:['tiny chirp','soft hop','happy snuffle'],
+      comedy:{ energy:'bouncy', dignity:'medium', absurdity:5 } },
+    { id:'tardigrade',     text:'tardigrade',     emoji:'🦠', article:'a',
+      traits:['indestructible','microscopic','technically immortal'],
+      actions:['survived something it should not have','blinked at a beam of radiation','accepted a hug at the molecular level'],
+      sounds:['tiny tiny squelch','imperceptible hum','silent yes'],
+      comedy:{ energy:'deadpan', dignity:'high', absurdity:9 } },
+
+    /* ============================================================
+       v2.4.6 — picker expansion: companions for new tot/little/big/tween pet words. */
+    { id:'chick',     text:'chick',     emoji:'🐥', article:'a',
+      traits:['fluffy','tiny','newly hatched'],
+      actions:['peeped at everything','followed a leaf','hopped twice for no reason'],
+      sounds:['peep','tiny chirp','soft tweet'] },
+    { id:'squirrel',  text:'squirrel',  emoji:'🐿️', article:'a',
+      traits:['scurry','bushy-tailed','always carrying something'],
+      actions:['stashed a nut on principle','zoomed up a tree','flicked its tail dramatically'],
+      sounds:['chitter','tiny scrabble','soft squeak'] },
+    { id:'pony',      text:'pony',      emoji:'🐴', article:'a',
+      traits:['small','soft-nosed','very into apples'],
+      actions:['trotted in a tiny circle','accepted a carrot graciously','swished its tail'],
+      sounds:['soft neigh','snort','tiny hoof tap'] },
+    { id:'monkey',    text:'monkey',    emoji:'🐵', article:'a',
+      traits:['curious','grabby','expressive-faced'],
+      actions:['swung from a branch','stole something shiny','made a face on purpose'],
+      sounds:['ooh ooh','tiny screech','soft chitter'] },
+    { id:'guinea_pig',text:'guinea pig',emoji:'🐹', article:'a',
+      traits:['fluffy','round','very into salad'],
+      actions:['squeaked excitedly','wheeked for a treat','popcorn-jumped in place'],
+      sounds:['wheek','tiny chatter','soft squeak'] },
+    { id:'seal',      text:'seal',      emoji:'🦭', article:'a',
+      traits:['slippery','round','very pleased with itself'],
+      actions:['flopped onto a rock','clapped its flippers','balanced something on its nose'],
+      sounds:['ar ar','clap clap','soft splash'] },
+    { id:'baby_goat', text:'baby goat', emoji:'🐐', article:'a',
+      traits:['bouncy','headbutty','very into climbing'],
+      actions:['jumped sideways for fun','climbed onto something that should not be climbed','head-butted a leaf'],
+      sounds:['baa','tiny bleat','soft thump'] },
+
+    /* ----- big tier pet additions (6) ----- */
+    { id:'formal_ferret',     text:'overly formal ferret', emoji:'🦦', article:'an',
+      traits:['polite','overdressed','technically wearing a tiny tie'],
+      actions:['offered a tiny bow','adjusted an invisible cuff','presented a calling card'],
+      sounds:['tiny dook','formal cough','soft chitter'],
+      comedy:{ energy:'deadpan', dignity:'high', absurdity:6 } },
+    { id:'dramatic_lizard',   text:'dramatic lizard',      emoji:'🦎', article:'a',
+      traits:['theatrical','scaly','prone to fainting'],
+      actions:['draped itself across a rock','fainted on cue','glared dramatically'],
+      sounds:['tiny hiss','dramatic sigh','soft tongue flick'],
+      comedy:{ energy:'chaotic', dignity:'high', absurdity:7 } },
+    { id:'suspicious_duck',   text:'suspicious duck',      emoji:'🦆', article:'a',
+      traits:['shifty','damp','possibly planning a heist'],
+      actions:['stared without blinking','waddled away too casually','pocketed a fry'],
+      sounds:['quack','suspicious quack','tiny splash'],
+      comedy:{ energy:'deadpan', dignity:'low', absurdity:6 } },
+    { id:'tiny_alpaca',       text:'tiny alpaca',          emoji:'🦙', article:'a',
+      traits:['fluffy','smug','tinier than expected'],
+      actions:['hummed gently','accepted compliments','spit at an invisible enemy'],
+      sounds:['soft hum','tiny snort','gentle chew'],
+      comedy:{ energy:'bouncy', dignity:'high', absurdity:5 } },
+    { id:'retired_dragon',    text:'retired dragon',       emoji:'🐲', article:'a',
+      traits:['scaly','grumpy','technically on a pension'],
+      actions:['complained about modern adventurers','toasted a single marshmallow','rolled its eyes audibly'],
+      sounds:['low growl','tired huff','tiny puff of smoke'],
+      comedy:{ energy:'deadpan', dignity:'high', absurdity:6 } },
+    { id:'nervous_goose',     text:'nervous goose',        emoji:'🪿', article:'a',
+      traits:['honky','jittery','one bad day from chaos'],
+      actions:['glanced over its wing twice','hissed at a tree','flapped without warning'],
+      sounds:['honk','panicked honk','soft hiss'],
+      comedy:{ energy:'chaotic', dignity:'medium', absurdity:6 } },
+
+    /* ----- tween tier pet additions (6) ----- */
+    { id:'judgmental_duck',   text:'judgmental duck',      emoji:'🦆', article:'a',
+      traits:['judgy','aquatic','holds a clipboard somehow'],
+      actions:['glared at someone’s outfit','rated the pond a 6/10','muttered something specific'],
+      sounds:['quack','judgmental quack','soft tsk'],
+      comedy:{ energy:'deadpan', dignity:'high', absurdity:6 } },
+    { id:'sleepy_gecko',      text:'sleepy gecko',         emoji:'🦎', article:'a',
+      traits:['low-energy','sticky-footed','just barely awake'],
+      actions:['yawned mid-step','slow-blinked at everything','crawled half a foot before napping'],
+      sounds:['tiny chirp','sleepy breath','soft cluck'],
+      comedy:{ energy:'deadpan', dignity:'medium', absurdity:5 } },
+    { id:'tiny_possum',       text:'tiny possum',          emoji:'🐾', article:'a',
+      traits:['nocturnal','clutchy','possibly playing dead'],
+      actions:['hung from a low branch','toppled over politely','accepted a single grape'],
+      sounds:['tiny hiss','soft chitter','scrabble'],
+      comedy:{ energy:'deadpan', dignity:'low', absurdity:6 } },
+    { id:'overthink_ferret',  text:'overthinking ferret',  emoji:'🦦', article:'an',
+      traits:['anxious','wiggly','three steps ahead in its own head'],
+      actions:['paced in a tiny circle','rehearsed an unspoken speech','glanced at every exit twice'],
+      sounds:['tiny dook','worried huff','soft pad'],
+      comedy:{ energy:'deadpan', dignity:'medium', absurdity:6 } },
+    { id:'dramatic_goldfish', text:'dramatic goldfish',    emoji:'🐟', article:'a',
+      traits:['glittery','offended','one memory long'],
+      actions:['gasped at its own reflection','flounced behind a plant','blew an offended bubble'],
+      sounds:['bloop','tiny gasp','splash'],
+      comedy:{ energy:'chaotic', dignity:'high', absurdity:7 } },
+    { id:'chaotic_goose',     text:'chaotic goose',        emoji:'🪿', article:'a',
+      traits:['unhinged','honky','reportedly involved in two incidents'],
+      actions:['chased nothing in particular','knocked over exactly one cone','honked at the sky'],
+      sounds:['HONK','wild honk','soft hiss'],
+      comedy:{ energy:'chaotic', dignity:'low', absurdity:7 } },
   ],
 
   /* Visitors — strangers, problem-makers, characters who arrive. */
@@ -398,6 +667,272 @@ const V2_WORDS = {
       traits:['chaotic','always pinging','occasionally prophetic'],
       actions:['blew up overnight','renamed itself again','dropped a single ominous emoji'],
       sounds:['ping','tiny notification','vibrate'] },
+    /* ============================================================
+       v2.4.6 — picker → V2_WORDS coverage backfill (visitors).
+       Every WORD_BANK creature picker word that previously had no v2
+       match now has a rich-word entry here. Companion entries with the
+       same text live in companions[]; mapPickToWord checks the visitors
+       pool when the slot is `creature`, so duplicate-text entries with
+       a creature-flavored voice are intentional. */
+
+    /* ----- little creature pool (12 entries) ----- */
+    { id:'v_frog',      text:'frog',      emoji:'🐸', article:'a',
+      traits:['hoppy','wide-eyed','very into ponds'],
+      actions:['hopped onto a rock','stuck out a long sticky tongue','blinked very slowly'],
+      sounds:['ribbit','plop','tiny burp'] },
+    { id:'v_fish',      text:'fish',      emoji:'🐠', article:'a', plural:'fish',
+      traits:['glimmery','bubbly','very curious'],
+      actions:['blew a tiny ring of bubbles','swam in a tidy loop','peeked from behind a stone'],
+      sounds:['bloop','glub','tiny splash'] },
+    { id:'beetle',      text:'beetle',    emoji:'🐞', article:'a',
+      traits:['shiny','tiny','very polite'],
+      actions:['scurried under a leaf','spread its wings briefly','offered a single nod'],
+      sounds:['tick','clatter','soft buzz'] },
+    { id:'butterfly',   text:'butterfly', emoji:'🦋', article:'a',
+      traits:['fluttery','colorful','daydreamy'],
+      actions:['landed on a flower','flapped twice for effect','zigzagged across the breeze'],
+      sounds:['flutter','tiny sigh','soft flap'] },
+    { id:'v_mouse',     text:'mouse',     emoji:'🐭', article:'a', plural:'mice',
+      traits:['tiny','sneaky','always nibbling'],
+      actions:['ducked behind a crumb','nibbled in a hurry','peeked from a hole'],
+      sounds:['squeak','tiny scurry','soft rustle'] },
+    { id:'snail',       text:'snail',     emoji:'🐌', article:'a',
+      traits:['slow','steady','very polite about it'],
+      actions:['inched one millimeter','retracted into its shell','left a tiny shiny trail'],
+      sounds:['slurp','tiny scrape','contemplative pause'] },
+    { id:'owl',         text:'owl',       emoji:'🦉', article:'an',
+      traits:['wise','watchful','only awake at night'],
+      actions:['rotated its head a full turn','blinked very deliberately','hooted at no one in particular'],
+      sounds:['hoot','who','soft wing flap'] },
+    { id:'fox',         text:'fox',       emoji:'🦊', article:'a',
+      traits:['sly','reddish','always plotting'],
+      actions:['darted into the underbrush','flicked its tail twice','grinned without explanation'],
+      sounds:['yip','tiny growl','soft pad'] },
+    { id:'deer',        text:'deer',      emoji:'🦌', article:'a', plural:'deer',
+      traits:['gentle','watchful','very leggy'],
+      actions:['froze mid-step','flicked its tail','gazed steadily'],
+      sounds:['soft huff','quiet snort','tiny hoof tap'] },
+    { id:'v_penguin',   text:'penguin',   emoji:'🐧', article:'a',
+      traits:['waddly','formal','tiny but proud'],
+      actions:['slid on its belly','waddled in a tight line','adjusted an imaginary collar'],
+      sounds:['honk','tiny squawk','soft thump'] },
+    { id:'crab',        text:'crab',      emoji:'🦀', article:'a',
+      traits:['sideways','clicky','convinced of its own claws'],
+      actions:['sidestepped the question','snapped a claw for emphasis','retreated into wet sand'],
+      sounds:['click','tiny snip','scrape'] },
+    { id:'bee',         text:'bee',       emoji:'🐝', article:'a',
+      traits:['busy','striped','possibly carrying a tiny suitcase'],
+      actions:['hovered very seriously','landed on a flower for two whole seconds','zipped off on an important errand'],
+      sounds:['buzz','tiny bzzt','soft hum'] },
+
+    /* ----- kid creature missing (2 entries) ----- */
+    { id:'giant',       text:'giant',     emoji:'🗿', article:'a',
+      traits:['enormous','slow-talking','strangely polite'],
+      actions:['blocked the sun for a moment','sat down very carefully','offered a single very big hello'],
+      sounds:['BOOM','low rumble','distant thud'],
+      comedy:{ energy:'deadpan', dignity:'high', absurdity:7 } },
+    { id:'vampire',     text:'vampire',   emoji:'🧛', article:'a',
+      traits:['theatrical','centuries old','very particular about garlic'],
+      actions:['swept a cape dramatically','asked if anyone had a snack (specifically)','vanished in a small puff'],
+      sounds:['vlah','dramatic gasp','swoosh'],
+      comedy:{ energy:'chaotic', dignity:'high', absurdity:7 } },
+
+    /* ----- big creature pool (12 entries, comedic adjective+noun voice) ----- */
+    { id:'grumbling_gargoyle',     text:'grumbling gargoyle',     emoji:'🗿', article:'a',
+      traits:['stony','disapproving','technically furniture'],
+      actions:['glared from a high ledge','complained about the weather','shifted by exactly one inch'],
+      sounds:['grumble','stone scrape','disgruntled huff'],
+      comedy:{ energy:'deadpan', dignity:'high', absurdity:6 } },
+    { id:'sparkly_squid',          text:'sparkly squid',          emoji:'🦑', article:'a',
+      traits:['glittery','many-armed','dramatic'],
+      actions:['flashed all eight arms in unison','sparkled deliberately','squirted glitter (against guidelines)'],
+      sounds:['shimmer','splort','tiny inkblot'],
+      comedy:{ energy:'chaotic', dignity:'medium', absurdity:8 } },
+    { id:'bewildered_sphinx',      text:'bewildered sphinx',      emoji:'🦁', article:'a',
+      traits:['ancient','confused','poses riddles incorrectly'],
+      actions:['asked a riddle with no answer','rotated its head ponderously','demanded the wrong password'],
+      sounds:['low grumble','contemplative purr','soft growl'],
+      comedy:{ energy:'deadpan', dignity:'high', absurdity:6 } },
+    { id:'philosophical_crab',     text:'philosophical crab',     emoji:'🦀', article:'a',
+      traits:['sideways','thoughtful','very into ethics'],
+      actions:['posed an existential question','sidestepped the issue (literally)','tapped one claw for emphasis'],
+      sounds:['click','contemplative tap','soft scrape'],
+      comedy:{ energy:'deadpan', dignity:'high', absurdity:6 } },
+    { id:'melodramatic_ghost',     text:'melodramatic ghost',     emoji:'👻', article:'a',
+      traits:['floaty','theatrical','easily heartbroken'],
+      actions:['draped itself over a chandelier','wailed about its tragic backstory','vanished mid-sentence'],
+      sounds:['ooooh','dramatic wail','tiny sob'],
+      comedy:{ energy:'chaotic', dignity:'high', absurdity:7 } },
+    { id:'indignant_mushroom',     text:'indignant mushroom',     emoji:'🍄', article:'an',
+      traits:['squat','offended','technically alive'],
+      actions:['refused to be foraged','stamped a tiny cap','muttered something fungal'],
+      sounds:['tiny pop','indignant squeak','spore puff'],
+      comedy:{ energy:'deadpan', dignity:'high', absurdity:7 } },
+    { id:'suspicious_accountant',  text:'suspicious accountant',  emoji:'🧾', article:'a',
+      traits:['mild-mannered','overly precise','probably hiding something'],
+      actions:['double-checked the spreadsheet','requested a receipt for the receipt','tapped a pencil ominously'],
+      sounds:['paper rustle','calculator click','tiny throat clear'],
+      comedy:{ energy:'deadpan', dignity:'high', absurdity:6 } },
+    { id:'committed_scarecrow',    text:'deeply committed scarecrow', emoji:'🧑‍🌾', article:'a',
+      traits:['stuffed','unblinking','very dedicated to the role'],
+      actions:['stayed exactly still for hours','intimidated one crow','squeaked when the wind blew'],
+      sounds:['straw rustle','wood creak','quiet flap'],
+      comedy:{ energy:'deadpan', dignity:'high', absurdity:6 } },
+    { id:'partial_wizard',         text:'partially trained wizard', emoji:'🧙', article:'a',
+      traits:['confident','underqualified','holding a slightly wrong spellbook'],
+      actions:['cast a spell that produced one balloon','muttered the wrong incantation','dropped a tiny smoke pellet'],
+      sounds:['fizzle','bzzt','tiny pop'],
+      comedy:{ energy:'chaotic', dignity:'medium', absurdity:7 } },
+    { id:'overqualified_fish',     text:'overqualified fish',     emoji:'🐟', article:'an', plural:'overqualified fish',
+      traits:['intelligent','damp','knows three languages'],
+      actions:['solved the puzzle silently','sighed at the obvious','translated a poem'],
+      sounds:['bubble','tiny tsk','soft glub'],
+      comedy:{ energy:'deadpan', dignity:'high', absurdity:7 } },
+    { id:'concerned_librarian',    text:'concerned librarian',    emoji:'📚', article:'a',
+      traits:['quiet','disapproving','holding the right book'],
+      actions:['shushed the entire room','presented the perfect reference','adjusted a stack ominously'],
+      sounds:['shhh','soft pat','tiny page flip'],
+      comedy:{ energy:'deadpan', dignity:'high', absurdity:5 } },
+    { id:'accidental_prophet',     text:'accidental prophet',     emoji:'🔮', article:'an',
+      traits:['confused','strangely accurate','still figuring it out'],
+      actions:['blurted out tomorrow’s weather','muttered an inadvertent prediction','apologized for being right'],
+      sounds:['tiny gasp','soft mutter','ominous hum'],
+      comedy:{ energy:'deadpan', dignity:'medium', absurdity:7 } },
+
+    /* ----- tween creature pool (6 missing) ----- */
+    { id:'gremlin',                text:'gremlin',                emoji:'👹', article:'a',
+      traits:['mischievous','tiny','breaks things on principle'],
+      actions:['pulled exactly one wire','snickered from inside the vending machine','left a tiny gremlin signature'],
+      sounds:['cackle','metallic clank','tiny giggle'],
+      comedy:{ energy:'chaotic', dignity:'low', absurdity:7 } },
+    { id:'discount_vampire',       text:'discount vampire',       emoji:'🦇', article:'a',
+      traits:['theatrical','off-brand','garlic-tolerant'],
+      actions:['used a plastic cape','demanded juice instead of blood','asked for the wifi password'],
+      sounds:['vlah-lite','dramatic sigh','tiny hiss'],
+      comedy:{ energy:'chaotic', dignity:'medium', absurdity:7 } },
+    { id:'shadow_entity',          text:'shadow entity',          emoji:'👤', article:'a',
+      traits:['ominous','blob-shaped','possibly someone’s ex'],
+      actions:['lingered ominously','said something cryptic','reformed exactly where you didn’t want it'],
+      sounds:['whoosh','low whisper','imperceptible hum'],
+      comedy:{ energy:'deadpan', dignity:'high', absurdity:7 } },
+    { id:'normal_pigeon',          text:'aggressively normal pigeon', emoji:'🕊️', article:'an',
+      traits:['bobbing','unremarkable','technically observing'],
+      actions:['stared without breaking eye contact','bobbed in suspicious rhythm','accepted a single fry'],
+      sounds:['coo','tiny bok','flutter'],
+      comedy:{ energy:'deadpan', dignity:'low', absurdity:6 } },
+    { id:'tall_pigeon',            text:'unreasonably tall pigeon',  emoji:'🕊️', article:'an',
+      traits:['lanky','still a pigeon','looms slightly'],
+      actions:['craned its absurd neck','blinked from above','strutted with unjustified grace'],
+      sounds:['low coo','elongated flutter','soft thump'],
+      comedy:{ energy:'deadpan', dignity:'medium', absurdity:8 } },
+    { id:'confident_rat',          text:'very confident rat',     emoji:'🐀', article:'a',
+      traits:['scrappy','assured','unfazed by anything'],
+      actions:['strutted across a beam','offered unsolicited advice','tipped an imaginary hat'],
+      sounds:['squeak','tiny smug chuckle','chk chk'],
+      comedy:{ energy:'deadpan', dignity:'medium', absurdity:6 } },
+
+    /* ============================================================
+       v2.4.6 — picker expansion: visitors for new creature picker words. */
+
+    /* ----- little creature additions (5) ----- */
+    { id:'v_dragon',          text:'dragon',          emoji:'🐲', article:'a',
+      traits:['scaly','fire-breathing','suddenly polite'],
+      actions:['toasted a marshmallow','flapped enormous wings','offered a single tiny bow'],
+      sounds:['ROAR','snortle','fwoom'] },
+    { id:'v_unicorn',         text:'unicorn',         emoji:'🦄', article:'a',
+      traits:['glittery','proud','very into rules'],
+      actions:['stamped a hoof','sparkled deliberately','offered unsolicited wisdom'],
+      sounds:['tinkle','neighhh','prance prance'] },
+    { id:'tiny_monster',      text:'tiny monster',    emoji:'👾', article:'a',
+      traits:['small','friendly-ish','one-eyed by design'],
+      actions:['rolled into the room','went BLEEP','offered a tiny high-five'],
+      sounds:['BLEEP','tiny growl','soft squelch'] },
+    { id:'cloud_friend',      text:'cloud friend',    emoji:'☁️', article:'a',
+      traits:['floaty','soft','always changing shape'],
+      actions:['drifted lower for a hug','formed into a smile','rained one tiny drop'],
+      sounds:['soft poof','tiny pitter','breeze hum'] },
+    { id:'talking_tree',      text:'talking tree',    emoji:'🌳', article:'a',
+      traits:['leafy','ancient','slightly judgmental'],
+      actions:['cleared its throat (woodily)','dropped a single leaf','offered an old riddle'],
+      sounds:['rustle','low creak','soft sigh'] },
+
+    /* ----- kid creature additions (6) ----- */
+    { id:'talking_sandwich',  text:'talking sandwich',emoji:'🥪', article:'a',
+      traits:['layered','grumpy','technically lunch'],
+      actions:['demanded better filling','complained about the wrapping','offered itself reluctantly'],
+      sounds:['squelch','tiny grumble','crinkle'] },
+    { id:'sub_teacher_kid',   text:'substitute teacher', emoji:'🧑‍🏫', article:'a',
+      traits:['unfamiliar','overly cheerful','holding the wrong lesson plan'],
+      actions:['mispronounced everyone’s name','announced a pop quiz with great joy','wrote on the wrong board'],
+      sounds:['ahem','chalk squeak','cheerful gasp'] },
+    { id:'lunch_wizard',      text:'lunch wizard',    emoji:'🧙', article:'a',
+      traits:['wise','crumb-flecked','specializes in sandwich magic'],
+      actions:['summoned an extra pickle','enchanted the pudding cup','waved a celery wand'],
+      sounds:['fizzle','tiny zap','magical crunch'] },
+    { id:'hallway_ghost',     text:'hallway ghost',   emoji:'👻', article:'a',
+      traits:['translucent','hall-bound','always running late'],
+      actions:['floated past the lockers','dropped a phantom hall pass','vanished mid-laugh'],
+      sounds:['oooh','tiny giggle','soft whoosh'] },
+    { id:'tiny_king',         text:'tiny king',       emoji:'👑', article:'a',
+      traits:['short','regal','convinced of his realm'],
+      actions:['issued a tiny decree','demanded a snack tribute','adjusted a crown that was too big'],
+      sounds:['royal harrumph','tiny trumpet','soft clink'] },
+    { id:'grumpy_cloud',      text:'grumpy cloud',    emoji:'☁️', article:'a',
+      traits:['fluffy','disgruntled','one bad mood away from drizzle'],
+      actions:['rumbled disapprovingly','dropped exactly three raindrops','sulked above one person'],
+      sounds:['low rumble','grumble','soft thunder'] },
+
+    /* ----- big creature additions (6) ----- */
+    { id:'sub_principal',     text:'substitute principal', emoji:'🧑‍🏫', article:'a',
+      traits:['stern','underprepared','holding the wrong PA mic'],
+      actions:['announced a non-emergency','double-checked the schedule','threatened the wrong detention'],
+      sounds:['mic feedback','stern cough','tap tap'] },
+    { id:'retired_wizard',    text:'retired wizard',  emoji:'🧙', article:'a',
+      traits:['grizzled','out of practice','still owns the hat'],
+      actions:['cast a spell that produced one balloon','muttered a half-remembered chant','sighed at modern magic'],
+      sounds:['fizzle','old man hum','tiny pop'] },
+    { id:'tiny_mayor',        text:'tiny mayor',      emoji:'👑', article:'a',
+      traits:['short','self-important','holding a tiny ribbon-cutting scissors'],
+      actions:['cut a ribbon nobody asked for','delivered a speech to two pigeons','named a street after itself'],
+      sounds:['tiny gavel','soft applause','ahem'] },
+    { id:'snack_inspector',   text:'snack inspector', emoji:'🕵️', article:'a',
+      traits:['watchful','crumb-tolerant','holding a clipboard'],
+      actions:['tasted a single chip','marked something off the list','peered into the snack drawer'],
+      sounds:['tiny clipboard tap','contemplative chew','soft hmm'] },
+    { id:'confused_dragon',   text:'confused dragon', emoji:'🐲', article:'a',
+      traits:['scaly','lost','holding a map upside down'],
+      actions:['asked for directions','sat on a small castle by accident','rotated the map twice'],
+      sounds:['confused growl','tiny roar','wing flap'] },
+    { id:'courtroom_duck',    text:'courtroom duck',  emoji:'🦆', article:'a',
+      traits:['robed','solemn','technically in charge'],
+      actions:['banged a tiny gavel','overruled a sandwich','called the next witness'],
+      sounds:['quack','tiny gavel bang','solemn quack'] },
+
+    /* ----- tween creature additions (6) ----- */
+    { id:'hallway_monitor',   text:'hallway monitor', emoji:'🪪', article:'a',
+      traits:['lanyarded','overly empowered','specializes in passes'],
+      actions:['asked for ID','wrote down exactly one infraction','adjusted the lanyard'],
+      sounds:['tiny click','officious cough','soft pen scratch'] },
+    { id:'overconfident_mascot', text:'overconfident mascot', emoji:'🐻', article:'an',
+      traits:['costumed','padded','possibly a friend in there'],
+      actions:['hyped up an empty hallway','high-fived a wall','tripped over its own paws'],
+      sounds:['muffled whoop','soft squeak','tiny thump'] },
+    { id:'group_chat_ghost',  text:'group chat ghost',emoji:'📱', article:'a',
+      traits:['typing','spectral','always one message behind'],
+      actions:['left "..." for an hour','reacted with a single emoji','vanished mid-thread'],
+      sounds:['notification ping','tiny whoosh','soft chime'] },
+    { id:'cafeteria_oracle',  text:'cafeteria oracle',emoji:'🔮', article:'a',
+      traits:['cryptic','tray-bearing','speaks in lunch metaphors'],
+      actions:['predicted the soup','foretold a pop quiz','muttered something about pudding'],
+      sounds:['low hum','tiny clink','ominous slurp'] },
+    { id:'sub_coach',         text:'substitute coach',emoji:'🏈', article:'a',
+      traits:['whistled','underprepared','holding the wrong playbook'],
+      actions:['blew the whistle at nothing','drew an illegible diagram','jogged in place for emphasis'],
+      sounds:['WHEEEE','tiny clipboard tap','sneaker squeak'] },
+    { id:'vending_goblin',    text:'vending machine goblin', emoji:'🤖', article:'a',
+      traits:['mechanical','mischievous','lives inside row B'],
+      actions:['ate the dollar','jammed the spiral','dropped two snacks instead of one'],
+      sounds:['clunk','tiny cackle','mechanical whirr'] },
   ],
 
   /* Places — story setting. */
@@ -434,6 +969,82 @@ const V2_WORDS = {
     { id:'back_of_bus',     text:'back of the bus',  emoji:'🚌', article:'the' },
     { id:'wrong_neighborhood', text:'slightly wrong neighborhood', emoji:'🗺️', article:'a' },
     { id:'rooftop_night',   text:'rooftop at night', emoji:'🌃', article:'a' },
+    /* ============================================================
+       v2.4.6 — picker → V2_WORDS coverage backfill (places). */
+
+    /* ----- tot place pool (11 missing) ----- */
+    { id:'park',     text:'park',     emoji:'🌳', article:'a' },
+    { id:'pond',     text:'pond',     emoji:'🦆', article:'a' },
+    { id:'farm',     text:'farm',     emoji:'🐄', article:'a' },
+    { id:'yard',     text:'yard',     emoji:'🌻', article:'a' },
+    { id:'hill',     text:'hill',     emoji:'⛰️', article:'a' },
+    { id:'woods',    text:'woods',    emoji:'🌲', article:'the' },
+    { id:'house',    text:'house',    emoji:'🏠', article:'a' },
+    { id:'shop',     text:'shop',     emoji:'🏪', article:'a' },
+    { id:'bridge',   text:'bridge',   emoji:'🌉', article:'a' },
+    { id:'field',    text:'field',    emoji:'🌾', article:'a' },
+    { id:'sandbox',  text:'sandbox',  emoji:'🪣', article:'a' },
+
+    /* ----- little place pool (6 missing) ----- */
+    { id:'garden',   text:'garden',   emoji:'🌷', article:'a' },
+    { id:'village',  text:'village',  emoji:'🏘️', article:'a' },
+    { id:'cave',     text:'cave',     emoji:'🕳️', article:'a' },
+    { id:'island',   text:'island',   emoji:'🏝️', article:'an' },
+    { id:'mountain', text:'mountain', emoji:'🏔️', article:'a' },
+    { id:'river',    text:'river',    emoji:'🏞️', article:'a' },
+
+    /* ----- kid place missing (2 entries) ----- */
+    { id:'canyon',     text:'canyon',     emoji:'🏞️', article:'a' },
+    { id:'labyrinth',  text:'labyrinth',  emoji:'🌀', article:'a' },
+
+    /* ----- big place pool (12 entries — comedic adjective+noun voice) ----- */
+    { id:'mossy_labyrinth',       text:'mossy labyrinth',         emoji:'🌿', article:'a' },
+    { id:'cloud_observatory',     text:'cloud observatory',       emoji:'☁️', article:'a' },
+    { id:'sunken_ballroom',       text:'sunken ballroom',         emoji:'🏊', article:'a' },
+    { id:'forgotten_attic',       text:'forgotten attic',         emoji:'🕯️', article:'a' },
+    { id:'luminous_swamp',        text:'luminous swamp',          emoji:'🌙', article:'a' },
+    { id:'ancient_library',       text:'ancient library',         emoji:'📚', article:'an' },
+    { id:'collapsing_lighthouse', text:'collapsing lighthouse',   emoji:'🏚️', article:'a' },
+    { id:'underground_ballroom',  text:'underground ballroom',    emoji:'🎭', article:'an' },
+    { id:'flooded_tower',         text:'partially flooded tower', emoji:'🌊', article:'a' },
+    { id:'long_corridor',         text:'extremely long corridor', emoji:'🚶', article:'an' },
+    { id:'theoretical_basement',  text:'theoretical basement',    emoji:'🏠', article:'a' },
+    { id:'average_hallway',       text:'spectacularly average hallway', emoji:'🚪', article:'a' },
+
+    /* ----- tween place pool (3 missing) ----- */
+    { id:'library_closing',       text:'library at closing time', emoji:'📚', article:'the' },
+    { id:'back_of_the_bus',       text:'the back of the bus',     emoji:'🚌', article:'' },
+    { id:'else_backyard',         text:'someone else\'s backyard', emoji:'🌳', article:'' },
+
+    /* ============================================================
+       v2.4.6 — picker expansion: places for new picker words across tiers. */
+
+    /* ----- shared everyday places (tot/little/kid) ----- */
+    { id:'playground',     text:'playground',     emoji:'🛝', article:'a' },
+    { id:'bedroom',        text:'bedroom',        emoji:'🛏️', article:'a' },
+    { id:'kitchen',        text:'kitchen',        emoji:'🍽️', article:'a' },
+    { id:'bus',            text:'bus',            emoji:'🚌', article:'a' },
+    { id:'classroom',      text:'classroom',      emoji:'🏫', article:'a' },
+    { id:'backyard',       text:'backyard',       emoji:'🌳', article:'a' },
+    { id:'grocery_store',  text:'grocery store',  emoji:'🛒', article:'a' },
+    { id:'school_cafeteria', text:'school cafeteria', emoji:'🏫', article:'a' },
+    { id:'diner',          text:'diner',          emoji:'🍔', article:'a' },
+    { id:'mall',           text:'mall',           emoji:'🛍️', article:'a' },
+
+    /* ----- big tier place additions (6) ----- */
+    { id:'cafeteria_mysteries',  text:'cafeteria of mysteries',  emoji:'🏫', article:'the' },
+    { id:'quiet_mall',           text:'suspiciously quiet mall', emoji:'🛍️', article:'a' },
+    { id:'museum_basement',      text:'museum basement',         emoji:'🏛️', article:'a' },
+    { id:'indoor_water_park',    text:'indoor water park',       emoji:'🌊', article:'an' },
+    { id:'bus_depot',            text:'bus depot',               emoji:'🚌', article:'a' },
+    { id:'grocery_aisle_seven',  text:'grocery aisle seven',     emoji:'🛒', article:'' },
+
+    /* ----- tween tier place additions (6) ----- */
+    { id:'mall_food_court',      text:'mall food court',         emoji:'🛍️', article:'the' },
+    { id:'drama_hallway',        text:'drama hallway',           emoji:'🎭', article:'the' },
+    { id:'late_bus',             text:'late bus',                emoji:'🚌', article:'the' },
+    { id:'weird_stairwell',      text:'weird stairwell',         emoji:'🌀', article:'a' },
+    { id:'gym_bleachers',        text:'gym bleachers',           emoji:'🏀', article:'the' },
   ],
 
   /* Foods — edible plot devices. */
@@ -475,6 +1086,89 @@ const V2_WORDS = {
     { id:'pudding_cup',      text:'pudding cup',      emoji:'🍮', isPlural:false, article:'a' },
     { id:'mac_and_cheese',   text:'mac and cheese',   emoji:'🧀', isPlural:false, article:'some' },
     { id:'banana_bread',     text:'banana bread',     emoji:'🍌', isPlural:false, article:'a slice of' },
+    /* ============================================================
+       v2.4.6 — picker → V2_WORDS coverage backfill (foods). */
+
+    /* ----- tot food pool (12 entries) ----- */
+    { id:'cake',     text:'cake',     emoji:'🍰', isPlural:false, article:'a slice of' },
+    { id:'jam',      text:'jam',      emoji:'🍓', isPlural:false, article:'some' },
+    { id:'milk',     text:'milk',     emoji:'🥛', isPlural:false, article:'some' },
+    { id:'bread',    text:'bread',    emoji:'🍞', isPlural:false, article:'a piece of' },
+    { id:'grapes',   text:'grapes',   emoji:'🍇', isPlural:true,  plural:'grapes' },
+    { id:'corn',     text:'corn',     emoji:'🌽', isPlural:false, article:'some' },
+    { id:'apple',    text:'apple',    emoji:'🍎', isPlural:false, article:'an' },
+    { id:'banana',   text:'banana',   emoji:'🍌', isPlural:false, article:'a' },
+    { id:'cheese',   text:'cheese',   emoji:'🧀', isPlural:false, article:'some' },
+    { id:'carrot',   text:'carrot',   emoji:'🥕', isPlural:false, article:'a' },
+    { id:'honey',    text:'honey',    emoji:'🍯', isPlural:false, article:'some' },
+    { id:'cookie',   text:'cookie',   emoji:'🍪', isPlural:false, article:'a' },
+
+    /* ----- little food missing (5 entries) ----- */
+    { id:'sandwich',     text:'sandwich',     emoji:'🥪', isPlural:false, article:'a' },
+    { id:'strawberries', text:'strawberries', emoji:'🍓', isPlural:true,  plural:'strawberries' },
+    { id:'soup',         text:'soup',         emoji:'🍲', isPlural:false, article:'a bowl of' },
+    { id:'candy',        text:'candy',        emoji:'🍬', isPlural:false, article:'some' },
+    /* grapes already added above for tot pool */
+
+    /* ----- kid food missing (1 entry) ----- */
+    { id:'nachos',   text:'nachos',   emoji:'🧀', isPlural:true, plural:'nachos' },
+
+    /* ----- big food pool (12 entries — comedic adjective+noun voice) ----- */
+    { id:'enchanted_pickles',   text:'enchanted pickles',   emoji:'🥒', isPlural:true,  plural:'enchanted pickles' },
+    { id:'thunder_pancakes',    text:'thunder pancakes',    emoji:'🥞', isPlural:true,  plural:'thunder pancakes' },
+    { id:'suspicious_sandwiches', text:'suspicious sandwiches', emoji:'🥪', isPlural:true, plural:'suspicious sandwiches' },
+    { id:'bewildering_cookies', text:'bewildering cookies', emoji:'🍪', isPlural:true,  plural:'bewildering cookies' },
+    { id:'haunted_scones',      text:'haunted scones',      emoji:'🫖', isPlural:true,  plural:'haunted scones' },
+    { id:'legendary_soup',      text:'legendary soup',      emoji:'🍲', isPlural:false, article:'a bowl of' },
+    { id:'suspicious_casserole',text:'suspicious casserole',emoji:'🍱', isPlural:false, article:'a tray of' },
+    { id:'haunted_macaroni',    text:'haunted macaroni',    emoji:'🍝', isPlural:false, article:'some' },
+    { id:'ancient_granola_bar', text:'ancient granola bar', emoji:'🥣', isPlural:false, article:'an' },
+    { id:'overconfident_pudding', text:'overconfident pudding', emoji:'🍮', isPlural:false, article:'some' },
+    { id:'mysterious_leftovers',text:'mysterious leftovers',emoji:'🥡', isPlural:true,  plural:'mysterious leftovers' },
+    { id:'bold_lasagna',        text:'extremely bold lasagna', emoji:'🍝', isPlural:false, article:'a slab of' },
+
+    /* ----- tween food pool (12 entries — late-night-coded voice) ----- */
+    { id:'instant_noodles',     text:'instant noodles',     emoji:'🍜', isPlural:true,  plural:'instant noodles' },
+    { id:'cold_pizza',          text:'cold pizza',          emoji:'🍕', isPlural:false, article:'a slice of' },
+    { id:'sour_candy',          text:'sour candy',          emoji:'🍬', isPlural:false, article:'some' },
+    { id:'boba_tea',            text:'boba tea',            emoji:'🧋', isPlural:false, article:'a' },
+    { id:'hot_sauce',           text:'hot sauce',           emoji:'🌶️', isPlural:false, article:'some' },
+    { id:'energy_drink',        text:'energy drink',        emoji:'🥤', isPlural:false, article:'an' },
+    { id:'gas_station_sushi',   text:'gas station sushi',   emoji:'🍣', isPlural:false, article:'some' },
+    { id:'midnight_cereal',     text:'cereal at midnight',  emoji:'🥣', isPlural:false, article:'some' },
+    { id:'mystery_chips',       text:'mystery chips',       emoji:'🍟', isPlural:true,  plural:'mystery chips' },
+    { id:'sad_granola_bar',     text:'sad granola bar',     emoji:'🥣', isPlural:false, article:'a' },
+    { id:'third_coffee',        text:'third coffee',        emoji:'☕', isPlural:false, article:'a' },
+    { id:'everything_bagel',    text:'everything bagel',    emoji:'🥯', isPlural:false, article:'an' },
+
+    /* ============================================================
+       v2.4.6 — picker expansion: foods for new picker words. */
+
+    /* ----- tot food additions (4) ----- */
+    { id:'muffin',     text:'muffin',     emoji:'🧁', isPlural:false, article:'a' },
+    { id:'yogurt',     text:'yogurt',     emoji:'🥄', isPlural:false, article:'some' },
+    { id:'pasta',      text:'pasta',      emoji:'🍝', isPlural:false, article:'some' },
+    { id:'peas',       text:'peas',       emoji:'🟢', isPlural:true,  plural:'peas' },
+
+    /* ----- little food additions (2) ----- */
+    { id:'toast',         text:'toast',         emoji:'🍞', isPlural:false, article:'a piece of' },
+    { id:'apple_slices',  text:'apple slices',  emoji:'🍎', isPlural:true,  plural:'apple slices' },
+
+    /* ----- big tier food additions (6) ----- */
+    { id:'ceremonial_nachos',     text:'ceremonial nachos',     emoji:'🧀', isPlural:true,  plural:'ceremonial nachos' },
+    { id:'forbidden_waffles',     text:'forbidden waffles',     emoji:'🧇', isPlural:true,  plural:'forbidden waffles' },
+    { id:'emergency_noodles_big', text:'emergency noodles',     emoji:'🍜', isPlural:true,  plural:'emergency noodles' },
+    { id:'normal_toast',          text:'aggressively normal toast', emoji:'🍞', isPlural:false, article:'a slice of' },
+    { id:'suspicious_fruit_salad',text:'suspicious fruit salad',emoji:'🍓', isPlural:false, article:'a bowl of' },
+    { id:'official_pudding',      text:'official pudding',      emoji:'🍮', isPlural:false, article:'some' },
+
+    /* ----- tween tier food additions (6) ----- */
+    { id:'vending_chips',         text:'vending machine chips', emoji:'🍟', isPlural:true,  plural:'vending machine chips' },
+    { id:'cafeteria_fries',       text:'cafeteria fries',       emoji:'🍟', isPlural:true,  plural:'cafeteria fries' },
+    { id:'emergency_ramen',       text:'emergency ramen',       emoji:'🍜', isPlural:false, article:'a cup of' },
+    { id:'suspicious_smoothie',   text:'suspicious smoothie',   emoji:'🥤', isPlural:false, article:'a' },
+    { id:'leftover_birthday_cake',text:'leftover birthday cake',emoji:'🎂', isPlural:false, article:'a slice of' },
+    { id:'gas_station_nachos',    text:'gas station nachos',    emoji:'🧀', isPlural:true,  plural:'gas station nachos' },
   ],
 
   /* Objects — holdable, discoverable plot items. */
@@ -1736,7 +2430,7 @@ const V2_BEATS = [
     ] },
   { id:'sw_dis_tween', beatType:'show_disaster', tiers:['tween'], requiredSlots:['kid','object'],
     lines: [
-      'Of course, the {object.text} broke. Of course. {kid.name} stood there with half a {object.text} and a decision to make.',
+      'Of course, the {object.text} broke. Of course. {kid.name} stood there with half {object.articleText} and a decision to make.',
     ] },
 
   /* KID IMPROVISES — uses freeword/move
@@ -2307,7 +3001,10 @@ function generateStoryV2(name, picks, age) {
         : [' Then {visitor.articleText} showed up to see what the fuss was about.', ' Then {visitor.articleText} appeared and started taking notes. Probably.'],
     color: tier === 'tot'
       ? [' Everything was a little {color.text}.']
-      : [' The whole scene had a {color.text} tint by then.', ' Somehow even the air looked {color.text}.'],
+      /* v2.4.6 — dropped "a {color.text}" template; produced "a orange" / "a iridescent" /
+         "a electric blue" etc. when color started with a vowel. The two variants below
+         avoid the indefinite article entirely so any color text reads grammatical. */
+      : [' The whole scene turned {color.text} by then.', ' Somehow even the air looked {color.text}.'],
     mood: tier === 'tot'
       ? [' {kid.cap} felt {mood.text}.']
       : [' {kid.cap} was {mood.text} about the whole thing, in a quiet way.'],
@@ -2444,6 +3141,93 @@ if (typeof window !== 'undefined') {
     __recentBeatIds.length  = 0;
     __recentLineKeys.length = 0;
     console.log('[NoddyTales] beat memory cleared');
+  };
+
+  /* v2.4.6 — picker → v2 mapping audit.
+     generateStoryV2's mapPickToWord matches a picker selection (picks.pet.w etc.)
+     against V2_WORDS[lib] by exact text OR id. Misses silently fall back to
+     rawPick(lib), which makes selected words disappear from stories. This helper
+     compares WORD_BANK[tier][cat].options[].w against the appropriate v2 pool for
+     every tier and reports gaps. 100% coverage means every picker word the user
+     can ever select has a matching rich-word entry.
+
+     Usage from browser console:
+       qaWordMapping()                  // full audit, console table + return value
+       qaWordMapping({ verbose:true })  // also logs the missing words inline
+
+     Returns { perTier:{...}, summary:{...}, allMissing:[...] }. */
+  window.qaWordMapping = function qaWordMapping(opts) {
+    opts = opts || {};
+    if (typeof WORD_BANK === 'undefined') {
+      console.warn('[qaWordMapping] WORD_BANK not in scope — call from browser context');
+      return null;
+    }
+    const CAT_TO_POOL = {
+      pet:      'companions',
+      creature: 'visitors',
+      place:    'places',
+      food:     'foods',
+    };
+    const TIERS = ['tot', 'little', 'kid', 'big', 'tween'];
+    const perTier = {};
+    const allMissing = [];
+    let totalCovered = 0;
+    let totalChecked = 0;
+
+    for (const tier of TIERS) {
+      const tierRounds = WORD_BANK[tier] || [];
+      perTier[tier] = {};
+      for (const cat of Object.keys(CAT_TO_POOL)) {
+        const round = tierRounds.find(r => r.cat === cat);
+        if (!round) continue;
+        const pool  = V2_WORDS[CAT_TO_POOL[cat]] || [];
+        const lookup = new Set();
+        for (const w of pool) {
+          if (w.text) lookup.add(w.text);
+          if (w.id)   lookup.add(w.id);
+        }
+        const options = round.options || [];
+        const missing = options.filter(o => !lookup.has(o.w)).map(o => o.w);
+        const mapped  = options.length - missing.length;
+        totalChecked += options.length;
+        totalCovered += mapped;
+        perTier[tier][cat] = {
+          total:    options.length,
+          mapped,
+          missing,
+          coverage: options.length ? Math.round(100 * mapped / options.length) : 100,
+        };
+        for (const m of missing) allMissing.push({ tier, cat, word: m });
+      }
+    }
+
+    const summary = {
+      totalChecked,
+      totalCovered,
+      totalMissing: totalChecked - totalCovered,
+      coveragePct:  totalChecked ? Math.round(100 * totalCovered / totalChecked) : 100,
+    };
+
+    /* Console output: per-tier compact summary + missing-word list. */
+    console.log('=== qaWordMapping — picker → V2_WORDS coverage ===');
+    for (const tier of TIERS) {
+      const cats = perTier[tier] || {};
+      const parts = Object.keys(CAT_TO_POOL)
+        .filter(c => cats[c])
+        .map(c => `${c} ${cats[c].mapped}/${cats[c].total}` + (cats[c].missing.length && opts.verbose ? ` (missing: ${cats[c].missing.join(', ')})` : ''));
+      console.log(`  ${tier.padEnd(7)} — ${parts.join(' · ')}`);
+    }
+    console.log(`Summary: ${summary.totalCovered}/${summary.totalChecked} mapped (${summary.coveragePct}%) — ${summary.totalMissing} missing`);
+    if (summary.totalMissing && !opts.verbose) {
+      console.log('Missing words (rerun with { verbose:true } for inline list):');
+      const groups = {};
+      for (const m of allMissing) {
+        const k = m.tier + ':' + m.cat;
+        (groups[k] = groups[k] || []).push(m.word);
+      }
+      for (const k of Object.keys(groups)) console.log('  ' + k + ' → ' + groups[k].join(', '));
+    }
+    return { perTier, summary, allMissing };
   };
 
   /* v2.2.3 — DevTools QA helper that mirrors the 60-story audit script.

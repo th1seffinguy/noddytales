@@ -1148,6 +1148,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v2.4.6', title: 'Picker → V2_WORDS 100% mapping + picker expansion',
+    detail: 'Audit revealed generateStoryV2\'s mapPickToWord was matching picker selections against V2_WORDS by exact text/id, and 58% of picker words (145/252) had no v2 entry — on a miss the engine silently replaced the user\'s choice with a random rich word, so selected pet/food/place/creature could just vanish from stories. v2.4.6 closes the gap entirely and expands the picker. Three deliverables: (1) New window.qaWordMapping() dev helper compares WORD_BANK[tier][cat].options[].w against the appropriate V2_WORDS pool (companions / visitors / places / foods) across all 5 tiers and reports missing words. (2) ~225 new v2 rich-word entries authored — backfill for currently-listed picker words plus matching entries for the picker expansion. Every picker word now has an exact-text match in v2; zero silent replacements possible. (3) Picker expanded per spec: tot/little/big/tween 12→18 per category, kid 18→24 per category. Net 366/366 picker→v2 mapping (100%, up from 42%). Little tier weather round (12-option pool that existed but was never used) wired into buildRounds() as a 30% swap for the creature round. Two grammar fixes caught in the same pass: "a orange tint" / "a iridescent tint" rewritten to "turned orange by then" (drops the broken indefinite article), and "half a umbrella" → "half an umbrella" via articleText. Acceptance: 0 broken articles across 240 stories, 0 nulls, 0 unresolved tokens, 0 duplicate picker options. Emoji remains the default visual; image assets deferred to v2.5.x.' },
   { v: 'v2.4.5', title: 'Story Test Log closure — v1 fallback tot templates hardened',
     detail: 'Story Test Log audit (entries 001–006, May 2026 playtest with Cole age 2–5) confirmed three v1 tot defects were still open in the fallback engine. Entry 004: BOING/BOOP repetition cap + "ate banana" bare-singular grammar. Entry 005: hardcoded "Skies don\'t usually do that!" filler that repeated verbatim across every Bouncing SKY story. Entry 006: "Then they went rolled, rolled, and one more time rolled!" verb-noun POS conflict — MOV pool is all past-tense verbs but the template wrapped them in "went X" producing broken grammar. v2 engine (live default since v2.0.0) already addresses these structurally; this release sterilizes the v1 fallback so the same bugs cannot fire when ?engine=v1 is set or v2 returns null. Six reusable rules distilled from the v1.18.0 / v1.19.0 / v2.3.x fixes and applied: escalation arc, word repetition cap ≤3 (tot/little) or ≤4 (kid+), past-tense verbs only slot as main verb, punchline callbacks the central image in the final paragraph, name in every paragraph for tot/little, zero hardcoded full-sentence reactions. 4 tot templates rewritten (Rainbow Duck, Loud Food, Bouncing SKY, Mystery Bonk). 4 tot templates left alone (already passing). Kid + Little tiers verified to pass — no rewrites. Regression check confirms all four bug patterns eliminated.' },
   { v: 'v2.4.4', title: 'Karaoke auto-scroll — follow the read-aloud without scrolling',
@@ -1388,8 +1390,20 @@ function buildRounds(age) {
   if (tier === 'little') {
     const pool = FREE_TEXT_ROUNDS.little;
     const ft = [pool[Math.floor(Math.random() * pool.length)]];
-    // Insert freetext after the first 3 binary rounds so it lands mid-flow rather than at the start.
-    return [...binaryRounds.slice(0, 3), ...ft, ...binaryRounds.slice(3)];
+    // v2.4.6 — little tier weather round: WORD_BANK.little has a 12-option weather pool but
+    // ROUND_PLAN never used it. ~30% of sessions now swap the creature round for weather so
+    // it's a swappable variant instead of always-on (kid + creature variety still primary).
+    const rounds = [...binaryRounds.slice(0, 3), ...ft, ...binaryRounds.slice(3)];
+    if (Math.random() < 0.3) {
+      const weatherRound = (WORD_BANK.little || []).find(r => r.cat === 'weather');
+      if (weatherRound) {
+        const shuffled = [...weatherRound.options].sort(() => Math.random() - 0.5);
+        const swappable = { ...weatherRound, options: shuffled.slice(0, 2) };
+        const creatureIdx = rounds.findIndex(r => r && r.cat === 'creature');
+        if (creatureIdx >= 0) rounds[creatureIdx] = swappable;
+      }
+    }
+    return rounds;
   }
   if (tier === 'kid') {
     const pool = FREE_TEXT_ROUNDS.kid;
