@@ -1,0 +1,12 @@
+reps=120 per tier per engine
+engine  tier    median  p90  max  n
+V3      tot         19   20   21  120
+V3      little      18   19   19  120
+V3      kid         27   31   34  120
+V3      big         27   32   39  120
+V3      tween       26   31   33  120
+V2      tot         22   25   28  120
+V2      little      21   24   26  120
+V2      kid         29   33   38  120
+V2      big         29   33   36  120
+V2      tween       29   34   36  120

@@ -9,6 +9,103 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 18, engine v3.0.3) — 2026-05-21
+**Silly Cartoon distinctiveness fix + voice-docs cleanup + first story-length pass (tot/little −22%)**
+
+Two-part build: (A) silly-voice fidelity + voice-docs cleanup, and (B) the first scoped pass at the "stories too long globally" defect for ages 2-7.
+
+### Part A — Silly Cartoon distinctiveness
+
+User feedback after b17 production deploy: *"Silly Cartoon still sounds too similar to another voice."* The b17 default for `silly` (Gigi `jBpfuIE2acCO8z3wKNLl`) is labeled *American childish character* but its timbre reads too close to Rachel (the Sunny default — also American female, calm) when parents A/B-compare the 4 previews back-to-back.
+
+**Fix:**
+- Swapped the silly `defaultId` to **Mimi** (`zrHiDhphv9ZnVXBqCLjz`) — an ElevenLabs first-party stock voice explicitly labeled "childish character" with a noticeably higher pitch and Swedish-tinged cadence. Markedly more cartoon-feeling than Gigi.
+- Tuned `voice_settings` for max playful expressiveness:
+  - `stability` 0.55 → **0.40** (more variation)
+  - `similarity_boost` 0.80 → 0.75 (looser tie to baseline)
+  - `style` 0.70 → **0.85** (max expressive style)
+- Label "Silly Cartoon" unchanged — saved `nt_voice_preset` values + IndexedDB cache (`preview:silly` + `silly|<sha256>`) survive across the swap.
+- Tagline `"Goofy, bouncy, kid-favorite"` → `"High-pitched, goofy, completely ridiculous"`.
+- `previewText` `"I make stories sound ridiculous."` → `"I make stories sound completely ridiculous!"` — makes the contrast with the three steadier voices obvious in the 1-second preview clip.
+
+Operator can still override via `ELEVENLABS_VOICE_SILLY` if Mimi turns out not to be silly enough.
+
+### Part A — Voice docs cleanup
+
+`api/tts.js` header still described preset-without-env-var as *"falls back to ELEVENLABS_VOICE_ID"* — that stopped being true at b17 when per-preset `defaultId`s shipped. Rewrote the header to accurately describe the b17/b18 priority chain:
+
+1. `env[cfg.envVar]` — operator per-preset override
+2. `cfg.defaultId` — per-preset hardcoded curated default (happy path)
+3. `env.ELEVENLABS_VOICE_ID` — legacy universal fallback
+4. `'JBFqnCBsd6RMkjVDRZzb'` — final backstop
+
+Levels 3-4 are effectively unreachable when `cfg.defaultId` is set for every known preset. The per-request `console.warn` copy was updated so it no longer suggests setting the per-preset env var is required for distinctness; the legacy chain firing now signals a **code bug** (missing `defaultId`), not an operator misconfig.
+
+README narrator-lineup table + Setup checklist updated:
+- Per-preset env vars now documented as **optional** operator overrides.
+- Only `ELEVENLABS_API_KEY` is **required** for TTS to work at all (since b17).
+- `ELEVENLABS_VOICE_ID` documented as a legacy universal fallback / safety net.
+
+### Part B — First story-length pass (ages 2-7 priority)
+
+Defect *"Stories too long globally"* has been open since the v2.10.2 advisory metric landed. b17 baseline:
+
+| tier   | v3 median | defect cap |
+|--------|-----------|------------|
+| tot    | 19        | 3-4        |
+| little | 18        | 5-6        |
+| kid    | 27        | 7-8        |
+| big    | 27        | 9-11       |
+| tween  | 26        | 10-12      |
+
+b18 starts a conservative trimming pass — **30 surgical edits** across the v3 beat library, all targeting trailing **flourishes** that don't carry tokens or selected words.
+
+- **13 tot beat lines** trimmed (setup × 4 of 5, repeat × 8 of 8, end × 5 of 5)
+- **13 little beat lines** trimmed (setup × 4 of 5, repeat × 7 of 8, end × 4 of 5)
+- **4 kid beat lines** trimmed (`v3_ls_setup_1`, `v3_ls_escalation_1`, `v3_ls_payoff_chant`, `v3_gs_setup_1`)
+
+**Cuts:** `"Yay!"`, `"Big day!"`, `"Adventure unlocked."`, `"Treasure confirmed."`, `"Goodnight."`, `"Case closed."`, `"Mostly."`, `"Big plans for tomorrow."`, etc. — token-free narrator closers.
+
+**Protected:**
+- Every `{protagonist.name}` / `{ally.text}` / `{wonder_object.text}` / `{setting.text}` / `{mcguffin.text}` token.
+- Every call-response and parallel-structure cozy pattern (the repetition IS the texture).
+- Every punchline beat (the joke landing IS the last sentence).
+- Every sentence carrying a user-picked word or orange highlight.
+
+### Results (120 stories/tier/engine snapshot)
+
+| tier   | before median | after median | Δ     |
+|--------|---------------|--------------|-------|
+| tot    | 19            | **15**       | **−22%** |
+| little | 18            | **14**       | **−22%** |
+| kid    | 27            | 26           | −4%   |
+| big    | 27            | 26           | −4%   |
+| tween  | 26            | 26           | 0     |
+
+Tot p90 dropped 20 → 17; little p90 dropped 19 → 15.
+
+Going lower on tot/little requires either dropping a paragraph (breaks the Section 3b 4-paragraph gate) or cutting the cozy-repetition beats (breaks the design intent for ages 2-3). Going lower on kid requires a structural change — a per-tier paragraph-count override so kid drops to 5 stages while big/tween keep 6 — which requires updating Section 3's 6-paragraph gate to be tier-aware. **Both queued for b19.**
+
+### New dev helper
+
+`scripts/sentence-count-snapshot.js` — outputs the V3+V2 × 5-tier median/p90/max matrix so the next pass has a reproducible baseline:
+
+```bash
+node scripts/sentence-count-snapshot.js 120
+```
+
+### Acceptance
+
+- `scripts/qa-current.js` — all **23 gates** green
+- Section 14 narrator voice selector unit tests — **14/14** green (silly `defaultId` + `voice_settings` literals shifted; chain contract held)
+- Section 3 (kid/big/tween 6-paragraph) + Section 3b (tot/little 4-paragraph) unaffected — only beat-line text changed
+
+`APP_VERSION` stays `v0.9.3`; `BUILD_NUMBER` 17 → 18; `ENGINE_V2_VERSION` stays `v3.0.3`. Badge reads `v0.9.3 · b18`.
+
+**No new Vercel env vars required** — Mimi ships as the hardcoded silly default; `ELEVENLABS_VOICE_SILLY` remains an optional override.
+
+---
+
 ## v0.9.3 (build 17, engine v3.0.3) — 2026-05-21
 **Voice previews now genuinely distinct out-of-the-box — hardcoded per-preset stock voice IDs**
 

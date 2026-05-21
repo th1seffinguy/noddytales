@@ -4,29 +4,32 @@
 
    v0.9.3 · b8 — Narrator Voice Selector MVP.
    v0.9.3 · b16 — Lineup refresh: 1 British storybook narrator + 3 American voices
-   (warm / energetic / cartoon). The four preset env vars below MUST point to four
-   DISTINCT ElevenLabs voice IDs in production — if any are unset, that preset
-   falls back to ELEVENLABS_VOICE_ID and a per-request console.warn fires so the
-   identical-previews misconfig is visible in Vercel logs.
+   (warm / energetic / cartoon). The four preset env vars are now OPTIONAL
+   operator overrides — every preset ships with a curated ElevenLabs stock
+   voice baked in as `defaultId` (see b17 + b18 notes below), so a fresh
+   Vercel deploy with only `ELEVENLABS_API_KEY` set produces 4 distinct
+   preview voices automatically.
 
    Intended lineup:
      sunny      → American · warm, clear, everyday read-aloud
      cozy       → British  · classic storybook narrator
      adventure  → American · energetic + expressive
-     silly      → American · goofy, bouncy, kid-favorite cartoon
+     silly      → quirky   · high-pitched / cartoony / goofy
 
    The client picks a friendly preset key. The browser never sees ElevenLabs
-   voice IDs — they live only in server env vars. This proxy:
+   voice IDs — they live only in server-side code + env vars. This proxy:
      1. Validates voicePreset against an allowlist; rejects unknown values 400.
-     2. Resolves preset → voice ID via env vars, with ELEVENLABS_VOICE_ID as
-        the universal fallback for any preset whose specific env var is unset.
-     3. Logs a console.warn per request when a preset falls back so the
-        operator notices when production env is misconfigured (all previews
-        otherwise sound identical, which is worse than offering one voice
-        transparently).
+     2. Resolves preset → voice ID via the b17 priority chain (per-preset env
+        override → per-preset hardcoded default → legacy universal env →
+        final backstop). See `resolveVoice` for the source-of-truth chain.
+     3. Logs a console.warn per request only when the legacy fallback chain
+        actually fires (env[ELEVENLABS_VOICE_ID] or final backstop) — meaning
+        the curated per-preset default got bypassed somehow. With cfg.defaultId
+        set for every known preset that branch is effectively unreachable on
+        the happy path.
      4. Applies per-preset ElevenLabs voice_settings (stability / similarity /
-        style) so even when all four resolve to the same fallback voice the
-        moods land distinctly.
+        style) so the moods land distinctly even if a future config collapses
+        two presets to the same voice ID.
      5. Keeps the /with-timestamps endpoint so karaoke highlighting still works.
 */
 
@@ -34,12 +37,26 @@
    genuinely distinct out-of-the-box without requiring the operator to paste 4
    ElevenLabs voice IDs into Vercel. All four IDs below are ElevenLabs
    first-party STOCK voices, available on every ElevenLabs account — NOT
-   celebrity / real-person impersonations. Operator can still override per
-   preset via the env vars; resolveVoice priority is:
-     1. env[envVar]    (operator per-preset override — strongest)
-     2. cfg.defaultId  (curated hardcoded default — new)
+   celebrity / real-person impersonations.
+
+   v0.9.3 · b18 — Silly Cartoon distinctiveness fix. The b17 default for
+   `silly` (Gigi, `jBpfuIE2acCO8z3wKNLl`) read too close to Rachel (the Sunny
+   default) when parents A/B-tested previews in production — both are calm
+   American-female timbres despite Gigi's "childish character" label. b18
+   swaps in Mimi (`zrHiDhphv9ZnVXBqCLjz`), an ElevenLabs stock voice
+   explicitly labeled as a Swedish childish character with a noticeably
+   higher pitch and quirky cadence. We also drop `stability` from 0.55 → 0.40
+   and raise `style` from 0.70 → 0.85 to maximize playful expressiveness.
+
+   Operator can still override per preset via the env vars; resolveVoice
+   priority is (strongest → weakest):
+     1. env[envVar]    (operator per-preset override)
+     2. cfg.defaultId  (curated hardcoded default — happy path)
      3. env.ELEVENLABS_VOICE_ID  (legacy universal fallback)
-     4. 'JBFqnCBsd6RMkjVDRZzb' (George — final backstop) */
+     4. 'JBFqnCBsd6RMkjVDRZzb' (George — final backstop)
+   Steps 3-4 are effectively unreachable when cfg.defaultId is set for every
+   known preset. If a custom high-pitched/cartoon voice is wanted that beats
+   Mimi for "silly", set `ELEVENLABS_VOICE_SILLY` in Vercel. */
 const VOICE_MAP = {
   sunny: {
     envVar:        'ELEVENLABS_VOICE_SUNNY',       // American · warm / clear
@@ -57,9 +74,15 @@ const VOICE_MAP = {
     voice_settings:{ stability: 0.65, similarity_boost: 0.85, style: 0.50, use_speaker_boost: true },
   },
   silly: {
-    envVar:        'ELEVENLABS_VOICE_SILLY',       // American · cartoon / goofy
-    defaultId:     'jBpfuIE2acCO8z3wKNLl',         // Gigi — American female, childish character
-    voice_settings:{ stability: 0.55, similarity_boost: 0.80, style: 0.70, use_speaker_boost: true },
+    envVar:        'ELEVENLABS_VOICE_SILLY',       // quirky · cartoon / goofy / high-pitched
+    // b18 — swapped from Gigi (`jBpfuIE2acCO8z3wKNLl`) to Mimi because Gigi's
+    // timbre was too close to Rachel in production user testing. Mimi is an
+    // ElevenLabs stock voice (childish character, Swedish-tinged) — explicitly
+    // higher-pitched and quirkier than the other three defaults. Original Gigi
+    // ID kept in code comments as a fallback option if Mimi ever gets
+    // deprecated from the stock library.
+    defaultId:     'zrHiDhphv9ZnVXBqCLjz',         // Mimi — childish character, higher-pitched, quirky cadence
+    voice_settings:{ stability: 0.40, similarity_boost: 0.75, style: 0.85, use_speaker_boost: true },
   },
 };
 const DEFAULT_PRESET = 'sunny';
@@ -123,13 +146,16 @@ module.exports = async function handler(req, res) {
       voice_settings: resolved.voice_settings,
     }),
   });
-  // v0.9.3 · b16 — escalate to console.warn when a preset falls back to
-  // ELEVENLABS_VOICE_ID so the identical-previews misconfig is visible in
-  // Vercel logs (otherwise every preset just silently sounds the same).
+  // v0.9.3 · b16/b17/b18 — log at console.log on the happy path
+  // (envPerPreset or hardcodedPerPreset). Escalate to console.warn only when
+  // the LEGACY chain fires (envUniversal or hardcodedFinal) — meaning the
+  // curated per-preset default got bypassed, which on b17+ should be
+  // unreachable for the 4 known presets. Seeing this warn in production
+  // signals a code change that removed a defaultId.
   const logFn = resolved.usedFallback ? console.warn : console.log;
-  logFn(`[TTS] chars=${text.length} preset=${resolved.preset} voice=${resolved.voiceId} fallback=${resolved.usedFallback} status=${response.status}`);
+  logFn(`[TTS] chars=${text.length} preset=${resolved.preset} voice=${resolved.voiceId} source=${resolved.source} status=${response.status}`);
   if (resolved.usedFallback) {
-    console.warn(`[TTS] preset "${resolved.preset}" fell back to ELEVENLABS_VOICE_ID — set ${VOICE_MAP[resolved.preset].envVar} in Vercel for a distinct voice.`);
+    console.warn(`[TTS] preset "${resolved.preset}" resolved via legacy fallback (source=${resolved.source}). Curated per-preset defaultId is missing from VOICE_MAP — investigate api/tts.js.`);
   }
   if (!response.ok) return res.status(response.status).json({ error: 'ElevenLabs API error' });
 
