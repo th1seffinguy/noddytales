@@ -813,6 +813,31 @@
   .hint-chip:active { transform: translateY(2px); }
   .hint-chip:hover { background: rgba(255,255,255,0.8); }
 
+  /* v0.9.3 · b2 — escape hatch on the kid sound round. Lets a kid who DOES want
+     to type swap the tap round for a freetext round. Default is tap (no friction);
+     this button is small, subtle, sits below the cards. Tapping it re-renders the
+     same round slot as a freetext input. */
+  .escape-hatch-btn {
+    display: block;
+    margin: 18px auto 0;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--ink-soft);
+    background: transparent;
+    border: 1px dashed rgba(61,53,40,0.25);
+    border-radius: 999px;
+    padding: 8px 16px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.15s, transform 0.12s, background 0.15s;
+  }
+  .escape-hatch-btn:hover {
+    opacity: 1;
+    background: rgba(255,255,255,0.4);
+  }
+  .escape-hatch-btn:active { transform: translateY(1px); }
+
   /* ---- Progress dots ---- */
   .progress {
     display: flex;
@@ -1193,6 +1218,8 @@ const state = {
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v0.9.3 · b2', title: 'Selection Joy Pass Phase 1 — silly-sound tap round (little + kid) + "type your own" escape hatch (kid)',
+    detail: 'Live testing with kids showed the picker is the most enjoyable part of the app and the kid-tier (ages 6-7) free-text round broke that tap-rhythm — typing is slow on a phone and many 6-year-olds can\'t reliably spell silly sounds. This release converts the freetext-by-default round to a tap-by-default silly-sound round at little (4-5) and kid (6-7) tiers. CHANGES: (1) New buildSoundRound() helper in buildRounds() draws 2 random options from SOUND_HOT_OPTS (12 cartoon sounds: BABOOM!, WHAMMY!, CRASH!, TOOT!, ZAP!, SPLAT!, CLANG!, SMASH!, BONK!, WHOOSH!, BWAHAHA!, KAFOOM! — all distinct emojis). The picked sound feeds the same picks.freeword slot the engine reads, so story-side rendering is unchanged. (2) Little tier: 1 freetext round → 1 sound tap round. No escape hatch (ages 4-5 can\'t reliably type). (3) Kid tier: 1 freetext round → 1 sound tap round + small "or type your own ✏️" escape-hatch button under the two cards. Tapping it swaps the round for the original freetext prompt and re-renders. Zero-friction default; creative agency preserved for kids who want it. (4) SOUND_HOT_OPTS comment updated — pool is now the universal silly-sound pool, not Potty-Word-Mode-only. Name kept for grep-history; QA Section 11 emoji-uniqueness still enforces all 12 distinct. (5) Potty Word Mode simplification: was injecting body + sound rounds (+2). Now sound is universal so Potty Mode only adds the body round (+1). Net Potty Mode session: 9 rounds (was 10). Body round content unchanged. (6) Big + tween unchanged in this phase. Phase 7 will drop big from 2 → 1 freetext alongside the object round addition. NOT IN THIS RELEASE (Selection Joy Pass Phases 2-8, queued): setting-specific bias, sub-spot tap round when setting locked, shuffle 🎲 button, wild card mechanic, visual polish (bigger emoji + tap sound + haptic), object round, mood-at-little, seasonal food rotation. ACCEPTANCE: scripts/qa-current.js all 12 gates green. SOUND_HOT_OPTS emoji uniqueness verified by extended Section 11 coverage. Picker-flow smoke test: little + kid + (kid + Potty Mode) sessions all produce well-formed round sequences with picks.freeword populated. Engine slot construction unchanged. APP_VERSION stays v0.9.3 (no product-maturity bump); BUILD_NUMBER 1 → 2; ENGINE_V2_VERSION stays v3.0.3. Badge reads v0.9.3 · b2.' },
   { v: 'v0.9.3', title: 'Versioning policy adoption — three independent identifiers (build 1, engine v3.0.3)',
     detail: 'Between 2026-05-20 and 2026-05-21 the user-facing version inflated from v3.0.0 → v3.0.3 in 36 hours — one architectural milestone plus four UX hotfixes. Treating every fix as a semver patch signaled "we\'re at v3" when the product is still pre-App-Store, mid-QA, mid-content-trim. Also forced the queued "delete v2 codepath" Build Idea to be renumbered five times. NEW POLICY (see docs/versioning.md): three independent identifiers. APP_VERSION = user-facing product maturity, v0.9.x = late beta, v1.0.0 reserved for App Store launch — bumps only on real product milestones. ENGINE_V2_VERSION = internal engine architecture lineage, stays v3.0.3 here, bumps when v2 deletion lands (→ v3.1.0). BUILD_NUMBER = integer that increments every release to main, shown in the badge as "v0.9.3 · b1". FILES CHANGED: src/content.js APP_VERSION v3.0.3 → v0.9.3 + new BUILD_NUMBER = 1 constant + policy header comment. index.html badge render IIFE now shows product + build instead of just the engine version. docs/versioning.md new file documenting the policy in full (problem statement, three-identifier table, increment rules, display matrix, examples, migration plan, open questions). README.md new Versioning section pointing at the doc. CHANGELOG.md header rewritten + new v0.9.3 entry with four-part format (build N, engine vA.B.C). Historical v3.0.0–v3.0.3 entries unchanged. VISIBLE CHANGE: badge reads "v0.9.3 · b1" instead of "v3.0.3" for anyone with the app open at deploy — intentional one-time confusion cost paid before more patches accumulate. BUILD IDEA RENAMING: queued v2-deletion Build Idea (previously v3.0.4 after five renumbers) becomes "v0.9.x build N — Delete v2 codepath (engine v3.1.0)". Build number lands at merge time; engine bumps to v3.1.0 (architecture change, not product milestone). ACCEPTANCE: scripts/qa-current.js all 12 gates green (no engine/content changes, matches v3.0.3 results). APP_VERSION → v0.9.3 / BUILD_NUMBER → 1 / ENGINE_V2_VERSION stays v3.0.3.' },
   { v: 'v3.0.3', title: 'Picker UX hotfix bundle — banshee→yeti, suspiciously polite→polite, chaotic sounds cleanup',
@@ -1480,12 +1507,26 @@ function buildRounds(age) {
       return { ...round, options: shuffled.slice(0, 2) };
     });
 
-  // v1.19.2 — little tier gets one freetext round (Codex QA finding #2). Goofy Shorts: Little
+  // v0.9.3 · b2 — Selection Joy Pass Phase 1: little + kid sessions get a TAP-BY-DEFAULT
+  // silly-sound round in place of the prior freetext-by-default round. Live testing showed
+  // ages 4-7 type slowly on phones and the freetext round broke the picker's tap-rhythm.
+  // The chosen sound still feeds the same picks.freeword slot the engine reads — story-side
+  // unchanged. Kid sessions get an additional "or type your own ✏️" escape hatch button
+  // beneath the two sound cards (see renderWords). Little sessions don't get the escape
+  // hatch (4-5 can't reliably type). See docs/versioning.md, Selection Joy Pass Build Idea.
+  function buildSoundRound() {
+    const shuffled = [...SOUND_HOT_OPTS].sort(() => Math.random() - 0.5);
+    return {
+      cat: 'freeword',          // engine reads picks.freeword same as the old freetext slot
+      label: 'Pick a silly sound',
+      options: shuffled.slice(0, 2),
+    };
+  }
+  // v1.19.2 — little tier gets one freeword round (Codex QA finding #2). Goofy Shorts: Little
   // Edition templates repeat the freeword as a shoutable spell — without this round, FW_SAFE
   // was falling back to FLABBADOO/KAPOW/etc. and the kid's own word was never invited.
   if (tier === 'little') {
-    const pool = FREE_TEXT_ROUNDS.little;
-    const ft = [pool[Math.floor(Math.random() * pool.length)]];
+    const ft = [buildSoundRound()];
     // v2.4.6 — little tier weather round: WORD_BANK.little has a 12-option weather pool but
     // ROUND_PLAN never used it. ~30% of sessions now swap the creature round for weather so
     // it's a swappable variant instead of always-on (kid + creature variety still primary).
@@ -1502,18 +1543,24 @@ function buildRounds(age) {
     return rounds;
   }
   if (tier === 'kid') {
-    const pool = FREE_TEXT_ROUNDS.kid;
-    const ft = [pool[Math.floor(Math.random() * pool.length)]];
-    // When potty mode is ON, surface 2 extra picker rounds so the toggle has a visible effect
-    // on the selection flow — pick a body word + pick a silly sound, drawn from the HOT pools.
+    // v0.9.3 · b2 — kid sound round carries the original freetext prompt as escapeHatchTo
+    // so renderWords() can show a "type your own ✏️" button beneath the cards. Tapping the
+    // hatch swaps state.rounds[idx] to the freetext round and re-renders. Default flow = zero
+    // typing friction; escape hatch preserves the creativity door for kids who want it.
+    const ftPool   = FREE_TEXT_ROUNDS.kid;
+    const ftRound  = ftPool[Math.floor(Math.random() * ftPool.length)];
+    const sound    = buildSoundRound();
+    sound.escapeHatchTo = ftRound;
+    // v0.9.3 · b2 — Potty Mode flow simplified: sound is now universal at kid tier so Potty
+    // Mode only adds the body round on top. Was: pottyMode added BOTH body + sound (10 total
+    // rounds). Now: pottyMode adds body only (9 total rounds); the sound round is already in
+    // the slot the freetext round used to occupy. Net effect: pottyMode = +1 round (was +2).
     if (state.pottyMode) {
-      const bodyShuffled  = [...BODY_HOT_OPTS].sort(() => Math.random() - 0.5).slice(0, 2);
-      const soundShuffled = [...SOUND_HOT_OPTS].sort(() => Math.random() - 0.5).slice(0, 2);
-      const bodyRound  = { cat: 'body',  label: 'Pick a silly body word', options: bodyShuffled };
-      const soundRound = { cat: 'sound', label: 'Pick a chaotic sound',   options: soundShuffled };
-      return [...binaryRounds.slice(0, 4), ...ft, bodyRound, ...binaryRounds.slice(4), soundRound];
+      const bodyShuffled = [...BODY_HOT_OPTS].sort(() => Math.random() - 0.5).slice(0, 2);
+      const bodyRound    = { cat: 'body', label: 'Pick a silly body word', options: bodyShuffled };
+      return [...binaryRounds.slice(0, 4), sound, bodyRound, ...binaryRounds.slice(4)];
     }
-    return [...binaryRounds.slice(0, 4), ...ft, ...binaryRounds.slice(4)];
+    return [...binaryRounds.slice(0, 4), sound, ...binaryRounds.slice(4)];
   }
   if (tier === 'big') {
     const pool = [...FREE_TEXT_ROUNDS.big].sort(() => Math.random() - 0.5);
@@ -2684,7 +2731,12 @@ function renderWords() {
             <div class="${wordClass(opt.w)}">${esc(opt.w)}</div>
           </button>
         `).join('')}
-      </div>`;
+      </div>
+      ${round.escapeHatchTo ? `
+        <button class="escape-hatch-btn" id="btn-escape-hatch" aria-label="Type your own word instead">
+          or type your own ✏️
+        </button>
+      ` : ''}`;
   }
 
   return `
@@ -3050,6 +3102,18 @@ function attachWordsHandlers(el) {
     cards.forEach((card, i) => {
       card.addEventListener('click', () => pickWord(i, el));
     });
+    // v0.9.3 · b2 — escape hatch on the kid sound round. When present, tapping swaps
+    // the current sound tap round for its original freetext prompt and re-renders.
+    const hatch = el.querySelector('#btn-escape-hatch');
+    if (hatch) {
+      hatch.addEventListener('click', () => {
+        const r = state.rounds[state.roundIdx];
+        if (r && r.escapeHatchTo) {
+          state.rounds[state.roundIdx] = r.escapeHatchTo;
+          goTo('words');
+        }
+      });
+    }
   }
 }
 

@@ -17,7 +17,7 @@
    labeling: product is in late beta (v0.9.x), engine is still v3 internally. The
    historical v3.0.0-v3.0.3 CHANGELOG entries stay as-is for traceability. */
 const APP_VERSION  = 'v0.9.3';
-const BUILD_NUMBER = 1;
+const BUILD_NUMBER = 2;
 
 /* Verb form lookup — maps each past-tense move-pool entry to its base + gerund forms.
    Templates use moveBase()/moveGerund() to derive the right form for the syntactic slot
@@ -189,16 +189,27 @@ const RULES = [
 /* Pickable round options for kid tier — surfaced ONLY when pottyMode is on so the toggle has
    an immediate, visible effect on the selection flow. Each option pairs a word with an emoji
    for the binary picker UI. */
+/* v0.9.3 · b2 — fixed 👃 collision (booger + nostril hair both used 👃). The new
+   Section 11 gate that scans BODY_HOT_OPTS for within-pool emoji uniqueness caught
+   the pre-existing duplicate; booger moves to 🤧 (sneeze face), nostril hair keeps 👃. */
 const BODY_HOT_OPTS = [
   {w:'fart',          e:'💨'}, {w:'poop',          e:'💩'}, {w:'butt',         e:'🍑'},
-  {w:'pee',           e:'💧'}, {w:'booger',        e:'👃'}, {w:'underpants',   e:'🩲'},
+  {w:'pee',           e:'💧'}, {w:'booger',        e:'🤧'}, {w:'underpants',   e:'🩲'},
   {w:'toilet',        e:'🚽'}, {w:'snot rocket',   e:'💦'}, {w:'swamp foot',   e:'🦶'},
   {w:'stinky armpit', e:'🧅'}, {w:'wedgie',        e:'😱'}, {w:'nostril hair', e:'👃'},
 ];
 /* v3.0.3 — replaced bathroom-style picker options. Parent screenshot showed
    "Pick a chaotic sound" rendering PARP + PFFFFART side-by-side. User feedback:
    "they just arent good words. go with Baboom! Whammy! Crash! Toot! stuff like
-   that". 12 distinct cartoon-style action sounds with distinct emojis. */
+   that". 12 distinct cartoon-style action sounds with distinct emojis.
+
+   v0.9.3 · b2 — Selection Joy Pass Phase 1: this pool is now the UNIVERSAL silly-sound
+   pool used by EVERY little + kid + (potty-mode) session. Previously it surfaced only
+   when parent enabled Potty Word Mode; now it's the default sound-round content for
+   ages 4-7 (replacing the prior freetext-by-default behavior that created typing
+   friction). Kept name SOUND_HOT_OPTS to avoid breaking grep / commit history; the
+   name is historical and no longer accurate. All 12 emojis must remain distinct
+   (enforced by QA Section 11). */
 const SOUND_HOT_OPTS = [
   {w:'BABOOM!', e:'💥'}, {w:'WHAMMY!', e:'⚡'}, {w:'CRASH!',  e:'🥁'},
   {w:'TOOT!',   e:'🎺'}, {w:'ZAP!',    e:'💢'}, {w:'SPLAT!',  e:'💦'},

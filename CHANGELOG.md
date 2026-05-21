@@ -9,6 +9,48 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 2, engine v3.0.3) — 2026-05-21
+**Selection Joy Pass Phase 1 — silly-sound tap round (little + kid) + escape hatch (kid)**
+
+Live testing with kids surfaced a clear product signal: the picker, not the story, is the most enjoyable part of the app. Selection is the playful loop kids come back for. The kid-tier free-text round was the friction point — typing on a phone is slow, many 6-year-olds can't reliably spell silly sounds, and the typing round breaks the tap-rhythm of the rest of the picker.
+
+This release is **Phase 1 of an 8-phase Selection Joy Pass** that makes the picker a core product strength. See the [`Selection Joy Pass` Build Idea](https://www.notion.so/36713aa1d4db81a0bbe4f7588fe8f6f3) for the full multi-phase plan.
+
+### Free-text policy change
+
+| Tier | Before | After |
+|---|---|---|
+| tot (2-3) | 0 free-text | 0 (no change) |
+| little (4-5) | 1 free-text | **0 — replaced with silly-sound tap round** |
+| kid (6-7) | 1 free-text | **0 by default + "or type your own ✏️" escape hatch button** |
+| big (8-10) | 2 free-text | 2 (unchanged this phase; Phase 7 drops to 1) |
+| tween (11-13) | 2 free-text | 2 (no change) |
+
+### What changed
+
+- **`buildRounds()` in `index.html`** — new `buildSoundRound()` helper draws 2 random options from `SOUND_HOT_OPTS` (12 distinct-emoji cartoon sounds: `BABOOM! WHAMMY! CRASH! TOOT! ZAP! SPLAT! CLANG! SMASH! BONK! WHOOSH! BWAHAHA! KAFOOM!`). Little + kid sessions now insert this in place of the old freetext round. Kid sound round carries the original freetext prompt as `escapeHatchTo` metadata.
+- **`renderWords()` in `index.html`** — when `round.escapeHatchTo` is present, renders a small dashed-border "or type your own ✏️" button beneath the two cards.
+- **`attachWordsHandlers()` in `index.html`** — wires the escape-hatch button: tap swaps `state.rounds[idx]` to the original freetext round and re-renders. Existing card-click + freetext-submit handlers untouched.
+- **Potty Word Mode simplification** — previously injected both body + sound rounds (`+2`); now sound is universal so Potty Mode only adds the body round (`+1`). Body content (`BODY_HOT_OPTS`) unchanged. Net Potty Mode session: 9 rounds (was 10).
+- **`src/content.js`** — `BUILD_NUMBER` `1` → `2`. `SOUND_HOT_OPTS` comment updated to reflect its new universal role. Name kept for grep-history; QA Section 11 still enforces all 12 emojis distinct.
+- **Badge** — reads `v0.9.3 · b2` post-deploy.
+
+### Engine compatibility
+
+The picked sound feeds the same `picks.freeword` slot the engine has always read. Story-side rendering is unchanged. v3 blueprints (and v2 fallback) require zero changes for this phase.
+
+### Acceptance
+
+- `scripts/qa-current.js` — all 12 gates green.
+- `SOUND_HOT_OPTS` emoji uniqueness verified by Section 11 (extended to scan the now-universal pool).
+- Picker-flow smoke test: little / kid / (kid + Potty Mode) sessions all produce well-formed round sequences with `picks.freeword` populated.
+
+### Not in this phase (Selection Joy Pass Phases 2-8, queued)
+
+Setting-specific bias · sub-spot tap round when setting locked · shuffle 🎲 button · wild card mechanic · visual polish (bigger emoji + tap sound + haptic + animation) · object round at kid+ · mood-at-little · seasonal food rotation · big-tier 2→1 freetext drop.
+
+---
+
 ## v0.9.3 (build 1, engine v3.0.3) — 2026-05-21
 **Versioning policy adoption — three independent identifiers**
 

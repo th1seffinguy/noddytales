@@ -40,6 +40,8 @@ return {
   WORD_BANK,
   V3_BEATS,   // v3.0.2-stability — exposed for Section 5b anytime coverage gate
   V2_BEATS,   // v3.0.2-stability — exposed for Section 5b v2-side anytime coverage
+  SOUND_HOT_OPTS,  // v0.9.3 · b2 — exposed for extended Section 11 emoji uniqueness
+  BODY_HOT_OPTS,   // v0.9.3 · b2 — exposed for extended Section 11 emoji uniqueness
 };
 `;
 const ctx = (new Function(harness))();
@@ -573,6 +575,32 @@ for (const tier of Object.keys(WORD_BANK)) {
 }
 gate('0 emoji collisions within picker rounds', emojiCollisions === 0, emojiCollisions + ' collisions');
 if (emojiCollisionDetail.length) emojiCollisionDetail.forEach(d => console.log('    ' + d));
+
+/* v0.9.3 · b2 — extended Section 11: SOUND_HOT_OPTS is now universal at little + kid
+ * (Selection Joy Pass Phase 1), and BODY_HOT_OPTS is still surfaced when Potty Word Mode
+ * is enabled. Both pools must keep their within-pool emoji uniqueness for the same reason
+ * WORD_BANK rounds do: kids shouldn't see two visually identical cards with different words.
+ */
+function checkPoolEmojiUniqueness(pool, label) {
+  const byEmoji = {};
+  for (const opt of pool) {
+    const e = opt.e || '(no-emoji)';
+    if (!byEmoji[e]) byEmoji[e] = [];
+    byEmoji[e].push(opt.w);
+  }
+  let collisions = 0;
+  const detail = [];
+  for (const [emoji, words] of Object.entries(byEmoji)) {
+    if (words.length > 1) {
+      collisions++;
+      detail.push(`${label}: ${emoji} used for [${words.join(', ')}]`);
+    }
+  }
+  gate(`0 emoji collisions within ${label}`, collisions === 0, collisions + ' collisions');
+  if (detail.length) detail.forEach(d => console.log('    ' + d));
+}
+checkPoolEmojiUniqueness(ctx.SOUND_HOT_OPTS, 'SOUND_HOT_OPTS');
+checkPoolEmojiUniqueness(ctx.BODY_HOT_OPTS, 'BODY_HOT_OPTS');
 
 /* === 9. BLOCKED-WORD SCAN (added v2.10.2) ===
  *
