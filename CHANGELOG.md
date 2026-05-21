@@ -9,6 +9,45 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 7, engine v3.0.3) — 2026-05-21
+**QA cleanup — brand-kit asset packaging + stale engine-v2 header**
+
+Two non-functional cleanups caught by a Codex QA sweep. Zero runtime/engine/picker changes.
+
+### Brand-kit asset packaging
+
+`public/brand/index.html` (the standalone brand-kit page; not the live app) referenced **7 missing asset files** that broke `<img>` previews and `<a download>` links across the kit's grids:
+
+| Missing | Resolved via |
+|---|---|
+| `banner-wide.svg` | Copied from design package |
+| `icon-256.png` | Copied from `icon-BN4c-256.png` (native) |
+| `icon-64.png`, `icon-32.png`, `icon-16.png` | Resized from `icon-BN4c-1024.png` via `sips` |
+| `icon-square-1024.png`, `icon-square-512.png` | Resized from `icon-BN4c-1024.png` via `sips` |
+
+Cross-check confirms all 22 asset references in `public/brand/index.html` now resolve to existing files. The "Square (full-bleed)" section now visually duplicates the App Icon section since both are BN4c (per b5 unification + user instruction to source from current BN4c assets); references resolve cleanly, which was the gate.
+
+Live app icon references (`index.html` `<head>` link tags, `manifest.json`, `renderLogo()`) are unchanged — they were already correct since b5/b6.
+
+### Engine-v2 header doc-drift
+
+`src/engine-v2.js` opened with a 24-line header from the original v2.0 Phase 1 prototype era. It described the engine as:
+- *"disabled by default"* — wrong since v2.0.0; it's the production default
+- *"activate with `?engine=v2` URL param"* — the flag is unused; v3 is the default
+- *"kid tier only"* — wrong since v2.0.0; covers ages 2-13
+- *"Segment A of the v2.0 build"* — superseded by v3.0.0's unified engine
+
+Rewrote the header to describe the current state: production-default story engine, v2 + v3 coexist in one file, v3 routes first with v2 fallback, v2 deletion is queued for engine-v3.1.0. Added pointer to `docs/versioning.md` for the three-tier versioning policy. **Comment-only change; zero code changes.** `ENGINE_V2_VERSION = 'v3.0.3'` unchanged.
+
+### Acceptance
+
+- `node scripts/qa-current.js` — **all 16 gates green**.
+- Section 8 (inline `<script>` syntax) clean.
+- All 22 brand-kit asset references resolve.
+- Production manifest + head icon references unchanged.
+
+---
+
 ## v0.9.3 (build 6, engine v3.0.3) — 2026-05-21
 **In-app brand mark swap — BN4d → BN4c (contrast fix)**
 

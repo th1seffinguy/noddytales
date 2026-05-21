@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 480" width="1920" height="480">
+  <defs>
+    <linearGradient id="bgW" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#B8DEAE"></stop>
+      <stop offset="1" stop-color="#9CC994"></stop>
+    </linearGradient>
+    <radialGradient id="sunW" cx="0.4" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#FFE08A"></stop>
+      <stop offset="1" stop-color="#FFD166"></stop>
+    </radialGradient>
+  </defs>
+  <rect width="1920" height="480" fill="url(#bgW)"></rect>
+  <circle cx="220" cy="80" r="180" fill="#F4A261" opacity="0.2"></circle>
+  <circle cx="1700" cy="430" r="200" fill="#FFD166" opacity="0.25"></circle>
+  <circle cx="380" cy="380" r="7" fill="#FFF8EE"></circle>
+  <circle cx="820" cy="80" r="10" fill="#FFF8EE"></circle>
+  <circle cx="1280" cy="420" r="8" fill="#FFF8EE"></circle>
+  <circle cx="1620" cy="120" r="6" fill="#FFF8EE"></circle>
+
+  <g transform="translate(160 70)">
+    <circle cx="170" cy="180" r="150" fill="url(#sunW)"></circle>
+    
+    <path d="M 70 122 Q 88 100 130 96 Q 158 96 172 110 Q 144 102 116 106 Q 90 110 70 126 Z" fill="#3D3528"></path>
+    <path d="M 270 122 Q 252 100 210 96 Q 182 96 168 110 Q 196 102 224 106 Q 250 110 270 126 Z" fill="#3D3528"></path>
+    
+    <circle cx="120" cy="180" r="54" fill="#FFF8EE" opacity="0.32" stroke="#3D3528" stroke-width="10"></circle>
+    <circle cx="220" cy="180" r="54" fill="#FFF8EE" opacity="0.32" stroke="#3D3528" stroke-width="10"></circle>
+    <circle cx="120" cy="180" r="15" fill="#3D3528"></circle>
+    <circle cx="220" cy="180" r="15" fill="#3D3528"></circle>
+    <circle cx="125" cy="175" r="4" fill="#FFF8EE"></circle>
+    <circle cx="225" cy="175" r="4" fill="#FFF8EE"></circle>
+    <path d="M 168 180 Q 170 172 172 180" stroke="#3D3528" stroke-width="8" stroke-linecap="round" fill="none"></path>
+    
+    <ellipse cx="170" cy="240" rx="42" ry="52" fill="#F4A261"></ellipse>
+    <ellipse cx="158" cy="226" rx="10" ry="16" fill="#FFE3C7" opacity="0.6"></ellipse>
+    <ellipse cx="158" cy="266" rx="5" ry="8" fill="#3D3528" opacity="0.4"></ellipse>
+    <ellipse cx="182" cy="266" rx="5" ry="8" fill="#3D3528" opacity="0.4"></ellipse>
+    
+    <ellipse cx="106" cy="312" rx="78" ry="27" fill="#3D3528"></ellipse>
+    <ellipse cx="234" cy="312" rx="78" ry="27" fill="#3D3528"></ellipse>
+    <ellipse cx="170" cy="308" rx="38" ry="20" fill="#3D3528"></ellipse>
+    
+    <circle cx="34" cy="316" r="9" fill="#3D3528"></circle>
+    <circle cx="306" cy="316" r="9" fill="#3D3528"></circle>
+  </g>
+
+  <text x="540" y="260" font-family="Fredoka, system-ui, sans-serif" font-weight="700" font-size="140" fill="#3D3528">Noddy<tspan fill="#E08A45">Tales</tspan></text>
+  <text x="546" y="320" font-family="Nunito, system-ui, sans-serif" font-weight="700" font-size="30" fill="#3D3528" letter-spacing="3">SILLY  STORIES,  JUST  FOR  YOU</text>
+</svg>
