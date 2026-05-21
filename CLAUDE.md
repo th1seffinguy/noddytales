@@ -6,16 +6,50 @@ Read this file at the start of every Claude Code session in this repo. Treat it 
 
 If the user asks for a build, fix, QA pass, UAT pass, audit, or release prep, follow the relevant workflow here without requiring the user to restate the process.
 
-## Session Start Protocol (run before any work)
+## Session Start Protocol (run before any work, every session)
 
-Before doing anything else in a new session, sync local with remote:
+The overnight routines commit to `dev` and open PRs into `main` on Anthropic's
+cloud. That means this local Mac clone is frequently behind origin at the start
+of a day. Before doing ANY work, sync local with remote safely. Do not assume
+the working tree is clean.
 
-1. `git fetch origin`
-2. `git checkout dev && git pull origin dev`
-3. `git checkout main && git pull origin main`
-4. Report what changed since the last session (new commits, merged PRs, any overnight routine activity) in one short summary.
+### Step 1 — Check for uncommitted local changes
+Run `git status --porcelain`.
+- If output is EMPTY: working tree is clean, proceed to Step 2.
+- If output is NOT empty: there are uncommitted local changes. Do NOT pull yet.
+  - Show John the dirty files and ask: commit them, stash them, or discard them?
+  - If John says stash: `git stash push -m "session-start auto-stash"`
+  - If John says commit: commit to the current branch with a clear message
+    before pulling.
+  - If John says discard: confirm explicitly, then `git checkout -- .`
+  - Never silently overwrite or discard local work.
 
-Never start editing until the local repo matches origin. The overnight routines commit to dev and open PRs, so local is frequently behind at the start of a day.
+### Step 2 — Fetch and sync both branches
+- `git fetch origin`
+- `git checkout dev && git pull origin dev`
+- `git checkout main && git pull origin main`
+- If a pull reports a merge conflict, STOP. Show John the conflicting files and
+  ask how to resolve. Never auto-resolve conflicts.
+
+### Step 3 — Restore stashed work if applicable
+- If you stashed in Step 1: `git stash pop` and report any conflicts that
+  surface. If conflicts occur, stop and ask John.
+
+### Step 4 — Report the delta
+In one short summary tell John what changed since the last local session:
+- New commits on dev (and what they were)
+- Any PRs opened or merged by the overnight routines
+- Current branch and whether local now matches origin
+- Anything that needs his attention (open PR awaiting his merge decision,
+  failed routine, new defects logged to Notion)
+
+### Rules
+- Never start editing until local matches origin (or John has explicitly
+  decided how to handle a conflict).
+- Default working branch is `dev`. Leave `main` alone unless merging a
+  reviewed PR.
+- If `git fetch` fails (offline, auth issue), tell John and do not proceed as
+  if the repo is current.
 
 ## Required Notion Logging
 
