@@ -200,8 +200,12 @@ console.log('\n=== 4. Grammar lint (2,000 v2 random stories) ===');
    take "a" naturally as singular. */
 const PLURAL_FOODS_RX = /\ba (donuts|cookies|waffles|pancakes|tacos|burritos|pretzels|noodles|dumplings|cupcakes|jellybeans|grapes|hot dogs|french fries|cheese puffs|fruit snacks|blueberries|strawberries|peas|apple slices|nachos|pickles|enchanted pickles|thunder pancakes|suspicious sandwiches|bewildering cookies|haunted scones|mysterious leftovers|forbidden waffles|emergency noodles|ceremonial nachos|vending machine chips|cafeteria fries|mystery chips|gas station nachos)\b/i;
 const A_TITLE_RX     = / A /;  // " A " mid-title
-let pluralHits = 0, titleHits = 0, lintNulls = 0;
-const pluralSamples = [], titleSamples = [];
+/* v2.7.3 — catch the v2.7.x bug pattern where a punchline beat says "one HUGE waffles"
+   for plural foods. Any "one HUGE/big/tiny <plural-food>" is broken. The fix in pl_wrong_1
+   uses {food.articleText} which produces "some waffles" / "a pizza" instead. */
+const ONE_HUGE_PLURAL_RX = /\bone (HUGE|huge|BIG|big|TINY|tiny) (donuts|cookies|waffles|pancakes|tacos|burritos|pretzels|noodles|dumplings|cupcakes|jellybeans|grapes|hot dogs|french fries|cheese puffs|fruit snacks|blueberries|strawberries|peas|apple slices|nachos|pickles|enchanted pickles|thunder pancakes|suspicious sandwiches|bewildering cookies|haunted scones|mysterious leftovers|forbidden waffles|emergency noodles|ceremonial nachos|vending machine chips|cafeteria fries|mystery chips|gas station nachos)\b/;
+let pluralHits = 0, titleHits = 0, oneHugePluralHits = 0, lintNulls = 0;
+const pluralSamples = [], titleSamples = [], oneHugePluralSamples = [];
 for (let i = 0; i < 2000; i++) {
   const age = 2 + (i % 12);
   const tier = tierFor(age);
@@ -222,11 +226,21 @@ for (let i = 0; i < 2000; i++) {
     titleHits++;
     if (titleSamples.length < 3) titleSamples.push(`age=${age}: "${titleClean}"`);
   }
+  // v2.7.3 lint: catch "one HUGE waffles" / "one HUGE donuts" plural-mismatch patterns
+  if (ONE_HUGE_PLURAL_RX.test(bodyClean)) {
+    oneHugePluralHits++;
+    if (oneHugePluralSamples.length < 3) {
+      const m = bodyClean.match(ONE_HUGE_PLURAL_RX);
+      oneHugePluralSamples.push(`age=${age} "${m && m[0]}"`);
+    }
+  }
 }
-gate('0 plural article errors (a donuts/cookies/...)', pluralHits === 0, pluralHits + '/2000');
-gate('0 awkward " A " titles',                          titleHits === 0,  titleHits + '/2000');
+gate('0 plural article errors (a donuts/cookies/...)',          pluralHits === 0,          pluralHits + '/2000');
+gate('0 awkward " A " titles',                                  titleHits === 0,           titleHits + '/2000');
+gate('0 "one HUGE [plural-food]" mismatches (v2.7.3 regression)', oneHugePluralHits === 0, oneHugePluralHits + '/2000');
 if (lintNulls) gate('lint pass: 0 nulls', lintNulls === 0, lintNulls + ' nulls');
 if (pluralSamples.length) pluralSamples.forEach(s => console.log('    ' + s));
+if (oneHugePluralSamples.length) oneHugePluralSamples.forEach(s => console.log('    ' + s));
 if (titleSamples.length)  titleSamples.forEach(s => console.log('    ' + s));
 
 /* === 5. STORY MODE (bedtime vs anytime) === */

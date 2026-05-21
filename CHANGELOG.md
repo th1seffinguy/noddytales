@@ -4,6 +4,53 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.7.3 — 2026-05-21
+**Punchline grammar fix — "one HUGE waffles" no longer ships**
+
+User-reported defect from a real generated story:
+
+> "Then the pirate pulled out one HUGE waffles. Way too big to fit anywhere. Bigger than the pirate, even. Nobody knew where it had come from."
+
+The `pl_wrong_1` v2 punchline beat at `src/engine-v2.js:2735` hard-coded `one HUGE {food.text}` and the singular pronoun `it had come from`. When the food slot resolved to a plural-form picker word (waffles, donuts, cookies, pancakes, tacos, etc.) the line rendered as broken English. The bug had been latent since v2.4.0 (when the physical-absurd punchlines first shipped) but only fires when the kid/big v2 show_wrong blueprint randomly picks both `pl_wrong_1` AND a plural food.
+
+### Fix
+
+Swapped the line to use `{food.articleText}` which already pluralizes correctly across all food types:
+
+| Food type | `{food.articleText}` resolves to |
+|---|---|
+| Plural (waffles, donuts) | `some waffles` |
+| Singular count (pizza, apple) | `a pizza`, `an apple` |
+| Mass with prefix (soup, cake, sushi) | `a bowl of soup`, `a slice of cake`, `a piece of sushi` |
+| Mass undivided (popcorn, spaghetti) | `some popcorn`, `some spaghetti` |
+
+The new line is also one sentence shorter so the punchline lands faster (addresses the user's "quite long" feedback):
+
+> Then the {visitor.text} pulled out {food.articleText}. HUGE. Way too big to fit anywhere. The {visitor.text} did not know where, either.
+
+Renders for plural foods:
+
+> Then the pirate pulled out some waffles. HUGE. Way too big to fit anywhere. The pirate did not know where, either.
+
+The dropped sentences — "Bigger than the pirate, even" and "Nobody knew where it had come from" — were the ones with the broken singular-comparative and singular-pronoun grammar. The punchline structure (HUGE thing appearing, deadpan reaction) is preserved.
+
+### New regression gate
+
+Added Section 4 lint: scans 2,000 generated stories for `\bone (HUGE|big|tiny) <plural-food>\b` pattern. Confirms 0/2000 hits in v2.7.3 and will fail the build if the bug class ever returns.
+
+### Acceptance
+
+- `node scripts/qa-current.js` — all 7 gates green (600 v2 + 60/60 targeted + 960 v3 + 2,000-story lint with NEW plural-food gate + storyMode regression + inline-script syntax)
+- Manual render test across 13 food types (waffles/donuts/cookies/pancakes/pizza/apple/cake/soup/ice cream/sushi/spaghetti/popcorn/grilled cheese) — all produce grammatical English
+
+`APP_VERSION` and `ENGINE_V2_VERSION` bumped in lockstep to `v2.7.3`.
+
+### Notion
+
+New Defect Log entry created and immediately marked Fixed with commit reference. The v2.7.2 tot/little kid-agency build is still the next planned content sprint — this fix is a hotfix, not a roadmap shift.
+
+---
+
 ## v2.7.2 — 2026-05-21
 **Cosmetic patch — v3 title casing + audit script header**
 

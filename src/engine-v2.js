@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v2.7.2';
+const ENGINE_V2_VERSION = 'v2.7.3';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -2730,9 +2730,14 @@ const V2_BEATS = [
     ] },
 
   /* --- WRONG-SIZED THINGS with VISITOR --- */
+  /* v2.7.3 — pl_wrong_1 was producing "one HUGE waffles" / "Bigger than the pirate, even. Nobody knew where it had come from"
+     for plural foods (waffles, cookies, donuts...) because the original line hard-coded "one HUGE {food.text}" + singular
+     pronoun "it". Switched to {food.articleText} which already pluralizes correctly ("some waffles" / "a pizza" / "a bowl of
+     soup") and standalone "HUGE." for the size emphasis. Also dropped the broken "where it had come from" sentence and
+     trimmed the beat from 5 sentences to 4 so the punchline lands faster. */
   { id:'pl_wrong_1', beatType:'punchline', tiers:['kid','big'], requiredSlots:['visitor','food'],
     lines: [
-      'Then the {visitor.text} pulled out one HUGE {food.text}. Way too big to fit anywhere. Bigger than the {visitor.text}, even. Nobody knew where it had come from. The {visitor.text} did not know either.',
+      'Then the {visitor.text} pulled out {food.articleText}. HUGE. Way too big to fit anywhere. The {visitor.text} did not know where, either.',
     ] },
   { id:'pl_wrong_2', beatType:'punchline', tiers:['kid','big'], requiredSlots:['visitor','object'],
     lines: [
