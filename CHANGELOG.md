@@ -9,6 +9,53 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 5, engine v3.0.3) — 2026-05-21
+**Brand icon refresh — BN4c app icon (sage spine) + BN4d in-app mark (sage background)**
+
+Implemented the two new brand variants from the [design package](https://api.anthropic.com/v1/design/h/DZmfzFnocBWD6QUSWu-G0w).
+
+| Variant | Description | Role |
+|---|---|---|
+| **BN4c** — sage spine | Solid orange ground with cream N and a sage diagonal book-spine. Smallest sparkle, no backing. | **App icon** — home-screen / PWA / browser tab |
+| **BN4d** — sage background | Cream N with orange spine on a sage gradient. Mirror palette of BN4c. | **In-app brand mark** — top-left of every screen |
+
+### Asset replacements
+
+All in `public/brand/`:
+
+| File | Source |
+|---|---|
+| `icon.svg`, `icon-square.svg` | `icon-BN4c.svg` |
+| `icon-1024.png`, `icon-120.png` | `icon-BN4c-{1024,120}.png` (native) |
+| `icon-{76,152,180,192,512}.png` | resized from `icon-BN4c-1024.png` via `sips` |
+| `favicon.svg` | `icon-BN4d.svg` |
+| `favicon-{16,32,48}.png` | resized from `icon-BN4d-1024.png` via `sips` |
+
+### Wiring (no structural changes)
+
+`index.html` `<head>` already references `favicon.svg`, `favicon-{16,32,48}.png`, `icon-180.png`; `manifest.json` already references `icon-192.png` + `icon-512.png`; `renderLogo()` already references `favicon.svg`. The new artwork is picked up automatically.
+
+### Logo wrapper cleanup
+
+Old `.logo-mark` was a 36px yellow circular plate with inset shadow wrapping a 24px circle-clipped favicon — a "glyph on plate" treatment designed for the prior simple favicon. BN4d is a full app-icon-style mark with its own rounded-square corners and sage gradient; the plate framing fights it. Dropped:
+
+- `background: var(--yellow)` → `transparent`
+- `border-radius: 50%` + inset/drop shadows → removed
+- inline `border-radius: 50%` on the img → removed
+- img sized via wrapper instead of inline `width="24" height="24"` so it fills the 36×36 slot
+
+### Acceptance
+
+- `scripts/qa-current.js` — **all 16 gates green** (asset replacement doesn't touch engine / picker / token logic).
+- Badge reads `v0.9.3 · b5`.
+
+### What this doesn't fix
+
+- App Store icon submission package — separate sprint when packaging to iOS via Xcode / Expo.
+- Wider visual polish (Phase 6 — bigger card emoji, tap sound, haptic, animation) — still queued.
+
+---
+
 ## v0.9.3 (build 4, engine v3.0.3) — 2026-05-21
 **Highlight defect fix — only kid-picked words get highlighted; yellow chip retired**
 

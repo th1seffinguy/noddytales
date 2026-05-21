@@ -133,13 +133,22 @@
     font-size: 22px;
     color: var(--ink);
   }
+  /* v0.9.3 · b5 — logo-mark wrapper now lets the BN4d brand icon render with its
+     own designed rounded-square corners + sage gradient. Previously this was a
+     yellow circular "plate" wrapping a circle-clipped glyph-style favicon; that
+     framing didn't suit a full app-icon-style mark. Drop the yellow background,
+     shadow, and forced corner-radius — the SVG provides its own visual shell. */
   .logo-mark {
     width: 36px; height: 36px;
-    background: var(--yellow);
-    border-radius: 50%;
-    display: grid; place-items: center;
-    font-size: 22px;
-    box-shadow: inset 0 -4px 0 rgba(0,0,0,0.08), 0 4px 0 var(--yellow-dark);
+    background: transparent;
+    display: block;
+    overflow: hidden;
+    box-shadow: none;
+  }
+  .logo-mark img {
+    display: block;
+    width: 100%;
+    height: 100%;
   }
 
   /* ---- Buttons ---- */
@@ -1278,6 +1287,8 @@ const MAX_SHUFFLES = 2;
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v0.9.3 · b5', title: 'Brand icon refresh — BN4c app icon (sage spine) + BN4d in-app mark (sage background)',
+    detail: 'Implemented the two new brand variants from the design package. BN4c — "sage spine" — solid orange ground with cream N and a sage diagonal book-spine, smallest sparkle, no backing. Used as the app icon everywhere a home-screen / PWA install / browser-tab favicon renders. BN4d — "sage background" — cream N with orange spine on a sage gradient, the mirror palette of BN4c. Used as the in-app brand mark in the top-left of every screen. ASSET REPLACEMENTS (public/brand/): icon.svg + icon-square.svg ← icon-BN4c.svg; icon-1024.png ← icon-BN4c-1024.png; icon-120.png ← icon-BN4c-120.png; icon-{76,152,180,192,512}.png resized via sips from icon-BN4c-1024.png so every size is BN4c. favicon.svg ← icon-BN4d.svg; favicon-{16,32,48}.png resized via sips from icon-BN4d-1024.png. HTML / MANIFEST WIRING: no structural changes — index.html <head> already references favicon.svg + favicon-{16,32,48}.png + icon-180.png; manifest.json already references icon-192.png + icon-512.png; renderLogo() already references favicon.svg. Existing references pick up the new artwork automatically. RENDER FIX: the prior logo-mark CSS wrapped the favicon inside a 36px yellow circular plate with an inset shadow + a 24px circle-clipped img — a "glyph on plate" treatment designed for the old simple favicon. BN4d is a full app-icon-style mark with its own designed rounded-square corners and sage gradient; that doesn\'t want a yellow plate around it. Drop the yellow background, the shadow, and the forced 50% border-radius on the img. .logo-mark wrapper becomes a transparent 36×36 box; img fills it at native shape. ACCEPTANCE: scripts/qa-current.js all 16 gates green (asset replacement doesn\'t touch engine / picker / token logic). Inline <script> syntax check green. APP_VERSION stays v0.9.3; BUILD_NUMBER 4 → 5; ENGINE_V2_VERSION stays v3.0.3. Badge reads v0.9.3 · b5. Manual: home-screen install on iOS / Android should now show the orange BN4c tile; the in-app top-left mark on every screen should show the sage BN4d roundsquare.' },
   { v: 'v0.9.3 · b4', title: 'Highlight defect fix — only kid-picked words get highlighted; yellow chip retired',
     detail: 'User-reported visual defect from a real screenshot. Story showed "forest" with a yellow box AND "sleepy megaphone" in orange text as if both were picked words — but the parent had locked setting=forest (not a kid tap) and "sleepy megaphone" was an engine-chosen mcguffin. Kid had no way to tell which highlighted words they actually picked. Breaks the implicit coverage promise that "highlighted = something I tapped." THE DIAGNOSIS: parseStoryLine ran the engine\'s [c:X] / [y:X] / [name:X] tokens through CSS classes regardless of whether X matched a real pick. v3 templates wrap mcguffin/obstacle/false_suspect/locked-setting in [c:X] same as user picks. [y:X] was reserved for setting in v3 templates and rendered as a yellow chip box — a designed "this is where the story takes place" emphasis that in practice read as inconsistent. THE FIX (Fix A2 + B2 from diagnosis): parseStoryLine now cross-checks each token against state.picks (kid taps), state.name, and state.sidekicks. Tokens whose bracketed text doesn\'t match a real pick render as PLAIN TEXT (no chip). Engine-chosen prose blends into the narrative; kid-picked words still pop. Matching is case-insensitive with plural tolerance (pick="pizza" matches token="pizzas" and vice versa) and word-boundary substring for multi-word picks ("sleepy gecko" matches a token containing "gecko"). Also collapses [y:X] to the same orange .pop class as [c:X] — one highlight style, one meaning: "you picked this." The yellow chip CSS is commented (not deleted) so a future "single-most-important-word" treatment can revive it without renderer rework. NEW QA SECTION 13: highlight-only-picks unit test. Runs parseStoryLine against controlled state with known picks. Verifies (a) matched [c:X] tokens become .pop chips, (b) matched [name:X] tokens become .pop--name chips, (c) engine-chosen tokens render plain text, (d) [y:X] no longer emits .pop--yellow class anywhere. WHAT THIS DOESN\'T FIX: engine choosing thematically-wrong objects (megaphone in a forest) — that\'s Phase 8 (setting-themed prop pools). Stories too long — separate content sprint. ACCEPTANCE: scripts/qa-current.js all 16 gates green. v3 matrix 960 stories + v3 tot/little 240 stories still 0 nulls / 0 unresolved / all picks in body + highlighted (the gate measures picked-word coverage which is unchanged — kid picks still highlight). APP_VERSION stays v0.9.3; BUILD_NUMBER 3 → 4; ENGINE_V2_VERSION stays v3.0.3. Badge reads v0.9.3 · b4.' },
   { v: 'v0.9.3 · b3', title: 'Selection Joy Pass Phase 4 — shuffle 🎲 button ("Show me different ones") on every tap round',
@@ -2561,7 +2572,8 @@ function storyToPlainText(story) {
    ================================================================ */
 
 function renderLogo() {
-  return `<div class="logo"><span class="logo-mark"><img src="public/brand/favicon.svg" width="24" height="24" alt="" style="display:block;border-radius:50%;"></span>NoddyTales</div>`;
+  // v0.9.3 · b5 — BN4d brand icon. Sized via .logo-mark CSS; no inline overrides.
+  return `<div class="logo"><span class="logo-mark"><img src="public/brand/favicon.svg" alt=""></span>NoddyTales</div>`;
 }
 
 /* ---- Screen 1: Welcome ---- */
