@@ -310,21 +310,41 @@ if (pluralSamples.length) pluralSamples.forEach(s => console.log('    ' + s));
 if (oneHugePluralSamples.length) oneHugePluralSamples.forEach(s => console.log('    ' + s));
 if (titleSamples.length)  titleSamples.forEach(s => console.log('    ' + s));
 
-/* === 5. STORY MODE (bedtime vs anytime) === */
-console.log('\n=== 5. Story-mode regression (v2.6.2) ===');
+/* === 5. STORY MODE (bedtime vs anytime) ===
+ *
+ * v2.10.2 — endingAudit now scans only the FINAL paragraph for bedtime/anytime
+ * imagery, not the entire body. The gate's intent is "does this story CLOSE with
+ * sleep imagery" — but the old scan counted any "sleepy" anywhere, including when
+ * it was an adjective on a picked creature ("sleepy gecko" in P2 of an otherwise
+ * day-ending story). That caused intermittent failures: e.g. tween age 12 anytime
+ * occasionally produced 7/60 bedtime-word hits while the actual sleep-ending rate
+ * was near zero — sleepy-creature descriptors were flipping the count above the
+ * ≤6/60 threshold. Final-paragraph scope matches the gate's intent precisely.
+ *
+ * Also removed `sleep`/`sleepy`/`asleep` from the BEDTIME_RX in favor of stricter
+ * ending phrases that only appear at story close (`fell asleep`, `time to sleep`,
+ * `went to sleep`, `time to sleep`). "goodnight" and "bedtime" still match — those
+ * never appear mid-story in current content. */
+console.log('\n=== 5. Story-mode regression (v2.6.2, scope-fixed v2.10.2) ===');
 function endingAudit(storyMode, age, samples) {
   const tier = tierFor(age);
   let nulls = 0, bedtimeWords = 0, anytimeFootprint = 0;
-  const BEDTIME_RX  = /\b(goodnight|good night|asleep|sleep|bedtime|sleepy|fell asleep|time to sleep|tonight)\b/i;
+  /* Strict bedtime-ending phrases. "sleep"/"sleepy"/"asleep" as bare words removed:
+     they appear in non-ending contexts (sleepy gecko, sleepy moon) and skewed the
+     count. Phrase forms ("fell asleep", "time to sleep", "going to sleep") only
+     fire at actual sleep endings. */
+  const BEDTIME_RX  = /\b(goodnight|good night|bedtime|fell asleep|going to sleep|time to sleep|going to bed|sweet dreams|tucked in)\b/i;
   const ANYTIME_RX  = /\b(walking home|walking back|walked back|walk home|onto the next|see you|tomorrow|onward|head home|headed back|heading off|next thing|next caper|what to do next|do next|home base|find the next|retell this|retelling)\b/i;
   for (let i = 0; i < samples; i++) {
     const picks = randomPicks(tier);
     picks.storyMode = storyMode;
     const s = ctx.generateStoryV2('Cole', picks, age);
     if (!s) { nulls++; continue; }
-    const body = strip(s.paragraphs.join(' '));
-    if (BEDTIME_RX.test(body))  bedtimeWords++;
-    if (ANYTIME_RX.test(body))  anytimeFootprint++;
+    // v2.10.2 — scope to the final paragraph (the actual ending), not the full body
+    const paragraphs = s.paragraphs || [];
+    const endingClean = strip(paragraphs[paragraphs.length - 1] || '');
+    if (BEDTIME_RX.test(endingClean))  bedtimeWords++;
+    if (ANYTIME_RX.test(endingClean))  anytimeFootprint++;
   }
   return { nulls, bedtimeWords, anytimeFootprint };
 }
@@ -411,6 +431,101 @@ if (agencyRatio < 0.65) {
   agencyWorst.sort((a, b) => a.ratio - b.ratio);
   console.log('  Worst 5 stories by action-verb ratio:');
   agencyWorst.slice(0, 5).forEach(w => console.log(`    age=${w.age} actions=${w.actions} reactions=${w.reactions} ratio=${w.ratio.toFixed(2)}: ${w.snippet}...`));
+}
+
+/* === 10. SENTENCE-COUNT REPORT (added v2.10.2, advisory only) ===
+ *
+ * Open defect from 2026-05-21: "Stories too long globally — early tier most severe,
+ * sentence caps not enforced." Defect proposes hard caps per tier (tot 3-4, little 5-6,
+ * kid 7-8, big 9-11, tween 10-12) and a QA gate that fails on exceedance. This
+ * release ships the METRIC as a report only — gives John a baseline to decide what
+ * caps to enforce in a future content-trimming sprint. Doesn't change any story
+ * content or fail the build. Sample 30 stories per tier and report median + p90
+ * sentence count.
+ */
+console.log('\n=== 10. Sentence-count report (advisory, v2.10.2) ===');
+function sentenceCount(text) {
+  // Conservative sentence-splitter: split on . ! ? followed by whitespace or EOL.
+  // Counts terminal punctuation as a sentence boundary. Ignores ellipses by collapsing.
+  return text
+    .replace(/\.{3,}/g, '.')
+    .split(/(?<=[.!?])\s+/)
+    .filter(s => s.trim().length > 0)
+    .length;
+}
+const sentenceCountByTier = {};
+for (const tier of ['tot', 'little', 'kid', 'big', 'tween']) {
+  const ages = { tot:[2,3], little:[4,5], kid:[6,7], big:[8,9,10], tween:[11,12,13] }[tier];
+  const counts = [];
+  for (let i = 0; i < 30; i++) {
+    const age = ages[i % ages.length];
+    const picks = randomPicks(tier);
+    const s = ctx.generateStoryV2('Cole', picks, age);
+    if (!s) continue;
+    counts.push(sentenceCount(strip(s.paragraphs.join(' '))));
+  }
+  counts.sort((a, b) => a - b);
+  const median = counts[Math.floor(counts.length / 2)];
+  const p90    = counts[Math.floor(counts.length * 0.9)];
+  const max    = counts[counts.length - 1];
+  sentenceCountByTier[tier] = { median, p90, max, n: counts.length };
+}
+const TIER_TARGETS = { tot:'3-4', little:'5-6', kid:'7-8', big:'9-11', tween:'10-12' };
+console.log('  tier    median  p90  max  target (defect-proposed cap)');
+for (const tier of ['tot','little','kid','big','tween']) {
+  const { median, p90, max } = sentenceCountByTier[tier];
+  const target = TIER_TARGETS[tier];
+  console.log(`  ${tier.padEnd(7)} ${String(median).padStart(6)}  ${String(p90).padStart(3)}  ${String(max).padStart(3)}  ${target}`);
+}
+console.log('  (advisory — no gate. See Defect: "Stories too long globally" for context.)');
+
+/* === 9. BLOCKED-WORD SCAN (added v2.10.2) ===
+ *
+ * Critical defect from 2026-05-21: the freetext prompt examples for "Invent a battle
+ * cry for a tiny knight" rendered as visible suggestions "ONWARD! / STABBY-STAB! /
+ * EAT MY BOOT!" — violent / weapon-adjacent language has no place in a bedtime story
+ * app for ages 6-7. Fixed in v2.10.2 by replacing the offending examples. This gate
+ * prevents recurrence by scanning every visible string in content.js (WORD_BANK
+ * options, freetext example arrays, freetext labels) and engine-v2.js (V2_WORDS
+ * companion/visitor/food/object text fields, beat lines) for blocked terms.
+ *
+ * Blocked set is conservative — actual weapons, violence, body-fluid concepts that
+ * don't belong in a children's bedtime app. NOT a profanity filter (the picker UI
+ * is curated). NOT a tone filter (some negative emotions like 'grumpy' are fine).
+ */
+console.log('\n=== 9. Blocked-word content scan (v2.10.2) ===');
+const BLOCKED_WORDS = /\b(stab|stabby|stabbed|knife|knives|weapon|blood|bloody|kill|killed|murder|dead|gun|guns|bullet)\b/i;
+function scanForBlocked(label, text) {
+  const m = text.match(BLOCKED_WORDS);
+  return m ? `${label}: "${m[0]}" found` : null;
+}
+const blockedHits = [];
+const filesToScan = [
+  { path: 'src/content.js',   raw: content   },
+  { path: 'src/engine-v2.js', raw: engineV2  },
+];
+for (const file of filesToScan) {
+  // Strip JS comments and regex patterns first to avoid false-positive on the
+  // word list itself or any historical changelog text inside source strings.
+  const cleaned = file.raw
+    .replace(/\/\*[\s\S]*?\*\//g, '')      // block comments
+    .replace(/(^|[^:])\/\/.*$/gm, '$1');   // line comments
+  // Extract string literals only — we don't care about identifier-name hits like
+  // `_kill_handle_` or comment-like words. Match single, double, and backtick strings.
+  const STRING_RX = /(['"`])(?:\\.|(?!\1).)*\1/g;
+  let stringMatch;
+  while ((stringMatch = STRING_RX.exec(cleaned)) !== null) {
+    const inner = stringMatch[0].slice(1, -1);
+    const hit = scanForBlocked(file.path, inner);
+    if (hit) {
+      blockedHits.push(`${hit} → string starting "${inner.slice(0, 50)}..."`);
+    }
+  }
+}
+gate('0 blocked words in content pools', blockedHits.length === 0, blockedHits.length + ' hits');
+if (blockedHits.length) {
+  blockedHits.slice(0, 10).forEach(h => console.log('    ' + h));
+  if (blockedHits.length > 10) console.log(`    ...and ${blockedHits.length - 10} more`);
 }
 
 /* === 8. INLINE <script> SYNTAX (added v2.7.1, renumbered v2.8.0) ===
