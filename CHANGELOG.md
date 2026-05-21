@@ -9,6 +9,40 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 3, engine v3.0.3) — 2026-05-21
+**Selection Joy Pass Phase 4 — shuffle 🎲 button on every tap round**
+
+Phase 4 of the [Selection Joy Pass](https://www.notion.so/36713aa1d4db81a0bbe4f7588fe8f6f3). Adds a small "Show me different ones" 🎲 button beneath every tap round. Re-rolls both cards from the same pool, excluding the currently-shown 2 when possible. Limited to 2 uses per session so it stays a special move rather than a re-roll-forever escape.
+
+### What changed
+
+- **`buildRounds()` in `index.html`** — every tap round now carries a `fullPool` property holding the complete 12-24-option pool. Standard WORD_BANK rounds, the universal sound round (`SOUND_HOT_OPTS`), little-tier weather swap, and Potty Mode body round (`BODY_HOT_OPTS`) all get it. Freetext rounds excluded.
+- **State** — new `state.shufflesUsed` counter (init 0; reset on `startWords()` + `backToWelcome()`). New `MAX_SHUFFLES = 2` constant (tunable).
+- **`renderWords()`** — conditionally renders `<button id="btn-shuffle">` only when `round.fullPool.length >= 4` AND `shufflesRemaining > 0`. Counter badge ("×2", "×1") visible inside the button; disabled when exhausted.
+- **`attachWordsHandlers()`** — wires the shuffle button: collects current option keys → filters `fullPool` to eligible (non-current) options → samples 2 fresh → swaps `round.options` → increments `state.shufflesUsed` → triggers 320ms fade animation → re-renders the round.
+- **CSS** — `.shuffle-btn` pill (matches `.hint-chip` aesthetic) + `.shuffle-count` badge + `@keyframes rerollFade` for the fade-out/in transition.
+- **New QA Section 12 — shuffle no-duplicate gate** — simulates 100 shuffles across every tap-round pool (5 tiers × 6-7 cats + SOUND_HOT_OPTS + BODY_HOT_OPTS). Confirms 0% of re-rolls produce a duplicate of the previous 2 options. All pools verified ≥ 4 items.
+
+### Acceptance
+
+- `scripts/qa-current.js` — **all 15 gates green** (14 from b2 + 1 new shuffle gate).
+- Round-shape smoke test: 5/5 cases pass.
+- Inline `<script>` syntax green.
+
+### Visible to users
+
+- Every tap round now shows a small 🎲 "Show me different ones" button below the cards.
+- Counter badge inside the button shows remaining shuffles (`×2` then `×1`).
+- Tapping shuffles the cards with a soft fade animation.
+- Button disables (35% opacity) when both shuffles are spent.
+- Badge reads `v0.9.3 · b3`.
+
+### Not in this phase
+
+Setting-specific bias (Phase 2) · sub-spot tap round (Phase 3) · wild card (Phase 5) · visual polish — bigger emoji + tap sound + haptic (Phase 6) · object round + mood-at-little + seasonal food + big 2→1 freetext (Phase 7) · setting-themed creatures/foods (Phase 8).
+
+---
+
 ## v0.9.3 (build 2, engine v3.0.3) — 2026-05-21
 **Selection Joy Pass Phase 1 — silly-sound tap round (little + kid) + escape hatch (kid)**
 

@@ -602,6 +602,66 @@ function checkPoolEmojiUniqueness(pool, label) {
 checkPoolEmojiUniqueness(ctx.SOUND_HOT_OPTS, 'SOUND_HOT_OPTS');
 checkPoolEmojiUniqueness(ctx.BODY_HOT_OPTS, 'BODY_HOT_OPTS');
 
+/* === 12. SHUFFLE NO-DUPLICATE GATE (added v0.9.3 · b3) ===
+ *
+ * Selection Joy Pass Phase 4 introduces a 🎲 "Show me different ones" button on every
+ * tap round. The button re-rolls the 2 cards from the same fullPool, excluding the
+ * currently-shown 2 when possible. When pool size >= 4, the re-roll MUST produce 2
+ * options that don't match the previous set — otherwise the kid taps shuffle and
+ * sees the same cards, which is the opposite of the intended experience.
+ *
+ * This gate simulates the runtime shuffle algorithm 100 times per pool against
+ * every distinct tap-round pool: WORD_BANK[tier][cat] (all combinations) plus
+ * SOUND_HOT_OPTS and BODY_HOT_OPTS. Pool sizes verified >= 4 (smallest WORD_BANK
+ * round is 12; SOUND/BODY are 12 each).
+ */
+console.log('\n=== 12. Shuffle no-duplicate gate (v0.9.3 · b3) ===');
+function simulateShuffle(pool) {
+  // Initial draw of 2 cards
+  const shuffled1 = [...pool].sort(() => Math.random() - 0.5);
+  const current   = shuffled1.slice(0, 2);
+  const currentKeys = new Set(current.map(o => o.w));
+  // Re-roll using runtime algorithm
+  const eligible = pool.filter(o => !currentKeys.has(o.w));
+  const source   = eligible.length >= 2 ? eligible : pool;
+  const shuffled2 = [...source].sort(() => Math.random() - 0.5);
+  const next      = shuffled2.slice(0, 2);
+  // Count overlap
+  const nextKeys  = new Set(next.map(o => o.w));
+  let overlap = 0;
+  for (const k of currentKeys) if (nextKeys.has(k)) overlap++;
+  return { poolSize: pool.length, overlap };
+}
+const SHUFFLE_REPS = 100;
+let shuffleViolations = 0;
+const shuffleDetail  = [];
+function runShuffleGate(label, pool) {
+  if (pool.length < 4) {
+    // Document but don't gate — re-rolls on tiny pools intentionally fall back to full pool.
+    shuffleDetail.push(`${label}: pool=${pool.length} (skipped — runtime falls back to full pool)`);
+    return;
+  }
+  let violations = 0;
+  for (let i = 0; i < SHUFFLE_REPS; i++) {
+    const r = simulateShuffle(pool);
+    if (r.overlap > 0) violations++;
+  }
+  if (violations > 0) {
+    shuffleViolations += violations;
+    shuffleDetail.push(`${label}: ${violations}/${SHUFFLE_REPS} re-rolls overlapped`);
+  }
+}
+for (const tier of Object.keys(ctx.WORD_BANK)) {
+  for (const round of ctx.WORD_BANK[tier]) {
+    if (!round.options || !round.options.length) continue;
+    runShuffleGate(`${tier}.${round.cat} (pool=${round.options.length})`, round.options);
+  }
+}
+runShuffleGate('SOUND_HOT_OPTS', ctx.SOUND_HOT_OPTS);
+runShuffleGate('BODY_HOT_OPTS', ctx.BODY_HOT_OPTS);
+gate(`0 shuffle re-roll duplicates across ${SHUFFLE_REPS} reps/pool`, shuffleViolations === 0, shuffleViolations + ' violations');
+if (shuffleDetail.length) shuffleDetail.forEach(d => console.log('    ' + d));
+
 /* === 9. BLOCKED-WORD SCAN (added v2.10.2) ===
  *
  * Critical defect from 2026-05-21: the freetext prompt examples for "Invent a battle

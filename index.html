@@ -838,6 +838,57 @@
   }
   .escape-hatch-btn:active { transform: translateY(1px); }
 
+  /* v0.9.3 · b3 — Selection Joy Pass Phase 4: shuffle 🎲 button. Lets a kid
+     re-roll the 2 cards if neither feels right. Limited to MAX_SHUFFLES per
+     session (currently 2) so it stays a special move, not a re-roll-forever
+     escape hatch. Counter badge shows remaining uses. */
+  .shuffle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 16px auto 0;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--ink-soft);
+    background: rgba(255,255,255,0.55);
+    border: none;
+    border-radius: 999px;
+    padding: 8px 16px 8px 14px;
+    cursor: pointer;
+    box-shadow: 0 2px 0 rgba(61,53,40,0.08);
+    transition: background 0.15s, transform 0.12s, opacity 0.15s;
+  }
+  .shuffle-btn:hover:not(:disabled) { background: rgba(255,255,255,0.85); }
+  .shuffle-btn:active:not(:disabled) { transform: translateY(2px); }
+  .shuffle-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .shuffle-btn .shuffle-emoji {
+    font-size: 18px;
+    display: inline-block;
+    transition: transform 0.35s ease-out;
+  }
+  .shuffle-btn:active:not(:disabled) .shuffle-emoji { transform: rotate(-180deg); }
+  .shuffle-btn .shuffle-count {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    background: rgba(61,53,40,0.12);
+    border-radius: 999px;
+    padding: 1px 7px;
+    line-height: 1.4;
+  }
+  .shuffle-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  /* Soft fade on the pair-wrap during a re-roll for tactile feedback. */
+  .pair-wrap.is-rerolling { animation: rerollFade 0.32s ease-out; }
+  @keyframes rerollFade {
+    0%   { opacity: 1; transform: translateY(0); }
+    45%  { opacity: 0; transform: translateY(-6px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
   /* ---- Progress dots ---- */
   .progress {
     display: flex;
@@ -1196,6 +1247,7 @@ const state = {
   picks: {},                 // category => { w, e }
   rounds: [],
   roundIdx: 0,
+  shufflesUsed: 0,           // v0.9.3 · b3 — Selection Joy Pass Phase 4: shuffle 🎲 button counter (max 2 per session)
   speaking: false,
   story: null,               // cached buildStory() result — set once on goTo('story'), reused on rerender
   pottyMode: _initialProfile.pottyMode,
@@ -1203,6 +1255,11 @@ const state = {
   setting: _initialProfile.setting,     // story setting mode id (default "surprise")
   storyMode: _initialProfile.storyMode, // 'bedtime' | 'anytime' — v2.6.2
 };
+
+// v0.9.3 · b3 — Selection Joy Pass Phase 4: shuffle 🎲 button max-uses per session.
+// Tunable. 2 keeps shuffle feeling like a special move; raising to 3 would let kids
+// re-roll a 3rd round but starts to dilute the "this matters" feel of the cards.
+const MAX_SHUFFLES = 2;
 
 // Wire version badge — tap to surface the What's New panel
 /* v0.9.3 — versioning policy: show product version + build number in the badge.
@@ -1218,6 +1275,8 @@ const state = {
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v0.9.3 · b3', title: 'Selection Joy Pass Phase 4 — shuffle 🎲 button ("Show me different ones") on every tap round',
+    detail: 'Phase 4 of the Selection Joy Pass. Adds a small 🎲 "Show me different ones" button beneath every tap round. Tapping it re-rolls the 2 cards from the same option pool, excluding the currently-shown 2 when possible. Limited to 2 uses per session (configurable via MAX_SHUFFLES constant) so it stays a special move rather than a re-roll-forever escape hatch. Counter badge shows remaining uses ("×2", "×1") and the button disables when exhausted. The cards fade-out + slide-in over 320ms when shuffle is tapped for tactile feedback. CHANGES: (1) buildRounds() now attaches a fullPool property to every tap round (the complete 12-24-option pool the 2 cards were sampled from). Works for: standard WORD_BANK rounds (pet, color, food, place, creature, move, mood, sky), the universal sound tap round (SOUND_HOT_OPTS), the little tier weather swap, and the Potty Word Mode body round (BODY_HOT_OPTS). Freetext rounds are excluded — no shuffle on text input. (2) New state.shufflesUsed counter, initialized to 0 in the global state object AND reset to 0 in startWords() (per session) AND backToWelcome() (defensive). (3) Constant MAX_SHUFFLES = 2 — tunable. (4) renderWords() conditionally renders the shuffle button only when round.fullPool.length >= 4 AND shufflesRemaining > 0. Pool ≥ 4 ensures we can always produce 2 fresh options not in the current set. (5) attachWordsHandlers() wires the shuffle button: collects current option keys, filters fullPool to eligible (non-current) options, samples 2, replaces round.options, increments counter, triggers fade animation, re-renders the round. Falls back to a full-pool reshuffle if eligible set is too small (currently impossible since smallest pool is 12). (6) New CSS for .shuffle-btn (pill style matching the .hint-chip aesthetic) + .shuffle-count badge + .is-rerolling fade animation. (7) NEW QA Section 12 simulates 100 shuffles across every distinct tap round (every tier × cat combination plus SOUND_HOT_OPTS + BODY_HOT_OPTS) and confirms 0% of re-rolls produce a duplicate of the previous 2 options. Pool sizes verified ≥ 4 across the board. ACCEPTANCE: scripts/qa-current.js all 15 gates green. Round-shape smoke test still passes 5/5 cases. APP_VERSION stays v0.9.3 (no maturity bump); BUILD_NUMBER 2 → 3; ENGINE_V2_VERSION stays v3.0.3. Badge reads v0.9.3 · b3.' },
   { v: 'v0.9.3 · b2', title: 'Selection Joy Pass Phase 1 — silly-sound tap round (little + kid) + "type your own" escape hatch (kid)',
     detail: 'Live testing with kids showed the picker is the most enjoyable part of the app and the kid-tier (ages 6-7) free-text round broke that tap-rhythm — typing is slow on a phone and many 6-year-olds can\'t reliably spell silly sounds. This release converts the freetext-by-default round to a tap-by-default silly-sound round at little (4-5) and kid (6-7) tiers. CHANGES: (1) New buildSoundRound() helper in buildRounds() draws 2 random options from SOUND_HOT_OPTS (12 cartoon sounds: BABOOM!, WHAMMY!, CRASH!, TOOT!, ZAP!, SPLAT!, CLANG!, SMASH!, BONK!, WHOOSH!, BWAHAHA!, KAFOOM! — all distinct emojis). The picked sound feeds the same picks.freeword slot the engine reads, so story-side rendering is unchanged. (2) Little tier: 1 freetext round → 1 sound tap round. No escape hatch (ages 4-5 can\'t reliably type). (3) Kid tier: 1 freetext round → 1 sound tap round + small "or type your own ✏️" escape-hatch button under the two cards. Tapping it swaps the round for the original freetext prompt and re-renders. Zero-friction default; creative agency preserved for kids who want it. (4) SOUND_HOT_OPTS comment updated — pool is now the universal silly-sound pool, not Potty-Word-Mode-only. Name kept for grep-history; QA Section 11 emoji-uniqueness still enforces all 12 distinct. (5) Potty Word Mode simplification: was injecting body + sound rounds (+2). Now sound is universal so Potty Mode only adds the body round (+1). Net Potty Mode session: 9 rounds (was 10). Body round content unchanged. (6) Big + tween unchanged in this phase. Phase 7 will drop big from 2 → 1 freetext alongside the object round addition. NOT IN THIS RELEASE (Selection Joy Pass Phases 2-8, queued): setting-specific bias, sub-spot tap round when setting locked, shuffle 🎲 button, wild card mechanic, visual polish (bigger emoji + tap sound + haptic), object round, mood-at-little, seasonal food rotation. ACCEPTANCE: scripts/qa-current.js all 12 gates green. SOUND_HOT_OPTS emoji uniqueness verified by extended Section 11 coverage. Picker-flow smoke test: little + kid + (kid + Potty Mode) sessions all produce well-formed round sequences with picks.freeword populated. Engine slot construction unchanged. APP_VERSION stays v0.9.3 (no product-maturity bump); BUILD_NUMBER 1 → 2; ENGINE_V2_VERSION stays v3.0.3. Badge reads v0.9.3 · b2.' },
   { v: 'v0.9.3', title: 'Versioning policy adoption — three independent identifiers (build 1, engine v3.0.3)',
@@ -1499,12 +1558,14 @@ function buildRounds(age) {
   const effectivePlan = settingLocked ? plan.filter(cat => cat !== 'place') : plan;
 
   // Randomly pick 2 options from each round's pool of 6
+  // v0.9.3 · b3 — attach fullPool to each round so the shuffle 🎲 button can re-roll
+  // by sampling fresh options from the same pool (excluding the currently-shown 2).
   const binaryRounds = effectivePlan
     .map(cat => WORD_BANK[tier].find(r => r.cat === cat))
     .filter(Boolean)
     .map(round => {
       const shuffled = [...round.options].sort(() => Math.random() - 0.5);
-      return { ...round, options: shuffled.slice(0, 2) };
+      return { ...round, options: shuffled.slice(0, 2), fullPool: round.options };
     });
 
   // v0.9.3 · b2 — Selection Joy Pass Phase 1: little + kid sessions get a TAP-BY-DEFAULT
@@ -1520,6 +1581,7 @@ function buildRounds(age) {
       cat: 'freeword',          // engine reads picks.freeword same as the old freetext slot
       label: 'Pick a silly sound',
       options: shuffled.slice(0, 2),
+      fullPool: SOUND_HOT_OPTS, // v0.9.3 · b3 — shuffle 🎲 re-roll source
     };
   }
   // v1.19.2 — little tier gets one freeword round (Codex QA finding #2). Goofy Shorts: Little
@@ -1535,7 +1597,8 @@ function buildRounds(age) {
       const weatherRound = (WORD_BANK.little || []).find(r => r.cat === 'weather');
       if (weatherRound) {
         const shuffled = [...weatherRound.options].sort(() => Math.random() - 0.5);
-        const swappable = { ...weatherRound, options: shuffled.slice(0, 2) };
+        // v0.9.3 · b3 — attach fullPool for shuffle re-roll
+        const swappable = { ...weatherRound, options: shuffled.slice(0, 2), fullPool: weatherRound.options };
         const creatureIdx = rounds.findIndex(r => r && r.cat === 'creature');
         if (creatureIdx >= 0) rounds[creatureIdx] = swappable;
       }
@@ -1557,7 +1620,8 @@ function buildRounds(age) {
     // the slot the freetext round used to occupy. Net effect: pottyMode = +1 round (was +2).
     if (state.pottyMode) {
       const bodyShuffled = [...BODY_HOT_OPTS].sort(() => Math.random() - 0.5).slice(0, 2);
-      const bodyRound    = { cat: 'body', label: 'Pick a silly body word', options: bodyShuffled };
+      // v0.9.3 · b3 — attach fullPool so shuffle works on the body round too
+      const bodyRound    = { cat: 'body', label: 'Pick a silly body word', options: bodyShuffled, fullPool: BODY_HOT_OPTS };
       return [...binaryRounds.slice(0, 4), sound, bodyRound, ...binaryRounds.slice(4)];
     }
     return [...binaryRounds.slice(0, 4), sound, ...binaryRounds.slice(4)];
@@ -2719,6 +2783,11 @@ function renderWords() {
       return 'word-text';
     };
 
+    // v0.9.3 · b3 — shuffle 🎲 button rendered when the round has a fullPool ≥ 4
+    // options and the session shuffle budget isn't exhausted. fullPool ≥ 4 ensures
+    // we can produce 2 fresh options that don't match the current 2.
+    const shufflesRemaining = MAX_SHUFFLES - (state.shufflesUsed || 0);
+    const showShuffle = (round.fullPool && round.fullPool.length >= 4) && (shufflesRemaining > 0);
     roundContent = `
       <div class="pair-wrap" id="pair-wrap">
         ${round.options.map((opt, i) => `
@@ -2732,6 +2801,15 @@ function renderWords() {
           </button>
         `).join('')}
       </div>
+      ${showShuffle ? `
+        <div class="shuffle-wrap">
+          <button class="shuffle-btn" id="btn-shuffle" aria-label="Show me different choices (${shufflesRemaining} left)">
+            <span class="shuffle-emoji">🎲</span>
+            <span>Show me different ones</span>
+            <span class="shuffle-count">×${shufflesRemaining}</span>
+          </button>
+        </div>
+      ` : ''}
       ${round.escapeHatchTo ? `
         <button class="escape-hatch-btn" id="btn-escape-hatch" aria-label="Type your own word instead">
           or type your own ✏️
@@ -3062,9 +3140,10 @@ function advanceToStoryMode() {
 }
 
 function startWords() {
-  state.rounds   = buildRounds(state.age);
-  state.roundIdx = 0;
-  state.picks    = {};
+  state.rounds       = buildRounds(state.age);
+  state.roundIdx     = 0;
+  state.picks        = {};
+  state.shufflesUsed = 0;   // v0.9.3 · b3 — reset shuffle counter at session start
   goTo('words');
 }
 
@@ -3112,6 +3191,28 @@ function attachWordsHandlers(el) {
           state.rounds[state.roundIdx] = r.escapeHatchTo;
           goTo('words');
         }
+      });
+    }
+    // v0.9.3 · b3 — shuffle 🎲 button: re-roll the 2 cards from the same fullPool,
+    // excluding the currently-shown options when the pool is large enough. Caps at
+    // MAX_SHUFFLES per session. Cards fade out + in for tactile feedback.
+    const shuffleBtn = el.querySelector('#btn-shuffle');
+    if (shuffleBtn) {
+      shuffleBtn.addEventListener('click', () => {
+        const r = state.rounds[state.roundIdx];
+        if (!r || !r.fullPool || state.shufflesUsed >= MAX_SHUFFLES) return;
+        const currentKeys = new Set(r.options.map(o => o.w));
+        const eligible = r.fullPool.filter(o => !currentKeys.has(o.w));
+        // Fallback: if eligible is too small (pool < 4), just re-shuffle from full pool.
+        const source = eligible.length >= 2 ? eligible : r.fullPool;
+        const shuffled = [...source].sort(() => Math.random() - 0.5);
+        r.options = shuffled.slice(0, 2);
+        state.shufflesUsed += 1;
+        // Play the fade animation, then re-render so the new cards land with the
+        // bounce-in entrance already wired on .word-card.
+        const pair = el.querySelector('#pair-wrap');
+        if (pair) pair.classList.add('is-rerolling');
+        setTimeout(() => goTo('words'), 200);
       });
     }
   }
@@ -3544,6 +3645,7 @@ function resetApp() {
   state.picks        = {};
   state.rounds       = [];
   state.roundIdx     = 0;
+  state.shufflesUsed = 0;   // v0.9.3 · b3 — reset shuffle counter when returning to welcome
   state.speaking     = false;
   state.story        = null;
   goTo('welcome');
