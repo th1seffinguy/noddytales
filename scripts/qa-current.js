@@ -38,6 +38,8 @@ return {
   generateStoryV2,
   generateStoryV3,
   WORD_BANK,
+  V3_BEATS,   // v3.0.2-stability — exposed for Section 5b anytime coverage gate
+  V2_BEATS,   // v3.0.2-stability — exposed for Section 5b v2-side anytime coverage
 };
 `;
 const ctx = (new Function(harness))();
@@ -334,7 +336,22 @@ function endingAudit(storyMode, age, samples) {
      count. Phrase forms ("fell asleep", "time to sleep", "going to sleep") only
      fire at actual sleep endings. */
   const BEDTIME_RX  = /\b(goodnight|good night|bedtime|fell asleep|going to sleep|time to sleep|going to bed|sweet dreams|tucked in)\b/i;
-  const ANYTIME_RX  = /\b(walking home|walking back|walked back|walk home|onto the next|see you|tomorrow|onward|head home|headed back|heading off|next thing|next caper|what to do next|do next|home base|find the next|retell this|retelling)\b/i;
+  /* v3.0.2-stability — expanded to cover every valid day-ending phrase used by
+     shipping v3 anytime landing beats. Previously the regex missed:
+       - "walking out"   (v3_sw_landing_any_tween) — kid/big tween show_wrong
+       - "heading home"  (v3_rl_landing_any) — kid/big rule_loophole
+       - "back home"     (v3_ls_landing_any) — used as opener of kid/big lost_snack
+       - "on the way home" (v3_gs_landing_any) — kid/big goal_spine
+       - "walk back"     (defensive — variants of walking back)
+       - "next show"     (v3_sw_landing_any_tween) — show-ending future marker
+       - "replayed"      (v3_ls_landing_tween_replay) — used as anytime marker in tween
+       - "deploy it later" (v3_rl_landing_any) — kid/big rule_loophole
+     These weren't a content problem (the beats read as clearly day-ending to humans)
+     — they were a regex coverage problem. Tween age 12 anytime gate was hitting
+     35-40/60 instead of the expected ~57/60 because show_wrong tween (25% of stories)
+     used "Walking out" which had no match. Coverage gate added below (Section 5b)
+     prevents new anytime beats from shipping with non-matching phrases. */
+  const ANYTIME_RX  = /\b(walking home|walking back|walking out|walked back|walked home|walk home|walk back|onto the next|see you|tomorrow|onward|head home|heading home|headed back|headed home|heading off|next thing|next caper|next show|what to do next|do next|home base|find the next|back home|on the way home|on the way back|retell this|retelling|replayed|deploy it later)\b/i;
   for (let i = 0; i < samples; i++) {
     const picks = randomPicks(tier);
     picks.storyMode = storyMode;
@@ -373,6 +390,45 @@ const tweenAny = endingAudit('anytime', 12, 60);
 console.log(`  anytime age 12 (60 stories): bedtime-words=${tweenAny.bedtimeWords}/60 anytime-footprint=${tweenAny.anytimeFootprint}/60 nulls=${tweenAny.nulls}`);
 gate('tween (age 12) storyMode=anytime stories DON\'T close with sleep (≤10%)', tweenAny.bedtimeWords <= 6,  tweenAny.bedtimeWords + '/60');
 gate('tween (age 12) storyMode=anytime stories use day-ending language (≥60%)', tweenAny.anytimeFootprint >= 36, tweenAny.anytimeFootprint + '/60');
+
+/* === 5b. ANYTIME BEAT COVERAGE GATE (added v3.0.2-stability) ===
+ *
+ * Companion gate to Section 5. Walks every v3 `mode:'anytime'` landing beat
+ * (V3_BEATS where stage='landing' AND mode='anytime') and confirms each one's
+ * text contains at least one ANYTIME_RX-matching phrase. Without this gate, a
+ * new anytime beat can ship with phrasing the regex doesn't recognize, which
+ * silently lowers the Section 5 hit rate until it dips below the 60% threshold
+ * and the harness fails intermittently. Two beats had this issue at v3.0.2:
+ *   - v3_sw_landing_any_tween: "Walking out" (regex had "walking home/back" only)
+ *   - v3_rl_landing_any (kid/big): "Heading home" (regex had "head home" only)
+ * Both were correct content; the regex was incomplete. v3.0.2-stability expands
+ * the regex AND adds this gate so the next new beat is caught at QA time,
+ * not as a Section 5 flake.
+ */
+console.log('\n=== 5b. Anytime beat coverage (every anytime beat must hit ANYTIME_RX) ===');
+const ANYTIME_RX_GATE = /\b(walking home|walking back|walking out|walked back|walked home|walk home|walk back|onto the next|see you|tomorrow|onward|head home|heading home|headed back|headed home|heading off|next thing|next caper|next show|what to do next|do next|home base|find the next|back home|on the way home|on the way back|retell this|retelling|replayed|deploy it later)\b/i;
+const v3AnytimeLanding = ctx.V3_BEATS.filter(b => b.stage === 'landing' && b.mode === 'anytime');
+const V2_ANYTIME_BEAT_TYPES = new Set(['bedtime_landing','tot_cozy_end','little_cozy_end']);
+const v2AnytimeEnding   = ctx.V2_BEATS.filter(b => b.mode === 'anytime' && V2_ANYTIME_BEAT_TYPES.has(b.beatType));
+const allAnytimeBeats   = [...v3AnytimeLanding, ...v2AnytimeEnding];
+let anytimeMisses = 0;
+const anytimeMissDetail = [];
+for (const beat of allAnytimeBeats) {
+  const lines = beat.lines || [];
+  for (let i = 0; i < lines.length; i++) {
+    const cleaned = strip(lines[i]);
+    if (!ANYTIME_RX_GATE.test(cleaned)) {
+      anytimeMisses++;
+      if (anytimeMissDetail.length < 5) {
+        anytimeMissDetail.push(`${beat.id} line ${i}: "${cleaned.slice(0, 110)}..."`);
+      }
+    }
+  }
+}
+gate('every anytime ending beat (v2 + v3) contains a recognized day-ending phrase',
+     anytimeMisses === 0,
+     anytimeMisses + ' beat lines miss ANYTIME_RX (of ' + allAnytimeBeats.length + ' beats scanned: ' + v3AnytimeLanding.length + ' v3 + ' + v2AnytimeEnding.length + ' v2)');
+if (anytimeMissDetail.length) anytimeMissDetail.forEach(d => console.log('    ' + d));
 
 /* === 7. TOT/LITTLE KID-AGENCY GATE (added v2.8.0) ===
  *
