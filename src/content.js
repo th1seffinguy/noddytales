@@ -17,22 +17,29 @@
    labeling: product is in late beta (v0.9.x), engine is still v3 internally. The
    historical v3.0.0-v3.0.3 CHANGELOG entries stay as-is for traceability. */
 const APP_VERSION  = 'v0.9.3';
-const BUILD_NUMBER = 15;
+const BUILD_NUMBER = 16;
 
-/* v0.9.3 · b8 — Narrator Voice Selector MVP.
-   Four curated narrator archetypes. Original tones; no celebrity / character imitation.
-   The client knows only `key`, `label`, and `tagline`. Raw ElevenLabs voice IDs live
-   server-side in env vars (api/tts.js). Adding a preset here requires the matching
-   server-side allowlist entry in api/tts.js — otherwise unknown presets are 400'd. */
+/* v0.9.3 · b8 — Narrator Voice Selector MVP. v0.9.3 · b16 — lineup refresh:
+   1 British storybook + 3 American (warm / energetic / cartoon) so parents
+   hear a clear distinction between the four. Keys stay stable
+   (sunny/cozy/adventure/silly) so saved `nt_voice_preset` and IndexedDB cache
+   entries (`<preset>|<sha256>` for stories, `preview:<preset>` for previews)
+   survive across the rename. No celebrity / licensed-character / real-person
+   imitation in any label, tagline, or previewText — QA Section 14 scans for it.
+
+   The client knows only `key`, `label`, `tagline`, and `previewText`. Raw
+   ElevenLabs voice IDs live server-side in env vars (api/tts.js). Adding a
+   preset here requires a matching server-side allowlist entry; unknown
+   presets are 400'd. */
 const VOICE_PRESETS = [
-  { key: 'sunny',     label: 'Sunny',         tagline: 'Warm, bright, daytime',
-    previewText: "Hi, I'm Sunny. I can't wait to read your story." },
-  { key: 'cozy',      label: 'Cozy Bedtime',  tagline: 'Soft + slow for sleepy ears',
-    previewText: "Hi, I'm Cozy Bedtime. I'll read this nice and gently." },
-  { key: 'adventure', label: 'Big Adventure', tagline: 'Bold + energetic narrator',
-    previewText: "Hi, I'm Big Adventure. Let's make this story sound epic." },
-  { key: 'silly',     label: 'Silly Cartoon', tagline: 'Playful + bouncy + expressive',
-    previewText: "Hi, I'm Silly Cartoon. This is going to get ridiculous." },
+  { key: 'sunny',     label: 'Sunny American',     tagline: 'Warm, clear, everyday read-aloud',
+    previewText: "Hi, I'm Sunny American. I'm your personal story reader." },
+  { key: 'cozy',      label: 'Storybook British',  tagline: 'Classic storybook narrator',
+    previewText: "Hi, I'm Storybook British. I'll read this like a proper bedtime tale." },
+  { key: 'adventure', label: 'Adventure American', tagline: 'Energetic + expressive',
+    previewText: "Hi, I'm Adventure American. Let's make this story sound big." },
+  { key: 'silly',     label: 'Silly Cartoon',      tagline: 'Goofy, bouncy, kid-favorite',
+    previewText: "Hi, I'm Silly Cartoon. I make stories sound ridiculous." },
 ];
 const VOICE_PRESET_DEFAULT = 'sunny';
 const VOICE_PRESET_KEYS    = VOICE_PRESETS.map(p => p.key); // for validation

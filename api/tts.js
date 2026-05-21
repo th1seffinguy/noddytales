@@ -3,33 +3,48 @@
    Returns: { audioBase64, alignment }
 
    v0.9.3 · b8 — Narrator Voice Selector MVP.
-   The client picks a friendly preset key (sunny / cozy / adventure / silly). The
-   browser never sees ElevenLabs voice IDs — they live only in server env vars.
-   This proxy:
+   v0.9.3 · b16 — Lineup refresh: 1 British storybook narrator + 3 American voices
+   (warm / energetic / cartoon). The four preset env vars below MUST point to four
+   DISTINCT ElevenLabs voice IDs in production — if any are unset, that preset
+   falls back to ELEVENLABS_VOICE_ID and a per-request console.warn fires so the
+   identical-previews misconfig is visible in Vercel logs.
+
+   Intended lineup:
+     sunny      → American · warm, clear, everyday read-aloud
+     cozy       → British  · classic storybook narrator
+     adventure  → American · energetic + expressive
+     silly      → American · goofy, bouncy, kid-favorite cartoon
+
+   The client picks a friendly preset key. The browser never sees ElevenLabs
+   voice IDs — they live only in server env vars. This proxy:
      1. Validates voicePreset against an allowlist; rejects unknown values 400.
      2. Resolves preset → voice ID via env vars, with ELEVENLABS_VOICE_ID as
         the universal fallback for any preset whose specific env var is unset.
-     3. Applies per-preset ElevenLabs voice_settings (stability / similarity /
-        style) so the same fallback voice can still convey different narrator
-        moods if the operator hasn't provisioned separate voice IDs yet.
-     4. Keeps the /with-timestamps endpoint so karaoke highlighting still works.
+     3. Logs a console.warn per request when a preset falls back so the
+        operator notices when production env is misconfigured (all previews
+        otherwise sound identical, which is worse than offering one voice
+        transparently).
+     4. Applies per-preset ElevenLabs voice_settings (stability / similarity /
+        style) so even when all four resolve to the same fallback voice the
+        moods land distinctly.
+     5. Keeps the /with-timestamps endpoint so karaoke highlighting still works.
 */
 
 const VOICE_MAP = {
   sunny: {
-    envVar:        'ELEVENLABS_VOICE_SUNNY',
+    envVar:        'ELEVENLABS_VOICE_SUNNY',       // American · warm / clear
     voice_settings:{ stability: 0.80, similarity_boost: 0.90, style: 0.20, use_speaker_boost: true },
   },
   cozy: {
-    envVar:        'ELEVENLABS_VOICE_COZY',
+    envVar:        'ELEVENLABS_VOICE_COZY',        // British · storybook narrator
     voice_settings:{ stability: 0.85, similarity_boost: 0.92, style: 0.10, use_speaker_boost: true },
   },
   adventure: {
-    envVar:        'ELEVENLABS_VOICE_ADVENTURE',
+    envVar:        'ELEVENLABS_VOICE_ADVENTURE',   // American · energetic / expressive
     voice_settings:{ stability: 0.65, similarity_boost: 0.85, style: 0.50, use_speaker_boost: true },
   },
   silly: {
-    envVar:        'ELEVENLABS_VOICE_SILLY',
+    envVar:        'ELEVENLABS_VOICE_SILLY',       // American · cartoon / goofy
     voice_settings:{ stability: 0.55, similarity_boost: 0.80, style: 0.70, use_speaker_boost: true },
   },
 };
@@ -82,7 +97,14 @@ module.exports = async function handler(req, res) {
       voice_settings: resolved.voice_settings,
     }),
   });
-  console.log(`[TTS] chars=${text.length} preset=${resolved.preset} voice=${resolved.voiceId} fallback=${resolved.usedFallback} status=${response.status}`);
+  // v0.9.3 · b16 — escalate to console.warn when a preset falls back to
+  // ELEVENLABS_VOICE_ID so the identical-previews misconfig is visible in
+  // Vercel logs (otherwise every preset just silently sounds the same).
+  const logFn = resolved.usedFallback ? console.warn : console.log;
+  logFn(`[TTS] chars=${text.length} preset=${resolved.preset} voice=${resolved.voiceId} fallback=${resolved.usedFallback} status=${response.status}`);
+  if (resolved.usedFallback) {
+    console.warn(`[TTS] preset "${resolved.preset}" fell back to ELEVENLABS_VOICE_ID — set ${VOICE_MAP[resolved.preset].envVar} in Vercel for a distinct voice.`);
+  }
   if (!response.ok) return res.status(response.status).json({ error: 'ElevenLabs API error' });
 
   const data = await response.json();

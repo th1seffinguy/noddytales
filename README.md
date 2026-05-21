@@ -66,16 +66,41 @@ vercel dev
 Required environment variables for TTS (set in Vercel dashboard or `.env.local` for `vercel dev`):
 
 - `ELEVENLABS_API_KEY` — your ElevenLabs API key
-- `ELEVENLABS_VOICE_ID` — default voice ID (the **Sunny** preset, used as fallback for every other preset when its specific env var is unset). Defaults to George — British narrator — if also unset.
+- `ELEVENLABS_VOICE_ID` — default voice, used as fallback for any preset whose specific env var is unset
 
-Optional voice-preset env vars (narrator selector, added in `v0.9.3 · b8`):
+### Narrator voice lineup
 
-- `ELEVENLABS_VOICE_SUNNY` — daytime/anytime warm narrator (falls back to `ELEVENLABS_VOICE_ID`)
-- `ELEVENLABS_VOICE_COZY` — bedtime soft narrator
-- `ELEVENLABS_VOICE_ADVENTURE` — energetic action narrator
-- `ELEVENLABS_VOICE_SILLY` — playful cartoon narrator
+NoddyTales offers **4 narrator presets** (since v0.9.3 · b8; refreshed in `b16`): 1 British + 3 American voices. Pick in Parent Settings or via the story-screen `Change` button.
 
-Any preset whose env var is unset silently falls back to `ELEVENLABS_VOICE_ID`. Voice IDs are server-side only — the browser never sees them.
+| Preset key | Label | Accent | Vibe | Env var |
+|---|---|---|---|---|
+| `sunny` (default) | Sunny American | American | Warm, clear, everyday read-aloud | `ELEVENLABS_VOICE_SUNNY` |
+| `cozy` | Storybook British | British | Classic storybook narrator | `ELEVENLABS_VOICE_COZY` |
+| `adventure` | Adventure American | American | Energetic + expressive | `ELEVENLABS_VOICE_ADVENTURE` |
+| `silly` | Silly Cartoon | American | Goofy, bouncy, kid-favorite | `ELEVENLABS_VOICE_SILLY` |
+
+### Setup checklist (Vercel)
+
+For the four narrator presets to sound **actually distinct**, the operator must paste **four different ElevenLabs voice IDs** into Vercel Project Settings → Environment Variables → `Production` (and `Preview` if you want them in PR previews):
+
+1. ☑ `ELEVENLABS_API_KEY` — required for any TTS
+2. ☑ `ELEVENLABS_VOICE_ID` — required fallback default
+3. `ELEVENLABS_VOICE_SUNNY` — distinct American warm/clear voice ID
+4. `ELEVENLABS_VOICE_COZY` — distinct British storybook voice ID
+5. `ELEVENLABS_VOICE_ADVENTURE` — distinct American energetic voice ID
+6. `ELEVENLABS_VOICE_SILLY` — distinct American cartoon voice ID
+
+Redeploy after pasting env vars; no code change needed.
+
+### Identical-previews diagnostic
+
+If voice previews all sound the same on production, **the preset env vars 3–6 above are not set**. Every preset has fallen back to `ELEVENLABS_VOICE_ID`. The server logs a `console.warn` per request when fallback fires:
+
+```
+[TTS] preset "cozy" fell back to ELEVENLABS_VOICE_ID — set ELEVENLABS_VOICE_COZY in Vercel for a distinct voice.
+```
+
+Voice IDs are **server-side only** — the browser never sees them. Per-preset `voice_settings` (stability / similarity / style) still differ even when all four resolve to the same voice, so the moods land slightly distinct even in fallback.
 
 ## QA harness
 

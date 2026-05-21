@@ -860,6 +860,46 @@ function vAssert(label, cond, detail) {
   const missing = clientPresets.filter(k => !tts.VALID_PRESETS.includes(k));
   vAssert('every client VOICE_PRESET has a server VOICE_MAP entry', missing.length === 0, missing.join(','));
 }
+// 11. Production-like env: 4 distinct preset env vars resolve to 4 distinct voice IDs.
+//     Catches the b8 trap where an operator forgets to provision all four env vars
+//     and every preset silently collapses to ELEVENLABS_VOICE_ID, making previews
+//     sound identical.
+{
+  const prodEnv = {
+    ELEVENLABS_VOICE_SUNNY:     'voice_id_sunny_distinct',
+    ELEVENLABS_VOICE_COZY:      'voice_id_cozy_distinct',
+    ELEVENLABS_VOICE_ADVENTURE: 'voice_id_adventure_distinct',
+    ELEVENLABS_VOICE_SILLY:     'voice_id_silly_distinct',
+    ELEVENLABS_VOICE_ID:        'voice_id_default',
+  };
+  const ids = ctx.VOICE_PRESET_KEYS.map(k => tts.resolveVoice(k, prodEnv).voiceId);
+  const distinct = new Set(ids).size;
+  vAssert('production-like env: 4 presets → 4 distinct voice IDs', distinct === 4, `got ${distinct} distinct (${ids.join(', ')})`);
+}
+// 12. Missing preset env vars still resolve, but the result MUST flag usedFallback=true
+//     so the proxy's console.warn fires + the all-identical-previews failure mode
+//     is detectable from logs.
+{
+  const onlyDefault = { ELEVENLABS_VOICE_ID: 'voice_id_default' };
+  const fallbackFlags = ctx.VOICE_PRESET_KEYS.map(k => tts.resolveVoice(k, onlyDefault).usedFallback);
+  const allFlagged = fallbackFlags.every(Boolean);
+  vAssert('missing preset env vars → every preset reports usedFallback=true (detectable)',
+    allFlagged, `flags: ${fallbackFlags.join(', ')}`);
+}
+// 13. Label/tagline/previewText must NOT contain celebrity, licensed-character,
+//     or real-person imitation language. Conservative blocklist — common Disney /
+//     Pixar / Sesame / public-figure tokens.
+{
+  const BLOCK_RX = /\b(disney|pixar|sesame|elmo|mickey|minnie|elsa|anna|olaf|moana|buzz lightyear|woody|mufasa|simba|nemo|dory|shrek|spongebob|patrick|sandy|barney|peppa|bluey|paw patrol|morgan freeman|david attenborough|james earl jones|sir david|big bird)\b/i;
+  const leaks = [];
+  for (const p of ctx.VOICE_PRESETS) {
+    const haystack = `${p.label} :: ${p.tagline} :: ${p.previewText || ''}`;
+    const m = haystack.match(BLOCK_RX);
+    if (m) leaks.push(`preset="${p.key}" contains "${m[0]}"`);
+  }
+  vAssert('no celebrity / licensed-character / real-person language in voice presets',
+    leaks.length === 0, leaks.join('; '));
+}
 
 let v_fail = 0;
 for (const c of voiceCases) {
