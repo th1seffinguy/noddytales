@@ -63,6 +63,11 @@ const SETTINGS = ['surprise','diner','mall','football','school','backyard','groc
 function settingForSample(sampleIdx) { return SETTINGS[sampleIdx % SETTINGS.length]; }
 
 const BLUEPRINTS = ['lost_snack_v3','goal_spine_v3','show_wrong_v3','rule_loophole_v3'];
+/* v2.10.0 — tot/little-v3 blueprints land in v2.10.0. The audit pack now routes
+   ages 2-5 through v3 (cycling between tier-appropriate blueprints) so the
+   eyeball pass covers the new content. Ages 6+ unchanged. */
+const TOT_BLUEPRINTS    = ['tot_wonder_v3', 'tot_sky_v3'];
+const LITTLE_BLUEPRINTS = ['little_quest_v3', 'little_food_v3'];
 
 const AGES = [2, 4, 6, 8, 10, 12];
 
@@ -87,9 +92,13 @@ for (const age of AGES) {
     const setting = settingForSample(s);
     picks.setting = { id: setting };
     let story, source;
-    if (age >= 6) {
-      // Force varied blueprint per sample so we get all 4 represented
-      picks.__v3BlueprintId = BLUEPRINTS[s % BLUEPRINTS.length];
+    let bpPool = null;
+    if (tier === 'tot')         bpPool = TOT_BLUEPRINTS;
+    else if (tier === 'little') bpPool = LITTLE_BLUEPRINTS;
+    else if (age >= 6)          bpPool = BLUEPRINTS;
+    if (bpPool) {
+      // Force varied blueprint per sample so the audit covers tier-appropriate variety
+      picks.__v3BlueprintId = bpPool[s % bpPool.length];
       story = ctx.generateStoryV3('Cole', picks, age);
       source = 'v3 ' + picks.__v3BlueprintId;
     } else {

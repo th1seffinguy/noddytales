@@ -193,6 +193,73 @@ gate('all picked words in body',     v3WordMiss === 0,     v3WordMiss + ' storie
 gate('all picked words highlighted', v3HlMiss === 0,       v3HlMiss + ' stories with hl miss');
 if (v3MissDetail.length) v3MissDetail.forEach(d => console.log('    ' + d));
 
+/* === 3b. v3 TOT/LITTLE MATRIX (added v2.10.0) ===
+ *
+ * The v2.10.0 release lands four tot/little-v3 blueprints (tot_wonder_v3,
+ * tot_sky_v3, little_quest_v3, little_food_v3) implementing the 3-role contract
+ * from docs/tot-little-v3-design.md. Each blueprint targets a single tier
+ * (tot: ages 2-3, little: ages 4-5) with a 4-paragraph arc (setup →
+ * silly_repeat × 2 → cozy_end).
+ *
+ * Gates per the design's acceptance criteria:
+ *  - 0 nulls / 0 unresolved tokens
+ *  - 4-paragraph arc every time
+ *  - ally (companion pick) appears in body for every story
+ *  - wonder_object appears in body when deterministic (food + sky)
+ *    (skip the wonder check for little_quest_v3 because `object` is auto-picked
+ *    at random from V2_WORDS.objects with no picker round)
+ */
+console.log('\n=== 3b. v3 tot/little matrix (v2.10.0 — 4 blueprints × 30 = 240 stories) ===');
+const totLittleBlueprints = [
+  { id: 'tot_wonder_v3',   ages: [2, 3], wonderPick: 'grapes' },  // wonder = food
+  { id: 'tot_sky_v3',      ages: [2, 3], wonderPick: 'cloud'  },  // wonder = sky
+  { id: 'little_quest_v3', ages: [4, 5], wonderPick: null     },  // wonder = object (random)
+  { id: 'little_food_v3',  ages: [4, 5], wonderPick: 'grapes' },  // wonder = food
+];
+const totLittlePicks = {
+  pet:{w:'bunny'}, food:{w:'grapes'}, place:{w:'park'},
+  creature:{w:'frog'}, color:{w:'pink'}, move:{w:'jumped'},
+  sky:{w:'cloud'}, weather:{w:'sunny'},
+  freeword:{w:'BOINGO',subtype:'shout'}, freeword2:{w:'YAY'},
+};
+let tlNulls = 0, tlUnresolved = 0, tlWrongArc = 0, tlAllyMiss = 0, tlWonderMiss = 0;
+let tlTotal = 0;
+const tlMissDetail = [];
+for (const bp of totLittleBlueprints) {
+  for (const age of bp.ages) {
+    for (let i = 0; i < 30; i++) {
+      tlTotal++;
+      const picks = Object.assign({}, totLittlePicks, { __v3BlueprintId: bp.id });
+      const s = ctx.generateStoryV3('Cole', picks, age);
+      if (!s) { tlNulls++; if (tlMissDetail.length < 5) tlMissDetail.push(`${bp.id} age=${age} → null`); continue; }
+      const titleRaw = String(s.title || '');
+      const paraRaw  = (s.paragraphs || []).join(' ');
+      const paraClean = strip(paraRaw).toLowerCase();
+      if (/\{[a-zA-Z][\w.]*\}/.test(titleRaw + paraRaw)) tlUnresolved++;
+      if (!s.paragraphs || s.paragraphs.length !== 4) {
+        tlWrongArc++;
+        if (tlMissDetail.length < 5) tlMissDetail.push(`${bp.id} age=${age} got ${s.paragraphs?.length} paras (expected 4)`);
+      }
+      // Ally coverage (companion = bunny in all 240 stories)
+      if (!wordRx('bunny').test(paraClean)) {
+        tlAllyMiss++;
+        if (tlMissDetail.length < 5) tlMissDetail.push(`${bp.id} age=${age} ally "bunny" not in body`);
+      }
+      // Wonder coverage (only deterministic blueprints — skip object-as-wonder)
+      if (bp.wonderPick && !wordRx(bp.wonderPick).test(paraClean)) {
+        tlWonderMiss++;
+        if (tlMissDetail.length < 5) tlMissDetail.push(`${bp.id} age=${age} wonder "${bp.wonderPick}" not in body`);
+      }
+    }
+  }
+}
+gate('0 nulls (tot/little v3 matrix)',          tlNulls === 0,      tlNulls + '/' + tlTotal);
+gate('0 unresolved tokens (tot/little)',        tlUnresolved === 0, tlUnresolved + '/' + tlTotal);
+gate('4-paragraph arc every time (tot/little)', tlWrongArc === 0,   tlWrongArc + ' wrong arc');
+gate('ally appears in body (tot/little)',       tlAllyMiss === 0,   tlAllyMiss + ' stories with ally miss');
+gate('wonder_object appears in body (tot/little)', tlWonderMiss === 0, tlWonderMiss + ' stories with wonder miss');
+if (tlMissDetail.length) tlMissDetail.forEach(d => console.log('    ' + d));
+
 /* === 4. GRAMMAR LINT (2,000 v2 stories) === */
 console.log('\n=== 4. Grammar lint (2,000 v2 random stories) ===');
 /* v2.6.1 lint regex — only TRUE plural-form picker values where "a X" is
