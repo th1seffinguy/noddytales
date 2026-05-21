@@ -603,6 +603,46 @@
     letter-spacing: 0.3px;
     text-transform: uppercase;
   }
+  /* v0.9.3 · b8 — Narrator Voice Selector. 2-column grid of preset cards inside
+     Parent Settings. Tap one to set the active narrator preset; instant visual
+     selection, applies on the next "Read it to me." Keyboard-accessible via the
+     role="radio" semantics on each button. */
+  .voice-preset-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .voice-preset {
+    text-align: left;
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(61,53,40,0.12);
+    border-radius: 12px;
+    padding: 10px 12px;
+    cursor: pointer;
+    font-family: 'Fredoka', sans-serif;
+    transition: background 0.15s, border-color 0.15s, transform 0.12s;
+  }
+  .voice-preset:hover { background: rgba(255,255,255,0.8); }
+  .voice-preset:active { transform: translateY(1px); }
+  .voice-preset.is-selected {
+    background: var(--yellow);
+    border-color: var(--yellow-dark);
+    box-shadow: inset 0 -2px 0 var(--yellow-dark);
+  }
+  .voice-preset-label {
+    display: block;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .voice-preset-tagline {
+    display: block;
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+    line-height: 1.3;
+  }
   .settings-btn-danger {
     width: 100%;
     background: rgba(229, 90, 90, 0.12);
@@ -1203,6 +1243,10 @@ const Profile = {
        whether the engine's cozy-end / landing beats use sleep imagery or a daytime
        walk-home close. Asked once in the welcome flow; persisted per device. */
     storyMode: 'nt_story_mode',
+    /* v0.9.3 · b8 — voicePreset: one of VOICE_PRESET_KEYS (sunny/cozy/adventure/silly).
+       Selects which ElevenLabs narrator voice the TTS proxy uses. Default = 'sunny'.
+       Unknown values fall back to default on load. Server allowlists the same keys. */
+    voicePreset: 'nt_voice_preset',
   },
   _get(key, fallback, transform) {
     try {
@@ -1227,6 +1271,9 @@ const Profile = {
       setting:   this._get('setting', 'surprise', v => String(v).slice(0, 32)),
       pottyMode: this._get('pottyMode', false, v => v === '1' || v === 'true'),
       storyMode: this._get('storyMode', 'bedtime', v => (v === 'anytime' ? 'anytime' : 'bedtime')),
+      // v0.9.3 · b8 — validate against the client-side allowlist. Unknown values
+      // (corrupted localStorage, removed preset) fall back to the default 'sunny'.
+      voicePreset: this._get('voicePreset', VOICE_PRESET_DEFAULT, v => VOICE_PRESET_KEYS.includes(v) ? v : VOICE_PRESET_DEFAULT),
     };
   },
   // Each setter is a no-op when given the same value, but values must be supplied explicitly.
@@ -1236,6 +1283,12 @@ const Profile = {
   saveSetting(v)   { v && v !== 'surprise' ? this._set('setting', String(v).slice(0, 32)) : this._rm('setting'); },
   savePotty(b)     { this._set('pottyMode', b ? '1' : '0'); },
   saveStoryMode(v) { v === 'anytime' ? this._set('storyMode', 'anytime') : this._rm('storyMode'); },
+  // v0.9.3 · b8 — only accept known preset keys; 'sunny' is the default so we remove
+  // the localStorage entry when it's the default (keeps localStorage clean).
+  saveVoicePreset(v) {
+    if (!VOICE_PRESET_KEYS.includes(v) || v === VOICE_PRESET_DEFAULT) this._rm('voicePreset');
+    else this._set('voicePreset', v);
+  },
 
   // Clear everything Profile manages. Engine flag (nt_engine_v2) and PIN (nt_pin) are intentionally
   // NOT cleared — those are device-level / parent-controlled, not child profile data.
@@ -1266,6 +1319,7 @@ const state = {
   sidekicks: _initialProfile.sidekicks, // siblings / friends — persist across sessions, max 3
   setting: _initialProfile.setting,     // story setting mode id (default "surprise")
   storyMode: _initialProfile.storyMode, // 'bedtime' | 'anytime' — v2.6.2
+  voicePreset: _initialProfile.voicePreset, // 'sunny' | 'cozy' | 'adventure' | 'silly' — v0.9.3 · b8
 };
 
 // v0.9.3 · b3 — Selection Joy Pass Phase 4: shuffle 🎲 button max-uses per session.
@@ -1287,6 +1341,8 @@ const MAX_SHUFFLES = 2;
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v0.9.3 · b8', title: 'Narrator Voice Selector MVP — pick Sunny / Cozy Bedtime / Big Adventure / Silly Cartoon in Parent Settings + README drift cleanup',
+    detail: 'Two changes in one release. PART 1 — README DRIFT CLEANUP: README still listed BUILD_NUMBER as 1 / badge as b1 (stale by 7 builds); age-tier table still described kid as "1 free-text round" even though Phase 1 (b2) converted little + kid to a silly-sound tap round with an escape hatch at kid; the engine-eligibility column still said "v3 engine eligible" though v3 has been the default since v3.0.0. Updated the table to reflect current picker behavior, the badge example to v0.9.3 · b8, and the engine row to v3 default. PART 2 — NARRATOR VOICE SELECTOR MVP: Parent Settings now has a 2-column grid of 4 narrator presets — Sunny (warm + bright, daytime; default), Cozy Bedtime (soft + slow), Big Adventure (bold + energetic), Silly Cartoon (playful + bouncy). Selection persists per device as `nt_voice_preset`. The selected preset is sent to /api/tts as `{ text, voicePreset }` and is also baked into the IndexedDB cache key (`${preset}|${sha256(text)}`), so switching voices does not replay cached audio from a different voice. SERVER ALLOWLIST: api/tts.js was rewritten with a four-key VOICE_MAP. Unknown presets are rejected 400. Each preset maps to an env var (ELEVENLABS_VOICE_SUNNY / ELEVENLABS_VOICE_COZY / ELEVENLABS_VOICE_ADVENTURE / ELEVENLABS_VOICE_SILLY) that falls back to ELEVENLABS_VOICE_ID when unset — so a fresh Vercel deploy with only the existing env vars still produces audio (every preset uses the default voice but with distinct voice_settings tunings). Per-preset voice_settings vary stability + style so the same fallback voice can still convey different narrator moods. The browser NEVER sees raw ElevenLabs voice IDs; arbitrary IDs submitted as a preset are 400d. /with-timestamps endpoint preserved → karaoke highlighting unaffected. GUARDRAILS: no celebrity / licensed-character names anywhere — all four labels are original archetypes. NEW QA SECTION 14: 10 unit cases on api/tts.js resolveVoice() and the cache-key shape — known presets resolve correctly, unknown rejected 400, raw voice IDs rejected, fallback to ELEVENLABS_VOICE_ID works, per-preset styles differ, cache keys differ by preset, every client preset has a server allowlist entry. All 10 pass. ACCEPTANCE: scripts/qa-current.js all 17 gates green. APP_VERSION stays v0.9.3; BUILD_NUMBER 7 → 8; ENGINE_V2_VERSION stays v3.0.3. Badge reads v0.9.3 · b8. NEW VERCEL ENV VARS (optional; missing = use ELEVENLABS_VOICE_ID): ELEVENLABS_VOICE_SUNNY, ELEVENLABS_VOICE_COZY, ELEVENLABS_VOICE_ADVENTURE, ELEVENLABS_VOICE_SILLY.' },
   { v: 'v0.9.3 · b7', title: 'QA cleanup — brand-kit asset packaging + stale engine-v2 header doc-drift',
     detail: 'Two non-functional cleanups caught by a Codex QA sweep. (1) BRAND-KIT ASSET PACKAGING: public/brand/index.html (the standalone brand-kit page; not the live app) referenced 7 missing asset files: banner-wide.svg, icon-16.png, icon-32.png, icon-64.png, icon-256.png, icon-square-512.png, icon-square-1024.png. Each was a broken <img>/<a download> in the kit\'s preview grids. Fix: copied banner-wide.svg from the design package; resized icon-BN4c-1024.png via sips to produce icon-{16,32,64}.png and icon-square-{512,1024}.png; copied native icon-BN4c-256.png to icon-256.png. Cross-check confirms all 22 brand/index.html asset refs now resolve to existing files. The "Square (full-bleed)" section in the brand kit now visually duplicates the App Icon section since both are BN4c (per b5 unification + user instruction to source from current BN4c assets); the references resolve cleanly which is the gate. Live app icon refs (index.html <head> link tags, manifest.json, renderLogo()) are unchanged — they were already correct since b5/b6. (2) ENGINE-V2 HEADER DOC-DRIFT: src/engine-v2.js opened with a 24-line header from the original v2.0 Phase 1 prototype days. The text described the engine as "disabled by default", "activate with ?engine=v2 URL param", "kid tier only", "Segment A of the v2.0 build". All four claims have been wrong since v2.0.0+ — the engine is production default for all ages 2-13, ?engine=v2 is unused (v3 is the default), and the v2 phase plan was completed and superseded by v3.0.0\'s unified engine. Rewrote the header to describe the current state: production-default story engine, v2+v3 coexist in one file, v3 routes first with v2 fallback, v2 deletion is queued for engine-v3.1.0. Includes a pointer to docs/versioning.md for the three-tier versioning policy. ZERO runtime/code changes — engine functions, slot construction, beat pools, and the version constant (ENGINE_V2_VERSION = v3.0.3) all unchanged. ACCEPTANCE: scripts/qa-current.js all 16 gates green. Section 8 (inline <script> syntax) clean. APP_VERSION stays v0.9.3; BUILD_NUMBER 6 → 7; ENGINE_V2_VERSION stays v3.0.3. Badge reads v0.9.3 · b7.' },
   { v: 'v0.9.3 · b6', title: 'In-app brand mark swap — BN4d → BN4c (sage was blending with the cream/sage app background)',
@@ -1503,6 +1559,27 @@ function showParentSettings() {
       </div>
 
       <div class="settings-section">
+        <div class="settings-section-label">Narrator voice</div>
+        <div class="voice-preset-grid" role="radiogroup" aria-label="Narrator voice preset">
+          ${VOICE_PRESETS.map(p => `
+            <button
+              class="voice-preset${state.voicePreset === p.key ? ' is-selected' : ''}"
+              data-preset="${esc(p.key)}"
+              role="radio"
+              aria-checked="${state.voicePreset === p.key ? 'true' : 'false'}"
+            >
+              <span class="voice-preset-label">${esc(p.label)}</span>
+              <span class="voice-preset-tagline">${esc(p.tagline)}</span>
+            </button>
+          `).join('')}
+        </div>
+        <p class="settings-footnote" style="margin-top:8px;">
+          Voice change applies on the next "Read it to me." Each voice caches its own audio,
+          so switching back to a prior voice is instant on stories you've already heard.
+        </p>
+      </div>
+
+      <div class="settings-section">
         <div class="settings-section-label">Future controls</div>
         <div class="settings-row settings-disabled">
           <span class="label">Potty word mode <span class="settings-tag">soon</span></span>
@@ -1535,6 +1612,24 @@ function showParentSettings() {
   overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
   overlay.querySelector('#settings-close').addEventListener('click', close);
 
+  // v0.9.3 · b8 — voice preset picker. Single-select radio behavior. Stores via
+  // Profile.saveVoicePreset (validates against allowlist, no-ops on unknown keys).
+  // The change applies on the next speak() call — TTSManager reads state.voicePreset
+  // at request time and includes it in both the cache key and POST body.
+  overlay.querySelectorAll('.voice-preset').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.preset;
+      if (!VOICE_PRESET_KEYS.includes(key)) return;
+      state.voicePreset = key;
+      Profile.saveVoicePreset(key);
+      overlay.querySelectorAll('.voice-preset').forEach(b => {
+        const selected = b.dataset.preset === key;
+        b.classList.toggle('is-selected', selected);
+        b.setAttribute('aria-checked', selected ? 'true' : 'false');
+      });
+    });
+  });
+
   overlay.querySelector('#btn-clear-profile').addEventListener('click', () => {
     if (!confirm('Clear all saved profile data?\n\nThis removes the saved name, age, sidekicks, and setting from this device. The current story (if any) stays on screen until you start a new one.')) return;
     Profile.clear();
@@ -1544,6 +1639,7 @@ function showParentSettings() {
     state.sidekicks = [];
     state.setting = 'surprise';
     state.pottyMode = false;
+    state.voicePreset = VOICE_PRESET_DEFAULT;  // v0.9.3 · b8 — reset voice to default on clear
     state.welcomeStep = 'name';
     close();
     goTo('welcome');
@@ -3583,9 +3679,16 @@ const TTSManager = (() => {
     return await r.blob();
   }
 
-  async function hashKey(text) {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
-    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
+  /* v0.9.3 · b8 — cache key now includes the voice preset so switching narrators
+     does NOT replay cached audio from a different voice. Key shape:
+       voicePreset|sha256(text)   e.g. "cozy|f1a2b3c4d5e6f7a8"
+     Existing pre-b8 cache entries (no prefix) become orphaned on first request
+     per (voice, story) pair — acceptable for a per-device IndexedDB cache. */
+  async function hashKey(voicePreset, text) {
+    const buf  = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    const hex  = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
+    const safe = VOICE_PRESET_KEYS.includes(voicePreset) ? voicePreset : VOICE_PRESET_DEFAULT;
+    return `${safe}|${hex}`;
   }
 
   function setLoading(on) {
@@ -3610,10 +3713,13 @@ const TTSManager = (() => {
 
     // v1.19.3 "Theeee... end." dramatic closer (see v1.19.3 release notes for the rationale).
     const text = body + '\n\nTheeee... end.';
+    // v0.9.3 · b8 — snapshot the voice preset at request time so a user switching
+    // mid-fetch doesn't poison the cache entry for the in-flight request.
+    const voicePreset = (state && VOICE_PRESET_KEYS.includes(state.voicePreset)) ? state.voicePreset : VOICE_PRESET_DEFAULT;
     try {
       setLoading(true);
       await openDB();
-      const key  = await hashKey(text);
+      const key  = await hashKey(voicePreset, text);
       let cached = await getCached(key);
       let audioBlob, alignment;
 
@@ -3626,7 +3732,10 @@ const TTSManager = (() => {
         const res  = await fetch('/api/tts', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ text }),
+          // v0.9.3 · b8 — include voicePreset so the proxy can select the matching
+          // server-side voice ID. Client never sees raw voice IDs. Unknown presets
+          // are 400'd by the proxy; the client-side allowlist also blocks them above.
+          body:    JSON.stringify({ text, voicePreset }),
           signal:  controller.signal,
         });
         if (!res.ok) throw new Error('api-error');

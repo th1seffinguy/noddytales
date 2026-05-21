@@ -9,6 +9,79 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 8, engine v3.0.3) — 2026-05-21
+**README drift cleanup + Narrator Voice Selector MVP**
+
+Two changes in one release. The README cleanup is documentation-only; the narrator selector adds a new user-facing surface in Parent Settings + server-side voice routing.
+
+### Part 1 — README drift cleanup
+
+README still listed:
+- `BUILD_NUMBER` as `1`, badge as `v0.9.3 · b1` (stale by 7 builds)
+- Kid tier as `"1 free-text round, v3 engine eligible"` — but Phase 1 (b2) converted little + kid to a **silly-sound tap round** (kid gets the "or type your own ✏️" escape hatch)
+- v3 as "engine eligible" — but v3 has been the default for **every** age 2–13 since v3.0.0
+
+Updated the age-tier table to reflect current picker behavior, the versioning section's badge example to `v0.9.3 · b8`, and the engine description to "v3 default."
+
+### Part 2 — Narrator Voice Selector MVP
+
+**Parent Settings now has a 2-column grid of 4 narrator presets.** No celebrity / licensed-character imitation — all original archetypes.
+
+| Preset | Label | Mood |
+|---|---|---|
+| `sunny` (default) | Sunny | Warm, bright, daytime |
+| `cozy` | Cozy Bedtime | Soft + slow for sleepy ears |
+| `adventure` | Big Adventure | Bold + energetic narrator |
+| `silly` | Silly Cartoon | Playful + bouncy + expressive |
+
+**Behavior:**
+- Selection persists per device as `nt_voice_preset`.
+- The selected preset is sent to `/api/tts` as `{ text, voicePreset }`.
+- The IndexedDB cache key is now `${preset}|${sha256(text)}` so switching voices doesn't replay cached audio from a different voice.
+- Changing the preset applies on the next "Read it to me" — no immediate refetch.
+
+**Server allowlist (`api/tts.js`):**
+- Rewrote the proxy with a four-key `VOICE_MAP`. Unknown presets → **400**. Raw voice IDs submitted as presets → **400** (the browser never sees ElevenLabs voice IDs).
+- Each preset maps to an env var (`ELEVENLABS_VOICE_SUNNY` / `ELEVENLABS_VOICE_COZY` / `ELEVENLABS_VOICE_ADVENTURE` / `ELEVENLABS_VOICE_SILLY`) that falls back to `ELEVENLABS_VOICE_ID` when unset — so a fresh deploy with only the existing env vars still produces audio (every preset uses the default voice but with distinct `voice_settings`).
+- Per-preset `voice_settings` (stability / similarity / style) differ so the same fallback voice can still convey different moods.
+- `/with-timestamps` endpoint preserved → karaoke highlighting is unaffected.
+
+### New Vercel env vars (all optional)
+
+| Env var | If unset |
+|---|---|
+| `ELEVENLABS_VOICE_SUNNY` | Falls back to `ELEVENLABS_VOICE_ID` |
+| `ELEVENLABS_VOICE_COZY` | Falls back to `ELEVENLABS_VOICE_ID` |
+| `ELEVENLABS_VOICE_ADVENTURE` | Falls back to `ELEVENLABS_VOICE_ID` |
+| `ELEVENLABS_VOICE_SILLY` | Falls back to `ELEVENLABS_VOICE_ID` |
+
+### New QA gate (Section 14)
+
+10 unit cases on `api/tts.js` `resolveVoice()` + cache-key shape:
+1. Known preset resolves via its specific env var ✓
+2. Known preset falls back to `ELEVENLABS_VOICE_ID` when its var is unset ✓
+3. `adventure` resolves via its env var ✓
+4. `silly` resolves via its env var ✓
+5. Unknown preset → **400** ✓
+6. Raw voice ID submitted as preset → **400** ✓
+7. Null preset → default Sunny ✓
+8. Per-preset `voice_settings.style` differ ✓
+9. Cache key prefix differs by preset ✓
+10. Every client preset has a server allowlist entry ✓
+
+All 10 pass.
+
+### Acceptance
+
+- `scripts/qa-current.js` — **all 17 gates green** (16 + new Section 14).
+- Section 8 inline `<script>` syntax check — clean.
+
+### Guardrails
+
+No celebrity names, no licensed character voices, no real-person impersonation in any label, tagline, or default voice setting.
+
+---
+
 ## v0.9.3 (build 7, engine v3.0.3) — 2026-05-21
 **QA cleanup — brand-kit asset packaging + stale engine-v2 header**
 

@@ -17,7 +17,21 @@
    labeling: product is in late beta (v0.9.x), engine is still v3 internally. The
    historical v3.0.0-v3.0.3 CHANGELOG entries stay as-is for traceability. */
 const APP_VERSION  = 'v0.9.3';
-const BUILD_NUMBER = 7;
+const BUILD_NUMBER = 8;
+
+/* v0.9.3 · b8 — Narrator Voice Selector MVP.
+   Four curated narrator archetypes. Original tones; no celebrity / character imitation.
+   The client knows only `key`, `label`, and `tagline`. Raw ElevenLabs voice IDs live
+   server-side in env vars (api/tts.js). Adding a preset here requires the matching
+   server-side allowlist entry in api/tts.js — otherwise unknown presets are 400'd. */
+const VOICE_PRESETS = [
+  { key: 'sunny',     label: 'Sunny',         tagline: 'Warm, bright, daytime' },
+  { key: 'cozy',      label: 'Cozy Bedtime',  tagline: 'Soft + slow for sleepy ears' },
+  { key: 'adventure', label: 'Big Adventure', tagline: 'Bold + energetic narrator' },
+  { key: 'silly',     label: 'Silly Cartoon', tagline: 'Playful + bouncy + expressive' },
+];
+const VOICE_PRESET_DEFAULT = 'sunny';
+const VOICE_PRESET_KEYS    = VOICE_PRESETS.map(p => p.key); // for validation
 
 /* Verb form lookup — maps each past-tense move-pool entry to its base + gerund forms.
    Templates use moveBase()/moveGerund() to derive the right form for the syntactic slot
