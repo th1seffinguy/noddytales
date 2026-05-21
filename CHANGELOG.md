@@ -9,6 +9,66 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 15, engine v3.0.3) — 2026-05-21
+**Picker Library Polish — image/word matching + replay variety + v2 fallback safety**
+
+User reviewed the full picker map after b13 and flagged that visible word / emoji mismatches make the app feel cheaper — kids read the image first.
+
+### Part 1 — Mismatch fixes (~20 modifications)
+
+| Tier.cat | Before | After |
+|---|---|---|
+| tot.food | jam 🍓 / peas 🟢 | **strawberries 🍓** / **peas 🫛** |
+| tot.sky | high bubbles 🌌 | **stars 🌌** |
+| little.pet | duckling 🐥 / guinea pig 🐀 | **duckling 🦆** / **koala 🐨** |
+| kid.pet | falcon / capybara / axolotl 🐠 | **eagle** / **beaver** / **goldfish 🐠** |
+| kid.food | nachos 🫓 | **quesadilla 🫓** |
+| kid.place | lighthouse 🗼 | **tower 🗼** |
+| kid.creature | giant / phoenix 🔥 / centaur | **stone giant** / **fire bird 🔥** / **talking horse** |
+| kid.mood | professionally confused / jubilant | **puzzled 🧩** / **super happy 😄** |
+| big.pet | overly formal ferret 🦦 | **overly formal otter 🦦** |
+| big.food | haunted scones / ancient granola bar / official pudding 🥧 | **haunted tea 🫖** / **ancient snack bar 🍫** / **official pie 🥧** |
+| big.color | violently pleasant blue | **wildly pleasant blue** |
+| big.move | duplicate "shuffled with purpose" 🥾 | **marched stubbornly 🥾** |
+| tween.pet | quokka / sleepy gecko 🐊 | **koala** / **sleepy croc 🐊** |
+| tween.food | mystery chips / vending machine chips 🥨 / cafeteria fries 🥔 | **mystery snack bag 🛍️** / **vending machine pretzels 🥨** / **cafeteria fries 🍟** |
+| tween.creature | unreasonably tall pigeon 🪿 | **unreasonably tall goose 🪿** |
+| BODY_HOT_OPTS | snot rocket 💦 | **snot rocket 🚀** |
+| SOUND_HOT_OPTS | ZAP! 💢 / WHAMMY! ⚡ | **ZAP! ⚡** / **WHAMMY! 💫** |
+
+### Audit decisions (overrode some user suggestions where the suggested emoji didn't match)
+
+- "chicken nuggets 🍗" → shipped as **fried chicken 🍗** (🍗 is poultry leg)
+- "cinnamon roll 🥐" → shipped as **warm croissant 🥐** (🥐 is croissant)
+- "mall escalator 🛗" → shipped as **mall elevator 🛗** (🛗 is elevator)
+- "phoenix 🐦‍🔥" → shipped as **fire bird 🔥** (Unicode 15.1 phoenix emoji isn't universal on older iOS/Android in field)
+
+### Part 2 — Additions (~30 new picker options)
+
+Kid pool: 5 rounds expanded (raccoon, goose, fried chicken, smoothie, warm croissant, arcade, pizza shop, water park, movie theater, sock monster, tiny wizard, backpack troll, curious, worried).
+
+Big pool: 5 rounds expanded (tiny horse, emergency burrito, courtroom cupcake, mystery smoothie, school office, mini golf course, roller rink, science museum, tiny judge, confused mascot, posed dramatically, slid heroically, stared bravely).
+
+Tween pool: 5 rounds expanded (judgy cat, gas station taquitos, leftover pasta, mall elevator, empty movie theater, forgotten hallway, algorithm ghost 🧠, expired mascot 🪦, vending machine oracle 🥠, cafeteria cryptid 👽, quietly panicking, deeply over it, weirdly optimistic, minorly iconic).
+
+Tot + little pools were not bloated — modest emoji/word fixes only.
+
+### Part 3 — v2 fallback engine safety (critical)
+
+Pre-b15 `mapPickToWord` silently replaced unmatched picker words with random `V2_WORDS` rich-words. With ~20 renames + ~30 new words this release, every new picker word would have **dropped from v2 fallback stories** — kid picks "eagle" and the story says "fennec fox".
+
+Fix: both `mapPickToWord` instances now **clone** a random rich-word's traits/actions/sounds and **override** `text` + `id` with the picker word. Narrative richness preserved AND the kid's picked word actually appears in the body.
+
+The v3 default path was already safe (reads picker words directly via `picks.X.w`).
+
+### QA results
+
+- `scripts/qa-current.js` — **all 23 gates green**.
+- v2 matrix Section 1 went from **271 misses** (renames broke v2 fallback) → **0 misses** after the `mapPickToWord` fix.
+- Section 11 emoji-uniqueness — 0 collisions across all rounds + `SOUND_HOT_OPTS` + `BODY_HOT_OPTS`.
+
+---
+
 ## v0.9.3 (build 14, engine v3.0.3) — 2026-05-21
 **QA hardening — rapid-tap guard + burst a11y + 320×568 fit + README sync**
 

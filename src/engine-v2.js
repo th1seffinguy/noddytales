@@ -3004,7 +3004,14 @@ function generateStoryV2(name, picks, age) {
   function mapPickToWord(pickValue, lib) {
     if (!pickValue) return rawPick(lib);
     const hit = lib.find(w => w.text === pickValue || w.id === pickValue);
-    return hit || rawPick(lib);
+    if (hit) return hit;
+    // v0.9.3 · b15 — when a new/renamed picker word has no V2_WORDS rich-entry,
+    // clone a random rich-word's traits/actions/sounds but OVERRIDE text + id
+    // with the picker word. The story keeps narrative richness AND the kid's
+    // picked word actually appears in the body (which was silently dropped
+    // pre-b15 — the v2 fallback would render an unrelated random word instead).
+    const fallback = rawPick(lib);
+    return Object.assign({}, fallback, { text: pickValue, id: pickValue });
   }
 
   // Bias helper: prefer items from biasIds when present, fall back to full library.
@@ -4465,7 +4472,10 @@ function generateStoryV3(name, picks, age) {
   function mapPickToWord(pickValue, lib) {
     if (!pickValue) return rawPick(lib);
     const hit = lib.find(w => w.text === pickValue || w.id === pickValue);
-    return hit || rawPick(lib);
+    if (hit) return hit;
+    // v0.9.3 · b15 — see mapPickToWord at the v2 entry point for the rationale.
+    const fallback = rawPick(lib);
+    return Object.assign({}, fallback, { text: pickValue, id: pickValue });
   }
   function rawPick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
