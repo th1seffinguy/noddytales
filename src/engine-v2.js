@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v2.9.1';
+const ENGINE_V2_VERSION = 'v2.10.0';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -3558,6 +3558,130 @@ const V3_BLUEPRINTS = {
       '[name:{protagonist.name}] vs the Rule',
     ],
   },
+
+  /* ============================================================
+     v2.10.0 — tot/little-v3 blueprints (per docs/tot-little-v3-design.md)
+
+     Simplified 3-role contract for ages 2-5:
+       protagonist  = kid (always)
+       ally         = companion (pet)
+       wonder_object = food | sky | object (per blueprint)
+     Optional flavor roles: visual_signature (color), signature_action (move)
+
+     Stages (3): setup → silly_repeat (fires TWICE for P2 + P3) → cozy_end.
+     Total paragraphs per story: 4 (vs kid/big/tween v3's 6).
+
+     The silly_repeat stage runs twice in the stages array. The engine's
+     in-story beat dedup (added in v2.10.0) ensures the two silly_repeat
+     paragraphs use different beats.
+
+     Beat library (added below in V3_BEATS) uses tier-only filtering
+     (no blueprintId) so tot_wonder_v3 + tot_sky_v3 share the tot pool,
+     little_quest_v3 + little_food_v3 share the little pool. The wonder_object
+     role resolves to food/sky/object per blueprint roleMap — same line works.
+     ============================================================ */
+
+  tot_wonder_v3: {
+    id: 'tot_wonder_v3',
+    tiers: ['tot'],
+    paragraphCount: 4,
+    roleMap: {
+      protagonist:      'kid',
+      ally:             'companion',
+      wonder_object:    'food',          // food as the playful focus
+      visual_signature: 'color',
+      signature_action: 'move',
+    },
+    stages: [
+      { name: 'tl_setup',        requiredRoles: ['protagonist', 'ally'] },
+      { name: 'tl_silly_repeat', requiredRoles: ['protagonist', 'ally', 'wonder_object'] },
+      { name: 'tl_silly_repeat', requiredRoles: ['protagonist', 'ally', 'wonder_object'] },
+      { name: 'tl_cozy_end',     requiredRoles: ['protagonist', 'ally'] },
+    ],
+    titlePatterns: [
+      'Hi, [c:{ally.titleText}]!',
+      '[name:{protagonist.name}] and the [c:{ally.titleText}]',
+      '[name:{protagonist.name}] and the [c:{wonder_object.titleText}]',
+      '[name:{protagonist.name}] Says Hi!',
+    ],
+  },
+
+  tot_sky_v3: {
+    id: 'tot_sky_v3',
+    tiers: ['tot'],
+    paragraphCount: 4,
+    roleMap: {
+      protagonist:      'kid',
+      ally:             'companion',
+      wonder_object:    'sky',           // sky pick drives the playful focus
+      visual_signature: 'color',
+      signature_action: 'move',
+    },
+    stages: [
+      { name: 'tl_setup',        requiredRoles: ['protagonist', 'ally'] },
+      { name: 'tl_silly_repeat', requiredRoles: ['protagonist', 'ally', 'wonder_object'] },
+      { name: 'tl_silly_repeat', requiredRoles: ['protagonist', 'ally', 'wonder_object'] },
+      { name: 'tl_cozy_end',     requiredRoles: ['protagonist', 'ally'] },
+    ],
+    titlePatterns: [
+      '[name:{protagonist.name}] Sees the [c:{wonder_object.titleText}]',
+      'The [c:{wonder_object.titleText}] and the [c:{ally.titleText}]',
+      '[name:{protagonist.name}] and the [c:{wonder_object.titleText}]',
+      'Hi, [c:{wonder_object.titleText}]!',
+    ],
+  },
+
+  little_quest_v3: {
+    id: 'little_quest_v3',
+    tiers: ['little'],
+    paragraphCount: 4,
+    roleMap: {
+      protagonist:      'kid',
+      ally:             'companion',
+      wonder_object:    'object',        // a found thing — the kid's treasure
+      visual_signature: 'color',
+      signature_action: 'move',
+      pressure:         'weather',        // little-specific flavor
+    },
+    stages: [
+      { name: 'tl_setup',        requiredRoles: ['protagonist', 'ally'] },
+      { name: 'tl_silly_repeat', requiredRoles: ['protagonist', 'ally', 'wonder_object'] },
+      { name: 'tl_silly_repeat', requiredRoles: ['protagonist', 'ally', 'wonder_object'] },
+      { name: 'tl_cozy_end',     requiredRoles: ['protagonist', 'ally'] },
+    ],
+    titlePatterns: [
+      '[name:{protagonist.name}] and the [c:{wonder_object.titleText}]',
+      'How [name:{protagonist.name}] Found the [c:{wonder_object.titleText}]',
+      '[name:{protagonist.name}] and the [c:{ally.titleText}]',
+      'The [c:{wonder_object.titleText}] Adventure',
+    ],
+  },
+
+  little_food_v3: {
+    id: 'little_food_v3',
+    tiers: ['little'],
+    paragraphCount: 4,
+    roleMap: {
+      protagonist:      'kid',
+      ally:             'companion',
+      wonder_object:    'food',          // chosen food as the playful focus
+      visual_signature: 'color',
+      signature_action: 'move',
+      pressure:         'weather',
+    },
+    stages: [
+      { name: 'tl_setup',        requiredRoles: ['protagonist', 'ally'] },
+      { name: 'tl_silly_repeat', requiredRoles: ['protagonist', 'ally', 'wonder_object'] },
+      { name: 'tl_silly_repeat', requiredRoles: ['protagonist', 'ally', 'wonder_object'] },
+      { name: 'tl_cozy_end',     requiredRoles: ['protagonist', 'ally'] },
+    ],
+    titlePatterns: [
+      '[name:{protagonist.name}] and the [c:{wonder_object.titleText}]',
+      'The [c:{wonder_object.titleText}] Day',
+      '[name:{protagonist.name}] Shares the [c:{wonder_object.titleText}]',
+      '[name:{protagonist.name}] and the [c:{ally.titleText}]',
+    ],
+  },
 };
 
 const V3_BEATS = [
@@ -4081,6 +4205,181 @@ const V3_BEATS = [
     lines: [
       'The [c:{mcguffin.text}] was acquired. The [c:{rule_imposer.text}] could not technically argue. [name:{protagonist.name}] filed it under: small wins, large vibes. Justice was unevenly served. As expected.',
     ] },
+
+  /* ============================================================
+     v2.10.0 — tot/little-v3 beats (per docs/tot-little-v3-design.md)
+
+     Three stages: tl_setup, tl_silly_repeat (fires twice per story for
+     P2 + P3), tl_cozy_end (mode-tagged for bedtime vs anytime).
+
+     No blueprintId on tot beats so tot_wonder_v3 + tot_sky_v3 share the
+     tot pool. Same for little. The wonder_object role resolves per
+     blueprint roleMap (food | sky | object).
+
+     Voice: action-driven (Cole spots, picks up, grabs, points, holds,
+     leads). Inherits the kid-agency lift from v2.8.0. Short sentences,
+     heavy repetition with restraint, one memorable image per paragraph.
+     ============================================================ */
+
+  /* --- TOT SETUP (5 variants) --- */
+  { id:'v3_tl_tot_setup_1', stage:'tl_setup', tiers:['tot'], requiredRoles:['protagonist','ally'],
+    lines: [
+      '[name:{protagonist.name}] ran outside. The [c:{ally.text}] was right there. "Hi [c:{ally.text}]!" said [name:{protagonist.name}]. They were a team.',
+    ] },
+  { id:'v3_tl_tot_setup_2', stage:'tl_setup', tiers:['tot'], requiredRoles:['protagonist','ally'],
+    lines: [
+      '[name:{protagonist.name}] spotted the [c:{ally.text}] from across the room. [name:{protagonist.name}] waved. The [c:{ally.text}] waved back. Off we go!',
+    ] },
+  { id:'v3_tl_tot_setup_3', stage:'tl_setup', tiers:['tot'], requiredRoles:['protagonist','ally'],
+    lines: [
+      '"Come on, [c:{ally.text}]!" said [name:{protagonist.name}]. The [c:{ally.text}] came. [name:{protagonist.name}] led the way. Big day!',
+    ] },
+  { id:'v3_tl_tot_setup_4', stage:'tl_setup', tiers:['tot'], requiredRoles:['protagonist','ally'],
+    lines: [
+      '[name:{protagonist.name}] grabbed the [c:{ally.text}]\'s paw. "Ready?" said [name:{protagonist.name}]. The [c:{ally.text}] nodded. Adventure time.',
+    ] },
+  { id:'v3_tl_tot_setup_5', stage:'tl_setup', tiers:['tot'], requiredRoles:['protagonist','ally'],
+    lines: [
+      '[name:{protagonist.name}] opened the door. There was the [c:{ally.text}]! "Hi!" said [name:{protagonist.name}]. "Hi!" said the [c:{ally.text}] back.',
+    ] },
+
+  /* --- TOT SILLY REPEAT (8 variants, fires twice per story) --- */
+  { id:'v3_tl_tot_repeat_pick_up', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object'],
+    lines: [
+      '[name:{protagonist.name}] picked up the [c:{wonder_object.text}]. [name:{protagonist.name}] held it up high. "Look!" said [name:{protagonist.name}]. The [c:{ally.text}] looked. Yay!',
+    ] },
+  { id:'v3_tl_tot_repeat_point', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object'],
+    lines: [
+      '[name:{protagonist.name}] pointed at the [c:{wonder_object.text}]. "[c:{wonder_object.cap}]!" said [name:{protagonist.name}]. "[c:{wonder_object.cap}]!" said the [c:{ally.text}]. Hee hee.',
+    ] },
+  { id:'v3_tl_tot_repeat_share', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object'],
+    lines: [
+      '[name:{protagonist.name}] showed the [c:{wonder_object.text}] to the [c:{ally.text}]. The [c:{ally.text}] sniffed it. [name:{protagonist.name}] giggled. The [c:{wonder_object.text}] just sat there.',
+    ] },
+  { id:'v3_tl_tot_repeat_carry', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object'],
+    lines: [
+      '[name:{protagonist.name}] carried the [c:{wonder_object.text}] very carefully. The [c:{ally.text}] watched. [name:{protagonist.name}] did not drop it. Big win!',
+    ] },
+  { id:'v3_tl_tot_repeat_dance', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object'],
+    lines: [
+      '[name:{protagonist.name}] did a little dance with the [c:{wonder_object.text}]. The [c:{ally.text}] danced too. So did a tiny bug. Everyone danced. Hee hee.',
+    ] },
+  { id:'v3_tl_tot_repeat_call_response', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object'],
+    lines: [
+      '"[c:{wonder_object.cap}]?" said [name:{protagonist.name}]. The [c:{ally.text}] looked. "[c:{wonder_object.cap}]!" said [name:{protagonist.name}]. The [c:{ally.text}] said "[c:{wonder_object.cap}]!" too.',
+    ] },
+  { id:'v3_tl_tot_repeat_hat', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object'],
+    lines: [
+      '[name:{protagonist.name}] put the [c:{wonder_object.text}] on top of the [c:{ally.text}]\'s head. The [c:{ally.text}] held still. [name:{protagonist.name}] clapped. The [c:{wonder_object.text}] stayed put.',
+    ] },
+  { id:'v3_tl_tot_repeat_chase', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object'],
+    lines: [
+      '[name:{protagonist.name}] reached for the [c:{wonder_object.text}]. The [c:{ally.text}] reached too. They both reached. Then both giggled.',
+    ] },
+
+  /* --- TOT COZY END — bedtime (3 variants) --- */
+  { id:'v3_tl_tot_end_bed_1', stage:'tl_cozy_end', tiers:['tot'], mode:'bedtime', requiredRoles:['protagonist','ally'],
+    lines: [
+      '[name:{protagonist.name}] picked up the [c:{ally.text}] for a hug. "Night, [c:{ally.text}]," said [name:{protagonist.name}]. Then [name:{protagonist.name}] curled up. Goodnight.',
+    ] },
+  { id:'v3_tl_tot_end_bed_2', stage:'tl_cozy_end', tiers:['tot'], mode:'bedtime', requiredRoles:['protagonist','ally'],
+    lines: [
+      'Time for a hug. [name:{protagonist.name}] hugged the [c:{ally.text}]. Then [name:{protagonist.name}] yawned. The [c:{ally.text}] yawned too. Sweet dreams.',
+    ] },
+  { id:'v3_tl_tot_end_bed_3', stage:'tl_cozy_end', tiers:['tot'], mode:'bedtime', requiredRoles:['protagonist','ally'],
+    lines: [
+      'Now [name:{protagonist.name}] is sleepy. The [c:{ally.text}] is sleepy too. Good night, [c:{ally.text}]. Good night, [name:{protagonist.name}].',
+    ] },
+
+  /* --- TOT COZY END — anytime (2 variants) --- */
+  { id:'v3_tl_tot_end_any_1', stage:'tl_cozy_end', tiers:['tot'], mode:'anytime', requiredRoles:['protagonist','ally'],
+    lines: [
+      '[name:{protagonist.name}] waved at the [c:{ally.text}]. "Bye for now!" said [name:{protagonist.name}]. The [c:{ally.text}] waved back. See you soon!',
+    ] },
+  { id:'v3_tl_tot_end_any_2', stage:'tl_cozy_end', tiers:['tot'], mode:'anytime', requiredRoles:['protagonist','ally'],
+    lines: [
+      '[name:{protagonist.name}] hugged the [c:{ally.text}] one more time. "Come back tomorrow?" said [name:{protagonist.name}]. The [c:{ally.text}] nodded. Yay!',
+    ] },
+
+  /* --- LITTLE SETUP (5 variants) --- */
+  { id:'v3_tl_little_setup_1', stage:'tl_setup', tiers:['little'], requiredRoles:['protagonist','ally'],
+    lines: [
+      'It was a bright morning. [name:{protagonist.name}] grabbed the [c:{ally.text}] and headed out. "We have a plan," said [name:{protagonist.name}]. They did, actually.',
+    ] },
+  { id:'v3_tl_little_setup_2', stage:'tl_setup', tiers:['little'], requiredRoles:['protagonist','ally'],
+    lines: [
+      '[name:{protagonist.name}] packed a tiny bag and called the [c:{ally.text}]. The [c:{ally.text}] came running. [name:{protagonist.name}] led the way. Adventure unlocked.',
+    ] },
+  { id:'v3_tl_little_setup_3', stage:'tl_setup', tiers:['little'], requiredRoles:['protagonist','ally'],
+    lines: [
+      '[name:{protagonist.name}] spotted the [c:{ally.text}] across the yard. "Hey [c:{ally.text}]!" said [name:{protagonist.name}]. [name:{protagonist.name}] ran over. The [c:{ally.text}] was already smiling.',
+    ] },
+  { id:'v3_tl_little_setup_4', stage:'tl_setup', tiers:['little'], requiredRoles:['protagonist','ally'],
+    lines: [
+      '[name:{protagonist.name}] opened a door and the [c:{ally.text}] tumbled in. "Hi!" said [name:{protagonist.name}]. "Hi back!" said the [c:{ally.text}] — somehow. The day had decided to be fun.',
+    ] },
+  { id:'v3_tl_little_setup_5', stage:'tl_setup', tiers:['little'], requiredRoles:['protagonist','ally'],
+    lines: [
+      '[name:{protagonist.name}] told the [c:{ally.text}], "Today is going to be a big one." The [c:{ally.text}] agreed. They were ready. They were extra ready.',
+    ] },
+
+  /* --- LITTLE SILLY REPEAT (8 variants, fires twice per story) --- */
+  { id:'v3_tl_little_repeat_pick_up', stage:'tl_silly_repeat', tiers:['little'], requiredRoles:['protagonist','ally','wonder_object'],
+    lines: [
+      '[name:{protagonist.name}] spotted the [c:{wonder_object.text}] and picked it up like a treasure. "Look what I found!" said [name:{protagonist.name}]. The [c:{ally.text}] bowed dramatically. Treasure confirmed.',
+    ] },
+  { id:'v3_tl_little_repeat_share', stage:'tl_silly_repeat', tiers:['little'], requiredRoles:['protagonist','ally','wonder_object'],
+    lines: [
+      '[name:{protagonist.name}] showed the [c:{wonder_object.text}] to the [c:{ally.text}]. "Want some?" said [name:{protagonist.name}]. The [c:{ally.text}] very much wanted some. So did a passing bug.',
+    ] },
+  { id:'v3_tl_little_repeat_carry', stage:'tl_silly_repeat', tiers:['little'], requiredRoles:['protagonist','ally','wonder_object'],
+    lines: [
+      '[name:{protagonist.name}] carried the [c:{wonder_object.text}] carefully across the room. The [c:{ally.text}] followed, watching every step. "Steady," said [name:{protagonist.name}]. They both stayed steady.',
+    ] },
+  { id:'v3_tl_little_repeat_dance', stage:'tl_silly_repeat', tiers:['little'], requiredRoles:['protagonist','ally','wonder_object'],
+    lines: [
+      '[name:{protagonist.name}] held up the [c:{wonder_object.text}] and did a little dance. The [c:{ally.text}] copied the dance. Then they made up a new one together. Then a third one.',
+    ] },
+  { id:'v3_tl_little_repeat_point', stage:'tl_silly_repeat', tiers:['little'], requiredRoles:['protagonist','ally','wonder_object'],
+    lines: [
+      '"[c:{wonder_object.cap}]!" yelled [name:{protagonist.name}]. The [c:{ally.text}] turned its head. "[c:{wonder_object.cap}]!" yelled [name:{protagonist.name}] again, louder. The [c:{ally.text}] yelled it back.',
+    ] },
+  { id:'v3_tl_little_repeat_build', stage:'tl_silly_repeat', tiers:['little'], requiredRoles:['protagonist','ally','wonder_object'],
+    lines: [
+      '[name:{protagonist.name}] built a tiny fort around the [c:{wonder_object.text}]. The [c:{ally.text}] approved. "Safe now," said [name:{protagonist.name}]. The [c:{wonder_object.text}] looked very safe.',
+    ] },
+  { id:'v3_tl_little_repeat_decide', stage:'tl_silly_repeat', tiers:['little'], requiredRoles:['protagonist','ally','wonder_object'],
+    lines: [
+      '[name:{protagonist.name}] decided the [c:{wonder_object.text}] needed a name. "I name you Friend," said [name:{protagonist.name}]. The [c:{ally.text}] solemnly agreed. The naming was official now.',
+    ] },
+  { id:'v3_tl_little_repeat_chase', stage:'tl_silly_repeat', tiers:['little'], requiredRoles:['protagonist','ally','wonder_object'],
+    lines: [
+      'The [c:{wonder_object.text}] rolled. [name:{protagonist.name}] chased. The [c:{ally.text}] chased too. They caught it together. Teamwork.',
+    ] },
+
+  /* --- LITTLE COZY END — bedtime (3 variants) --- */
+  { id:'v3_tl_little_end_bed_1', stage:'tl_cozy_end', tiers:['little'], mode:'bedtime', requiredRoles:['protagonist','ally'],
+    lines: [
+      '[name:{protagonist.name}] pulled the [c:{ally.text}] into a small pillow fort. "We made it," said [name:{protagonist.name}]. The [c:{ally.text}] yawned. Time to sleep.',
+    ] },
+  { id:'v3_tl_little_end_bed_2', stage:'tl_cozy_end', tiers:['little'], mode:'bedtime', requiredRoles:['protagonist','ally'],
+    lines: [
+      'By the end of the day, [name:{protagonist.name}] and the [c:{ally.text}] were tired and happy. They hugged. Then they went to bed. Goodnight.',
+    ] },
+  { id:'v3_tl_little_end_bed_3', stage:'tl_cozy_end', tiers:['little'], mode:'bedtime', requiredRoles:['protagonist','ally'],
+    lines: [
+      '[name:{protagonist.name}] tucked the [c:{ally.text}] in first, then climbed in too. "Same time tomorrow?" said [name:{protagonist.name}]. The [c:{ally.text}] was already half asleep.',
+    ] },
+
+  /* --- LITTLE COZY END — anytime (2 variants) --- */
+  { id:'v3_tl_little_end_any_1', stage:'tl_cozy_end', tiers:['little'], mode:'anytime', requiredRoles:['protagonist','ally'],
+    lines: [
+      '[name:{protagonist.name}] grabbed the [c:{ally.text}]\'s paw. "Onto the next thing," said [name:{protagonist.name}]. They walked home together. Big plans for tomorrow.',
+    ] },
+  { id:'v3_tl_little_end_any_2', stage:'tl_cozy_end', tiers:['little'], mode:'anytime', requiredRoles:['protagonist','ally'],
+    lines: [
+      'By the end of the day, [name:{protagonist.name}] and the [c:{ally.text}] were happy and ready for whatever came next. They high-fived and headed home. Good day!',
+    ] },
 ];
 
 /* generateStoryV3 — role-based story generation. Mirrors v2's slot construction
@@ -4099,8 +4398,11 @@ function generateStoryV3(name, picks, age) {
   else if (age >= 11 && age <= 13) tier = 'tween';
   else                              return null;
 
-  // v3 (currently) only covers kid/big/tween. Tot + little fall back to v2.
-  if (tier === 'tot' || tier === 'little') return null;
+  // v2.10.0 — tot/little-v3 blueprints land in this release (tot_wonder_v3,
+  // tot_sky_v3, little_quest_v3, little_food_v3). The old early-exit is gone.
+  // Blueprint selection below filters to tier-appropriate blueprints; if no
+  // tot/little blueprint can fulfill the picks (shouldn't happen with current
+  // 3-role contract), the engine returns null and the v2 fallback catches it.
 
   // Pick a blueprint at random among all eligible for this tier. v2.6.0 expanded
   // from 1 to 4 blueprints (lost_snack_v3, goal_spine_v3, show_wrong_v3, rule_loophole_v3).
@@ -4143,6 +4445,10 @@ function generateStoryV3(name, picks, age) {
   const move      = picks.move?.w  ? { text: picks.move.w }  : null;
   const mood      = picks.mood?.w  ? { text: picks.mood.w }  : null;
   const weather   = picks.weather?.w ? { text: picks.weather.w } : null;
+  /* v2.10.0 — sky slot wired into v3 so tot_sky_v3 (wonder_object = sky) can resolve.
+     Previously v3 only covered kid/big/tween where sky isn't a picker round.
+     `cap` is set for capitalized-exclamation positions in tl_silly_repeat beats. */
+  const sky       = picks.sky?.w ? { text: picks.sky.w, cap: V2Grammar.capitalize(picks.sky.w) } : null;
   const freeword2 = picks.freeword2?.w ? { text: picks.freeword2.w } : null;
   /* v2.7.0 — concrete goal slot. Mirrors v2's pickGoal() so goal_spine_v3 stories
      state what the protagonist is actually trying to do, instead of "something
@@ -4160,7 +4466,7 @@ function generateStoryV3(name, picks, age) {
   const slots = {
     kid: { name: name || 'Friend', cap: V2Grammar.capitalize(name || 'Friend'), lc: (name || 'friend').toLowerCase() },
     companion, visitor, place, food, object, sound,
-    color, move, mood, weather, freeword2,
+    color, move, mood, weather, sky, freeword2,  // v2.10.0 — sky added for tot_sky_v3
     goal,  // v2.7.0
   };
 
@@ -4206,23 +4512,33 @@ function generateStoryV3(name, picks, age) {
 
   /* Pick a stage beat from V3_BEATS where stage matches, blueprintId matches (or
      beat has no blueprintId — wildcard), tier is allowed, and all required roles
-     are non-null. For landing-stage beats, the beat's mode must match v3StoryMode
-     (untagged → bedtime). Prefers more-specific (more required roles) beats. */
+     are non-null. For landing or tl_cozy_end stages, the beat's mode must match
+     v3StoryMode (untagged → bedtime). Prefers more-specific (more required roles)
+     beats. v2.10.0 — excludes beats already used in THIS story (used by the
+     tot/little blueprints where tl_silly_repeat fires twice per arc; without
+     dedup the same beat could render in both P2 and P3). */
+  const usedInStory = new Set();
   function pickStageBeat(stage) {
     const candidates = V3_BEATS.filter(b => {
       if (b.stage !== stage.name) return false;
       if (b.blueprintId && b.blueprintId !== blueprint.id) return false;
       if (!b.tiers.includes(tier)) return false;
       if (!(b.requiredRoles || []).every(r => roles[r] != null)) return false;
-      if (stage.name === 'landing') {
+      // Mode filter applies to ending-stage beats. The v2.10.0 tl_cozy_end stage
+      // (tot/little) gets the same treatment as the v3 landing stage for kid/big/tween.
+      if (stage.name === 'landing' || stage.name === 'tl_cozy_end') {
         const beatMode = b.mode || 'bedtime';
         if (beatMode !== v3StoryMode) return false;
       }
       return true;
     });
     if (!candidates.length) return null;
-    const maxRoles = Math.max(...candidates.map(c => (c.requiredRoles || []).length));
-    const top = candidates.filter(c => (c.requiredRoles || []).length === maxRoles);
+    // In-story dedup: prefer beats not yet used in this story. Falls back to the
+    // full candidate pool if every variant is already used (small pools won't stall).
+    const fresh = candidates.filter(c => !usedInStory.has(c.id));
+    const pool = fresh.length > 0 ? fresh : candidates;
+    const maxRoles = Math.max(...pool.map(c => (c.requiredRoles || []).length));
+    const top = pool.filter(c => (c.requiredRoles || []).length === maxRoles);
     const card = top[Math.floor(Math.random() * top.length)];
     return card;
   }
@@ -4231,6 +4547,7 @@ function generateStoryV3(name, picks, age) {
   for (const stage of blueprint.stages) {
     const card = pickStageBeat(stage);
     if (!card) return null;
+    usedInStory.add(card.id);
     const line = card.lines[Math.floor(Math.random() * card.lines.length)];
     paragraphs.push(renderV3Line(line));
   }

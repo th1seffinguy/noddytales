@@ -4,6 +4,73 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.10.0 — 2026-05-21
+**tot/little-v3 beat authoring — v3.0.0 critical path content sprint**
+
+Implements `docs/tot-little-v3-design.md`. Adds 4 new V3_BLUEPRINTS and ~36 new V3_BEATS so the v3 engine can generate stories for ages 2-5 with the same role-based architecture used for kid/big/tween. v2 tot/little beats remain in code as fallback through v2.10.0 — v3.0.0 deletes them.
+
+### Four new V3_BLUEPRINTS
+
+| Blueprint | Tier | wonder_object | Stages |
+|---|---|---|---|
+| `tot_wonder_v3` | tot (ages 2-3) | food | setup → silly_repeat ×2 → cozy_end |
+| `tot_sky_v3` | tot (ages 2-3) | sky | setup → silly_repeat ×2 → cozy_end |
+| `little_quest_v3` | little (ages 4-5) | object | setup → silly_repeat ×2 → cozy_end |
+| `little_food_v3` | little (ages 4-5) | food | setup → silly_repeat ×2 → cozy_end |
+
+3-role contract: `protagonist` (always = kid), `ally` (companion pick), `wonder_object` (food/sky/object per blueprint). Optional flavor roles: `visual_signature` (color), `signature_action` (move), `pressure` (weather for little only).
+
+All four blueprints share a 3-stage / 4-paragraph arc. `silly_repeat` fires twice per story (P2 + P3), gated by new in-story beat-dedup so the two paragraphs use different beats.
+
+### ~36 new V3_BEATS
+
+- **5 tot setup** beats — Cole runs outside, spots the ally, grabs the paw, leads the way, opens the door.
+- **8 tot silly_repeat** beats — Cole picks up / points at / shares / carries / dances with / call-responds about / puts a hat on / reaches for the wonder_object.
+- **3 tot cozy_end bedtime** + **2 anytime** beats.
+- **5 little setup** beats — Cole packs a bag, grabs the ally, spots them across the yard, opens a door, "today is a big one".
+- **8 little silly_repeat** beats — Cole spots/claims, shares, carries, dances with, point-and-yells, builds a fort around, names, chases.
+- **3 little cozy_end bedtime** + **2 anytime** beats.
+
+Beats are tier-only (no `blueprintId`) so the two blueprints per tier share the same pool. `wonder_object` resolves per blueprint roleMap — same beat line works for food, sky, or object.
+
+Voice register: action-driven (Cole spots, picks up, grabs, points, holds, carries, leads, builds, decides). Inherits the kid-agency lift from v2.8.0. Short sentences, heavy repetition with restraint.
+
+### Engine changes
+
+- Removed the `if (tier === 'tot' || tier === 'little') return null;` early-exit from `generateStoryV3`.
+- Added a `sky` slot to v3 slot construction (was missing — `tot_sky_v3` requires it).
+- Added in-story beat dedup to `pickStageBeat`. When `silly_repeat` fires twice, the second pick excludes beat IDs already used. Falls back to the full pool if every variant is used (small pools won't stall).
+- Extended the storyMode filter: the new `tl_cozy_end` stage respects `picks.storyMode` the same way the kid/big/tween `landing` stage does.
+
+### New QA gate (Section 3b)
+
+`scripts/qa-current.js` Section 3b: v3 tot/little matrix. 4 blueprints × tier-appropriate ages × 30 stories = **240 stories** per harness run. Gates: 0 nulls / 0 unresolved / 4-paragraph arc / ally in body / wonder in body (deterministic only). v2.10.0 measured **0/240 on all 5 gates**.
+
+### Audit pack regenerated
+
+`scripts/audit-stories.js` updated to cycle ages 2-5 through the new v3 blueprints (instead of v2). `docs/story-quality-audit-v2.10.0.md` regenerated. Eyeball pass on ages 2/4 shows Cole driving every paragraph.
+
+### Routing unchanged in v2.10.0
+
+`buildStory()` in `index.html` still routes only ages 6+ through v3 by default. v3 tot/little is reachable in production via `?engine=v3` for testing. v3.0.0 flips the router for tot/little and deletes v2.
+
+For real-kid playtest at ages 2-5: visit `noddytales.app/?engine=v3`.
+
+### Acceptance
+
+`node scripts/qa-current.js` — **all 9 gates green** (Sections 1-2 v2, 3 v3 kid/big/tween, **3b v3 tot/little NEW**, 4 grammar lint, 5 storyMode, 7 kid-agency, 8 inline-script).
+
+Section 7 kid-agency ratio: **0.97**.
+
+### Path to v3.0.0
+
+1. Real-kid playtest at ages 2-5 with `?engine=v3` — the gate to v3.0.0.
+2. v3.0.0 cutover — flip router for tot/little, delete V2_BEATS / V2_BLUEPRINTS / generateStoryV2 / generateStoryV1, rename engine file, App Store packaging.
+
+`APP_VERSION` and `ENGINE_V2_VERSION` bumped in lockstep to `v2.10.0`.
+
+---
+
 ## v2.9.1 — 2026-05-21
 **Cosmetic patch — 4 pre-existing v2 defects surfaced in v2.8.0 UAT rescore**
 
