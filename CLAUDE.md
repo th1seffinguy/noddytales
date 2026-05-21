@@ -1,5 +1,11 @@
 # Claude Project Instructions — NoddyTales
 
+## Start Here
+
+Read this file at the start of every Claude Code session in this repo. Treat it as the project operating contract.
+
+If the user asks for a build, fix, QA pass, UAT pass, audit, or release prep, follow the relevant workflow here without requiring the user to restate the process.
+
 ## Required Notion Logging
 
 Every time you make a meaningful project update, you must also update Notion before calling the work complete.
@@ -30,6 +36,41 @@ Logging rules:
 Final response must include a short `Notion:` line:
 - `Notion: updated <pages/databases>` when updates were made.
 - `Notion: not updated because <reason>` when blocked.
+
+## QA / UAT Trigger Workflow
+
+When the user asks any short form of "QA", "QA current state", "audit current state", "run UAT", "release readiness", or "what next", do the full handoff workflow:
+
+1. Check repo state:
+   - `git status --short`
+   - latest commit
+   - current app/engine versions
+   - latest changelog entry
+
+2. Run QA:
+   - current QA harness: `node scripts/qa-current.js`
+   - inline `index.html` script syntax check
+   - story audit/UAT scripts when story quality or release readiness is involved
+
+3. Check Notion:
+   - Project hub
+   - Build Ideas
+   - Defect Log
+   - UAT Plan
+   - Story Test Log when story quality is involved
+
+4. Reconcile repo and Notion:
+   - repo is source of truth for shipped code
+   - Notion is source of truth for roadmap, UAT, product decisions, and defects
+   - update stale Notion records before final response
+
+5. Final response must include:
+   - current state
+   - QA/UAT result
+   - files changed, if any
+   - Notion updates made
+   - next recommended action
+   - `Notion:` line
 
 ## Release Hygiene
 
