@@ -1054,8 +1054,28 @@ function isEngineV2Enabled() {
   try { return localStorage.getItem('nt_engine_v2') !== '0'; } catch { return true; }
 }
 function isEngineV3Enabled() {
-  // v3 is OPT-IN only. ?engine=v3 sets it; default off.
+  // v2.9.0: v3 is default for ages 6+ (handled in buildStory). This function still
+  // reads the URL flag for "force v3 even at tot/little for testing" — when truthy,
+  // buildStory tries v3 at every age. When falsy, buildStory still tries v3 for
+  // ages 6+ by default. The flag is now an override, not a gate.
   try { return localStorage.getItem('nt_engine_v3') === '1'; } catch { return false; }
+}
+/* v2.9.0 — one-time console.warn deprecation notice for v1 template fallback.
+   v1 is the legacy template-substitution engine retired as a default in v2.0.0
+   and kept only as a hard fallback. Any production fire after v2.9.0 should be
+   visible to operators; module-scope flag ensures we don't spam the console. */
+let __ntV1DeprecationLogged = false;
+function warnV1DeprecationOnce(reason) {
+  if (__ntV1DeprecationLogged) return;
+  __ntV1DeprecationLogged = true;
+  try {
+    console.warn(
+      '[NoddyTales] v1 template fallback engaged (' + (reason || 'reason unknown') + '). ' +
+      'v1 is deprecated and scheduled for removal in v3.0.0. ' +
+      'This fire should not happen in normal operation — v2 (and v3 for ages 6+) cover all picker combinations. ' +
+      'If you see this, capture the picks + age and file a defect.'
+    );
+  } catch {}
 }
 
 /* ---- HTML escape (prevent XSS from name input) ---- */
@@ -1165,6 +1185,8 @@ document.getElementById('version-badge').textContent = typeof APP_VERSION !== 'u
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v2.9.0', title: 'v3 Default for ages 6-13 — router flip (architectural)',
+    detail: 'Second milestone of the v3.0 roadmap. The v3 role-based engine becomes the default for ages 6 and up. v2 stays in code as a runtime fallback throughout v2.9.0 so a v3 issue can be rolled back without redeploy. NO content changes. NO new beats. ROUTER FLIP: Before v2.9.0, v3 was opt-in only — users had to visit ?engine=v3 to reach it. After v2.9.0, ages 6+ try generateStoryV3 first; v2 only fires if v3 returns null (unfulfillable blueprint or unexpected slot issue). Ages 2-5 continue to use v2 because generateStoryV3 still early-exits to null below age 6 — that closes in v3.0.0 with tot/little-v3. The ?engine=v3 flag still works but is now an override, not a gate — it forces v3 attempts at all ages for testing. EDITS: buildStory() in index.html changed if (isEngineV3Enabled()) to if (age >= 6 || isEngineV3Enabled()). generateStoryRouted() in src/engine-v2.js got the same age-based default for any caller that imports the module directly. Rollback: one-line revert of either gate. V1 DEPRECATION: the v1 template-substitution fallback (retired as default in v2.0.0, kept as a hard fallback) now emits a one-time console.warn when it fires, with the triggering age and a note that v1 is scheduled for v3.0.0 removal. Module-scope flag gates the warning to one fire per page load. No behavior change — purely observability. NEW DESIGN DOC: docs/tot-little-v3-design.md describes the simplified 3-role contract (protagonist always = kid, ally = companion, wonder_object = food/sky/object) for tot/little stages (setup → silly_repeat → cozy_end → 4 paragraphs). v3.0.0 implements this; v2.9.0 just lands the spec. ACCEPTANCE: scripts/qa-current.js all 8 gates green. v2 matrix still passes 600/600 even though v2 is now mostly a fallback. v3 matrix passes 960/960 as the new default path. Router-behavior test confirmed 20/20 ages 6+ get 6-paragraph v3 output, 20/20 ages 2-5 get 4-paragraph v2 output. Audit pack regenerated at docs/story-quality-audit-v2.9.0.md. APP_VERSION + ENGINE_V2_VERSION → v2.9.0.' },
   { v: 'v2.8.0', title: 'Story Quality Pass — kid agency 2-5, tween voice, 2 new QA gates',
     detail: 'First milestone of the v3.0 roadmap. Content + QA only. No router changes, no architecture changes. v2 stays default for all tiers. TOT/LITTLE KID-AGENCY PASS: v2.7.1 UAT scored ages 2-5 at 2.2-2.6 on kid agency because Cole was usually the observer. Added 15 action-driven beats where Cole is the subject of an action verb. Tot (7 new): Cole runs outside and spots the companion, Cole picks up the food and holds it up, Cole grabs the companion\'s paw, Cole pulls out a tiny hat, Cole points up at the sky and finds it first, Cole picks up the companion for a goodnight hug. Little (8 new): Cole packs food and heads out with a plan, Cole grabs the companion by the paw and runs, Cole spots an object and claims it, Cole climbs a rock and waves at a creature, Cole pulls food out of a pocket, Cole builds a pillow fort. Replaced 2 existing passive lines: to_intro2 "Cole heard a sound" → "Cole spotted X across the room. Cole ran right over." li_comp2 "Cole giggled" twice → "Cole grabbed the companion\'s paw. Again! Cole clapped along." TWEEN VOICE PASS: v2.7.1 UAT scored tween (age 12) at 4.0 across the board — passing but voice felt thin vs age 10. Added 16 tween-only V3_BEATS (4 per blueprint). lost_snack_v3: mental-screenshot attempt, group-chat-energy escalation, filed-under-low-priority payoff, replayed-walking-back anytime landing. goal_spine_v3: committed-quietly setup, professionally-unhinged attempt, mentally-screenshotted escalation, win-logged payoff. show_wrong_v3: nobody-asked-doing-it-anyway setup, failed-exactly-on-cue attempt, going-viral-with-intent escalation, 40%-real-60%-ironic payoff. rule_loophole_v3: bare-minimum setup, reacting-is-rookie-behavior problem, located-loophole-within-seconds attempt, filed-under-small-wins payoff. Voice register: short sentences, deadpan delivery, screenshot/group-chat/replay-mentally/filed-for-later motifs. TWO NEW QA GATES: Section 5 extended — tween (age 12) anytime gets parity thresholds with age 9 (≤10% bedtime words, ≥60% anytime markers across 60 stories). Section 7 NEW — tot/little kid-agency action-verb gate: across 100 sampled tot+little stories, action verbs (spotted/picked/grabbed/decided/climbed/pulled/led/built) must outnumber reaction verbs (heard/giggled/loved/watched) at a ratio ≥ 0.65. v2.8.0 measured 309 action / 16 reaction = 0.95 ratio — well above the gate. ACCEPTANCE: all 8 gates pass. Audit pack regenerated at docs/story-quality-audit-v2.8.0.md. APP_VERSION + ENGINE_V2_VERSION → v2.8.0.' },
   { v: 'v2.7.3', title: 'Hotfix — "one HUGE waffles" grammar bug + new lint gate',
@@ -1509,7 +1531,13 @@ function buildStory(name, picks, age) {
     storyMode: state.storyMode || 'bedtime',
   };
 
-  if (isEngineV3Enabled() && typeof generateStoryV3 === 'function') {
+  // v2.9.0 — v3 is the default for ages 6-13 (kid/big/tween). Previously v3 was
+  // opt-in via isEngineV3Enabled(). Now: any age 6+ tries v3 first; the flag is
+  // an override that forces v3 attempts at all ages (including tot/little where v3
+  // returns null and falls through to v2 anyway). v2 fallback is retained as a
+  // safety net throughout v2.9.0 so a v3 issue can be rolled back without redeploy.
+  const preferV3 = age >= 6 || isEngineV3Enabled();
+  if (preferV3 && typeof generateStoryV3 === 'function') {
     try {
       const v3Result = generateStoryV3(name, picksWithSetting, age);
       if (v3Result && v3Result.title && Array.isArray(v3Result.paragraphs) && v3Result.paragraphs.length > 0) {
@@ -1532,6 +1560,11 @@ function buildStory(name, picks, age) {
       try { console.warn('[engine-v2] fallback to v1:', err); } catch {}
     }
   }
+
+  // v2.9.0 — reaching this point means v3 returned null AND v2 returned null/threw.
+  // The v1 template fallback is deprecated and scheduled for v3.0.0 removal. Log once
+  // per page-load so any production fire is visible in DevTools.
+  warnV1DeprecationOnce('v2 and v3 both returned null at age=' + age);
 
   const t   = tierFor(age);
   const N   = name || 'Friend';

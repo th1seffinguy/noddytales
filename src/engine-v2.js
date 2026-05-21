@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v2.8.0';
+const ENGINE_V2_VERSION = 'v2.9.0';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -4293,10 +4293,23 @@ function generateStoryV3(name, picks, age) {
   return { title, paragraphs };
 }
 
-/* Engine router — index.html reads window.NODDY_ENGINE to opt into v3. */
+/* Engine router.
+ *
+ * v2.9.0: v3 is the default for ages 6-13. Previously v3 was opt-in via
+ * window.NODDY_ENGINE = 'v3'. Now any age 6+ goes through v3 first and falls back
+ * to v2 only on null (e.g. blueprint unfulfillable). The flag still works as a
+ * testing override — setting it forces v3 attempts at all ages, including tot/
+ * little where v3 returns null today and falls through to v2. v2 fallback is
+ * retained throughout v2.9.0 so a v3 issue can be rolled back without redeploy.
+ *
+ * Note: index.html has its own router in buildStory() that mirrors this logic
+ * for direct browser execution. This function is kept in sync for tests and
+ * any caller that imports the engine module directly.
+ */
 function generateStoryRouted(name, picks, age) {
   const engineFlag = (typeof window !== 'undefined' && window.NODDY_ENGINE) || null;
-  if (engineFlag === 'v3') {
+  const preferV3 = age >= 6 || engineFlag === 'v3';
+  if (preferV3) {
     const v3 = generateStoryV3(name, picks, age);
     if (v3) return v3;
     // v3 fell through (e.g. tot/little, or blueprint unfulfillable) — fall back to v2.

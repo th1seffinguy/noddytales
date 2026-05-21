@@ -4,6 +4,84 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.9.0 — 2026-05-21
+**v3 Default for ages 6-13 — router flip (single-purpose architectural release)**
+
+Second milestone of the v3.0 roadmap. The v3 role-based engine becomes the default for ages 6 and up. v2 stays in code as a runtime fallback throughout v2.9.0 so a v3 issue can be rolled back without redeploy. No content changes. No new beats.
+
+### Router flip
+
+**Before (v2.8.0 and earlier):** v3 was opt-in only. Users had to visit `?engine=v3` once or have `localStorage.nt_engine_v3 = '1'` set. Without the flag, every age routed through v2 first; v3 was unreachable.
+
+**After (v2.9.0):** For ages 6 and up (kid/big/tween), `buildStory()` tries `generateStoryV3` first. If v3 returns null (an unfulfillable blueprint or an unexpected slot issue) the engine falls back to `generateStoryV2`. Ages 2-5 (tot/little) continue to use v2 because `generateStoryV3` still early-exits to null below age 6 — that gap closes in v3.0.0 with tot/little-v3.
+
+The `?engine=v3` URL flag (and the `nt_engine_v3` localStorage entry) still work but are now an **override**, not a **gate**. They force v3 attempts at all ages — useful for testing tot/little fall-through behavior. The flag is no longer required for normal production v3 routing.
+
+### Files edited
+
+| File | Change |
+|---|---|
+| `index.html` `buildStory()` | `if (isEngineV3Enabled())` → `if (age >= 6 \|\| isEngineV3Enabled())` |
+| `src/engine-v2.js` `generateStoryRouted()` | Same age-based default added in case any caller imports the engine module directly |
+
+Both edits are tiny — one boolean condition each. The rollback is a one-line revert of either gate.
+
+### v1 deprecation warning
+
+The v1 template-substitution fallback (retired as a default in v2.0.0, kept as a hard fallback for the "v2 throws an exception" worst case) now emits a one-time `console.warn` when it fires. The warning includes the age that triggered it and a note that v1 is scheduled for removal in v3.0.0.
+
+This is purely observability — no behavior change. v1 still works exactly as before; we just learn when it's used.
+
+```
+[NoddyTales] v1 template fallback engaged (v2 and v3 both returned null at age=N).
+v1 is deprecated and scheduled for removal in v3.0.0.
+This fire should not happen in normal operation — v2 (and v3 for ages 6+) cover all picker combinations.
+If you see this, capture the picks + age and file a defect.
+```
+
+A module-scope flag (`__ntV1DeprecationLogged`) gates the warning to one fire per page load so it doesn't spam the console if v1 fires multiple times in one session.
+
+### New design doc
+
+`docs/tot-little-v3-design.md` — design only, no code. Documents the simplified 3-role contract (protagonist always = kid, ally = companion, wonder_object = food/sky/object) for tot/little stages (setup → silly_repeat → cozy_end → 4 paragraphs). This is the spec that v3.0.0 will implement. Includes example blueprint declarations, beat library sizing, migration path, acceptance criteria, and 5 open questions to resolve during the v3.0.0 authoring sprint.
+
+### Acceptance
+
+`node scripts/qa-current.js` — **all 8 gates green**. Notably:
+
+- Section 1 v2 matrix: 600/600 stories pass with 0 nulls. v2 is still a healthy fallback even though most production traffic for kid/big/tween now bypasses it.
+- Section 3 v3 matrix: 960/960 stories pass. v3 is rock-solid as the new default path.
+- Section 7 kid-agency: 304 action / 15 reaction = 0.95 ratio (unchanged from v2.8.0 — no content shifted).
+
+**Router behavior verified** with a 120-story test (no `NODDY_ENGINE` flag, 20 stories per age):
+
+| Age | v3-routed (6 paragraphs) | v2-routed (4 paragraphs) |
+|----:|:-:|:-:|
+| 2 | 0 | 20 |
+| 4 | 0 | 20 |
+| 6 | **20** | 0 |
+| 8 | **20** | 0 |
+| 10 | **20** | 0 |
+| 12 | **20** | 0 |
+
+Exactly the intended behavior: ages 6+ all-v3, ages 2-5 all-v2.
+
+### Audit pack
+
+`docs/story-quality-audit-v2.9.0.md` regenerated. Ages 6+ stories are structurally identical to the v2.8.0 audit pack (same engine, same picks, same algorithm — output varies only by random beat selection per run). Ages 2-5 stories unchanged from v2.8.0 baseline. No quality regression in either direction.
+
+### Manual UAT rescore (prerequisite for this release)
+
+Documented in the UAT Plan: v2.8.0 ages 2-5 kid agency rescored at **3.7** (age 2) and **3.9** (age 4), both above the 3.5 plan target. Programmatic Section 7 gate confirmed at 0.95 ratio. The v2.8.0 content baseline is solid for v2.9.0 to ship from.
+
+### Rollback plan
+
+A single revert of either `buildStory()`'s age-based condition in `index.html` OR `generateStoryRouted()` in `src/engine-v2.js` restores v2.8.0 routing behavior. v2 codepath is untouched. Estimated rollback time: 5 minutes including QA harness re-run.
+
+`APP_VERSION` and `ENGINE_V2_VERSION` bumped in lockstep to `v2.9.0`.
+
+---
+
 ## v2.8.0 — 2026-05-21
 **Story Quality Pass — kid agency at ages 2-5, distinct tween voice, two new QA gates**
 
