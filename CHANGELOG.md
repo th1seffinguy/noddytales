@@ -9,6 +9,48 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 4, engine v3.0.3) — 2026-05-21
+**Highlight defect fix — only kid-picked words get highlighted; yellow chip retired**
+
+User-reported screenshot showed `forest` rendered with a yellow chip box AND `sleepy megaphone` rendered in orange text, both styled identical to actual kid picks. But the parent had locked `setting=forest` (not a kid tap) and `sleepy megaphone` was an engine-chosen mcguffin. The kid had no way to tell which highlighted words they actually picked — breaks the implicit coverage promise that **"highlighted = something I tapped."**
+
+### Diagnosis
+
+`parseStoryLine()` ran every `[c:X]` / `[y:X]` / `[name:X]` token through CSS regardless of whether `X` matched a real pick. v3 templates wrap engine-chosen slots (mcguffin / obstacle / false_suspect / locked-setting) in `[c:X]` and `[y:X]` exactly the same as user picks. `[y:X]` was reserved for the setting slot and rendered as a yellow chip box — a designed "this is where the story takes place" visual emphasis that in practice read as inconsistent.
+
+### Fix
+
+**Renderer-side cross-check.** `parseStoryLine()` now reads `state.picks` (kid taps) + `state.name` + `state.sidekicks` and only emits a chip when the token's bracketed text matches. Engine-chosen prose renders as plain text — blends into the narrative; kid-picked words still pop.
+
+- Matching is **case-insensitive** with **plural tolerance** (pick=`pizza` matches token=`pizzas` and vice versa) and **word-boundary substring** for multi-word picks (`sleepy gecko` matches a token containing `gecko`).
+- Anchored on whitespace so `cat` doesn't accidentally light up inside `scattered`.
+
+**Yellow chip retired.** `[y:X]` now collapses to the same `.pop` orange class as `[c:X]`. One highlight style, one meaning: *"you picked this."* The `.pop--yellow` CSS rule is **commented (not deleted)** so a future "single-most-important-word" treatment can revive it without renderer rework.
+
+### Visible to users
+
+| Before | After |
+|---|---|
+| `forest` yellow chip box (locked setting, not a kid tap) | plain text |
+| `sleepy megaphone` orange chip (engine-chosen mcguffin) | plain text |
+| `Cole`, `otter`, `pizza`, `dramatic`, `dinosaur`, `skated`, `rainbow` (real picks) | orange chips (unchanged) |
+
+### New QA gate (Section 13)
+
+Highlight-only-picks unit test. Runs `parseStoryLine` against a controlled `state` with known picks. Verifies (a) matched `[c:X]` tokens become `.pop` chips, (b) matched `[name:X]` tokens become `.pop--name` chips, (c) engine-chosen tokens render plain text (no chip), (d) `[y:X]` no longer emits the `.pop--yellow` class anywhere.
+
+### What this doesn't fix
+
+- Engine choosing thematically-wrong objects (megaphone in a forest) — Phase 8 (setting-themed prop pools).
+- Stories too long — separate content sprint.
+
+### Acceptance
+
+- `scripts/qa-current.js` — **all 16 gates green** (15 + new Section 13).
+- v3 matrix 960 stories + v3 tot/little 240 stories all pass: 0 nulls, 0 unresolved, all kid picks in body + highlighted (coverage measured by pick-in-body, unchanged by this renderer fix).
+
+---
+
 ## v0.9.3 (build 3, engine v3.0.3) — 2026-05-21
 **Selection Joy Pass Phase 4 — shuffle 🎲 button on every tap round**
 

@@ -662,6 +662,116 @@ runShuffleGate('BODY_HOT_OPTS', ctx.BODY_HOT_OPTS);
 gate(`0 shuffle re-roll duplicates across ${SHUFFLE_REPS} reps/pool`, shuffleViolations === 0, shuffleViolations + ' violations');
 if (shuffleDetail.length) shuffleDetail.forEach(d => console.log('    ' + d));
 
+/* === 13. HIGHLIGHT-ONLY-PICKS GATE (added v0.9.3 · b4) ===
+ *
+ * User-reported visual defect: stories rendered engine-chosen tokens (mcguffin,
+ * locked-setting, false_suspect) with the SAME chip styling as user-picked words.
+ * Result: "highlighted = something I tapped" promise broken. v0.9.3 · b4 fixes
+ * this in parseStoryLine() by cross-checking each token against state.picks,
+ * state.name, state.sidekicks; non-matches render as plain text. Yellow chip
+ * style retired (collapsed to .pop orange) for consistency.
+ *
+ * This gate is a unit test on the new parseStoryLine logic. Replicates the
+ * function in Node (no DOM needed) and asserts the chip-emission rules.
+ */
+console.log('\n=== 13. Highlight-only-picks gate (v0.9.3 · b4) ===');
+// Replicate parseStoryLine + isPickedToken from index.html. If the renderer
+// changes, this stays the contract test.
+function esc(s) { return String(s).replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
+function isPickedToken(lc, pickedSet) {
+  if (pickedSet.has(lc)) return true;
+  for (const p of pickedSet) {
+    if (!p) continue;
+    if (lc === p + 's'  || lc === p + 'es') return true;
+    if (p  === lc + 's' || p  === lc + 'es') return true;
+    if (p.includes(' ') || lc.includes(' ')) {
+      const tokenWords = lc.split(/\s+/).filter(Boolean);
+      const pickWords  = p.split(/\s+/).filter(Boolean);
+      if (tokenWords.some(t => pickWords.includes(t))) return true;
+    }
+  }
+  return false;
+}
+function parseStoryLineUT(line, st) {
+  const picks     = (st && st.picks) || {};
+  const pickedSet = new Set();
+  for (const cat in picks) {
+    const p = picks[cat];
+    if (p && p.w) pickedSet.add(String(p.w).toLowerCase().trim());
+  }
+  const kidName   = ((st && st.name) || '').toLowerCase().trim();
+  const sidekicks = new Set(((st && st.sidekicks) || []).map(s => String(s).toLowerCase().trim()).filter(Boolean));
+  return line.replace(/\[(name|c|y):([^\]]+)\]/g, (_, kind, text) => {
+    const safe = esc(text);
+    const lc   = text.toLowerCase().trim();
+    if (kind === 'name') {
+      if (lc === kidName || sidekicks.has(lc)) return `<span class="pop pop--name">${safe}</span>`;
+      return safe;
+    }
+    if (isPickedToken(lc, pickedSet)) return `<span class="pop">${safe}</span>`;
+    return safe;
+  });
+}
+// Test fixture: a kid named Cole, sidekick Olivia, picks pizza/otter/dramatic/dinosaur/skated/rainbow.
+const testState = {
+  name: 'Cole',
+  sidekicks: ['Olivia'],
+  picks: {
+    pet:      { w: 'otter' },
+    food:     { w: 'pizza' },
+    creature: { w: 'dinosaur' },
+    move:     { w: 'skated' },
+    mood:     { w: 'dramatic' },
+    color:    { w: 'rainbow' },
+  },
+};
+const ut = [
+  // [input, expected substring, label]
+  { in: '[name:Cole]',             expectChip: 'pop pop--name', label: 'kid name → name chip' },
+  { in: '[name:Olivia]',           expectChip: 'pop pop--name', label: 'sidekick → name chip' },
+  { in: '[name:Their pal]',        expectChip: null,            label: 'phantom name → plain' },
+  { in: '[c:otter]',               expectChip: 'pop"',          label: 'picked pet → orange chip' },
+  { in: '[c:pizza]',               expectChip: 'pop"',          label: 'picked food → orange chip' },
+  { in: '[c:dinosaur]',            expectChip: 'pop"',          label: 'picked creature → orange chip' },
+  { in: '[c:dramatic]',            expectChip: 'pop"',          label: 'picked mood → orange chip' },
+  { in: '[c:skated]',              expectChip: 'pop"',          label: 'picked move → orange chip' },
+  { in: '[c:rainbow]',             expectChip: 'pop"',          label: 'picked color → orange chip' },
+  { in: '[c:sleepy megaphone]',    expectChip: null,            label: 'engine mcguffin → plain' },
+  { in: '[y:forest]',              expectChip: null,            label: 'locked setting → plain' },
+  { in: '[c:bewildered penguin]',  expectChip: null,            label: 'engine ally → plain' },
+  // Plural tolerance
+  { in: '[c:pizzas]',              expectChip: 'pop"',          label: 'plural of picked food → chip' },
+  // Word-boundary case sensitivity (substring of unrelated word should NOT match)
+  // pick=otter; token=otterly (made up). Should match because "otter" is prefix; that's an
+  // accepted false-positive shape (very rare in templates). Test the opposite: no overlap.
+  { in: '[c:scattered]',           expectChip: null,            label: 'unrelated word → plain (no false-positive)' },
+  // Yellow no longer emits its old class — verify .pop--yellow never appears.
+  { in: '[y:forest]',              expectClassAbsent: 'pop--yellow', label: 'y-token never emits pop--yellow' },
+  { in: '[y:jungle]',              expectClassAbsent: 'pop--yellow', label: 'y-token never emits pop--yellow (any value)' },
+];
+let ut_pass = 0;
+let ut_fail = 0;
+for (const t of ut) {
+  const out = parseStoryLineUT(t.in, testState);
+  let ok = true;
+  if (t.expectChip === null) {
+    // Should be plain text (no chip)
+    if (out.includes('class="pop')) ok = false;
+  } else if (typeof t.expectChip === 'string') {
+    if (!out.includes(t.expectChip)) ok = false;
+  }
+  if (t.expectClassAbsent) {
+    if (out.includes(t.expectClassAbsent)) ok = false;
+  }
+  if (ok) ut_pass++;
+  else {
+    ut_fail++;
+    console.log(`    ✗ ${t.label}: input=${t.in} → ${out}`);
+  }
+}
+gate(`parseStoryLine unit tests (${ut.length} cases)`, ut_fail === 0, ut_fail + ' failed');
+console.log(`    ${ut_pass}/${ut.length} cases passed`);
+
 /* === 9. BLOCKED-WORD SCAN (added v2.10.2) ===
  *
  * Critical defect from 2026-05-21: the freetext prompt examples for "Invent a battle

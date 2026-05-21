@@ -940,8 +940,11 @@
   }
   .story-body p { margin: 0 0 14px 0; }
   .story-body .pop          { color: var(--orange-dark); font-family: 'Fredoka', sans-serif; font-weight: 600; }
-  .story-body .pop--yellow  { background: var(--yellow); color: var(--ink); padding: 0 8px; border-radius: 8px; font-family: 'Fredoka', sans-serif; font-weight: 600; }
   .story-body .pop--name    { color: var(--orange-dark); font-family: 'Fredoka', sans-serif; font-weight: 700; }
+  /* v0.9.3 · b4 — .pop--yellow retired (parseStoryLine collapses [y:X] → .pop).
+     Keeping the rule commented so a future "single-most-important-word" treatment
+     (Phase 6B / story-visual polish) can revive it without rewriting renderers.
+     .story-body .pop--yellow { background: var(--yellow); color: var(--ink); padding: 0 8px; border-radius: 8px; font-family: 'Fredoka', sans-serif; font-weight: 600; } */
   /* Karaoke word highlighting — visible "this is the word being read" indicator with bounce. */
   .kw {
     display: inline-block;
@@ -1275,6 +1278,8 @@ const MAX_SHUFFLES = 2;
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v0.9.3 · b4', title: 'Highlight defect fix — only kid-picked words get highlighted; yellow chip retired',
+    detail: 'User-reported visual defect from a real screenshot. Story showed "forest" with a yellow box AND "sleepy megaphone" in orange text as if both were picked words — but the parent had locked setting=forest (not a kid tap) and "sleepy megaphone" was an engine-chosen mcguffin. Kid had no way to tell which highlighted words they actually picked. Breaks the implicit coverage promise that "highlighted = something I tapped." THE DIAGNOSIS: parseStoryLine ran the engine\'s [c:X] / [y:X] / [name:X] tokens through CSS classes regardless of whether X matched a real pick. v3 templates wrap mcguffin/obstacle/false_suspect/locked-setting in [c:X] same as user picks. [y:X] was reserved for setting in v3 templates and rendered as a yellow chip box — a designed "this is where the story takes place" emphasis that in practice read as inconsistent. THE FIX (Fix A2 + B2 from diagnosis): parseStoryLine now cross-checks each token against state.picks (kid taps), state.name, and state.sidekicks. Tokens whose bracketed text doesn\'t match a real pick render as PLAIN TEXT (no chip). Engine-chosen prose blends into the narrative; kid-picked words still pop. Matching is case-insensitive with plural tolerance (pick="pizza" matches token="pizzas" and vice versa) and word-boundary substring for multi-word picks ("sleepy gecko" matches a token containing "gecko"). Also collapses [y:X] to the same orange .pop class as [c:X] — one highlight style, one meaning: "you picked this." The yellow chip CSS is commented (not deleted) so a future "single-most-important-word" treatment can revive it without renderer rework. NEW QA SECTION 13: highlight-only-picks unit test. Runs parseStoryLine against controlled state with known picks. Verifies (a) matched [c:X] tokens become .pop chips, (b) matched [name:X] tokens become .pop--name chips, (c) engine-chosen tokens render plain text, (d) [y:X] no longer emits .pop--yellow class anywhere. WHAT THIS DOESN\'T FIX: engine choosing thematically-wrong objects (megaphone in a forest) — that\'s Phase 8 (setting-themed prop pools). Stories too long — separate content sprint. ACCEPTANCE: scripts/qa-current.js all 16 gates green. v3 matrix 960 stories + v3 tot/little 240 stories still 0 nulls / 0 unresolved / all picks in body + highlighted (the gate measures picked-word coverage which is unchanged — kid picks still highlight). APP_VERSION stays v0.9.3; BUILD_NUMBER 3 → 4; ENGINE_V2_VERSION stays v3.0.3. Badge reads v0.9.3 · b4.' },
   { v: 'v0.9.3 · b3', title: 'Selection Joy Pass Phase 4 — shuffle 🎲 button ("Show me different ones") on every tap round',
     detail: 'Phase 4 of the Selection Joy Pass. Adds a small 🎲 "Show me different ones" button beneath every tap round. Tapping it re-rolls the 2 cards from the same option pool, excluding the currently-shown 2 when possible. Limited to 2 uses per session (configurable via MAX_SHUFFLES constant) so it stays a special move rather than a re-roll-forever escape hatch. Counter badge shows remaining uses ("×2", "×1") and the button disables when exhausted. The cards fade-out + slide-in over 320ms when shuffle is tapped for tactile feedback. CHANGES: (1) buildRounds() now attaches a fullPool property to every tap round (the complete 12-24-option pool the 2 cards were sampled from). Works for: standard WORD_BANK rounds (pet, color, food, place, creature, move, mood, sky), the universal sound tap round (SOUND_HOT_OPTS), the little tier weather swap, and the Potty Word Mode body round (BODY_HOT_OPTS). Freetext rounds are excluded — no shuffle on text input. (2) New state.shufflesUsed counter, initialized to 0 in the global state object AND reset to 0 in startWords() (per session) AND backToWelcome() (defensive). (3) Constant MAX_SHUFFLES = 2 — tunable. (4) renderWords() conditionally renders the shuffle button only when round.fullPool.length >= 4 AND shufflesRemaining > 0. Pool ≥ 4 ensures we can always produce 2 fresh options not in the current set. (5) attachWordsHandlers() wires the shuffle button: collects current option keys, filters fullPool to eligible (non-current) options, samples 2, replaces round.options, increments counter, triggers fade animation, re-renders the round. Falls back to a full-pool reshuffle if eligible set is too small (currently impossible since smallest pool is 12). (6) New CSS for .shuffle-btn (pill style matching the .hint-chip aesthetic) + .shuffle-count badge + .is-rerolling fade animation. (7) NEW QA Section 12 simulates 100 shuffles across every distinct tap round (every tier × cat combination plus SOUND_HOT_OPTS + BODY_HOT_OPTS) and confirms 0% of re-rolls produce a duplicate of the previous 2 options. Pool sizes verified ≥ 4 across the board. ACCEPTANCE: scripts/qa-current.js all 15 gates green. Round-shape smoke test still passes 5/5 cases. APP_VERSION stays v0.9.3 (no maturity bump); BUILD_NUMBER 2 → 3; ENGINE_V2_VERSION stays v3.0.3. Badge reads v0.9.3 · b3.' },
   { v: 'v0.9.3 · b2', title: 'Selection Joy Pass Phase 1 — silly-sound tap round (little + kid) + "type your own" escape hatch (kid)',
@@ -2481,12 +2486,67 @@ function buildStory(name, picks, age) {
    title path called esc()), which let an attacker inject HTML via the name field (Codex QA
    finding #1, High severity). Escaping inside the renderer makes parseStoryLine safe regardless
    of what reaches the token — input strip, future call sites, or legacy localStorage values. */
+/* v0.9.3 · b4 — "highlighted = something the kid picked." User-reported defect:
+   v3 templates wrap engine-chosen mcguffin / obstacle / locked-setting slots in
+   `[c:X]` and `[y:X]` tokens, which rendered identical to user-picked words. Result:
+   a kid sees "sleepy megaphone" highlighted in their story and assumes they picked
+   it. False ownership signal. Breaks the implicit coverage promise.
+
+   Fix: at render time, cross-check each token's bracketed text against the actual
+   state.picks (kid taps), state.name, and state.sidekicks. Tokens whose text doesn't
+   match a real pick render as plain text (no chip). Engine-chosen prose blends into
+   the narrative; kid-picked words still pop.
+
+   Also collapses `[y:X]` to the same `.pop` orange style as `[c:X]` — the prior
+   yellow-chip-box treatment was a designed "this is the setting" visual emphasis
+   but in practice read as inconsistent. One highlight style, one meaning:
+   "you picked this." */
+function isPickedToken(lc, pickedSet) {
+  if (pickedSet.has(lc)) return true;
+  for (const p of pickedSet) {
+    if (!p) continue;
+    // Plural tolerance: pick="pizza" matches token="pizzas" and vice versa.
+    if (lc === p + 's'  || lc === p + 'es') return true;
+    if (p  === lc + 's' || p  === lc + 'es') return true;
+    // Multi-word pick (e.g. "sleepy gecko") or multi-word token — match if any
+    // whole word overlaps. Anchored on whitespace boundaries so "cat" doesn't
+    // accidentally light up inside "scattered".
+    if (p.includes(' ') || lc.includes(' ')) {
+      const tokenWords = lc.split(/\s+/).filter(Boolean);
+      const pickWords  = p.split(/\s+/).filter(Boolean);
+      if (tokenWords.some(t => pickWords.includes(t))) return true;
+    }
+  }
+  return false;
+}
 function parseStoryLine(line) {
+  const picks     = (typeof state !== 'undefined' && state.picks) || {};
+  const pickedSet = new Set();
+  for (const cat in picks) {
+    const p = picks[cat];
+    if (p && p.w) pickedSet.add(String(p.w).toLowerCase().trim());
+  }
+  const kidName   = ((typeof state !== 'undefined' && state.name) || '').toLowerCase().trim();
+  const sidekicks = new Set(((typeof state !== 'undefined' && state.sidekicks) || [])
+    .map(s => String(s).toLowerCase().trim()).filter(Boolean));
+
   return line.replace(/\[(name|c|y):([^\]]+)\]/g, (_, kind, text) => {
     const safe = esc(text);
-    if (kind === 'name') return `<span class="pop pop--name">${safe}</span>`;
-    if (kind === 'c')    return `<span class="pop">${safe}</span>`;
-    if (kind === 'y')    return `<span class="pop pop--yellow">${safe}</span>`;
+    const lc   = text.toLowerCase().trim();
+    if (kind === 'name') {
+      // Name chip only when the token matches the kid OR a real sidekick. Fallback
+      // tokens like "their pal" (per v2.2.5 no-phantom-names rule) render plain.
+      if (lc === kidName || sidekicks.has(lc)) {
+        return `<span class="pop pop--name">${safe}</span>`;
+      }
+      return safe;
+    }
+    // c or y: both treated the same after the b4 collapse — highlighted only when
+    // the bracketed text matches a real kid pick. Engine-chosen slots (locked
+    // setting, mcguffin, false_suspect, chants/payoff words, etc.) render plain.
+    if (isPickedToken(lc, pickedSet)) {
+      return `<span class="pop">${safe}</span>`;
+    }
     return safe;
   });
 }
