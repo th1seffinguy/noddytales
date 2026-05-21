@@ -9,6 +9,85 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 10, engine v3.0.3) — 2026-05-21
+**Narrator selector on the story screen + voice preview clips**
+
+Refinement of the b8 Narrator Voice Selector MVP. b8 shipped the picker inside Parent Settings — efficient layout, but **too hidden**. Users think about voice choice at the moment they tap "Read it to me," not before. b10 keeps Settings as the permanent home for the preference and adds two complementary surfaces: an **in-context narrator row** on the story screen + **per-voice preview clips** in both surfaces.
+
+### Story-screen narrator row
+
+Compact line above the Read-it-to-me controls:
+
+```
+Narrator: Sunny  [Change]
+```
+
+Tap `Change` → bottom-sheet modal (centered on viewports ≥ 540px) containing the same 4-preset grid from Settings. Selecting a voice updates `Profile.saveVoicePreset` + `state.voicePreset` and refreshes the narrator-row label inline. **Switching mid-playback does not interrupt the current audio** — the new voice applies on the next "Read it to me" tap.
+
+### Voice preview clips
+
+Each preset card (Settings AND story-screen modal) has a small ▶ button in the top-right corner. Tap plays a short voice-specific clip:
+
+| Preset | Preview text |
+|---|---|
+| Sunny | "Hi, I'm Sunny. I can't wait to read your story." |
+| Cozy Bedtime | "Hi, I'm Cozy Bedtime. I'll read this nice and gently." |
+| Big Adventure | "Hi, I'm Big Adventure. Let's make this story sound epic." |
+| Silly Cartoon | "Hi, I'm Silly Cartoon. This is going to get ridiculous." |
+
+- Loading state (`…`) while audio fetches.
+- Switches to `⏸` while playing.
+- Starting a new preview stops any running preview **or** story playback (single audio at a time).
+
+### Cache discipline
+
+Preview audio uses a **separate IndexedDB cache key namespace** — `preview:<preset>` — so it never collides with story cache entries (`<preset>|sha256(text)`).
+
+- Replaying the same preview is instant.
+- Story replay cache is untouched by previewing.
+- Section 16 enforces zero overlap between the two namespaces.
+
+### API surface
+
+Previews call the same `/api/tts` endpoint with `{ text: previewText, voicePreset }`. **No new endpoint, no new server allowlist work.** b8's server-side validation (unknown preset → 400, raw voice IDs rejected) covers previews automatically.
+
+### Shared helpers
+
+Extracted `renderVoicePickerGrid(selectedKey)` + `attachVoicePickerHandlers(root, opts)` so Settings and the story-screen modal use identical markup + interaction. Single source of truth for both surfaces.
+
+### New Vercel env vars
+
+**None.** Previews re-use the four optional env vars from b8 (`ELEVENLABS_VOICE_SUNNY` / `_COZY` / `_ADVENTURE` / `_SILLY`), each still falling back to `ELEVENLABS_VOICE_ID` when unset.
+
+### Guardrails respected
+
+- No celebrity / licensed-character names anywhere
+- All 4 preview lines are original / parent-safe
+- Voice picker stays out of the kid word-selection flow
+
+### New QA gate (Section 16)
+
+12 unit cases:
+
+| Sub-case | Result |
+|---|---|
+| Every preset has a non-empty `previewText` | ✓ |
+| Every preset `previewText` length ≤ 80 chars (cost control) | ✓ |
+| Every preview cache key starts with `"preview:"` | ✓ |
+| Preview cache keys are all distinct | ✓ |
+| No story cache key collides with a preview cache key | ✓ |
+| `"preview"` is reserved (cannot be a preset key) | ✓ |
+
+All 12 pass.
+
+### Acceptance
+
+- `scripts/qa-current.js` — **all 23 gates green** (22 prior + new Section 16).
+- Section 8 inline `<script>` syntax check — clean.
+- Badge reads `v0.9.3 · b10`.
+
+---
+
 ## v0.9.3 (build 9, engine v3.0.3) — 2026-05-21
 **Setting 2.0 — broad story-flavor categories with hidden place variety**
 
