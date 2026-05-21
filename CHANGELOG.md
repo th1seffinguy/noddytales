@@ -9,6 +9,41 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 11, engine v3.0.3) — 2026-05-21
+**"What kind of place?" step — mobile-compact (fits without scrolling on iPhone SE)**
+
+User feedback: the b9 Setting 2.0 flavor picker required scrolling on mobile to reach the Next button. Root cause: b9 inherited `.setting-tile { aspect-ratio: 1 }` from the v2.1.0 exact-setting grid. At 375px viewport each square tile rendered ~165px tall; the 8-tile grid alone consumed ~800px, well past iPhone SE's ~617px usable canvas.
+
+CSS-only fix; no engine / picker / data changes.
+
+### What changed
+
+- **Killed `aspect-ratio: 1` on `.setting-grid--flavors` tiles.** Tiles flatten to row-style (emoji-left, label-right) with `min-height: 52px` — well above Apple HIG's 44px minimum tap target.
+- **Surprise Me** keeps full-width prominence but drops from 92px → 56px min-height; emoji 36px → 28px; label 16px → 15px.
+- **Grid gap** 12px → 8px on mobile (kept 12px on viewports ≥ 540px).
+- **Standard tile** emoji 30px → 24px, label 13px → 12.5px line-height 1.2.
+- **Tile padding** 6px → 4px 12px (matches row layout).
+- **New `.display--compact`** modifier (28px, letter-spacing -0.3px) on the step h1.
+- **New `.lede--compact`** modifier (14px) on the subtitle.
+- **Single-line h1** "What kind of place?" — dropped the `<br>` split. Shorter lede: "Pick a flavor — or let us surprise you."
+- **Stack gap** 20 → 12 between step children.
+- **`.setting-note`** font 13px → 12px, min-height 18px → 14px, margin-top 8px → 4px.
+
+### Scope
+
+All rule changes live **under `.setting-grid--flavors`** — base `.setting-tile` is untouched, so the storyMode picker (bedtime / anytime) and any other consumer of `.setting-tile` is unaffected. `.display--compact` / `.lede--compact` are modifier-only, applied only on the setting step.
+
+### Viewport math
+
+Full step budgets to ~590-600px content height on iPhone SE 2nd gen (375×667), within the ~617px usable canvas after Safari's URL bar. Modern iPhone (390×844) has comfortable margin. Tablets (≥540px breakpoint) switch to 4-column grid + 36px h1 — airier original layout preserved.
+
+### Acceptance
+
+- `scripts/qa-current.js` — **all 23 gates green** (unchanged from b10; no engine/picker/data touched).
+- Section 8 inline `<script>` syntax — clean.
+
+---
+
 ## v0.9.3 (build 10, engine v3.0.3) — 2026-05-21
 **Narrator selector on the story screen + voice preview clips**
 
