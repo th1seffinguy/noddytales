@@ -42,6 +42,10 @@ return {
   V2_BEATS,   // v3.0.2-stability — exposed for Section 5b v2-side anytime coverage
   SOUND_HOT_OPTS,  // v0.9.3 · b2 — exposed for extended Section 11 emoji uniqueness
   BODY_HOT_OPTS,   // v0.9.3 · b2 — exposed for extended Section 11 emoji uniqueness
+  SETTING_FLAVORS,        // v0.9.3 · b9 — Setting 2.0 coverage gate
+  SETTING_FLAVOR_KEYS,    // v0.9.3 · b9
+  resolveSetting,         // v0.9.3 · b9
+  migrateLegacySetting,   // v0.9.3 · b9
 };
 `;
 const ctx = (new Function(harness))();
@@ -863,6 +867,115 @@ for (const c of voiceCases) {
 }
 gate(`Narrator voice selector unit tests (${voiceCases.length} cases)`, v_fail === 0, v_fail + ' failed');
 console.log(`    ${voiceCases.length - v_fail}/${voiceCases.length} cases passed`);
+
+/* === 15. SETTING 2.0 — flavor coverage + hidden-place + label-leak gate (added v0.9.3 · b9) ===
+ *
+ * Setting 2.0 replaces the exact-setting grid (Diner / Mall / Football Game / etc.)
+ * with 8 broad "story flavor" categories. Each flavor holds a hidden pool of 8
+ * specific places; resolveSetting() picks a random hidden place per call so a kid
+ * locking "Food Place" gets diner one session and bakery the next.
+ *
+ * Contracts:
+ *   (a) Every flavor key generates a non-null story across multiple seeds.
+ *   (b) Every non-surprise flavor resolves to a specific hidden place, and that
+ *       place text appears in the story body.
+ *   (c) The broad category LABEL never leaks into story prose.
+ *   (d) Legacy exact-setting keys migrate cleanly to valid flavor keys.
+ */
+console.log('\n=== 15. Setting 2.0 — flavor coverage + hidden-place + label-leak gate (v0.9.3 · b9) ===');
+const SETTING_TEST_REPS = 20;
+let flavorNulls       = 0;
+let placeMisses       = 0;
+let labelLeaks        = 0;
+let resolveBadShape   = 0;
+const flavorDetail    = [];
+const samplePicks = {
+  pet:      { w: 'otter' },
+  color:    { w: 'rainbow' },
+  food:     { w: 'pizza' },
+  creature: { w: 'dinosaur' },
+  move:     { w: 'skated' },
+  mood:     { w: 'dramatic' },
+};
+for (const flavor of ctx.SETTING_FLAVORS) {
+  for (let i = 0; i < SETTING_TEST_REPS; i++) {
+    const resolved = ctx.resolveSetting(flavor.key);
+    const shapeOk = resolved
+      && typeof resolved.id === 'string'
+      && Array.isArray(resolved.visitorBias)
+      && Array.isArray(resolved.objectBias)
+      && (resolved.place === null || (typeof resolved.place === 'object' && typeof resolved.place.text === 'string'));
+    if (!shapeOk) {
+      resolveBadShape++;
+      if (flavorDetail.length < 10) flavorDetail.push(`${flavor.key}: bad resolved shape`);
+      continue;
+    }
+    if (flavor.hiddenPlaces) {
+      const inPool = flavor.hiddenPlaces.some(p => p.id === resolved.place.id);
+      if (!inPool) {
+        placeMisses++;
+        if (flavorDetail.length < 10) flavorDetail.push(`${flavor.key}: resolved place not in hiddenPlaces`);
+        continue;
+      }
+    }
+    const picksWithSetting = { ...samplePicks, setting: resolved, storyMode: 'bedtime' };
+    let s = null;
+    try {
+      s = ctx.generateStoryV3('Cole', picksWithSetting, 7);
+      if (!s) s = ctx.generateStoryV2('Cole', picksWithSetting, 7);
+    } catch (e) { /* null below */ }
+    if (!s) {
+      flavorNulls++;
+      if (flavorDetail.length < 10) flavorDetail.push(`${flavor.key}: null story`);
+      continue;
+    }
+    const fullText = (s.title || '') + ' ' + (s.paragraphs || []).join(' ');
+    if (resolved.place && resolved.place.text) {
+      const placeRx = new RegExp('\\b' + resolved.place.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').toLowerCase() + '\\b', 'i');
+      if (!placeRx.test(fullText.toLowerCase())) {
+        placeMisses++;
+        if (flavorDetail.length < 10) flavorDetail.push(`${flavor.key}: place "${resolved.place.text}" not in body`);
+      }
+    }
+    if (flavor.key !== 'surprise') {
+      const labelLc = flavor.label.toLowerCase();
+      const labelRx = new RegExp('\\b' + labelLc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b');
+      if (labelRx.test(fullText.toLowerCase())) {
+        labelLeaks++;
+        if (flavorDetail.length < 10) flavorDetail.push(`${flavor.key}: label "${flavor.label}" leaked into prose`);
+      }
+    }
+  }
+}
+gate(`every flavor generates a story (${ctx.SETTING_FLAVORS.length} flavors × ${SETTING_TEST_REPS} reps)`, flavorNulls === 0, flavorNulls + ' null stories');
+gate(`hidden place appears in body across all flavors`, placeMisses === 0, placeMisses + ' misses');
+gate(`broad category label never leaks into prose`, labelLeaks === 0, labelLeaks + ' leaks');
+gate(`resolveSetting returns legacy V2_SETTINGS-compatible shape`, resolveBadShape === 0, resolveBadShape + ' bad shapes');
+
+const legacyCases = [
+  { input: 'diner',          expected: 'food_place' },
+  { input: 'grocery_store',  expected: 'food_place' },
+  { input: 'football_game',  expected: 'at_school' },
+  { input: 'school',         expected: 'at_school' },
+  { input: 'backyard',       expected: 'at_home' },
+  { input: 'zoo',            expected: 'animal_place' },
+  { input: 'bus',            expected: 'on_the_go' },
+  { input: 'mall',           expected: 'surprise' },
+  { input: 'unknownGarbage', expected: 'surprise' },
+  { input: 'food_place',     expected: 'food_place' },
+  { input: '',               expected: 'surprise' },
+  { input: null,             expected: 'surprise' },
+];
+let migrateFail = 0;
+for (const t of legacyCases) {
+  const got = ctx.migrateLegacySetting(t.input);
+  if (got !== t.expected) {
+    migrateFail++;
+    flavorDetail.push(`migrate(${JSON.stringify(t.input)}): got ${got}, expected ${t.expected}`);
+  }
+}
+gate(`migrateLegacySetting maps old keys to closest flavor (${legacyCases.length} cases)`, migrateFail === 0, migrateFail + ' wrong mappings');
+if (flavorDetail.length) flavorDetail.forEach(d => console.log('    ' + d));
 
 /* === 9. BLOCKED-WORD SCAN (added v2.10.2) ===
  *

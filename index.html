@@ -326,6 +326,22 @@
     margin-top: 8px;
     min-height: 18px;
   }
+  /* v0.9.3 · b9 — Setting 2.0 layout. The flavor grid has 8 tiles instead of the
+     original 9 exact-setting tiles. Default to 2-column on mobile (4 rows with
+     Surprise spanning the top row); switch to 4-column on wider viewports. */
+  .setting-grid--flavors { grid-template-columns: repeat(2, 1fr); }
+  .setting-grid--flavors .setting-tile--surprise {
+    grid-column: 1 / -1;
+    aspect-ratio: auto;
+    min-height: 92px;
+    padding: 12px;
+  }
+  .setting-grid--flavors .setting-tile--surprise .setting-emoji { font-size: 36px; margin-bottom: 2px; }
+  .setting-grid--flavors .setting-tile--surprise .setting-label { font-size: 16px; }
+  @media (min-width: 540px) {
+    .setting-grid--flavors { grid-template-columns: repeat(4, 1fr); }
+    .setting-grid--flavors .setting-tile--surprise { grid-column: 1 / -1; }
+  }
 
   /* Potty mode toggle (age-select screen) */
   .potty-toggle {
@@ -1268,7 +1284,10 @@ const Profile = {
         try { return JSON.parse(v).slice(0, 3).map(s => String(s).slice(0, 14)); }
         catch { return []; }
       }),
-      setting:   this._get('setting', 'surprise', v => String(v).slice(0, 32)),
+      // v0.9.3 · b9 — Setting 2.0 migration: pre-b9 stored exact-setting keys
+      // (diner / mall / zoo / football_game / etc.) are remapped to the closest
+      // new flavor key. Already-flavor keys pass through. Unknown → surprise.
+      setting:   this._get('setting', SETTING_FLAVOR_DEFAULT, v => migrateLegacySetting(String(v).slice(0, 32))),
       pottyMode: this._get('pottyMode', false, v => v === '1' || v === 'true'),
       storyMode: this._get('storyMode', 'bedtime', v => (v === 'anytime' ? 'anytime' : 'bedtime')),
       // v0.9.3 · b8 — validate against the client-side allowlist. Unknown values
@@ -1280,7 +1299,12 @@ const Profile = {
   saveName(v)      { v ? this._set('name', String(v).slice(0, 14).replace(/[<>&"]/g, '')) : this._rm('name'); },
   saveAge(v)       { (Number.isInteger(v) && v >= 2 && v <= 13) ? this._set('age', String(v)) : this._rm('age'); },
   saveSidekicks(a) { Array.isArray(a) && a.length ? this._set('sidekicks', JSON.stringify(a.slice(0, 3))) : this._rm('sidekicks'); },
-  saveSetting(v)   { v && v !== 'surprise' ? this._set('setting', String(v).slice(0, 32)) : this._rm('setting'); },
+  // v0.9.3 · b9 — only save valid flavor keys; default ('surprise') clears storage to keep it tidy.
+  saveSetting(v)   {
+    const safe = (typeof SETTING_FLAVOR_KEYS !== 'undefined' && SETTING_FLAVOR_KEYS.includes(v)) ? v : SETTING_FLAVOR_DEFAULT;
+    if (safe === SETTING_FLAVOR_DEFAULT) this._rm('setting');
+    else this._set('setting', safe);
+  },
   savePotty(b)     { this._set('pottyMode', b ? '1' : '0'); },
   saveStoryMode(v) { v === 'anytime' ? this._set('storyMode', 'anytime') : this._rm('storyMode'); },
   // v0.9.3 · b8 — only accept known preset keys; 'sunny' is the default so we remove
@@ -1341,6 +1365,8 @@ const MAX_SHUFFLES = 2;
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v0.9.3 · b9', title: 'Setting 2.0 — broad story-flavor categories replace the exact-setting grid; hidden place variety underneath',
+    detail: 'User feedback: the original 9-tile exact-setting grid (Diner / Mall / Football Game / Grocery Store / Zoo / Bus / etc.) made the app feel limited because the visible list WAS the full list of places the engine supports. Setting 2.0 keeps the grounding benefits of settings but repositions them as broad "story flavor" categories with hidden specific-place variety underneath. NEW: 8 visible categories — Surprise Me (default + visually prominent, spans full row), At Home, At School, Outside, Food Place, Animal Place, On the Go, Somewhere Weird. Each non-surprise category holds a HIDDEN pool of 8 specific places (e.g. At Home → bedroom/kitchen/living room/backyard/blanket fort/garage/bathtub/hallway). The engine randomly picks one specific place per session — locking "Food Place" gets diner one session, bakery the next, ice cream truck the one after. 64 hidden places + Surprise random = the kid never sees the same exact place often. Step copy softened from "Where should the story happen?" → "What kind of place?" / "Pick a story flavor — or let us surprise you." DATA MODEL: new SETTING_FLAVORS array in src/content.js (each entry: key/label/emoji/note/hiddenPlaces/visitorBias/objectBias). New resolveSetting(key) returns a fully-realized object compatible with the legacy V2_SETTINGS shape; engine code consumes it unchanged. New migrateLegacySetting(value) maps old exact keys (diner→food_place, grocery_store→food_place, football_game→at_school, school→at_school, backyard→at_home, zoo→animal_place, bus→on_the_go, mall→surprise, unknown→surprise) so saved nt_setting values from pre-b9 don\'t break. ENGINE: buildStory in index.html resolves the flavor BEFORE handing picks.setting to the engine, so the per-session hidden place is fixed at story-build time. engine-v2.js getSetting() routes flavor keys through resolveSetting; the v2 + v3 generation paths prefer the already-resolved picks.setting when present and only re-fetch via getSetting for legacy callsites. The broad category label NEVER appears in story prose — only the resolved specific place (e.g. "the pizza shop") does. UI: 2-column grid on mobile, 4-column on wider viewports. Surprise Me spans the full width at top with 36px emoji + 16px label for visual prominence. Other 7 tiles use the existing setting-tile design (cream square with emoji + label). New CSS `.setting-grid--flavors` + `.setting-tile--surprise`. NEW QA SECTION 15: 5 sub-gates × 8 flavors × 20 reps each (160 stories total). Verifies (a) every flavor generates non-null stories, (b) the resolved hidden place appears in story body, (c) the broad category label never leaks into prose, (d) resolveSetting returns the legacy V2_SETTINGS shape, (e) migrateLegacySetting maps 12 legacy-key cases correctly. All 5 sub-gates green. ACCEPTANCE: scripts/qa-current.js all 22 gates green (17 prior + 5 new). APP_VERSION stays v0.9.3; BUILD_NUMBER 8 → 9; ENGINE_V2_VERSION stays v3.0.3. Badge reads v0.9.3 · b9. NOT IN THIS RELEASE: per-place visual previews, expanded hidden pools (>8 per category), mixing categories, setting-tagged WORD_BANK options (Phase 2 of Selection Joy Pass).' },
   { v: 'v0.9.3 · b8', title: 'Narrator Voice Selector MVP — pick Sunny / Cozy Bedtime / Big Adventure / Silly Cartoon in Parent Settings + README drift cleanup',
     detail: 'Two changes in one release. PART 1 — README DRIFT CLEANUP: README still listed BUILD_NUMBER as 1 / badge as b1 (stale by 7 builds); age-tier table still described kid as "1 free-text round" even though Phase 1 (b2) converted little + kid to a silly-sound tap round with an escape hatch at kid; the engine-eligibility column still said "v3 engine eligible" though v3 has been the default since v3.0.0. Updated the table to reflect current picker behavior, the badge example to v0.9.3 · b8, and the engine row to v3 default. PART 2 — NARRATOR VOICE SELECTOR MVP: Parent Settings now has a 2-column grid of 4 narrator presets — Sunny (warm + bright, daytime; default), Cozy Bedtime (soft + slow), Big Adventure (bold + energetic), Silly Cartoon (playful + bouncy). Selection persists per device as `nt_voice_preset`. The selected preset is sent to /api/tts as `{ text, voicePreset }` and is also baked into the IndexedDB cache key (`${preset}|${sha256(text)}`), so switching voices does not replay cached audio from a different voice. SERVER ALLOWLIST: api/tts.js was rewritten with a four-key VOICE_MAP. Unknown presets are rejected 400. Each preset maps to an env var (ELEVENLABS_VOICE_SUNNY / ELEVENLABS_VOICE_COZY / ELEVENLABS_VOICE_ADVENTURE / ELEVENLABS_VOICE_SILLY) that falls back to ELEVENLABS_VOICE_ID when unset — so a fresh Vercel deploy with only the existing env vars still produces audio (every preset uses the default voice but with distinct voice_settings tunings). Per-preset voice_settings vary stability + style so the same fallback voice can still convey different narrator moods. The browser NEVER sees raw ElevenLabs voice IDs; arbitrary IDs submitted as a preset are 400d. /with-timestamps endpoint preserved → karaoke highlighting unaffected. GUARDRAILS: no celebrity / licensed-character names anywhere — all four labels are original archetypes. NEW QA SECTION 14: 10 unit cases on api/tts.js resolveVoice() and the cache-key shape — known presets resolve correctly, unknown rejected 400, raw voice IDs rejected, fallback to ELEVENLABS_VOICE_ID works, per-preset styles differ, cache keys differ by preset, every client preset has a server allowlist entry. All 10 pass. ACCEPTANCE: scripts/qa-current.js all 17 gates green. APP_VERSION stays v0.9.3; BUILD_NUMBER 7 → 8; ENGINE_V2_VERSION stays v3.0.3. Badge reads v0.9.3 · b8. NEW VERCEL ENV VARS (optional; missing = use ELEVENLABS_VOICE_ID): ELEVENLABS_VOICE_SUNNY, ELEVENLABS_VOICE_COZY, ELEVENLABS_VOICE_ADVENTURE, ELEVENLABS_VOICE_SILLY.' },
   { v: 'v0.9.3 · b7', title: 'QA cleanup — brand-kit asset packaging + stale engine-v2 header doc-drift',
@@ -1787,9 +1813,17 @@ function buildStory(name, picks, age) {
   // try generateStoryV3 first. v3 returns null for tot/little; falls through to v2.
   // v2.6.2 — pass storyMode through to the engine so cozy_end / landing beats can
   // pick from 'bedtime' (default, sleep imagery) or 'anytime' (daytime walk-home) pools.
+  // v0.9.3 · b9 — Setting 2.0: resolve the flavor to a concrete setting object
+  // (with a randomly-picked hidden place) BEFORE handing off to the engine. The
+  // engine expects the legacy V2_SETTINGS shape ({id,place,visitorBias,objectBias});
+  // resolveSetting() synthesizes that shape from SETTING_FLAVORS so the engine
+  // doesn't need to know about flavors at all. Per-session randomness in
+  // hiddenPlaces means a kid locking "Food Place" gets diner one session,
+  // bakery the next, ice cream truck after that.
+  const resolvedSetting  = resolveSetting(state.setting || SETTING_FLAVOR_DEFAULT);
   const picksWithSetting = {
     ...picks,
-    setting:   { id: (state.setting || 'surprise') },
+    setting:   resolvedSetting,
     storyMode: state.storyMode || 'bedtime',
   };
 
@@ -2827,32 +2861,36 @@ function renderWelcome() {
       </div>
     </div>`;
     })() : step === 'setting' ? `
-    <!-- v2.1.0 — Setting selector step (Story Setting Modes) -->
+    <!-- v0.9.3 · b9 — Setting 2.0: broad story-flavor categories replace the
+         exact-setting grid. 8 visible vibes; each one hides a pool of 8 specific
+         places that the engine picks per session. Surprise Me is visually first
+         + recommended. Step copy softened from "where should the story happen"
+         to "what kind of place" / "pick a story flavor." -->
     <div class="stack gap-20 grow">
       <div>
         <h1 class="display" style="text-align:center">
-          Where should<br>
-          <span style="color:var(--orange-dark)">the story happen?</span>
+          What kind of<br>
+          <span style="color:var(--orange-dark)">place?</span>
         </h1>
         <p class="lede" style="text-align:center;margin-top:10px">
-          Pick a place that feels right today.
+          Pick a story flavor — or let us surprise you.
         </p>
       </div>
-      <div class="setting-grid">
-        ${(typeof V2_SETTINGS !== 'undefined' ? V2_SETTINGS : []).map(s => `
+      <div class="setting-grid setting-grid--flavors">
+        ${SETTING_FLAVORS.map(f => `
           <button
-            class="setting-tile${state.setting === s.id ? ' is-selected' : ''}"
-            data-setting="${esc(s.id)}"
-            aria-label="${esc(s.label)}"
+            class="setting-tile${state.setting === f.key ? ' is-selected' : ''}${f.key === 'surprise' ? ' setting-tile--surprise' : ''}"
+            data-setting="${esc(f.key)}"
+            aria-label="${esc(f.label)}"
           >
-            <span class="setting-emoji">${s.emoji}</span>
-            <span class="setting-label">${esc(s.label)}</span>
+            <span class="setting-emoji">${f.emoji}</span>
+            <span class="setting-label">${esc(f.label)}</span>
           </button>
         `).join('')}
       </div>
       <div class="setting-note">
         ${(() => {
-          const cur = (typeof V2_SETTINGS !== 'undefined' ? V2_SETTINGS : []).find(s => s.id === state.setting);
+          const cur = SETTING_FLAVORS.find(f => f.key === state.setting);
           return cur ? esc(cur.note) : '';
         })()}
       </div>
@@ -3253,13 +3291,16 @@ function attachWelcomeHandlers(el) {
   // see their previous setting pre-selected on the setting screen.
   settingTiles.forEach(tile => {
     tile.addEventListener('click', () => {
-      state.setting = tile.dataset.setting;
+      // v0.9.3 · b9 — validate the click target against the flavor allowlist.
+      const key = tile.dataset.setting;
+      if (!SETTING_FLAVOR_KEYS.includes(key)) return;
+      state.setting = key;
       Profile.saveSetting(state.setting);
       settingTiles.forEach(t => t.classList.remove('is-selected'));
       tile.classList.add('is-selected');
       // Update note text live
       const note = el.querySelector('.setting-note');
-      const cur = (typeof V2_SETTINGS !== 'undefined' ? V2_SETTINGS : []).find(s => s.id === state.setting);
+      const cur = SETTING_FLAVORS.find(f => f.key === state.setting);
       if (note && cur) note.textContent = cur.note;
     });
   });

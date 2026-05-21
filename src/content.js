@@ -17,7 +17,7 @@
    labeling: product is in late beta (v0.9.x), engine is still v3 internally. The
    historical v3.0.0-v3.0.3 CHANGELOG entries stay as-is for traceability. */
 const APP_VERSION  = 'v0.9.3';
-const BUILD_NUMBER = 8;
+const BUILD_NUMBER = 9;
 
 /* v0.9.3 · b8 — Narrator Voice Selector MVP.
    Four curated narrator archetypes. Original tones; no celebrity / character imitation.
@@ -32,6 +32,186 @@ const VOICE_PRESETS = [
 ];
 const VOICE_PRESET_DEFAULT = 'sunny';
 const VOICE_PRESET_KEYS    = VOICE_PRESETS.map(p => p.key); // for validation
+
+/* v0.9.3 · b9 — Setting 2.0: broad story-flavor categories.
+   User feedback: the prior exact-setting grid (Diner / Mall / Football Game / etc.)
+   made the app feel limited — the visible list WAS the list of places the engine
+   supports. Setting 2.0 repositions settings as broad "story flavor" categories
+   with hidden specific-place variety underneath. The visible UI is 8 broad vibes;
+   each vibe holds a pool of 8 specific places; the engine picks one per session.
+
+   - SETTING_FLAVOR_KEYS: client + server allowlist of valid flavor keys
+   - getFlavor(key): lookup helper
+   - resolveSetting(key): returns a fully-resolved {id,place,visitorBias,objectBias}
+     object compatible with the legacy V2_SETTINGS shape. For non-surprise flavors,
+     a random hidden place is picked at resolution time → varies per session.
+   - migrateLegacySetting(value): maps old exact keys (diner/mall/zoo/...) to the
+     closest new flavor; unknown / corrupted values fall back to 'surprise'.
+
+   Engine-side (engine-v2.js) getSetting() routes flavor keys through this map.
+   Hidden places must use the shape { id, text, emoji, article } so the existing
+   grammar helpers + render path (place.text, place.titleText, place.articleText)
+   continue to work unchanged. */
+const SETTING_FLAVORS = [
+  { key: 'surprise', label: 'Surprise Me', emoji: '✨',
+    note: 'Anywhere the story takes us',
+    hiddenPlaces: null,                                 // null = engine picks freely
+    visitorBias: [], objectBias: [] },
+
+  { key: 'at_home', label: 'At Home', emoji: '🏠',
+    note: 'Bedrooms, kitchens, blanket forts',
+    hiddenPlaces: [
+      { id:'bedroom',      text:'bedroom',      emoji:'🛏️', article:'the' },
+      { id:'kitchen',      text:'kitchen',      emoji:'🍽️', article:'the' },
+      { id:'living_room',  text:'living room',  emoji:'🛋️', article:'the' },
+      { id:'home_backyard',text:'backyard',     emoji:'🌳', article:'the' },
+      { id:'blanket_fort', text:'blanket fort', emoji:'🛏️', article:'a' },
+      { id:'garage',       text:'garage',       emoji:'🚪', article:'the' },
+      { id:'bathtub',      text:'bathtub',      emoji:'🛁', article:'the' },
+      { id:'home_hallway', text:'hallway',      emoji:'🚪', article:'the' },
+    ],
+    visitorBias: ['fairy','gnome','ghost'],
+    objectBias:  ['shiny_rock','umbrella','crumb_map','tiny_key','lost_mitten','water_bottle'] },
+
+  { key: 'at_school', label: 'At School', emoji: '🏫',
+    note: 'Classroom, library, cafeteria',
+    hiddenPlaces: [
+      { id:'classroom',         text:'classroom',         emoji:'📚', article:'the' },
+      { id:'school_library',    text:'library',           emoji:'📖', article:'the' },
+      { id:'cafeteria',         text:'cafeteria',         emoji:'🍱', article:'the' },
+      { id:'playground',        text:'playground',        emoji:'🛝', article:'the' },
+      { id:'gym',               text:'gym',               emoji:'🏀', article:'the' },
+      { id:'art_room',          text:'art room',          emoji:'🎨', article:'the' },
+      { id:'school_bus_line',   text:'school bus line',   emoji:'🚌', article:'the' },
+      { id:'nurses_office',     text:"nurse's office",    emoji:'🩹', article:'the' },
+    ],
+    visitorBias: ['sub_teacher','feral_librarian','knight','goblin','jester'],
+    objectBias:  ['hallway_pass','lunch_tray','library_card','backpack_zipper','sticker_sheet','tiny_clipboard'] },
+
+  { key: 'outside', label: 'Outside', emoji: '🌳',
+    note: 'Parks, forests, the great outdoors',
+    hiddenPlaces: [
+      { id:'park',          text:'park',          emoji:'🌳', article:'the' },
+      { id:'forest_path',   text:'forest path',   emoji:'🌲', article:'a' },
+      { id:'beach',         text:'beach',         emoji:'🏖️', article:'the' },
+      { id:'garden',        text:'garden',        emoji:'🌷', article:'the' },
+      { id:'puddle_street', text:'puddle street', emoji:'💧', article:'a' },
+      { id:'camping_spot',  text:'camping spot',  emoji:'⛺', article:'a' },
+      { id:'soccer_field',  text:'soccer field',  emoji:'⚽', article:'the' },
+      { id:'treehouse',     text:'treehouse',     emoji:'🌳', article:'the' },
+    ],
+    visitorBias: ['fairy','gnome','dinosaur','goblin','ghost'],
+    objectBias:  ['shiny_rock','umbrella','crumb_map','tiny_key','lost_mitten','water_bottle'] },
+
+  { key: 'food_place', label: 'Food Place', emoji: '🍕',
+    note: 'Diners, bakeries, ice cream trucks',
+    hiddenPlaces: [
+      { id:'diner',          text:'diner',          emoji:'🍔', article:'the' },
+      { id:'pizza_shop',     text:'pizza shop',     emoji:'🍕', article:'the' },
+      { id:'bakery',         text:'bakery',         emoji:'🥐', article:'the' },
+      { id:'ice_cream_truck',text:'ice cream truck',emoji:'🍦', article:'the' },
+      { id:'grocery_aisle',  text:'grocery aisle',  emoji:'🛒', article:'the' },
+      { id:'taco_stand',     text:'taco stand',     emoji:'🌮', article:'the' },
+      { id:'pancake_house',  text:'pancake house',  emoji:'🥞', article:'the' },
+      { id:'snack_bar',      text:'snack bar',      emoji:'🍿', article:'the' },
+    ],
+    visitorBias: ['stressed_barista','jester','wizard','knight'],
+    objectBias:  ['noisy_spoon','bent_spoon','milkshake_straw','receipt','lunch_tray','sticker_sheet','cereal_box','pickle_jar'] },
+
+  { key: 'animal_place', label: 'Animal Place', emoji: '🦁',
+    note: 'Zoos, pet stores, dog parks',
+    hiddenPlaces: [
+      { id:'zoo',             text:'zoo',             emoji:'🦁', article:'the' },
+      { id:'pet_store',       text:'pet store',       emoji:'🐶', article:'the' },
+      { id:'aquarium',        text:'aquarium',        emoji:'🐠', article:'the' },
+      { id:'farm',            text:'farm',            emoji:'🐄', article:'the' },
+      { id:'dog_park',        text:'dog park',        emoji:'🐕', article:'the' },
+      { id:'animal_shelter',  text:'animal shelter',  emoji:'🐾', article:'the' },
+      { id:'pony_field',      text:'pony field',      emoji:'🐴', article:'a' },
+      { id:'butterfly_house', text:'butterfly house', emoji:'🦋', article:'the' },
+    ],
+    visitorBias: ['knight','pirate','wizard','jester','dinosaur'],
+    objectBias:  ['crumb_map','wobbly_telescope','binoculars','ticket_stub','water_bottle','tiny_key'] },
+
+  { key: 'on_the_go', label: 'On the Go', emoji: '🚌',
+    note: 'Buses, trains, planes, sidewalks',
+    hiddenPlaces: [
+      { id:'bus',              text:'bus',              emoji:'🚌', article:'the' },
+      { id:'train',            text:'train',            emoji:'🚆', article:'the' },
+      { id:'airplane',         text:'airplane',         emoji:'✈️', article:'the' },
+      { id:'car_ride',         text:'car ride',         emoji:'🚗', article:'a' },
+      { id:'ferry',            text:'ferry',            emoji:'⛴️', article:'the' },
+      { id:'sidewalk',         text:'sidewalk',         emoji:'🚶', article:'the' },
+      { id:'elevator',         text:'elevator',         emoji:'🛗', article:'the' },
+      { id:'subway_platform',  text:'subway platform',  emoji:'🚉', article:'the' },
+    ],
+    visitorBias: ['sub_teacher','wifi_ghost','goblin','stressed_barista','gnome'],
+    objectBias:  ['bus_ticket','backpack_zipper','lost_mitten','lunch_tray','sticker_sheet','water_bottle'] },
+
+  { key: 'somewhere_weird', label: 'Somewhere Weird', emoji: '🌀',
+    note: 'Moon bases, cloud castles, noodle planets',
+    hiddenPlaces: [
+      { id:'moon_base',          text:'moon base',          emoji:'🌙', article:'the' },
+      { id:'cloud_castle',       text:'cloud castle',       emoji:'☁️', article:'a' },
+      { id:'upside_down_museum', text:'upside-down museum', emoji:'🔄', article:'the' },
+      { id:'tiny_city',          text:'tiny city',          emoji:'🏙️', article:'a' },
+      { id:'giants_pocket',      text:"giant's pocket",     emoji:'👖', article:'a' },
+      { id:'sock_dimension',     text:'sock dimension',     emoji:'🧦', article:'the' },
+      { id:'noodle_planet',      text:'noodle planet',      emoji:'🍜', article:'a' },
+      { id:'invisible_hotel',    text:'invisible hotel',    emoji:'🏨', article:'an' },
+    ],
+    visitorBias: ['wizard','witch','dinosaur','goblin','ghost','fairy'],
+    objectBias:  ['shiny_rock','wobbly_telescope','tiny_key','mystery_coupon','crumb_map','umbrella'] },
+];
+const SETTING_FLAVOR_KEYS    = SETTING_FLAVORS.map(f => f.key);
+const SETTING_FLAVOR_DEFAULT = 'surprise';
+
+function getFlavor(key) {
+  return SETTING_FLAVORS.find(f => f.key === key);
+}
+
+/* Resolve a flavor key to a fully-realized setting object compatible with
+   the legacy V2_SETTINGS shape consumed by the v2/v3 engines. For non-surprise
+   flavors, a random hidden place is picked at call time (so a kid who locks
+   "Food Place" gets diner one session and bakery the next). */
+function resolveSetting(key) {
+  const flavor = getFlavor(key);
+  if (!flavor) {
+    // Unknown key — try legacy exact-key lookup (V2_SETTINGS lives in engine-v2.js
+    // which loads after content.js; guarded by typeof). Otherwise fall to surprise.
+    if (typeof V2_SETTINGS !== 'undefined') {
+      const legacy = V2_SETTINGS.find(s => s.id === key);
+      if (legacy) return legacy;
+    }
+    const surprise = getFlavor('surprise');
+    return { id: 'surprise', place: null, visitorBias: surprise.visitorBias, objectBias: surprise.objectBias };
+  }
+  if (!flavor.hiddenPlaces) {
+    // Surprise flavor — engine picks place from V2_WORDS.places freely.
+    return { id: flavor.key, place: null, visitorBias: flavor.visitorBias, objectBias: flavor.objectBias };
+  }
+  const chosen = flavor.hiddenPlaces[Math.floor(Math.random() * flavor.hiddenPlaces.length)];
+  return { id: flavor.key, place: chosen, visitorBias: flavor.visitorBias, objectBias: flavor.objectBias };
+}
+
+/* Migrate a legacy exact-setting key from pre-b9 saved profiles to the closest
+   new flavor key. Called from Profile.load() so saved nt_setting values from
+   v2.1.0+ continue to work. Unknown values fall back to surprise. */
+function migrateLegacySetting(value) {
+  if (!value) return SETTING_FLAVOR_DEFAULT;
+  if (SETTING_FLAVOR_KEYS.includes(value)) return value;  // already a flavor key
+  const LEGACY_MAP = {
+    diner:         'food_place',
+    grocery_store: 'food_place',
+    mall:          'surprise',          // doesn't fit any single flavor cleanly
+    football_game: 'at_school',
+    school:        'at_school',
+    backyard:      'at_home',
+    zoo:           'animal_place',
+    bus:           'on_the_go',
+  };
+  return LEGACY_MAP[value] || SETTING_FLAVOR_DEFAULT;
+}
 
 /* Verb form lookup — maps each past-tense move-pool entry to its base + gerund forms.
    Templates use moveBase()/moveGerund() to derive the right form for the syntactic slot
