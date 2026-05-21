@@ -17,7 +17,7 @@
    labeling: product is in late beta (v0.9.x), engine is still v3 internally. The
    historical v3.0.0-v3.0.3 CHANGELOG entries stay as-is for traceability. */
 const APP_VERSION  = 'v0.9.3';
-const BUILD_NUMBER = 9;
+const BUILD_NUMBER = 10;
 
 /* v0.9.3 · b8 — Narrator Voice Selector MVP.
    Four curated narrator archetypes. Original tones; no celebrity / character imitation.
@@ -25,10 +25,14 @@ const BUILD_NUMBER = 9;
    server-side in env vars (api/tts.js). Adding a preset here requires the matching
    server-side allowlist entry in api/tts.js — otherwise unknown presets are 400'd. */
 const VOICE_PRESETS = [
-  { key: 'sunny',     label: 'Sunny',         tagline: 'Warm, bright, daytime' },
-  { key: 'cozy',      label: 'Cozy Bedtime',  tagline: 'Soft + slow for sleepy ears' },
-  { key: 'adventure', label: 'Big Adventure', tagline: 'Bold + energetic narrator' },
-  { key: 'silly',     label: 'Silly Cartoon', tagline: 'Playful + bouncy + expressive' },
+  { key: 'sunny',     label: 'Sunny',         tagline: 'Warm, bright, daytime',
+    previewText: "Hi, I'm Sunny. I can't wait to read your story." },
+  { key: 'cozy',      label: 'Cozy Bedtime',  tagline: 'Soft + slow for sleepy ears',
+    previewText: "Hi, I'm Cozy Bedtime. I'll read this nice and gently." },
+  { key: 'adventure', label: 'Big Adventure', tagline: 'Bold + energetic narrator',
+    previewText: "Hi, I'm Big Adventure. Let's make this story sound epic." },
+  { key: 'silly',     label: 'Silly Cartoon', tagline: 'Playful + bouncy + expressive',
+    previewText: "Hi, I'm Silly Cartoon. This is going to get ridiculous." },
 ];
 const VOICE_PRESET_DEFAULT = 'sunny';
 const VOICE_PRESET_KEYS    = VOICE_PRESETS.map(p => p.key); // for validation

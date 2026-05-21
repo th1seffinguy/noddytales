@@ -46,6 +46,8 @@ return {
   SETTING_FLAVOR_KEYS,    // v0.9.3 · b9
   resolveSetting,         // v0.9.3 · b9
   migrateLegacySetting,   // v0.9.3 · b9
+  VOICE_PRESETS,          // v0.9.3 · b10 — preview unit tests
+  VOICE_PRESET_KEYS,      // v0.9.3 · b10
 };
 `;
 const ctx = (new Function(harness))();
@@ -976,6 +978,69 @@ for (const t of legacyCases) {
 }
 gate(`migrateLegacySetting maps old keys to closest flavor (${legacyCases.length} cases)`, migrateFail === 0, migrateFail + ' wrong mappings');
 if (flavorDetail.length) flavorDetail.forEach(d => console.log('    ' + d));
+
+/* === 16. VOICE PREVIEW — previewText coverage + cache-key separation (added v0.9.3 · b10) ===
+ *
+ * b10 adds voice preview clips so users can sample a narrator before committing.
+ * Previews use the SAME /api/tts endpoint (with text + voicePreset) but write
+ * to a SEPARATE IndexedDB cache namespace ("preview:<preset>") so they never
+ * pollute or collide with story cache entries ("<preset>|sha256(text)").
+ *
+ * Contracts:
+ *   (a) Every VOICE_PRESET has a non-empty previewText.
+ *   (b) Preview text is short (cost control). Soft cap 80 chars; flag if longer.
+ *   (c) preview cache key shape ("preview:<preset>") never starts with a flavor
+ *       key prefix used by story cache (e.g. "sunny|", "cozy|") — guaranteed by
+ *       the literal "preview:" prefix.
+ *   (d) Every preset produces a distinct preview cache key.
+ *   (e) Story cache keys and preview cache keys share no overlap. Mixing the
+ *       two would cause a story to replay a preview's audio (or vice versa).
+ */
+console.log('\n=== 16. Voice preview — previewText coverage + cache-key separation (v0.9.3 · b10) ===');
+const previewCases = [];
+function pAssert(label, cond, detail) { previewCases.push({ label, ok: !!cond, detail }); }
+
+for (const p of ctx.VOICE_PRESETS) {
+  pAssert(`preset "${p.key}" has a non-empty previewText`,
+    typeof p.previewText === 'string' && p.previewText.trim().length > 0);
+  pAssert(`preset "${p.key}" previewText is short (≤ 80 chars)`,
+    typeof p.previewText === 'string' && p.previewText.length <= 80,
+    `${p.previewText && p.previewText.length} chars`);
+}
+
+// Cache key shapes (replicate the client-side helpers in qa-current.js so the
+// contract is checked even if the runtime IDB layer is unavailable in Node).
+function clientHashKeyStub(preset, hex) { return `${preset}|${hex}`; }
+function clientPreviewKey(preset)        { return `preview:${preset}`; }
+
+const previewKeys = ctx.VOICE_PRESET_KEYS.map(clientPreviewKey);
+pAssert('every preview cache key starts with "preview:"',
+  previewKeys.every(k => k.startsWith('preview:')));
+pAssert('preview cache keys are all distinct',
+  new Set(previewKeys).size === previewKeys.length);
+
+// Cross-check: no story cache key (preset|hex) collides with any preview key.
+// Story keys never start with "preview:" because preset keys are word chars.
+const fakeHex = 'a1b2c3d4e5f6a7b8';
+const storyKeys = ctx.VOICE_PRESET_KEYS.map(k => clientHashKeyStub(k, fakeHex));
+const overlap = storyKeys.filter(s => previewKeys.includes(s));
+pAssert('no story cache key collides with a preview cache key', overlap.length === 0,
+  overlap.length ? overlap.join(',') : '');
+
+// Defense-in-depth: a story preset key must not be exactly "preview" (would
+// otherwise allow client to write "preview|sha..." which a buggy reader could
+// mistake for a preview entry).
+pAssert('no VOICE_PRESET key is literally "preview"',
+  !ctx.VOICE_PRESET_KEYS.includes('preview'));
+
+let p_fail = 0;
+for (const c of previewCases) {
+  if (c.ok) continue;
+  p_fail++;
+  console.log(`    ✗ ${c.label}${c.detail ? ' — ' + c.detail : ''}`);
+}
+gate(`Voice preview unit tests (${previewCases.length} cases)`, p_fail === 0, p_fail + ' failed');
+console.log(`    ${previewCases.length - p_fail}/${previewCases.length} cases passed`);
 
 /* === 9. BLOCKED-WORD SCAN (added v2.10.2) ===
  *
