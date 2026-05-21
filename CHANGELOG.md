@@ -9,6 +9,47 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 13, engine v3.0.3) — 2026-05-21
+**Animal-emoji audit — "red panda 🦝" raccoon mismatch removed**
+
+Parent screenshot caught `kid.pet "red panda"` rendering with a 🦝 raccoon emoji. The mismatch was introduced in v3.0.1 when the within-round emoji-uniqueness gate forced "red panda" off 🦊 (which it shared with fennec fox) and onto 🦝 — semantic accuracy lost to break the collision.
+
+### What shipped
+
+| Tier.cat | Before | After |
+|---|---|---|
+| `kid.pet` | `red panda 🦝` | **removed** (regular `panda 🐼` already in the pool) |
+| `tween.pet` | `red panda 🦊` | **replaced with `panda 🐼`** (tween had no regular panda) |
+
+### Pool counts
+
+- `kid.pet`: 24 → 23 entries (well above the 2 cards shown per session)
+- `tween.pet`: 18 → 18 entries (one-for-one swap)
+
+### Other animal-emoji mismatches surfaced (NOT auto-fixed)
+
+Documented for follow-up review. Some are stuck on Unicode limitations (no native emoji exists); others are candidates for a future cleanup pass:
+
+| Tier.cat | Word | Emoji | Issue |
+|---|---|---|---|
+| `tween.pet` | sleepy gecko | 🐊 | crocodile, not gecko |
+| `tween.creature` | unreasonably tall pigeon | 🪿 | goose, not pigeon |
+| `tween.pet` | overthinking ferret | 🦦 | otter; no ferret emoji exists |
+| `big.pet` | overly formal ferret | 🦦 | otter; same |
+| `big.pet` | theatrical moth | 🦋 | butterfly; no moth emoji exists |
+| `kid.pet` | axolotl | 🐠 | tropical fish; no axolotl emoji |
+| `kid.pet` | lynx | 🐱 | basic cat; no lynx emoji |
+| `tween.pet` | axolotl | 🫧 | bubbles; no axolotl emoji |
+| `tween.pet` | quokka | 🐨 | koala; no quokka emoji |
+| `tween.pet` | tardigrade | 🦠 | microbe; close-but-not-exact |
+| `tween.pet` | tiny possum | 🐾 | paw prints; no possum emoji |
+
+### Acceptance
+
+- `scripts/qa-current.js` — **all 23 gates green** (Section 11 emoji-uniqueness still 0 collisions; no engine/picker/data touched beyond the WORD_BANK entries).
+
+---
+
 ## v0.9.3 (build 12, engine v3.0.3) — 2026-05-21
 **Setting 2.0 step — vertical centering on tall phones + chunkier tiles + unclipped rainbow**
 
