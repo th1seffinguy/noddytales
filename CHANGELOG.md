@@ -9,6 +9,41 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 19, engine v3.0.3) — 2026-05-21
+**Favicon stale-cache hardening — root `/favicon.ico` + absolute icon paths so the BN4c mark survives Chrome's favicon cache**
+
+Small hardening fix triggered by a real-Chrome-on-Mac screenshot: tab + bookmark bar still showed a pre-b5 stale favicon despite the deployed asset being correct BN4c.
+
+### Diagnosis
+
+- The deployed `https://noddytales.app/public/brand/favicon.svg` IS the correct BN4c orange book mark (byte-identical to the repo file, md5 `585527ce...`).
+- The bug is Chrome's history + bookmark icon cache holding a pre-b5 snapshot.
+- Two server-side factors made it worse than necessary:
+  1. `https://noddytales.app/favicon.ico` returned **404**. Chrome always probes this URL regardless of `<link rel="icon">` tags; when it 404s, Chrome's bookmark icon cache stays pinned to its last successful indexing.
+  2. The `<link rel="icon">` `href` values were **relative** (`public/brand/...`), which Chrome's favicon re-indexer treats as less authoritative than absolute paths after a brand swap.
+
+### Fix (3 changes, all under 10 lines)
+
+1. **New root file `/favicon.ico`** — copy of `public/brand/favicon-32.png`. PNG-as-ICO is universally accepted by Chrome / Firefox / Safari / Edge for the favicon probe. (macOS lacks ImageMagick so we used the existing 32×32 PNG as the artwork rather than generating a multi-image ICO.)
+2. **All 6 icon `<link>` tags** in `index.html` switched from relative `public/brand/...` to absolute `/public/brand/...` paths.
+3. **Added `<link rel="shortcut icon" href="/favicon.ico">`** for the legacy / Chrome-classic favicon channel, plus `sizes="any"` on the primary icon link.
+
+Opportunistically also fixed the `og:image` meta tag and `renderLogo()` `src` to use absolute paths (same root-cause class).
+
+### Limitation
+
+Does **not** clear an individual user's existing stale Chrome cache — Chrome's local favicon DB has its own TTL. The fix stops the bug class for any **new** visitor, or any returning visitor who triggers a force-reload / re-bookmark.
+
+### Acceptance
+
+- `curl -sI https://noddytales.app/favicon.ico` returns **200** + `Content-Type: image/png` after deploy.
+- `scripts/qa-current.js` — all **23 gates** green (asset move + HTML head edits are non-functional from the engine's perspective).
+- Inline `<script>` syntax — clean.
+
+`APP_VERSION` stays `v0.9.3`; `BUILD_NUMBER` 18 → **19**; `ENGINE_V2_VERSION` stays `v3.0.3`. Badge reads `v0.9.3 · b19`.
+
+---
+
 ## v0.9.3 (build 18, engine v3.0.3) — 2026-05-21
 **Silly Cartoon distinctiveness fix + voice-docs cleanup + first story-length pass (tot/little −22%)**
 
