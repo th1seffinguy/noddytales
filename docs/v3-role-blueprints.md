@@ -1,6 +1,6 @@
 # v3 Role-Based Story Blueprints — Design + Implementation Notes
 
-**Status:** v2.7.x ships **all four v3 blueprints** behind `?engine=v3`. v2 remains default; v3 is opt-in. v3 returns null for tot (ages 2-3) and little (ages 4-5); router falls back to v2. v2.7.0 deepened all four blueprints with concrete goals, vivid disaster props, specific rules, and load-bearing color/move/mood.
+**Status (v3.0.0+):** v3 is the **default engine for every age 2-13** in production. The router flipped in v3.0.0 (commit `1b5ef2d`). Ages 6-13 use the original 4 kid/big/tween v3 blueprints (`lost_snack_v3`, `goal_spine_v3`, `show_wrong_v3`, `rule_loophole_v3`) shipped through v2.5.0 → v2.7.0. Ages 2-5 use 4 tot/little-v3 blueprints (`tot_wonder_v3`, `tot_sky_v3`, `little_quest_v3`, `little_food_v3`) added in v2.10.0 per [docs/tot-little-v3-design.md](tot-little-v3-design.md). v2 is retained as a silent fallback through v3.0.0–v3.0.2; v3.0.3 deletes the v2 codepath entirely.
 **Authors:** v2.4.7 planning pass, v2.5.0 first runtime, v2.6.0 blueprint expansion, v2.6.1 QA patch, v2.7.0 story-quality deepening.
 **Predecessor:** v2.3.x blueprints (`goal_spine`, `lost_snack`, `show_wrong`, `rule_loophole`) which proved that *causality* (chosen words drive plot) beats *coverage* (chosen words sprinkled in).
 
@@ -16,7 +16,7 @@
 | Feature flag (`?engine=v3`) | ✓ shipped | URL param sets `localStorage.nt_engine_v3` and `window.NODDY_ENGINE`. v2 fallback on any v3 failure. |
 | Coverage callback layer | **kept as v3 safety net** | v3 runtime uses a callback pass for flavor roles (`signature_action`, `visual_signature`, `chant`, `payoff_word`, `mood_throughline`, `mcguffin`, `obstacle`). Each emits highlight tokens directly so the callback layer is fully token-aware. Required roles (protagonist, ally, setting, etc.) are guaranteed by stage-level beat requirements. |
 | Random blueprint selection | ✓ shipped | `generateStoryV3` picks uniformly at random from all eligible blueprints. `picks.__v3BlueprintId` forces a specific blueprint (used by `qaV3Blueprint` for isolated audits). |
-| Tot/little support | not yet | v3 returns null for ages 2-5; router falls back to v2. tot/little keep v2's simpler structure. |
+| Tot/little support | ✓ shipped (v2.10.0) | 4 tot/little-v3 blueprints (tot_wonder, tot_sky, little_quest, little_food) with simplified 3-role contract (protagonist/ally/wonder_object) and 4-paragraph arcs. Production routing in v3.0.0 sends ages 2-5 through v3 by default. |
 | `qaV3Blueprint` helper | ✓ shipped | Reports nulls, unresolved tokens, arc completeness, kid agency, per-role body/title/highlighted. |
 | Dynamic blueprint validation | ✓ shipped (v2.6.0) | Required-role set derived from `blueprint.stages[*].requiredRoles` union, not hardcoded. |
 | Plural-aware mcguffin rendering | ✓ shipped (v2.6.1) | Beats that previously rendered "a donuts" now use `[c:{mcguffin.articleText}]` which returns "donuts" for plural foods and "a pizza" / "an apple" for singulars. |

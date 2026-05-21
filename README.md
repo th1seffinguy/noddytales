@@ -27,9 +27,11 @@ A bedtime-and-anytime story generator for kids ages 2–13. Kids pick a name, ag
 
 ## Story engines
 
-- **v2 (default)** — authored comedy engine with 4 blueprints (goal_spine, lost_snack, show_wrong, rule_loophole), beat cards, and coverage callbacks. Ships to all ages 2–13.
-- **v3 (opt-in)** — role-based engine with 4 blueprints (lost_snack_v3, goal_spine_v3, show_wrong_v3, rule_loophole_v3). Token-direct authoring, stage progression, declarative role maps. Enabled via `?engine=v3` URL param or `localStorage.nt_engine_v3`. Falls back to v2 for tot/little ages.
-- **v1 (legacy)** — template-substitution engine kept as a hard fallback.
+- **v3 (default, since v3.0.0)** — role-based engine with 8 blueprints covering every age tier:
+  - ages 6-13 (kid/big/tween): `lost_snack_v3`, `goal_spine_v3`, `show_wrong_v3`, `rule_loophole_v3` — 4-stage / 6-paragraph arcs with declarative role maps, token-direct authoring, stage progression.
+  - ages 2-5 (tot/little, since v2.10.0): `tot_wonder_v3`, `tot_sky_v3`, `little_quest_v3`, `little_food_v3` — simplified 3-role contract (protagonist / ally / wonder_object) / 4-paragraph arcs.
+- **v2 (silent fallback)** — the authored comedy engine that was the production default v2.0.0 → v2.10.2. Retained in code as a runtime fallback for v3.0.0; will be deleted in v3.0.3+ once production traffic confirms v3 stability across all releases.
+- **v1 (deprecated)** — template-substitution engine. Reachable only if both v3 and v2 return null. Emits a console deprecation warning when it fires. Scheduled for removal with v2 in v3.0.3+.
 
 ## Stack
 
