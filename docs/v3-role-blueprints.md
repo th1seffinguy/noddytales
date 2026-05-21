@@ -1,10 +1,10 @@
 # v3 Role-Based Story Blueprints — Design + Implementation Notes
 
-**Status:** v2.6.x ships **all four v3 blueprints** behind `?engine=v3`. v2 remains default; v3 is opt-in. v3 returns null for tot (ages 2-3) and little (ages 4-5); router falls back to v2.
-**Authors:** v2.4.7 planning pass, v2.5.0 first runtime, v2.6.0 blueprint expansion, v2.6.1 QA patch.
+**Status:** v2.7.x ships **all four v3 blueprints** behind `?engine=v3`. v2 remains default; v3 is opt-in. v3 returns null for tot (ages 2-3) and little (ages 4-5); router falls back to v2. v2.7.0 deepened all four blueprints with concrete goals, vivid disaster props, specific rules, and load-bearing color/move/mood.
+**Authors:** v2.4.7 planning pass, v2.5.0 first runtime, v2.6.0 blueprint expansion, v2.6.1 QA patch, v2.7.0 story-quality deepening.
 **Predecessor:** v2.3.x blueprints (`goal_spine`, `lost_snack`, `show_wrong`, `rule_loophole`) which proved that *causality* (chosen words drive plot) beats *coverage* (chosen words sprinkled in).
 
-## Current implementation summary (v2.6.1)
+## Current implementation summary (v2.7.0)
 
 | Design element | Status | Notes |
 |---|---|---|
@@ -21,6 +21,11 @@
 | Dynamic blueprint validation | ✓ shipped (v2.6.0) | Required-role set derived from `blueprint.stages[*].requiredRoles` union, not hardcoded. |
 | Plural-aware mcguffin rendering | ✓ shipped (v2.6.1) | Beats that previously rendered "a donuts" now use `[c:{mcguffin.articleText}]` which returns "donuts" for plural foods and "a pizza" / "an apple" for singulars. |
 | Smart title casing | ✓ shipped (v2.6.1) | `titleCase` keeps small words (a, an, the, of, in, on, at, to, for, by, with, and, or, but, vs, from, as, if, nor) lowercase unless they're the first or last word. Fixes "Rescue A Stuck Friend" → "Rescue a Stuck Friend". |
+| Concrete `goal` role for `goal_spine_v3` | ✓ shipped (v2.7.0) | New v3 `goal` slot mirrors v2's `pickGoal` (30 entries like *"win the silly race"*, *"open the door that won't open"*). Setup/problem/payoff stages reference the goal by name. Title patterns use new `goal.titleText` for clean title-case rendering (*"The Day Cole Won the Silly Race"*). |
+| Visual-signature + signature-action + mood load-bearing | ✓ shipped (v2.7.0) | New beats integrate color (visual_signature), move (signature_action), and mood (mood_throughline) into causal positions instead of decorative sprinkles. `bodyHasHighlight` callback fix ensures highlights are credited from token spans not raw text. |
+| Vivid disaster props for `show_wrong_v3` | ✓ shipped (v2.7.0) | Three new problem beats with kid-readable physical comedy: prop launches into ally's lap, prop makes impossible noise and tips sideways forever, prop "just gives up." Plus one tween-specific slow-motion beat. |
+| Specific rules for `rule_loophole_v3` | ✓ shipped (v2.7.0) | Three new kid/big problem beats with rules that give the loophole a concrete shape (*"food can only be touched on Tuesdays"*, *"food must remain at least three feet from any protagonist"*). |
+| Funnier guilty-ally reveals for `lost_snack_v3` | ✓ shipped (v2.7.0) | Three new beats (burp-gives-them-away, eyes-on-the-ceiling, fake-leaf-getting-caught) plus a tween variant so age 12 doesn't recycle the kid/big reveal. |
 
 ## Lessons from the first runtime
 
@@ -132,15 +137,23 @@ The template body uses `{role.text}` instead of `{slot.text}`. The renderer reso
 | Authoring per beat | Need to author across all blueprints separately | Author beats by *role function*; blueprints inherit the entire pool |
 | Failure mode | Coverage fixes patch the symptom (a sentence appended) | Story is structurally invalid (caller falls back gracefully) |
 
-## Migration plan (v2.4.x → v3.0)
+## Migration history (what actually shipped)
 
-1. **v2.5.0 — role metadata on V2_WORDS.** Tag every rich-word entry with role hints: foods get `bribe`/`messy`/`shareable`, objects get `tool`/`clue`/`runaway`, companions get `loyal`/`sneaky`/`tiny`/`absurd`, visitors get `authority`/`chaotic`/`mysterious`. This is the schema groundwork. Picker UX unchanged.
-2. **v2.6.0 — role-aware beat filter (additive).** A new beat field `preferRoles: { mcguffin: 'bribe' }` lets v2 beats softly prefer role-tagged entries during slot resolution. Backwards compatible with existing v2 beats.
-3. **v2.7.0 — first v3 blueprint shipped alongside v2 blueprints.** New `quest_v3` blueprint with full role declaration. Engine routes ~10% of kid/big/tween stories through it; rest still v2. Direct comparison data gathered.
-4. **v2.8.0 — full v3 beat library for the 4 existing blueprints.** Rewrite `goal_spine`, `lost_snack`, `show_wrong`, `rule_loophole` as v3 role-based. Coverage callback layer can shrink because pre-validation handles most cases.
-5. **v3.0.0 — cutover.** Retire v2 blueprint code path. Retire v1 fallback. Single role-based engine. Picker UX unchanged.
+The original v2.4.7 migration plan envisioned a 5-step path with a new `quest_v3` blueprint as the first v3 entry. The path was compressed:
 
-Each step is independently shippable and gated on real-kid playtest data, not a big-bang refactor.
+1. **v2.5.0 — first v3 runtime.** `lost_snack_v3` shipped behind `?engine=v3`, end-to-end role-based generation working. (Original plan called this "v2.7.0 — first v3 blueprint shipped" using a new `quest_v3`; in practice we re-used `lost_snack` as the first v3 blueprint and skipped `quest_v3` entirely.)
+2. **v2.6.0 — all four v3 blueprints live.** `goal_spine_v3`, `show_wrong_v3`, `rule_loophole_v3` added alongside `lost_snack_v3`. v3 covers ages 6-13; tot/little still v2.
+3. **v2.6.1 — QA patch.** Repeatable Node harness, plural-article fix, title-casing fix, tween obstacle escalation.
+4. **v2.6.2/v2.6.3 — karaoke alignment + bedtime/anytime story mode + hotfix.** Not v3-specific.
+5. **v2.7.0 — story-quality deepening.** Concrete goals, vivid disaster props, specific rules, funnier reveals, color/move/mood made load-bearing. No new blueprints.
+
+### Next likely v3 work
+
+- **Tween voice pass** — age 11-13 currently routes through the same v3 beats as kid/big. v2.7.0 added a few tween-specific beats but a focused pass on tween idiom, escalation cadence, and slightly drier humor is the most likely next move.
+- **Plural verb agreement** — still inherits the "had vanished" workaround from v2. Threading `isPlural` through role resolution remains deferred.
+- **Tot/little v3** — still untouched. Tot stays simple by design (4 short paragraphs) but a 3-role contract (`protagonist`, `ally`, `wonder_object`) could be tried if quality demands it.
+
+The `quest_v3` blueprint mentioned in the original plan was never shipped and is not currently on the roadmap. The four shipped v3 blueprints cover its narrative shapes.
 
 ## Open questions
 

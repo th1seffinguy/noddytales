@@ -1,5 +1,8 @@
 #!/usr/bin/env node
-/* qa-v261.js — repeatable Node QA script for v2.6.1.
+/* qa-current.js — repeatable Node QA acceptance harness for the current NoddyTales release.
+ *
+ * Renamed from qa-v261.js in v2.7.1. This is the single source of truth for "did we break
+ * the app?" — every release must pass it before shipping.
  *
  * Verifies:
  *  - v2 age matrix:   50 random app-shaped stories per age, ages 2-13.
@@ -11,6 +14,10 @@
  *                     0 nulls, 0 unresolved, 6 paragraphs, all picked words in body + highlighted.
  *  - grammar lint:    2,000 v2 random stories. 0 "a donuts/cookies/waffles/pancakes/..." patterns.
  *                     0 generated titles containing " A " (uppercase a) mid-title.
+ *  - story mode:      bedtime vs anytime endings at age 9 and age 2.
+ *  - inline syntax:   parses every <script> block in index.html via `new Function`.
+ *                     Catches the kind of broken inline JS that caused the v2.6.2 blank-screen
+ *                     incident before it ever reaches production.
  *
  * Exits non-zero if any hard acceptance criterion fails.
  */
@@ -257,6 +264,41 @@ const totBed = endingAudit('bedtime', 2, 40);
 const totAny = endingAudit('anytime', 2, 40);
 console.log(`  tot bedtime: bedtime-words=${totBed.bedtimeWords}/40   tot anytime: bedtime-words=${totAny.bedtimeWords}/40`);
 gate('tot storyMode=anytime DOES NOT default to bedtime (≤25%)', totAny.bedtimeWords <= 10, totAny.bedtimeWords + '/40');
+
+/* === 6. INLINE <script> SYNTAX (added v2.7.1) ===
+ *
+ * Why this gate exists: v2.6.2 shipped with a broken ternary in an inline <script>
+ * block in index.html, which silently parse-failed at page load and produced a blank
+ * screen for every visitor. No automated check caught it. This gate parses every
+ * inline <script> body via `new Function(body)` — if the parser throws, the gate
+ * fails. Cheap, fast, and catches the class of bug that hurt us most.
+ */
+console.log('\n=== 6. Inline <script> syntax (index.html) ===');
+const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+const scriptBlockRx = /<script(?:\s+[^>]*)?>([\s\S]*?)<\/script>/gi;
+let blockCount = 0;
+let syntaxErrors = 0;
+const syntaxErrorDetail = [];
+let scriptMatch;
+while ((scriptMatch = scriptBlockRx.exec(html)) !== null) {
+  const tag = scriptMatch[0].slice(0, scriptMatch[0].indexOf('>') + 1);
+  // Skip non-JS blocks (e.g. application/ld+json) and external src= references
+  if (/\stype\s*=\s*["'](?!text\/javascript|application\/javascript|module)[^"']+["']/i.test(tag)) continue;
+  if (/\ssrc\s*=/i.test(tag)) continue;
+  const body = scriptMatch[1];
+  if (!body.trim()) continue;
+  blockCount++;
+  try {
+    new Function(body);
+  } catch (e) {
+    syntaxErrors++;
+    if (syntaxErrorDetail.length < 5) {
+      syntaxErrorDetail.push(`block #${blockCount}: ${e.message}`);
+    }
+  }
+}
+gate('all inline <script> blocks parse cleanly', syntaxErrors === 0, blockCount + ' blocks scanned, ' + syntaxErrors + ' errors');
+if (syntaxErrorDetail.length) syntaxErrorDetail.forEach(d => console.log('    ' + d));
 
 /* === SUMMARY === */
 console.log('\n=== SUMMARY ===');

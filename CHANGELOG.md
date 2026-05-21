@@ -4,6 +4,62 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.7.1 — 2026-05-20
+**Cleanup + hardening — docs refreshed, QA harness now catches blank-screen class of bug**
+
+No new story features. Pure hygiene release that closes the gaps that hurt us in v2.6.2 and removes friction for any future build.
+
+### Inline `<script>` syntax gate (added to QA harness)
+
+`scripts/qa-current.js` Section 6 now parses every inline `<script>` block in `index.html` via `new Function(body)`. If the parser throws, the gate fails and the harness exits non-zero. The v2.6.2 broken-ternary bug that produced a blank green screen for every visitor would have been caught before push. Cheap, fast, gates on `errors === 0`.
+
+### QA harness renamed
+
+`scripts/qa-v261.js` → `scripts/qa-current.js`. Name no longer ties to a stale release. Header rewritten to reflect that this is the single acceptance harness for the current release, not a v2.6.1 artifact. `CLAUDE.md` project-instructions updated to point at the new path.
+
+### README.md refreshed to current state
+
+Old README claimed ages 2–10, Web Speech API, and "custom domain pending purchase" — all stale by months. New README documents:
+- Ages 2–13 across 5 tiers (added tween)
+- 7-step flow (name/age → sidekicks → setting → storyMode → words → highlights → Read it to me)
+- ElevenLabs TTS via Vercel serverless proxy (`api/tts.js`)
+- IndexedDB audio + alignment cache
+- localStorage profile keys
+- v2/v3 engine layering and the `?engine=v3` opt-in
+- Local dev with `vercel dev` and required env vars
+- Current QA harness command (`node scripts/qa-current.js`)
+- Live domain: noddytales.app
+- Folder structure including `api/`, `scripts/`, `docs/`, `CLAUDE.md`
+
+### docs/v3-role-blueprints.md polish
+
+- Removed stale "v2.5.0 ships one blueprint" status text.
+- Removed the `quest_v3` forward-reference from the original migration plan (never shipped; not on roadmap — its narrative shapes are covered by the four shipped v3 blueprints).
+- Updated to v2.7.0 outcomes: concrete `goal` slot for `goal_spine_v3` with `titleText`, vivid disaster props for `show_wrong_v3`, specific loophole rules for `rule_loophole_v3`, funnier guilty-ally reveals for `lost_snack_v3`, `bodyHasHighlight` fix for token-credited highlight coverage.
+- Added "next likely v3 work" section flagging tween voice pass as the most probable next move, plus deferred items (plural verb agreement, tot/little v3).
+
+### Audit doc title fix
+
+`docs/story-quality-audit-v2.7.0-post.md` H1 corrected from "baseline" to "post-change audit". `pre.md` vs `post.md` are now visibly distinct.
+
+### CLAUDE.md tracked
+
+`CLAUDE.md` was committed in `b0dd141`. This release explicitly verifies it's in the repo and updates its `qa-v261.js` reference to `qa-current.js` so future work follows the renamed path.
+
+### Acceptance
+
+Full `node scripts/qa-current.js` clean:
+- 600 v2 stories (12 ages × 50) — 0 nulls, 0 unresolved, 0 missing required-slot mentions
+- 60/60 sky=moon@age2 + 60/60 weather=stormy@age4 (body + highlight)
+- 960 v3 stories (4 blueprints × 8 ages × 30) — 0 nulls, 0 unresolved, 6-paragraph arc, 100% picked-word body coverage + highlight
+- 2,000-story grammar lint — 0 plural-article errors, 0 awkward " A " titles
+- Story-mode regression — anytime mode drops bedtime words near zero, day-ending markers stay ≥60%
+- **New:** all inline `<script>` blocks in `index.html` parse cleanly (errors === 0)
+
+`APP_VERSION` and `ENGINE_V2_VERSION` bumped in lockstep to `v2.7.1`. In-app release notes updated. No code-path changes to the story engine.
+
+---
+
 ## v2.7.0 — 2026-05-20
 **Story Quality Pass — v3 ages 6-13 measurably stronger**
 

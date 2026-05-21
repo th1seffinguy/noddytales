@@ -38,5 +38,5 @@ For shipped code changes:
 - Update `CHANGELOG.md`.
 - Update in-app release notes in `index.html` when user-facing.
 - Run the relevant QA harness before claiming success.
-- For story engine changes, run `node scripts/qa-v261.js` unless the change is purely documentation.
+- For story engine changes, run `node scripts/qa-current.js` unless the change is purely documentation.
 - For UI changes in `index.html`, also syntax-check the inline script so broken page-level JavaScript cannot ship.
