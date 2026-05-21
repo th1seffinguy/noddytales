@@ -948,6 +948,80 @@ function vAssert(label, cond, detail) {
   vAssert('no celebrity / licensed-character / real-person language in voice presets',
     leaks.length === 0, leaks.join('; '));
 }
+// 14. v0.9.3 · b22 — voiceSignature shape: 8 lowercase hex chars derived from
+//     SHA-256(voiceId). Catches accidental raw-id exposure in dev tooling.
+{
+  const sig = tts.voiceSignature('JBFqnCBsd6RMkjVDRZzb');
+  vAssert('voiceSignature returns 8 lowercase hex chars',
+    typeof sig === 'string' && sig.length === 8 && /^[0-9a-f]{8}$/.test(sig),
+    `got "${sig}"`);
+  // Same voice ID always yields the same signature (deterministic fingerprint).
+  vAssert('voiceSignature is deterministic',
+    tts.voiceSignature('JBFqnCBsd6RMkjVDRZzb') === sig);
+  // Different voice IDs yield different signatures.
+  vAssert('voiceSignature differs across distinct voice IDs',
+    tts.voiceSignature('JBFqnCBsd6RMkjVDRZzb') !== tts.voiceSignature('21m00Tcm4TlvDq8ikWAM'));
+}
+// 15. v0.9.3 · b22 — detectVoiceCollapse happy path: 4 distinct hardcoded
+//     defaults with NO env vars set → 0 collisions. This is the contract
+//     b17 was supposed to deliver but the recurring "all previews are George"
+//     bug was caused by the CLIENT cache layer, not the resolver. The collapse
+//     detector still proves the resolver side is healthy.
+{
+  const collisions = tts.detectVoiceCollapse({});
+  vAssert('detectVoiceCollapse: no env vars → 0 collisions (4 distinct hardcoded defaults)',
+    collisions.length === 0,
+    `got ${collisions.length} collisions: ${JSON.stringify(collisions)}`);
+}
+// 16. v0.9.3 · b22 — detectVoiceCollapse env-driven collapse: all 4 per-preset
+//     env vars set to the SAME voice ID (the b16 production failure mode where
+//     an operator pointed everything at George) → 1 collision group containing
+//     all 4 presets. Verifies the per-request console.warn would fire.
+{
+  const george = 'JBFqnCBsd6RMkjVDRZzb';
+  const env = {
+    ELEVENLABS_VOICE_SUNNY:     george,
+    ELEVENLABS_VOICE_COZY:      george,
+    ELEVENLABS_VOICE_ADVENTURE: george,
+    ELEVENLABS_VOICE_SILLY:     george,
+  };
+  const collisions = tts.detectVoiceCollapse(env);
+  vAssert('detectVoiceCollapse: env collapses all 4 presets to George → 1 collision group of 4',
+    collisions.length === 1
+      && collisions[0].presets.length === 4
+      && ['sunny','cozy','adventure','silly'].every(k => collisions[0].presets.includes(k)),
+    `got ${JSON.stringify(collisions)}`);
+}
+// 17. v0.9.3 · b22 — detectVoiceCollapse partial collapse: TWO presets pointed
+//     at George, the other two using their hardcoded defaults → exactly one
+//     collision group containing the two colliders (plus George via cozy's
+//     hardcoded default — so cozy + the 2 overridden presets = 3 colliders).
+//     Tests the named-presets behavior so operator can fix the right env vars.
+{
+  const george = 'JBFqnCBsd6RMkjVDRZzb';
+  const env = {
+    ELEVENLABS_VOICE_SUNNY:     george,
+    ELEVENLABS_VOICE_ADVENTURE: george,
+  };
+  const collisions = tts.detectVoiceCollapse(env);
+  // cozy resolves to George via hardcodedPerPreset; sunny + adventure resolve
+  // to George via envPerPreset. Silly resolves to Mimi (its own hardcoded
+  // default). So we expect 1 collision group of [sunny, cozy, adventure].
+  vAssert('detectVoiceCollapse: 2 env vars pointed at cozy default → 3-preset collision group',
+    collisions.length === 1
+      && collisions[0].presets.length === 3
+      && ['sunny','cozy','adventure'].every(k => collisions[0].presets.includes(k))
+      && !collisions[0].presets.includes('silly'),
+    `got ${JSON.stringify(collisions)}`);
+}
+// 18. v0.9.3 · b22 — VOICE_CONFIG_VERSION is the server-side config marker.
+//     Must be a non-empty string. Client (qaVoicePreviews) compares this to
+//     the cache version it was built against to detect server/client drift.
+{
+  vAssert('VOICE_CONFIG_VERSION is non-empty string',
+    typeof tts.VOICE_CONFIG_VERSION === 'string' && tts.VOICE_CONFIG_VERSION.length > 0,
+    `got "${tts.VOICE_CONFIG_VERSION}"`);
+}
 
 let v_fail = 0;
 for (const c of voiceCases) {

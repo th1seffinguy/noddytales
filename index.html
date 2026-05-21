@@ -1568,6 +1568,8 @@ const MAX_SHUFFLES = 2;
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v0.9.3 · b22', title: 'Voice cache versioning + signature observability + same-voice collapse detection — fixes "all previews are George" at the cache layer',
+    detail: 'Production-blocking defect. Parents report all 4 voice preview buttons play the same male British narrator (George). The resolver chain has been fixed 4 times since b8 (b16/b17/b18/b20) and Section 14 has been 14/14 green every time — but the bug kept recurring. ROOT CAUSE: stale IndexedDB preview blobs. The b8-b21 preview cache key was unversioned (`preview:sunny`, `preview:cozy`, etc.) so any user who EVER previewed during a deploy where production env vars collapsed all 4 presets to George has 4 IndexedDB entries containing George audio. Every subsequent tap returns CACHE HIT → replays George → never reaches the fixed resolver. Section 14 tests resolveVoice as a pure function with mock env; the cache layer is browser-side and was untested. FIX (4 parts): (1) VOICE_CACHE_VERSION constant in src/content.js (currently `v2`). New cache keys: `preview:v2:<preset>` + `v2:<preset>|<sha>`. Bumping this constant orphans pre-b22 blobs without forcing users to manually clear browser storage; orphans get GC\'d by the browser\'s IndexedDB quota policy. (2) /api/tts JSON response now carries voicePreset, voiceSource, voiceConfigVersion, and voiceSignature (first 8 hex chars of SHA-256(voiceId) — irreversible fingerprint). Lets DevTools verify 4 distinct voices without manual audio A/B. Raw ElevenLabs voice IDs stay server-side. (3) detectVoiceCollapse(env) helper in api/tts.js: runs resolveVoice for all 4 presets, returns collision groups. Per-request console.warn fires when any 2+ presets share a voiceSignature, naming the specific preset keys. Catches the b16 production failure mode (operator pointed all 4 env vars at George) at request time. (4) window.qaVoicePreviews() browser dev helper: fetches metadata for all 4 previews, prints a console.table with preset/cacheKey/cacheHit/voiceSignature, flags any signature collisions. Uses cache-aware probePreviewMeta that returns from cache when meta is present, otherwise hits /api/tts. Doesn\'t auto-play audio. NEW QA: 5 new Section 14 cases (voiceSignature shape + determinism + uniqueness, detectVoiceCollapse happy path + env-collapse + partial collapse, VOICE_CONFIG_VERSION shape). Section 14 went 14 → 19 cases (all pass). README adds a voice troubleshooting section covering stale-cache + env-collapse failure modes + the qaVoicePreviews diagnostic. README opener no longer says "warm British narrator voice" (stale since b8). HONESTY DISCLOSURE: Claude has no audio playback. b22 is the ARCHITECTURAL FIX that prevents the cache class of bug from recurring, but final audible verification must be done by John in production after deploy. If audio still sounds collapsed, qaVoicePreviews() + Vercel logs will show the exact diagnostic. APP_VERSION stays v0.9.3; BUILD_NUMBER 21 → 22; ENGINE_V2_VERSION stays v3.0.3. Badge reads v0.9.3 · b22.' },
   { v: 'v0.9.3 · b21', title: 'Rainbow decoration no longer clips the welcome-back lede — moved to empty top-center band',
     detail: 'Tiny CSS hotfix. User screenshot on iPhone (welcome-back substep) showed the decorative 🌈 emoji clipping the leading "s" of the lede paragraph "still age 6? Same crew? Add or remove anyone." Root cause: `.deco--2 { top: 18%; left: 10%; }` from b12 anchored the rainbow inside the lede-text band on most viewport sizes. b12 had moved it from `left: 6%` to `left: 10%` to fix a left-edge clipping issue during the float-rotate animation, but didn\'t consider the vertical overlap with the lede paragraph below the heading. FIX: moved rainbow to `top: 5%; right: 38%`. Now sits in the empty top-center band between the brand mark (top-left) and the back/gear buttons (top-right). Anchoring from `right` instead of `left` ensures the position tracks consistently across phone widths (320 / 375 / 430 px) instead of drifting toward the brand mark on narrow viewports. Verified visually clear of all text + buttons across iPhone SE / iPhone / iPhone Pro Max. NO ENGINE / PICKER / STORY-DATA / VOICE CHANGES. ACCEPTANCE: scripts/qa-current.js all 24 gates green (asset position is non-functional from the engine\'s perspective). APP_VERSION stays v0.9.3; BUILD_NUMBER 20 → 21; ENGINE_V2_VERSION stays v3.0.3. Badge reads v0.9.3 · b21.' },
   { v: 'v0.9.3 · b20', title: 'Narrator labels simplified (no more "American"/"British") + Silly override-required + Section 10 measures V3 + structural kid 6→5 paragraphs',
@@ -4057,24 +4059,31 @@ const TTSManager = (() => {
     return await r.blob();
   }
 
-  /* v0.9.3 · b8 — cache key now includes the voice preset so switching narrators
-     does NOT replay cached audio from a different voice. Key shape:
-       voicePreset|sha256(text)   e.g. "cozy|f1a2b3c4d5e6f7a8"
-     Existing pre-b8 cache entries (no prefix) become orphaned on first request
-     per (voice, story) pair — acceptable for a per-device IndexedDB cache. */
+  /* v0.9.3 · b8 — cache key includes voice preset so switching narrators
+     does NOT replay cached audio from a different voice.
+     v0.9.3 · b22 — cache key now ALSO prefixed by VOICE_CACHE_VERSION
+     (currently 'v2'). Bumping that constant orphans every cached blob keyed
+     by an older version — fixes the recurring "all previews are George" bug
+     where pre-b17 cached preview blobs replayed George audio forever even
+     after the resolver chain was fixed. Key shape:
+       <VERSION>:<voicePreset>|sha256(text)   e.g. "v2:cozy|f1a2b3c4d5e6f7a8"
+     Pre-b22 unversioned entries become orphans on first request per
+     (voice, story) pair. Browser GC's them via IndexedDB quota policy. */
   async function hashKey(voicePreset, text) {
     const buf  = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
     const hex  = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
     const safe = VOICE_PRESET_KEYS.includes(voicePreset) ? voicePreset : VOICE_PRESET_DEFAULT;
-    return `${safe}|${hex}`;
+    return `${VOICE_CACHE_VERSION}:${safe}|${hex}`;
   }
 
   /* v0.9.3 · b10 — preview cache key. Separate namespace ("preview:") from
-     story keys ("sunny|abc..."), one entry per preset. Switching presets does
-     not invalidate story cache; previewing does not pollute story cache. */
+     story keys, one entry per preset.
+     v0.9.3 · b22 — now also includes VOICE_CACHE_VERSION so a cache version
+     bump invalidates preview blobs alongside story blobs. Key shape:
+       preview:<VERSION>:<preset>   e.g. "preview:v2:sunny" */
   function previewKey(voicePreset) {
     const safe = VOICE_PRESET_KEYS.includes(voicePreset) ? voicePreset : VOICE_PRESET_DEFAULT;
-    return `preview:${safe}`;
+    return `preview:${VOICE_CACHE_VERSION}:${safe}`;
   }
 
   function setLoading(on) {
@@ -4205,8 +4214,19 @@ const TTSManager = (() => {
       if (!res.ok) throw new Error('preview api error ' + res.status);
       const data = await res.json();
       audioBlob = await base64ToBlob(data.audioBase64, 'audio/mpeg');
-      // Cache the preview blob ONLY — no alignment needed (no karaoke for previews).
-      try { await putCached(key, { audio: audioBlob, alignment: null }); } catch {}
+      // v0.9.3 · b22 — cache the response metadata (voicePreset, voiceSource,
+      // voiceConfigVersion, voiceSignature) alongside the blob so subsequent
+      // cache-hit previews can still surface routing info to qaVoicePreviews
+      // without re-hitting the network. The metadata is small (~80 bytes)
+      // and helps DevTools verify that 4 cached previews represent 4 distinct
+      // voices.
+      const meta = {
+        voicePreset:        data.voicePreset,
+        voiceSource:        data.voiceSource,
+        voiceConfigVersion: data.voiceConfigVersion,
+        voiceSignature:     data.voiceSignature,
+      };
+      try { await putCached(key, { audio: audioBlob, alignment: null, meta }); } catch {}
     }
     const url = URL.createObjectURL(audioBlob);
     audio = new Audio(url);
@@ -4215,8 +4235,99 @@ const TTSManager = (() => {
     await audio.play();
   }
 
-  return { speak, stop, previewVoice };
+  /* v0.9.3 · b22 — Cache-aware metadata probe for window.qaVoicePreviews.
+     Returns { preset, cacheKey, fromCache, meta } where `meta` is
+     { voicePreset, voiceSource, voiceConfigVersion, voiceSignature } from
+     either the cached blob (if previously fetched) or a fresh /api/tts call.
+     Does NOT play audio. Does NOT pollute the playback state machine. */
+  async function probePreviewMeta(voicePreset) {
+    const preset = VOICE_PRESET_KEYS.includes(voicePreset) ? voicePreset : VOICE_PRESET_DEFAULT;
+    const def = VOICE_PRESETS.find(p => p.key === preset);
+    if (!def || !def.previewText) throw new Error('no previewText for preset');
+    await openDB();
+    const key = previewKey(preset);
+    let cached = null;
+    try { cached = await getCached(key); } catch {}
+    if (cached && cached.meta) {
+      return { preset, cacheKey: key, fromCache: true, meta: cached.meta };
+    }
+    // Cache miss OR cache-hit-without-meta (pre-b22 entry). Either way, fetch
+    // fresh so we get the signature. We still store the metadata back so the
+    // next probe is instant.
+    const res = await fetch('/api/tts', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ text: def.previewText, voicePreset: preset }),
+    });
+    if (!res.ok) throw new Error('probe api error ' + res.status);
+    const data = await res.json();
+    const meta = {
+      voicePreset:        data.voicePreset,
+      voiceSource:        data.voiceSource,
+      voiceConfigVersion: data.voiceConfigVersion,
+      voiceSignature:     data.voiceSignature,
+    };
+    // Write back so the user-facing previewVoice() path benefits too. Only
+    // store audio if we had to refetch a missing blob (cache-hit-without-meta
+    // case keeps the existing blob).
+    try {
+      const audioBlob = await base64ToBlob(data.audioBase64, 'audio/mpeg');
+      const existing  = cached && cached.audio ? cached : { alignment: null };
+      await putCached(key, { audio: existing.audio || audioBlob, alignment: null, meta });
+    } catch {}
+    return { preset, cacheKey: key, fromCache: false, meta };
+  }
+
+  return { speak, stop, previewVoice, probePreviewMeta };
 })();
+
+/* v0.9.3 · b22 — Dev helper: window.qaVoicePreviews()
+   Fetches metadata for all 4 voice previews and reports whether they
+   resolve to 4 distinct voiceSignatures. Does not auto-play audio. Run in
+   the browser console after a fresh deploy to verify routing + cache
+   separation without manual A/B audio comparison.
+
+   Returns: { rows, allDistinct, cacheVersion, signatures }
+*/
+window.qaVoicePreviews = async function() {
+  if (typeof VOICE_PRESET_KEYS === 'undefined') {
+    console.warn('[qaVoicePreviews] VOICE_PRESET_KEYS not defined; is content.js loaded?');
+    return null;
+  }
+  const rows = [];
+  for (const preset of VOICE_PRESET_KEYS) {
+    try {
+      const probe = await TTSManager.probePreviewMeta(preset);
+      rows.push({
+        preset,
+        cacheKey:           probe.cacheKey,
+        fromCache:          probe.fromCache,
+        voicePreset:        probe.meta.voicePreset,
+        voiceSource:        probe.meta.voiceSource,
+        voiceConfigVersion: probe.meta.voiceConfigVersion,
+        voiceSignature:     probe.meta.voiceSignature,
+      });
+    } catch (e) {
+      rows.push({ preset, error: String(e && e.message || e) });
+    }
+  }
+  const sigs        = rows.filter(r => r.voiceSignature).map(r => r.voiceSignature);
+  const allDistinct = new Set(sigs).size === sigs.length && sigs.length === VOICE_PRESET_KEYS.length;
+  const cacheVer    = (typeof VOICE_CACHE_VERSION !== 'undefined') ? VOICE_CACHE_VERSION : '(unknown)';
+  console.table(rows);
+  console.log(`[qaVoicePreviews] cacheVersion=${cacheVer}`);
+  console.log(`[qaVoicePreviews] all ${VOICE_PRESET_KEYS.length} signatures distinct?`, allDistinct);
+  if (!allDistinct) {
+    const counts = {};
+    for (const s of sigs) counts[s] = (counts[s] || 0) + 1;
+    const dupes = Object.entries(counts).filter(([_, n]) => n >= 2);
+    for (const [sig, n] of dupes) {
+      const presets = rows.filter(r => r.voiceSignature === sig).map(r => r.preset);
+      console.warn(`[qaVoicePreviews] ${n} presets share voiceSignature=${sig}: [${presets.join(', ')}]. Check Vercel env vars or VOICE_MAP defaults.`);
+    }
+  }
+  return { rows, allDistinct, cacheVersion: cacheVer, signatures: sigs };
+};
 
 function attachStoryHandlers(el) {
   const pill        = el.querySelector('#btn-speak-pill');

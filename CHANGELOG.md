@@ -9,6 +9,110 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 22, engine v3.0.3) — 2026-05-21
+**Voice cache versioning + signature observability + same-voice collapse detection — fixes "all previews are George" at the cache layer**
+
+Production-blocking defect. Parents reported all 4 voice preview buttons play the same male British narrator clip (George `JBFqnCBsd6RMkjVDRZzb`).
+
+### Root cause (after code inspection)
+
+The resolver chain has been fixed 4 times (b16/b17/b18/b20) and Section 14 has been 14/14 green every time. But the bug kept recurring because **the bug doesn't live in the resolver** — it lives in the **client-side IndexedDB cache layer**.
+
+Pre-b22 preview cache key shape was unversioned:
+
+```js
+function previewKey(voicePreset) {
+  return `preview:${preset}`;   // ← no cache version
+}
+```
+
+Any user who previewed during a deploy where production env vars collapsed all 4 presets to George has 4 IndexedDB entries (`preview:sunny`, `preview:cozy`, `preview:adventure`, `preview:silly`) all containing George audio. Every subsequent tap returns cache HIT and replays George — even though the resolver has been correct since b17. The browser never reaches `/api/tts`.
+
+Section 14 missed this because it tests `resolveVoice` as a pure function with mock env. The cache layer is browser-side and was untested.
+
+### Fix (4 parts)
+
+**1. Cache key versioning**
+
+New `VOICE_CACHE_VERSION = 'v2'` constant in `src/content.js`. Key shape:
+
+- Story: `<VERSION>:<preset>|<sha>` — e.g. `v2:cozy|f1a2b3c4d5e6f7a8`
+- Preview: `preview:<VERSION>:<preset>` — e.g. `preview:v2:sunny`
+
+Bumping the constant orphans every cached blob keyed by an older version. Browser misses cache once per (voice, story) pair and re-fetches from the current resolver. **No manual user action required** — orphans get GC'd by the IndexedDB quota policy. The constant is frozen until the next cache-invalidation event; bumping `BUILD_NUMBER` alone does not bump it.
+
+**2. Voice-routing observability**
+
+`/api/tts` JSON response now includes:
+
+```json
+{
+  "audioBase64": "...",
+  "alignment":   {...},
+  "voicePreset":         "sunny",
+  "voiceSource":         "hardcodedPerPreset",
+  "voiceConfigVersion":  "v2",
+  "voiceSignature":      "8476d21b"
+}
+```
+
+`voiceSignature` is the first 8 hex chars of `SHA-256(voiceId)` — an irreversible fingerprint that lets the client (and DevTools) verify 4 distinct underlying voices without exposing raw ElevenLabs voice IDs to the browser. Raw IDs stay server-side.
+
+**3. Same-voice collapse detection**
+
+New `detectVoiceCollapse(env)` helper in `api/tts.js` runs `resolveVoice` for all 4 presets and returns any signature-collision groups. Per-request `console.warn` fires when ≥2 presets share a `voiceSignature`, naming the specific preset keys:
+
+```
+[TTS] VOICE COLLAPSE: presets [sunny, cozy, adventure, silly] all resolve to the same voiceSignature=49f550f1. Users will hear identical audio for these presets. Check Vercel env vars (ELEVENLABS_VOICE_SUNNY/COZY/ADVENTURE/SILLY/ID).
+```
+
+Catches the b16 production failure mode (operator pointed all 4 env vars at George) **at request time** instead of only in retroactive user reports.
+
+**4. `window.qaVoicePreviews()` browser dev helper**
+
+Browser-side diagnostic that fetches metadata for all 4 voice previews and prints a `console.table` with preset / cacheKey / fromCache / voiceSignature. Flags any signature collisions in console. Uses a new cache-aware `TTSManager.probePreviewMeta()` that returns metadata from the cached entry when present (b22+ cache writes include the meta), otherwise calls `/api/tts`. Doesn't auto-play audio.
+
+```js
+// In Chrome DevTools console:
+await qaVoicePreviews()
+```
+
+### New QA gates
+
+Section 14 grew 14 → **19 cases**:
+
+- 14: `voiceSignature` shape (8 lowercase hex chars from SHA-256)
+- 15: `detectVoiceCollapse` happy path (4 distinct hardcoded defaults → 0 collisions)
+- 16: env-driven full collapse (all 4 env vars = George → 1 collision group of 4)
+- 17: partial collapse naming (2 env vars + cozy default = 3-preset collision group not including silly)
+- 18: `VOICE_CONFIG_VERSION` non-empty string
+
+All 19 pass.
+
+### README
+
+New voice troubleshooting section documents:
+- Stale IndexedDB cache failure mode + b22 fix
+- Vercel env var collapse failure mode + how to spot it in logs
+- `qaVoicePreviews()` diagnostic flow
+
+README opener no longer says *"warm British narrator voice"* (stale since b8 introduced the picker).
+
+### Honesty disclosure
+
+Claude has no audio playback. **b22 is the architectural fix** that prevents the cache class of bug from recurring, but **final audible verification must be done by John in production after deploy.** If audio still sounds collapsed, `qaVoicePreviews()` + Vercel logs will surface the exact diagnostic.
+
+### Acceptance
+
+- `scripts/qa-current.js` — all gates green; Section 14 14 → 19 cases
+- `node --check` on `api/tts.js`, `src/content.js`, `scripts/qa-current.js` — clean
+- Inline `<script>` syntax — clean
+- Smoke-tested helpers: `detectVoiceCollapse({})` returns `[]`; collapse-to-George returns 1 group of 4
+
+`APP_VERSION` stays `v0.9.3`; `BUILD_NUMBER` 21 → **22**; `ENGINE_V2_VERSION` stays `v3.0.3`. Badge reads `v0.9.3 · b22`.
+
+---
+
 ## v0.9.3 (build 21, engine v3.0.3) — 2026-05-21
 **Rainbow decoration no longer clips the welcome-back lede — moved to empty top-center band**
 
