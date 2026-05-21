@@ -1,6 +1,6 @@
 # NoddyTales
 
-A bedtime-and-anytime story generator for kids ages 2–13. Kids pick a name, age, sidekicks, and a setting, then tap through binary word-choice cards. A personalized silly story assembles locally from the picks, gets read aloud in a warm British narrator voice with word-by-word highlighting, and ends with either bedtime imagery or a "what happens next" hook depending on the chosen story mode.
+A bedtime-and-anytime story generator for kids ages 2–13. Kids pick a name, age, sidekicks, and a setting, then tap through binary word-choice cards. A personalized silly story assembles locally from the picks, gets read aloud in the kid's chosen narrator voice (Sunny / Storybook / Adventure / Silly) with word-by-word karaoke highlighting, and ends with either bedtime imagery or a "what happens next" hook depending on the chosen story mode.
 
 **Live:** [noddytales.app](https://noddytales.app)
 **Test audience:** Cole and Olivia.
@@ -39,7 +39,7 @@ NoddyTales tracks **three independent versions** (adopted 2026-05-21, see [`docs
 
 1. **`APP_VERSION`** (`v0.9.3`) — user-facing **product maturity**. `v0.9.x` = late beta, pre-App-Store. `v1.0.0` is reserved for public App Store launch. Shown in the in-app badge.
 2. **`ENGINE_V2_VERSION`** (`v3.0.3`) — internal **engine architecture** lineage. Bumps on engine-arch changes (e.g., v2 deletion → `v3.1.0`). Visible in DevTools / CHANGELOG context only; **not** in the badge.
-3. **`BUILD_NUMBER`** (`14`) — increments every release shipped to `main`. Shown in the badge alongside the product version as `v0.9.3 · b14`. (Sequence so far: `b1` versioning policy → `b2` Phase 1 sound tap round → `b3` Phase 4 shuffle 🎲 button → `b4` highlight defect fix → `b5` brand icon refresh → `b6` in-app mark contrast → `b7` QA cleanup → `b8` Narrator Voice Selector MVP → `b9` Setting 2.0 → `b10` narrator-on-story + voice previews → `b11` Setting 2.0 mobile compact → `b12` Setting 2.0 polish + rainbow fix → `b13` animal-emoji audit → `b14` QA hardening: rapid-tap guard + burst a11y + 320×568 fit.)
+3. **`BUILD_NUMBER`** (`22`) — increments every release shipped to `main`. Shown in the badge alongside the product version as `v0.9.3 · b22`. (Sequence so far: `b1` versioning policy → `b2` Phase 1 sound tap round → `b3` Phase 4 shuffle 🎲 button → `b4` highlight defect fix → `b5` brand icon refresh → `b6` in-app mark contrast → `b7` QA cleanup → `b8` Narrator Voice Selector MVP → `b9` Setting 2.0 → `b10` narrator-on-story + voice previews → `b11` Setting 2.0 mobile compact → `b12` Setting 2.0 polish + rainbow fix → `b13` animal-emoji audit → `b14` QA hardening → `b15` picker library polish → `b16` narrator lineup refresh → `b17` hardcoded per-preset voice defaults → `b18` Silly Cartoon swap + first story-length pass → `b19` favicon stale-cache hardening → `b20` narrator label rename + structural kid 6→5 → `b21` rainbow deco reposition → `b22` voice cache versioning + signature observability.)
 
 CHANGELOG entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine vA.B.C) — DATE`. Historical v3.0.0–v3.0.3 entries stay as-is for traceability — we don't rewrite history.
 
@@ -122,6 +122,38 @@ Voice IDs are **server-side only** — the browser never sees them. Per-preset `
 ```
 
 Levels 3–4 are effectively unreachable for the 4 known presets (every preset has a `defaultId` since b17).
+
+### Troubleshooting: all previews sound the same
+
+If parents report that **all 4 voice preview buttons play the same narrator**, work through these in order:
+
+#### 1. Stale IndexedDB preview cache (most common since b8–b21)
+
+The browser caches each preview clip the first time it's played. Until b22 the cache key was unversioned (`preview:sunny`, `preview:cozy`, ...) so any audio cached during a misconfigured deploy (typically one where production env vars collapsed all 4 presets to George) replays from cache forever — even after the resolver chain is fixed.
+
+**Diagnostic:** open `https://noddytales.app/` in Chrome → DevTools → Application → IndexedDB → `noddytales-tts` → `audio-v2`. If you see entries keyed `preview:sunny` / `preview:cozy` / etc. **without** a version prefix, those are stale pre-b22 blobs.
+
+**Fix (since b22):** ship a bumped `VOICE_CACHE_VERSION` in `src/content.js`. New cache keys (`preview:v2:sunny`, `v2:sunny|<sha>`, ...) miss the stale blobs and force `/api/tts` re-fetches. **No manual user action required.** Stale orphans get GC'd by the browser's IndexedDB quota policy.
+
+#### 2. Vercel env var collapse
+
+If two or more of `ELEVENLABS_VOICE_SUNNY` / `_COZY` / `_ADVENTURE` / `_SILLY` / `_ID` point to the same ElevenLabs voice ID, the resolver will dutifully return that voice for every colliding preset — and listeners can't tell them apart.
+
+**Diagnostic:** Vercel logs → look for the `[TTS] VOICE COLLAPSE: presets [...] all resolve to the same voiceSignature=...` warning. Added in b22; fires on every request when the env produces collisions.
+
+**Fix:** in Vercel → Project Settings → Environment Variables, set each `ELEVENLABS_VOICE_*` to a distinct voice ID OR unset them entirely (each preset will fall back to its hardcoded curated default from b17+).
+
+#### 3. Verify routing in the browser (since b22)
+
+Open the app, open DevTools console, run:
+
+```js
+await qaVoicePreviews()
+```
+
+You'll see a table with one row per preset showing `voiceSignature` (an 8-char fingerprint of the resolved voice ID). All 4 signatures should be distinct. If any two share a signature, `qaVoicePreviews` prints a console.warn naming the colliding presets — same info as the server-side warn in step 2.
+
+Raw ElevenLabs voice IDs are never exposed to the browser; only the irreversible 8-char SHA-256 fingerprint.
 
 ## QA harness
 

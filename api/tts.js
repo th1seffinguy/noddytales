@@ -102,6 +102,52 @@ const VOICE_MAP = {
 const DEFAULT_PRESET = 'sunny';
 const VALID_PRESETS  = Object.keys(VOICE_MAP);
 
+/* v0.9.3 · b22 — VOICE_CONFIG_VERSION + voiceSignature helpers.
+
+   Bumping VOICE_CONFIG_VERSION signals to the client that the voice routing
+   contract has changed (default IDs swapped, env-var semantics shifted).
+   Returned in every /api/tts response so dev tools / qaVoicePreviews helper
+   can see which config the server is running.
+
+   voiceSignature is the first 8 hex characters of SHA-256(voiceId). Lets
+   the client verify that 4 preset previews are actually resolving to 4
+   different underlying voices without exposing raw ElevenLabs voice IDs to
+   the browser. */
+const VOICE_CONFIG_VERSION = 'v2';
+const crypto = require('crypto');
+function voiceSignature(voiceId) {
+  if (!voiceId) return null;
+  return crypto.createHash('sha256').update(String(voiceId)).digest('hex').slice(0, 8);
+}
+
+/* v0.9.3 · b22 — detectVoiceCollapse(env)
+   Runs resolveVoice for all 4 presets and groups results by voiceSignature.
+   Returns an array of collision groups (each group is { signature, presets }
+   where presets.length >= 2). Empty array means all 4 presets resolve to 4
+   distinct voices.
+
+   Use case: the b16/b17 production defect where ELEVENLABS_VOICE_ID was set
+   to George and the per-preset env vars were unset OR all set to George —
+   every preset collapsed to George. detectVoiceCollapse surfaces this as a
+   per-request console.warn naming the specific presets that collide.
+
+   Pure function, no I/O. Exposed for Section 14 unit tests. */
+function detectVoiceCollapse(env) {
+  const bySig = {};
+  for (const preset of VALID_PRESETS) {
+    const r = resolveVoice(preset, env);
+    if (!r.ok) continue;
+    const sig = voiceSignature(r.voiceId);
+    if (!bySig[sig]) bySig[sig] = [];
+    bySig[sig].push(preset);
+  }
+  const collisions = [];
+  for (const [sig, presets] of Object.entries(bySig)) {
+    if (presets.length >= 2) collisions.push({ signature: sig, presets });
+  }
+  return collisions;
+}
+
 // Exposed for unit tests (scripts/qa-current.js Section 14). Pure function, no I/O.
 function resolveVoice(presetRequested, env) {
   // Default to Sunny when no preset supplied
@@ -169,15 +215,27 @@ module.exports = async function handler(req, res) {
   //       which user testing showed reads as foreign-accented rather than
   //       high-pitched/goofy. The operator should set ELEVENLABS_VOICE_SILLY
   //       to a custom cartoon voice — surface the recommendation in Vercel
-  //       logs every time the Silly preset fires on the backstop.
+  //       logs every time the Silly preset fires on the backstop;
+  //   (c) v0.9.3 · b22 — detectVoiceCollapse flags ≥2 presets resolving to
+  //       the same underlying voice. This was the production failure mode
+  //       in b16: ELEVENLABS_VOICE_ID set to George with no per-preset env
+  //       vars → all 4 presets resolved to George. The new warn explicitly
+  //       names the colliding preset keys so an operator can fix env vars.
   const sillyOnBackstop = resolved.preset === 'silly' && resolved.source === 'hardcodedPerPreset';
-  const logFn = (resolved.usedFallback || sillyOnBackstop) ? console.warn : console.log;
-  logFn(`[TTS] chars=${text.length} preset=${resolved.preset} voice=${resolved.voiceId} source=${resolved.source} status=${response.status}`);
+  const collisions      = detectVoiceCollapse(process.env);
+  const sig             = voiceSignature(resolved.voiceId);
+  const logFn = (resolved.usedFallback || sillyOnBackstop || collisions.length) ? console.warn : console.log;
+  logFn(`[TTS] chars=${text.length} preset=${resolved.preset} voice=${resolved.voiceId} source=${resolved.source} sig=${sig} status=${response.status}`);
   if (resolved.usedFallback) {
     console.warn(`[TTS] preset "${resolved.preset}" resolved via legacy fallback (source=${resolved.source}). Curated per-preset defaultId is missing from VOICE_MAP — investigate api/tts.js.`);
   }
   if (sillyOnBackstop) {
     console.warn('[TTS] Silly preset is using its hardcoded Mimi backstop. Mimi reads as foreign-accented in user testing. Set ELEVENLABS_VOICE_SILLY in Vercel to a custom high-pitched cartoon voice for the intended Silly performance. See api/tts.js header.');
+  }
+  if (collisions.length) {
+    for (const c of collisions) {
+      console.warn(`[TTS] VOICE COLLAPSE: presets [${c.presets.join(', ')}] all resolve to the same voiceSignature=${c.signature}. Users will hear identical audio for these presets. Check Vercel env vars (ELEVENLABS_VOICE_SUNNY/COZY/ADVENTURE/SILLY/ID).`);
+    }
   }
   if (!response.ok) return res.status(response.status).json({ error: 'ElevenLabs API error' });
 
@@ -186,14 +244,26 @@ module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   // alignment.characters[] is parallel to character_start_times_seconds[] / character_end_times_seconds[].
   // Each index maps to one character of the input text.
+  // v0.9.3 · b22 — response now carries voice-routing metadata so the client
+  // (and DevTools / window.qaVoicePreviews) can verify that 4 preset requests
+  // are actually resolving to 4 distinct voices, WITHOUT exposing raw
+  // ElevenLabs voice IDs to the browser. voiceSignature is an 8-hex-char
+  // SHA-256 prefix of the voiceId — irreversible, just a fingerprint.
   res.json({
-    audioBase64: data.audio_base64,
-    alignment:   data.alignment,
+    audioBase64:         data.audio_base64,
+    alignment:           data.alignment,
+    voicePreset:         resolved.preset,
+    voiceSource:         resolved.source,
+    voiceConfigVersion:  VOICE_CONFIG_VERSION,
+    voiceSignature:      sig,
   });
 };
 
 // Pure-function exports for the QA harness Section 14 unit test.
-module.exports.resolveVoice    = resolveVoice;
-module.exports.VALID_PRESETS   = VALID_PRESETS;
-module.exports.DEFAULT_PRESET  = DEFAULT_PRESET;
-module.exports.VOICE_MAP       = VOICE_MAP;
+module.exports.resolveVoice         = resolveVoice;
+module.exports.VALID_PRESETS        = VALID_PRESETS;
+module.exports.DEFAULT_PRESET       = DEFAULT_PRESET;
+module.exports.VOICE_MAP            = VOICE_MAP;
+module.exports.voiceSignature       = voiceSignature;       // v0.9.3 · b22
+module.exports.detectVoiceCollapse  = detectVoiceCollapse;  // v0.9.3 · b22
+module.exports.VOICE_CONFIG_VERSION = VOICE_CONFIG_VERSION; // v0.9.3 · b22

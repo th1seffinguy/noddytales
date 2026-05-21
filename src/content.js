@@ -17,7 +17,7 @@
    labeling: product is in late beta (v0.9.x), engine is still v3 internally. The
    historical v3.0.0-v3.0.3 CHANGELOG entries stay as-is for traceability. */
 const APP_VERSION  = 'v0.9.3';
-const BUILD_NUMBER = 21;
+const BUILD_NUMBER = 22;
 
 /* v0.9.3 · b8 — Narrator Voice Selector MVP.
    v0.9.3 · b16 — lineup refresh.
@@ -58,6 +58,31 @@ const VOICE_PRESETS = [
 ];
 const VOICE_PRESET_DEFAULT = 'sunny';
 const VOICE_PRESET_KEYS    = VOICE_PRESETS.map(p => p.key); // for validation
+
+/* v0.9.3 · b22 — VOICE_CACHE_VERSION invalidates the client-side IndexedDB
+   audio cache without forcing every user to manually clear browser storage.
+   Story keys become `<version>:<preset>|<sha>` and preview keys become
+   `preview:<version>:<preset>`. Bumping this constant orphans every cached
+   blob keyed by an older version — the browser misses cache once per
+   (voice, story) pair and re-fetches from /api/tts with the current
+   resolver. Stale orphans get GC'd by the browser's IndexedDB quota policy.
+
+   When to bump:
+     - Voice-routing config changed (new defaultId, new env-var collapse fix)
+     - Cache-key shape changed (new prefix, new separator)
+     - User reports stale audio after a deploy that should have fixed it
+
+   History:
+     v1 — implicit (no version prefix). Used b8 → b21.
+     v2 — b22 fix for the recurring "all previews are George" defect:
+          unversioned `preview:sunny` / `preview:cozy` / `preview:adventure` /
+          `preview:silly` blobs in returning-user IndexedDB stores were
+          replaying pre-b17 George audio regardless of resolver fixes.
+
+   This constant is FROZEN at v2 until the next cache-invalidation event;
+   it does NOT bump every release. Bumping BUILD_NUMBER alone does not
+   bump this. */
+const VOICE_CACHE_VERSION  = 'v2';
 
 /* v0.9.3 · b9 — Setting 2.0: broad story-flavor categories.
    User feedback: the prior exact-setting grid (Diner / Mall / Football Game / etc.)
