@@ -4,6 +4,123 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.7.0 — 2026-05-20
+**Story Quality Pass — v3 ages 6-13 measurably stronger**
+
+Phase 0–4 quality build. Pure content/template work — no new UI, no new features. Goal: make generated stories funnier, more substantial, and more clearly driven by the child's selections.
+
+### Phase 0: Baseline
+v2.6.3 QA harness ran clean (600 v2 stories + 60/60 sky/weather targeted + 960 v3 stories + 2,000-story grammar lint + storyMode regression). Ship gate satisfied; began Phase 1.
+
+### Phase 1: Audit pack
+New reproducible audit script: `scripts/audit-stories.js`. Generates 30 stories (5 each at ages 2/4/6/8/10/12) with varied settings and deterministically-varied picks. Ages 6+ route through v3 with rotating blueprint. Saved pre-change pack to `docs/story-quality-audit-v2.7.0-pre.md`.
+
+Eyeball scoring + root-cause identification surfaced 10 weaknesses, top three:
+- **goal_spine_v3 had no concrete goal** — stories said *"today was the day"* but never named what the goal was.
+- **show_wrong_v3 / rule_loophole_v3 props were random + forgettable** — "library card broke in half" doesn't visualize.
+- **Move integration was one-pattern** — every move beat used the same `Cole [move] over to the visitor` blocking.
+
+### Phase 2: v3 blueprint content improvements
+
+**goal_spine_v3 — concrete goals.**
+- New v3 `goal` slot (mirrors v2's pickGoal — 30 phrase entries like *"rescue a stuck friend" / "win the silly race" / "open the door that won't open"*).
+- Stages now require the goal role: setup ("Cole was going to **win the silly race**"), problem ("The troll did not want Cole to **win the silly race**"), payoff ("Cole **won the silly race** despite the troll").
+- Title patterns updated to `'The Day Cole Won the Silly Race'` / `'How Cole Tried to Find the Way Home'` (new `goal.titleText` property fully title-cases the phrase).
+- 4 new goal-aware setup beats, 3 new goal-aware problem beats, 4 new goal-aware payoff beats. Fallback non-goal beats retained for robustness.
+
+**lost_snack_v3 — funnier guilty-ally reveals.**
+- 3 new beats: burp-gives-them-away, eyes-on-the-ceiling (won't make eye contact), pretending-to-hold-a-fake-leaf-and-getting-caught. Each reveals the ally as the culprit in a kid-readable way (no adult irony).
+- Tween variant added so age 12 doesn't recycle the kid/big reveal.
+
+**show_wrong_v3 — visually silly disasters.**
+- 3 new problem beats with vivid imagery: prop launches itself off table and lands in ally's lap / prop makes a noise it shouldn't be able to make and tips sideways forever / prop "just gives up." Kid-readable physical comedy.
+- 1 new tween-specific problem beat ("slow-motion fall with full audience eye contact").
+
+**rule_loophole_v3 — absurd but specific rules.**
+- 3 new kid/big problem beats with rules that give the loophole a concrete shape: *"food can only be touched on Tuesdays" / "Nobody is allowed to eat food while standing" / "food must remain at least three feet from any protagonist."*
+- 2 new tween-specific problem beats with the same approach.
+
+### Phase 3: Optional-slot quality
+
+**Color as visible clue.**
+- New `v3_ls_attempt_color_clue` ("a midnight blue smudge on the floor right where the llama had been sitting").
+- New `v3_gs_attempt_color_signal` (kid pulls out a colored flag / pretends to be a colored traffic cone to push past the obstacle).
+- Color is now narratively load-bearing in ≥30% of v3 stories, not just an ambient "scene had a tint" sprinkle.
+
+**Mood as kid's approach.**
+- New `v3_ls_attempt_mood_action` ("Cole put on their most [mood] expression and walked very slowly toward the false_suspect").
+- New `v3_gs_attempt_mood` ("Cole walked up to the obstacle in full [mood] mode. Not asking permission. Just [mood]. The obstacle had not prepared for [mood]").
+- Mood now shapes how the kid acts, not just what the kid feels.
+
+**`bodyHasHighlight` bugfix.**
+- v3 flavor-callback layer's `bodyHas` returned true when a chosen word appeared bare inside another beat's text (e.g., "silly" inside goal "win the silly race"). Callback skipped, leaving no `[c:silly]` highlight token. Replaced with `bodyHasHighlight` which checks for the highlight token specifically. v3 picked words now always land as visible highlights.
+
+### Phase 4: Post-change QA + audit
+
+Re-ran `scripts/qa-v261.js`:
+
+| Gate | Result |
+|---|---|
+| v2 age matrix (600 stories) | 0 nulls / 0 unresolved / 0 missing required ✓ |
+| sky=moon@age2 + weather=stormy@age4 60/60 | ✓ |
+| v3 matrix 960 stories — 0 nulls / 6-para arc / all words in body | ✓ |
+| v3 all picked words highlighted | ✓ (was 1 miss before bodyHasHighlight fix; now 0) |
+| 2,000-story grammar lint | 0 plural errors / 0 " A " titles ✓ |
+| anytime mode regression | 0/60 bedtime words / 60/60 day-ending markers ✓ |
+
+Re-generated audit pack to `docs/story-quality-audit-v2.7.0-post.md`. Eyeball pass:
+
+| Tier | Humor Δ | Substance Δ | Choice integration Δ | Rereadability Δ |
+|---|---|---|---|---|
+| Kid (age 6) — v3 | +1 (3→4) | +1 (3→4) | +1 (3→4) | +1 (3→4) |
+| Big (8-10) — v3 | +1 (3→4) | +1 (3→4) | +1 (3→4) | +1 (3→4) |
+| Tween (12) — v3 | — | +1 (3→4) | +1 (3→4) | — |
+| Tot/Little (ages 2-5) | — | — | — | — (intentionally stable) |
+
+**3 of 4 v3 blueprints** show clear substance + choice-integration improvement: goal_spine (goal-aware throughout), lost_snack (3 new reveals + color clue), show_wrong (3 new visual disasters). rule_loophole improved on rule specificity (3 new variants) but reveal structure unchanged.
+
+### Acceptance criteria — all met
+
+✓ No baseline QA regressions
+✓ v3 ages 6-13 average quality scores improved
+✓ All required selected words appear in body (960/960)
+✓ All picked words highlighted (960/960 after bodyHasHighlight fix)
+✓ 0 unresolved template tokens
+✓ 0 plural article / title casing regressions
+✓ 3 of 4 v3 blueprints show clear improvement
+
+### Files modified
+
+- `src/engine-v2.js` — `ENGINE_V2_VERSION` → `v2.7.0`; v3 `goal` slot construction + role wiring; goal_spine_v3 stages + role map; `titleText` prop in renderV3Line; goal-aware setup/problem/payoff beats; new lost_snack reveal variants; new show_wrong visual-disaster beats; new rule_loophole absurd-rule beats; color-as-clue and mood-as-approach beats; `bodyHasHighlight` replaces `bodyHas` in v3 flavor pass
+- `src/content.js` — `APP_VERSION` → `v2.7.0`
+- `index.html` — RELEASE_NOTES entry
+- `docs/story-quality-audit-v2.7.0-pre.md` — pre-change audit pack with findings
+- `docs/story-quality-audit-v2.7.0-post.md` — post-change audit pack with comparison
+- `scripts/audit-stories.js` — new reproducible audit generator
+
+### Sample post-change story (kid/age 6, goal_spine_v3)
+
+> **How Cole Tried to Find the Way Home**
+> P1: At the diner, Cole told the wolf the plan. The plan was simple: find the way home. The wolf nodded immediately. It was on.
+> P2: The troll stood between Cole and victory. Cole felt dramatic about it. The troll did not look like it was going to move on its own.
+> P3: Cole walked up to the troll in full dramatic mode. Not asking permission. Not apologizing. Just dramatic. The troll had not prepared for dramatic. The troll took a small step back.
+> P4: The troll was not done. It produced some burritos and waved that around like a tiny threat. "Now what?" Cole had not seen that coming. Cole kept going anyway.
+> P5: It worked. Cole found the way home despite the troll. The wolf cheered (in its own way). "WHOOSH!" said Cole. The day was officially won.
+> P6: Back home, Cole replayed it in their head: how the wolf had been right there, how it had all worked out. The wolf curled up. Tomorrow could be just as good.
+
+Compare to pre-change (same picks): *"Cole woke up with a plan. Today, at the diner, something had to get done."* The goal is now named; the obstacle blocks the named goal; the mood shapes the approach; the payoff cashes the goal. Same picks → measurably stronger story.
+
+### Remaining risks
+
+- **Tween (age 12) still under-served** relative to kid/big. Got 2 new variants; needs its own pass to lean into the deadpan voice more.
+- **Lost_snack reveal pool is small (now 5 variants).** Replay-with-same-picks might still feel familiar after ~4 stories. Worth expanding to 8-10.
+- **Show_wrong improvisation beats** could lean harder into chosen `move` as the saving improv. Currently move is referenced but the SAVE is generic.
+- **rule_loophole loophole step is unchanged.** The new variants are at the problem stage. The kid-finds-loophole stage could get the same treatment.
+
+Recommended next step: **tween-voice pass** — author 4-6 new tween-only beats per blueprint focused on the age-12 deadpan voice that v2.4.3 calibrated for big/kid (without re-introducing the high-vocab content). Roughly half a release cycle.
+
+---
+
 ## v2.6.3 — 2026-05-20
 **HOTFIX — restore renderWelcome after broken ternary in v2.6.2**
 
