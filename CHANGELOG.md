@@ -4,6 +4,43 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.7.2 — 2026-05-21
+**Cosmetic patch — v3 title casing + audit script header**
+
+Two Low-severity defects opened during the v2.7.1 UAT pass, both fixed in a single small patch with no engine code-path changes.
+
+### v3 title casing fix
+
+All four v3 blueprint `titlePatterns` arrays in `src/engine-v2.js` were rendering picked-word tokens (`{mcguffin.text}`, `{false_suspect.text}`, `{obstacle.text}`, `{ally.text}`, `{prop.text}`, `{rule_imposer.text}`, `{setting.text}`) in their raw lowercase form, producing titles like "Cole vs the witch", "Cole and the cupcakes Mystery", "The Loophole at the museum basement". The `titleCase` function shipped in v2.6.1 runs on the template skeleton, but picked-word substitutions paste in after token resolution so they were never capitalized.
+
+Fix: swap all picked-word tokens inside `titlePatterns` from `.text` to `.titleText`. The `.titleText` token property already existed in the v3 renderer and falls back to `V2Grammar.titleCase(baseText)` for any slot without an explicit `titleText`.
+
+Before/after sample (same picks):
+
+- "Cole and the cupcakes Mystery" → "Cole and the Cupcakes Mystery"
+- "Cole vs the courtroom duck" → "Cole vs the Courtroom Duck"
+- "The Loophole at the museum basement" → "The Loophole at the Museum Basement"
+- "How Cole Outsmarted the courtroom duck" → "How Cole Outsmarted the Courtroom Duck"
+- "The ticket stub Broke But Cole Did Not" → "The Ticket Stub Broke But Cole Did Not"
+
+`vs`, `the`, `at`, and other small words stay lowercase mid-title per the existing `titleCase` rule.
+
+### Audit script dynamic header
+
+`scripts/audit-stories.js` previously hard-coded `# Story Quality Audit — v2.7.0 baseline` in the markdown header regardless of which release was actually being audited. Now reads `APP_VERSION` from `src/content.js` at runtime and emits `# Story Quality Audit — vX.Y.Z`. Cosmetic-only fix; audit content was always correct.
+
+### Acceptance
+
+- `node scripts/qa-current.js` — all 6 sections pass (600 v2 + 960 v3 + 2,000-story lint + storyMode regression + inline-script syntax)
+- Sanity check: 16 sample v3 titles across all four blueprints with deliberately lowercase picks all rendered with correct title casing
+- `APP_VERSION` and `ENGINE_V2_VERSION` bumped in lockstep to `v2.7.2`
+
+### Notion
+
+Both defects (`v3 title casing inconsistency` + `scripts/audit-stories.js hardcoded v2.7.0 header`) marked Fixed with verification notes pointing to this changelog entry.
+
+---
+
 ## v2.7.1 — 2026-05-20
 **Cleanup + hardening — docs refreshed, QA harness now catches blank-screen class of bug**
 

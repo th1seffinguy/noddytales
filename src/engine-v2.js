@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v2.7.1';
+const ENGINE_V2_VERSION = 'v2.7.2';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -3347,10 +3347,10 @@ const V3_BLUEPRINTS = {
       { name: 'landing',    requiredRoles: ['protagonist','ally'] },
     ],
     titlePatterns: [
-      'Who Took the [c:{mcguffin.text}]?',
-      '[name:{protagonist.name}] and the [c:{mcguffin.text}] Mystery',
-      'The Day the [c:{mcguffin.text}] Vanished',
-      '[name:{protagonist.name}] vs the [c:{false_suspect.text}]',
+      'Who Took the [c:{mcguffin.titleText}]?',
+      '[name:{protagonist.name}] and the [c:{mcguffin.titleText}] Mystery',
+      'The Day the [c:{mcguffin.titleText}] Vanished',
+      '[name:{protagonist.name}] vs the [c:{false_suspect.titleText}]',
     ],
   },
 
@@ -3386,8 +3386,8 @@ const V3_BLUEPRINTS = {
     titlePatterns: [
       'The Day [name:{protagonist.name}] {goal.titleText}',
       'How [name:{protagonist.name}] Tried to {goal.titleText}',
-      '[name:{protagonist.name}] and the [c:{ally.text}] {goal.titleText}',
-      '[name:{protagonist.name}] vs the [c:{obstacle.text}]',
+      '[name:{protagonist.name}] and the [c:{ally.titleText}] {goal.titleText}',
+      '[name:{protagonist.name}] vs the [c:{obstacle.titleText}]',
     ],
   },
 
@@ -3419,8 +3419,8 @@ const V3_BLUEPRINTS = {
     ],
     titlePatterns: [
       'The Day [name:{protagonist.name}] Saved the Show',
-      '[name:{protagonist.name}] and the [c:{ally.text}] Take the Stage',
-      'The [c:{prop.text}] Broke But [name:{protagonist.name}] Did Not',
+      '[name:{protagonist.name}] and the [c:{ally.titleText}] Take the Stage',
+      'The [c:{prop.titleText}] Broke But [name:{protagonist.name}] Did Not',
       '[name:{protagonist.name}]\'s Big Show',
     ],
   },
@@ -3452,9 +3452,9 @@ const V3_BLUEPRINTS = {
       { name: 'landing',    requiredRoles: ['protagonist','ally'] },
     ],
     titlePatterns: [
-      '[name:{protagonist.name}] and the [c:{rule_imposer.text}]\'s Rule',
-      'The Loophole at the [y:{setting.text}]',
-      'How [name:{protagonist.name}] Outsmarted the [c:{rule_imposer.text}]',
+      '[name:{protagonist.name}] and the [c:{rule_imposer.titleText}]\'s Rule',
+      'The Loophole at the [y:{setting.titleText}]',
+      'How [name:{protagonist.name}] Outsmarted the [c:{rule_imposer.titleText}]',
       '[name:{protagonist.name}] vs the Rule',
     ],
   },
