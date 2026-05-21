@@ -121,7 +121,12 @@
     text-wrap: balance;
   }
   .display--mega { font-size: 48px; }
+  /* v0.9.3 · b11 — compact step header for screens that need tight vertical
+     budgets (e.g. the Setting 2.0 flavor picker on iPhone SE). 28px so a
+     short title sits on a single line without forcing a <br>. */
+  .display--compact { font-size: 28px; letter-spacing: -0.3px; }
   .lede { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 18px; color: var(--ink-soft); }
+  .lede--compact { font-size: 14px; }
 
   /* ---- Logo ---- */
   .logo {
@@ -320,26 +325,65 @@
   }
   .setting-tile.is-selected::before { background: white; opacity: 0.4; }
   .setting-note {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--ink-soft);
     text-align: center;
-    margin-top: 8px;
-    min-height: 18px;
+    margin-top: 4px;
+    min-height: 14px;
+    line-height: 1.3;
   }
-  /* v0.9.3 · b9 — Setting 2.0 layout. The flavor grid has 8 tiles instead of the
-     original 9 exact-setting tiles. Default to 2-column on mobile (4 rows with
-     Surprise spanning the top row); switch to 4-column on wider viewports. */
-  .setting-grid--flavors { grid-template-columns: repeat(2, 1fr); }
+  /* v0.9.3 · b9 + b11 — Setting 2.0 mobile-compact layout.
+     b9 introduced 8 flavor tiles in a 2-col grid. b9 inherited the legacy
+     `.setting-tile { aspect-ratio: 1 }` which made each tile ~165px tall at
+     375px viewport; total grid ~800px → users had to scroll to reach Next on
+     iPhone SE. b11 (this rule set) flattens the flavor tiles to a compact
+     row-style: emoji-left, label-right, fixed ~68px min-height. Tap target
+     stays well above Apple HIG's 44px minimum. Whole step now fits without
+     scrolling on iPhone SE (375×667). Switches to 4-column on viewports
+     ≥ 540px so iPad / tablets get the airier original layout. */
+  .setting-grid--flavors {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .setting-grid--flavors .setting-tile {
+    aspect-ratio: auto;
+    min-height: 52px;
+    padding: 4px 12px;
+    border-radius: 16px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    text-align: left;
+  }
+  .setting-grid--flavors .setting-tile::before {
+    inset: 4px;
+    border-radius: 12px;
+  }
+  .setting-grid--flavors .setting-tile .setting-emoji {
+    font-size: 24px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+  .setting-grid--flavors .setting-tile .setting-label {
+    font-size: 12.5px;
+    line-height: 1.2;
+    text-align: left;
+  }
   .setting-grid--flavors .setting-tile--surprise {
     grid-column: 1 / -1;
-    aspect-ratio: auto;
-    min-height: 92px;
-    padding: 12px;
+    min-height: 56px;
+    padding: 6px 16px;
+    gap: 14px;
   }
-  .setting-grid--flavors .setting-tile--surprise .setting-emoji { font-size: 36px; margin-bottom: 2px; }
-  .setting-grid--flavors .setting-tile--surprise .setting-label { font-size: 16px; }
+  .setting-grid--flavors .setting-tile--surprise .setting-emoji { font-size: 28px; }
+  .setting-grid--flavors .setting-tile--surprise .setting-label { font-size: 15px; }
   @media (min-width: 540px) {
-    .setting-grid--flavors { grid-template-columns: repeat(4, 1fr); }
+    .setting-grid--flavors {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
     .setting-grid--flavors .setting-tile--surprise { grid-column: 1 / -1; }
   }
 
@@ -1472,6 +1516,8 @@ const MAX_SHUFFLES = 2;
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v0.9.3 · b11', title: '"What kind of place?" step — mobile-compact so the whole step fits without scrolling on iPhone SE',
+    detail: 'User feedback: the b9 Setting 2.0 flavor picker required scrolling on mobile to reach the Next button. Root cause: b9 inherited `.setting-tile { aspect-ratio: 1 }` from the v2.1.0 exact-setting grid. At 375px viewport each square tile rendered ~165px tall; the full 8-tile grid alone consumed ~800px, well past iPhone SE\'s ~617px usable canvas. CSS-only fix in this release. CHANGES: (1) Killed `aspect-ratio: 1` on .setting-grid--flavors tiles. Tiles flatten to row-style (emoji-left, label-right) with `min-height: 52px` — well above Apple HIG\'s 44px minimum tap target. (2) Surprise Me keeps its full-width prominence but drops from 92px → 56px min-height; emoji 36px → 28px; label 16px → 15px. (3) Grid gap 12px → 8px on mobile (kept 12px on ≥540px). (4) Emoji 30px → 24px on standard tiles. Label 13px → 12.5px line-height 1.2. (5) Tile padding 6px → 4px 12px to match the new row layout. (6) New `.display--compact` modifier (28px, letter-spacing -0.3px) on the step h1; new `.lede--compact` modifier (14px) on the subtitle. Single-line h1 "What kind of place?" (no `<br>` split). Shorter lede copy "Pick a flavor — or let us surprise you." (7) Stack gap-20 → gap-12 between step children. (8) `.setting-note` font 13px → 12px, min-height 18px → 14px, margin-top 8px → 4px. SCOPE: all rule changes live UNDER `.setting-grid--flavors`, NOT base `.setting-tile`, so the storyMode picker (bedtime/anytime) and any other consumer of `.setting-tile` are unaffected. Same for `.display--compact` / `.lede--compact` — modifier-only, applied only on the setting step. VIEWPORT MATH: full step now budgets to ~590-600px content height on iPhone SE 2nd gen (375×667), within the ~617px usable canvas after Safari URL bar. Modern iPhone (390×844) and tablets (≥540px breakpoint switches to 4-column grid + 36px h1) get airier original layout. NO ENGINE / PICKER / DATA CHANGES. ACCEPTANCE: scripts/qa-current.js all 23 gates green (unchanged from b10). APP_VERSION stays v0.9.3; BUILD_NUMBER 10 → 11; ENGINE_V2_VERSION stays v3.0.3. Badge reads v0.9.3 · b11.' },
   { v: 'v0.9.3 · b10', title: 'Narrator selector on the story screen + voice preview clips',
     detail: 'Refinement of the b8 voice selector MVP. b8 shipped the picker inside Parent Settings, which works but turned out to be too hidden — users think about voice choice at the moment they tap "Read it to me," not before. b10 keeps Settings as the permanent home for the preference and adds two complementary surfaces: an in-context narrator row on the story screen + per-voice preview clips. STORY-SCREEN NARRATOR ROW: compact line above Read-it-to-me controls reading "Narrator: <Label>  Change". Tap Change → bottom-sheet modal (centered on wider viewports) containing the same 4-preset grid from Settings. Selecting a voice updates Profile + state and refreshes the narrator-row label inline. Switching mid-playback does NOT interrupt the current audio — the new voice applies on the next "Read it to me" tap. VOICE PREVIEW CLIPS: each preset card (Settings AND story-screen modal) has a small ▶ button in the corner. Tap plays a short voice-specific clip: Sunny "Hi, I\'m Sunny. I can\'t wait to read your story." / Cozy Bedtime "Hi, I\'m Cozy Bedtime. I\'ll read this nice and gently." / Big Adventure "Hi, I\'m Big Adventure. Let\'s make this story sound epic." / Silly Cartoon "Hi, I\'m Silly Cartoon. This is going to get ridiculous." Loading state on the button while audio fetches; switches to ⏸ while playing. Starting a new preview stops any running preview OR story playback (single audio at a time). CACHE DISCIPLINE: preview audio uses a SEPARATE IndexedDB cache key namespace ("preview:<preset>") so it never collides with story cache ("<preset>|sha256(text)"). Replaying the same preview is instant; story replay cache untouched. Section 16 enforces zero overlap. API: previews call the same /api/tts endpoint with { text: previewText, voicePreset }; no new endpoint, no new allowlist work. b8\'s server-side validation (unknown preset → 400, raw voice IDs rejected) covers previews automatically. SHARED HELPERS: extracted renderVoicePickerGrid + attachVoicePickerHandlers so Settings and the story-screen modal use IDENTICAL markup + interaction. NEW QA SECTION 16: 12 unit cases — every preset has a non-empty previewText, previewText length ≤ 80 chars (cost control), every preview key starts with "preview:", preview keys distinct, no story-key/preview-key collision, "preview" reserved (cannot be a preset key). All 12 pass. ACCEPTANCE: scripts/qa-current.js all 23 gates green (22 prior + 12-case Section 16). APP_VERSION stays v0.9.3; BUILD_NUMBER 9 → 10; ENGINE_V2_VERSION stays v3.0.3. Badge reads v0.9.3 · b10. NO NEW VERCEL ENV VARS — previews re-use the 4 from b8 (ELEVENLABS_VOICE_SUNNY / COZY / ADVENTURE / SILLY), each still falling back to ELEVENLABS_VOICE_ID when unset. NO CELEBRITY / LICENSED-CHARACTER REFERENCES anywhere.' },
   { v: 'v0.9.3 · b9', title: 'Setting 2.0 — broad story-flavor categories replace the exact-setting grid; hidden place variety underneath',
@@ -3037,15 +3083,16 @@ function renderWelcome() {
          exact-setting grid. 8 visible vibes; each one hides a pool of 8 specific
          places that the engine picks per session. Surprise Me is visually first
          + recommended. Step copy softened from "where should the story happen"
-         to "what kind of place" / "pick a story flavor." -->
-    <div class="stack gap-20 grow">
+         to "what kind of place" / "pick a story flavor."
+         v0.9.3 · b11 — mobile-compact: single-line h1, smaller lede, tighter
+         gap-12 stack so the whole step fits without scrolling on iPhone SE. -->
+    <div class="stack gap-12 grow">
       <div>
-        <h1 class="display" style="text-align:center">
-          What kind of<br>
-          <span style="color:var(--orange-dark)">place?</span>
+        <h1 class="display display--compact" style="text-align:center">
+          What kind of <span style="color:var(--orange-dark)">place?</span>
         </h1>
-        <p class="lede" style="text-align:center;margin-top:10px">
-          Pick a story flavor — or let us surprise you.
+        <p class="lede lede--compact" style="text-align:center;margin-top:6px">
+          Pick a flavor — or let us surprise you.
         </p>
       </div>
       <div class="setting-grid setting-grid--flavors">
