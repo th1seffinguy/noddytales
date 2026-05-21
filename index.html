@@ -5,18 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>NoddyTales — Silly Stories Just For You</title>
 
-<!-- Brand icons -->
-<link rel="icon" href="public/brand/favicon.svg" type="image/svg+xml">
-<link rel="icon" type="image/png" sizes="48x48" href="public/brand/favicon-48.png">
-<link rel="icon" type="image/png" sizes="32x32" href="public/brand/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="public/brand/favicon-16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="public/brand/icon-180.png">
+<!-- Brand icons — v0.9.3 · b19 — paths now absolute so Chrome's favicon
+     re-indexer doesn't fall back to its stale history cache after a brand
+     refresh. Root /favicon.ico added so Chrome's auto-probe of
+     https://noddytales.app/favicon.ico returns 200 BN4c instead of 404
+     (the 404 was making Chrome keep its cached pre-b5 icon for bookmarks +
+     URL autocomplete on returning visitors). -->
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="icon" href="/public/brand/favicon.svg" type="image/svg+xml">
+<link rel="icon" type="image/png" sizes="48x48" href="/public/brand/favicon-48.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/public/brand/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/public/brand/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/public/brand/icon-180.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="NoddyTales">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#A8D5A2">
-<meta property="og:image" content="public/brand/banner-og.svg">
+<meta property="og:image" content="/public/brand/banner-og.svg">
 <meta property="og:title" content="NoddyTales — Silly Stories Just For You">
 <meta property="og:description" content="Make a silly personalised story in under 2 minutes.">
 
@@ -1553,6 +1560,8 @@ const MAX_SHUFFLES = 2;
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v0.9.3 · b19', title: 'Favicon stale-cache hardening — root /favicon.ico + absolute icon paths so the BN4c mark survives Chrome\'s favicon cache',
+    detail: 'Small hardening fix triggered by a real-Chrome-on-Mac screenshot: tab + bookmark bar still showed a pre-b5 stale favicon despite the deployed asset being correct BN4c. Diagnosis: (a) the deployed `noddytales.app/public/brand/favicon.svg` IS the correct BN4c orange book mark (byte-identical to repo, md5 585527ce...), (b) the bug is Chrome\'s history + bookmark icon cache holding a pre-b5 snapshot, (c) two server-side factors made it worse than necessary: (1) `noddytales.app/favicon.ico` was returning 404 — Chrome ALWAYS probes /favicon.ico regardless of <link rel="icon"> tags, and when it 404s Chrome\'s bookmark icon cache stays pinned to its last successful indexing; (2) the index.html link tags used RELATIVE hrefs (`public/brand/favicon.svg`) which Chrome\'s favicon re-indexer treats as less authoritative than absolute paths after a brand swap. FIX (3 changes, all under 10 lines): (1) NEW root file `/favicon.ico` (copy of public/brand/favicon-32.png — PNG-as-ICO is universally accepted by Chrome/Firefox/Safari/Edge for the favicon probe; macOS lacks ImageMagick so we used the existing 32×32 PNG as the artwork). (2) All 6 icon <link> tags in index.html switched from relative `public/brand/...` to absolute `/public/brand/...` paths. (3) Added `<link rel="shortcut icon" href="/favicon.ico">` for the legacy / Chrome-classic favicon channel + sized="any" on the primary icon link. Also opportunistically fixed the og:image meta + renderLogo() src to use absolute paths (same root-cause class). DOES NOT clear an individual user\'s existing stale Chrome cache — Chrome\'s local favicon DB has its own TTL — but stops the bug class for any NEW visitor or any returning visitor who triggers a force-reload / re-bookmark. ACCEPTANCE: `curl -sI https://noddytales.app/favicon.ico` returns 200 + image/png after deploy. scripts/qa-current.js all 23 gates green (asset move + HTML head edits are non-functional from the engine\'s perspective). APP_VERSION stays v0.9.3; BUILD_NUMBER 18 → 19; ENGINE_V2_VERSION stays v3.0.3. Badge reads v0.9.3 · b19.' },
   { v: 'v0.9.3 · b18', title: 'Silly Cartoon distinctiveness fix + voice-docs cleanup + first story-length pass (tot/little −22%)',
     detail: 'Two-part build: (A) voice fidelity + docs and (B) first scoped story-length pass for ages 2-7. PART A — SILLY CARTOON DISTINCTIVENESS: production user feedback after b17 — "Silly Cartoon still sounds too similar to another voice." Root cause: the b17 default for the silly preset (Gigi, jBpfuIE2acCO8z3wKNLl) is labeled "American childish character" but its timbre reads too close to Rachel (the Sunny default — also American female, calm) when parents A/B-compare the 4 previews back-to-back. Fix: swapped the silly defaultId to Mimi (zrHiDhphv9ZnVXBqCLjz), an ElevenLabs first-party stock voice explicitly labeled "childish character" with a noticeably higher pitch and Swedish-tinged cadence — markedly more cartoon-feeling than Gigi. Tuned silly voice_settings for max playful expressiveness: stability 0.55 → 0.40, similarity_boost 0.80 → 0.75, style 0.70 → 0.85. Label "Silly Cartoon" unchanged so saved nt_voice_preset + IndexedDB cache (preview:silly + silly|<sha256>) survive across the swap. Tagline updated "Goofy, bouncy, kid-favorite" → "High-pitched, goofy, completely ridiculous". previewText "I make stories sound ridiculous." → "I make stories sound completely ridiculous!" so the contrast with the three steadier voices is obvious in the 1-second preview clip. Operator can still override via ELEVENLABS_VOICE_SILLY if Mimi is not silly enough — Vercel env var beats the hardcoded default. PART A — VOICE DOCS CLEANUP: api/tts.js header still described preset-without-env-var as "falls back to ELEVENLABS_VOICE_ID" — that stopped being true at b17 when per-preset defaultIds shipped. Rewrote the header to accurately describe the b17/b18 priority chain (envPerPreset → hardcodedPerPreset → envUniversal → hardcodedFinal). Fallback console.warn copy updated so it no longer suggests setting the per-preset env var is required for distinctness — the legacy chain firing now signals a code bug (missing defaultId) not an operator misconfig. README narrator-lineup table + Setup checklist updated: per-preset env vars are documented as OPTIONAL operator overrides; only ELEVENLABS_API_KEY is required for TTS to work at all (since b17). PART B — FIRST STORY-LENGTH PASS (ages 2-7 priority): defect "Stories too long globally" has been open since the v2.10.2 advisory metric landed. b17 baseline showed v3 medians of tot 19, little 18, kid 27 sentences vs defect-proposed caps of 3-4 / 5-6 / 7-8. b18 starts a conservative trimming pass — 30 surgical edits across the v3 beat library, all targeting trailing flourishes that don\'t carry tokens or selected words. 13 tot beat lines + 13 little beat lines + 4 kid beat lines. Cuts: "Yay!", "Big day!", "Adventure unlocked.", "Treasure confirmed.", "Goodnight.", "Case closed.", "Mostly.", etc. — token-free closers. Protected: every {protagonist}/{ally}/{wonder_object}/{setting}/{mcguffin} token, every call-response and parallel-structure cozy pattern, every punchline beat, and every sentence containing a user-picked word. RESULTS (120 stories/tier/engine snapshot): V3 tot median 19 → 15 (-22%), V3 little 18 → 14 (-22%), V3 kid 27 → 26 (-4%), big 27 → 26 (-4%), tween 26 → 26 (0). Tot/little p90 dropped 20→17 and 19→15 respectively. Tot p90 is still inflated by the call-response + parallel-end beats which intentionally keep their full repetition — those reads ARE the cozy pattern for ages 2-3. Going lower on tot/little requires either dropping a paragraph (breaks Section 3b 4-paragraph gate) or cutting the cozy repetition (breaks the design intent). Going lower on kid requires a structural change — a per-tier paragraph-count override so kid drops to 5 stages while big/tween keep 6 — which requires updating Section 3\'s 6-paragraph gate to be tier-aware. Both queued for b19. NEW DEV HELPER: scripts/sentence-count-snapshot.js outputs the V3+V2 × 5-tier median/p90/max matrix so the next pass has a reproducible baseline. ACCEPTANCE: scripts/qa-current.js all 23 gates green. Section 14 narrator voice selector unit tests still 14/14 green (silly defaultId + voice_settings literals shifted; chain contract held). Section 3 (kid/big/tween 6-paragraph) + Section 3b (tot/little 4-paragraph) unaffected — only beat-line text changed. APP_VERSION stays v0.9.3; BUILD_NUMBER 17 → 18; ENGINE_V2_VERSION stays v3.0.3. Badge reads v0.9.3 · b18. NO NEW VERCEL ENV VARS REQUIRED — Mimi ships as the hardcoded silly default; ELEVENLABS_VOICE_SILLY remains an optional override.' },
   { v: 'v0.9.3 · b17', title: 'Voice previews now genuinely distinct out-of-the-box — hardcoded per-preset stock voice IDs',
@@ -2976,7 +2985,10 @@ function attachVoicePickerHandlers(root, opts) {
 
 function renderLogo() {
   // v0.9.3 · b5 — BN4d brand icon. Sized via .logo-mark CSS; no inline overrides.
-  return `<div class="logo"><span class="logo-mark"><img src="public/brand/favicon.svg" alt=""></span>NoddyTales</div>`;
+  // v0.9.3 · b19 — absolute path so the in-app mark renders correctly from any
+  // deep link / PWA route (relative `public/brand/...` would break under future
+  // sub-route layouts; cheap belt-and-suspenders).
+  return `<div class="logo"><span class="logo-mark"><img src="/public/brand/favicon.svg" alt=""></span>NoddyTales</div>`;
 }
 
 /* ---- Screen 1: Welcome ---- */
