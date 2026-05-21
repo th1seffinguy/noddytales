@@ -31,7 +31,17 @@ A bedtime-and-anytime story generator for kids ages 2–13. Kids pick a name, ag
   - ages 6-13 (kid/big/tween): `lost_snack_v3`, `goal_spine_v3`, `show_wrong_v3`, `rule_loophole_v3` — 4-stage / 6-paragraph arcs with declarative role maps, token-direct authoring, stage progression.
   - ages 2-5 (tot/little, since v2.10.0): `tot_wonder_v3`, `tot_sky_v3`, `little_quest_v3`, `little_food_v3` — simplified 3-role contract (protagonist / ally / wonder_object) / 4-paragraph arcs.
 - **v2 (silent fallback)** — the authored comedy engine that was the production default v2.0.0 → v2.10.2. Retained in code as a runtime fallback for v3.0.0; will be deleted in v3.0.3+ once production traffic confirms v3 stability across all releases.
-- **v1 (deprecated)** — template-substitution engine. Reachable only if both v3 and v2 return null. Emits a console deprecation warning when it fires. Scheduled for removal with v2 in v3.0.3+.
+- **v1 (deprecated)** — template-substitution engine. Reachable only if both v3 and v2 return null. Emits a console deprecation warning when it fires. Scheduled for removal alongside v2 (the formerly-queued "delete v2 codepath" Build Idea, see versioning section).
+
+## Versioning
+
+NoddyTales tracks **three independent versions** (adopted 2026-05-21, see [`docs/versioning.md`](docs/versioning.md)):
+
+1. **`APP_VERSION`** (`v0.9.3`) — user-facing **product maturity**. `v0.9.x` = late beta, pre-App-Store. `v1.0.0` is reserved for public App Store launch. Shown in the in-app badge.
+2. **`ENGINE_V2_VERSION`** (`v3.0.3`) — internal **engine architecture** lineage. Bumps on engine-arch changes (e.g., v2 deletion → `v3.1.0`). Visible in DevTools / CHANGELOG context only; **not** in the badge.
+3. **`BUILD_NUMBER`** (`1`) — increments every release shipped to `main`. Shown in the badge alongside the product version as `v0.9.3 · b1`.
+
+CHANGELOG entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine vA.B.C) — DATE`. Historical v3.0.0–v3.0.3 entries stay as-is for traceability — we don't rewrite history.
 
 ## Stack
 

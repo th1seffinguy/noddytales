@@ -1,6 +1,50 @@
 # NoddyTales Changelog
 
-Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here so the in-app version badge stays meaningful.
+Three-tier versioning (since 2026-05-21, see [`docs/versioning.md`](docs/versioning.md)):
+- **APP_VERSION** = user-facing product maturity (`v0.9.x` = late beta, `v1.0.0` = App Store launch)
+- **ENGINE_V2_VERSION** = internal engine architecture lineage (currently `v3.0.3`)
+- **BUILD_NUMBER** = integer that increments every release shipped to `main`
+
+Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine vA.B.C) — DATE`. Historical v3.0.0–v3.0.3 entries kept as-is for traceability.
+
+---
+
+## v0.9.3 (build 1, engine v3.0.3) — 2026-05-21
+**Versioning policy adoption — three independent identifiers**
+
+Between 2026-05-20 and 2026-05-21 the user-facing version inflated from v3.0.0 → v3.0.3 in 36 hours — one architectural milestone (v3.0.0 router flip) plus four UX hotfixes (v3.0.1–v3.0.3). Treating every fix as a semver patch signaled "we're at v3" when the product is still pre-App-Store, mid-QA, mid-content-trim. It also forced the "delete v2 codepath" Build Idea to be renumbered **five times** as each hotfix preempted it.
+
+This release separates **product maturity** from **engine architecture** from **per-release builds** before more v3.0.x patches accumulate.
+
+### Three independent identifiers
+
+| Identifier | Meaning | Current | Bumps when |
+|---|---|---|---|
+| `APP_VERSION` | User-facing product maturity (shown in badge) | `v0.9.3` | Real product milestones — App-Store-ready, real-kid playtest signoff, feature additions. `v1.0.0` = public launch. |
+| `ENGINE_V2_VERSION` | Internal engine architecture lineage (DevTools only) | `v3.0.3` | Engine architecture changes — v2 deletion → `v3.1.0`, etc. |
+| `BUILD_NUMBER` | Per-release counter (shown in badge as `· b1`) | `1` | Every release shipped to `main`. |
+
+### What changed in this release
+
+- `src/content.js` — replaced single-line `APP_VERSION` with a policy comment + `APP_VERSION = 'v0.9.3'` + new `BUILD_NUMBER = 1` constant.
+- `index.html` — badge render IIFE now shows `v0.9.3 · b1` instead of `v3.0.3`. `ENGINE_V2_VERSION` stays out of the badge (DevTools / CHANGELOG only).
+- `docs/versioning.md` — new file documenting the policy: problem statement, three-identifier table, increment rules, display matrix, examples, migration plan, open questions.
+- `README.md` — new **Versioning** section summarizing the policy and pointing at `docs/versioning.md`.
+- `CHANGELOG.md` — header rewritten; entries from this release forward use the four-part `(build N, engine vA.B.C)` format. Historical v3.0.0–v3.0.3 entries unchanged.
+- `src/engine-v2.js` — `ENGINE_V2_VERSION` stays at `v3.0.3` (matches the last v3 engine release for continuity; bumps to `v3.1.0` when v2 codepath is deleted).
+
+### Visible to users
+
+The badge changes from `v3.0.3` to `v0.9.3 · b1` for anyone with the app open at deploy. One-time confusion cost, paid intentionally before more patches accumulate.
+
+### Build Idea renaming
+
+The queued v2-deletion Build Idea — previously titled `v3.0.4 — Delete v2 codepath` after being renumbered five times — becomes `v0.9.x build N — Delete v2 codepath (engine v3.1.0)`. Build number lands at merge time. Engine bumps to v3.1.0 (an architecture change, not a product milestone).
+
+### Acceptance
+
+- `node scripts/qa-current.js` — all 12 gates green. No engine or content changes in this release, so QA results match v3.0.3.
+- Manual badge check: production badge will read `v0.9.3 · b1` post-deploy.
 
 ---
 

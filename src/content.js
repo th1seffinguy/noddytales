@@ -4,7 +4,20 @@
    Story template logic lives in index.html (buildStory).
    ================================================================ */
 
-const APP_VERSION = 'v3.0.3';
+/* Versioning policy (introduced 2026-05-21, see docs/versioning.md):
+   - APP_VERSION is the user-facing PRODUCT version. v0.9.x = late beta, pre-App-Store.
+     Bumps minor on real product milestones (App-Store-ready, real-kid playtest signoff,
+     feature additions). v1.0.0 = public App Store launch.
+   - ENGINE_V2_VERSION (in src/engine-v2.js) is the INTERNAL engine version, not shown in
+     the badge. Bumps on engine architecture changes (v2 deletion → v3.1.0, etc.).
+   - BUILD_NUMBER increments every release shipped to main. Shown in the badge alongside
+     APP_VERSION so every release is traceable without semver inflation.
+   The v3.0.x version line that ran v3.0.0 → v3.0.3 was an engine-architecture milestone
+   mistakenly applied to the user-facing product version. This release corrects the
+   labeling: product is in late beta (v0.9.x), engine is still v3 internally. The
+   historical v3.0.0-v3.0.3 CHANGELOG entries stay as-is for traceability. */
+const APP_VERSION  = 'v0.9.3';
+const BUILD_NUMBER = 1;
 
 /* Verb form lookup — maps each past-tense move-pool entry to its base + gerund forms.
    Templates use moveBase()/moveGerund() to derive the right form for the syntactic slot
