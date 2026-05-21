@@ -166,7 +166,14 @@ softReport('age 6 color=rainbow', { pet:{w:'parrot'}, color:{w:'rainbow'}, food:
 softReport('age 6 move=bounced',  { pet:{w:'parrot'}, color:{w:'rainbow'}, food:{w:'donuts'}, place:{w:'jungle'}, creature:{w:'dinosaur'}, move:{w:'bounced'}, mood:{w:'silly'}, freeword:{w:'KABLAM',subtype:'shout'}, freeword2:{w:'BOINGO'} }, 6, 'bounced');
 softReport('age 6 mood=silly',    { pet:{w:'parrot'}, color:{w:'rainbow'}, food:{w:'donuts'}, place:{w:'jungle'}, creature:{w:'dinosaur'}, move:{w:'bounced'}, mood:{w:'silly'}, freeword:{w:'KABLAM',subtype:'shout'}, freeword2:{w:'BOINGO'} }, 6, 'silly');
 
-/* === 3. v3 MATRIX === */
+/* === 3. v3 MATRIX ===
+ *
+ * v0.9.3 · b20 — paragraph-count gate is now TIER-AWARE. Kid (ages 6-7) drops
+ * one stage per blueprint via `skipStagesForKid` so kid stories run 5
+ * paragraphs; big (8-10) + tween (11-13) keep the full 6-stage arc. The old
+ * single "6-paragraph arc every time" assertion would fail every kid story
+ * after the structural trim, so it's split into a tier-aware check.
+ */
 console.log('\n=== 3. v3 matrix (4 blueprints × ages 6-13 × 30 stories = 960 stories) ===');
 const goldenPicks = {
   pet:{w:'parrot'}, food:{w:'donuts'}, place:{w:'jungle'}, creature:{w:'dinosaur'},
@@ -176,7 +183,14 @@ const goldenPicks = {
 const expectedWords = ['parrot','donuts','jungle','dinosaur','rainbow','bounced','silly','KABLAM','BOINGO'];
 const blueprints = ['lost_snack_v3','goal_spine_v3','show_wrong_v3','rule_loophole_v3'];
 
-let v3Nulls=0, v3Unresolved=0, v3WrongArc=0, v3WordMiss=0, v3HlMiss=0;
+// Expected paragraph count per tier (b20 tier-aware contract).
+// kid: 5 (drops one stage per blueprint); big + tween: 6.
+function expectedParagraphsForAge(age) {
+  if (age >= 6 && age <= 7) return 5;
+  return 6;
+}
+
+let v3Nulls=0, v3Unresolved=0, v3WrongArcKid=0, v3WrongArcBigTween=0, v3WordMiss=0, v3HlMiss=0;
 const v3MissDetail = [];
 for (const bp of blueprints) {
   for (let age = 6; age <= 13; age++) {
@@ -188,7 +202,12 @@ for (const bp of blueprints) {
       const paraRaw  = (s.paragraphs || []).join(' ');
       const paraClean = strip(paraRaw).toLowerCase();
       if (/\{[a-zA-Z][\w.]*\}/.test(titleRaw + paraRaw)) v3Unresolved++;
-      if (!s.paragraphs || s.paragraphs.length !== 6) v3WrongArc++;
+      const expectedParas = expectedParagraphsForAge(age);
+      if (!s.paragraphs || s.paragraphs.length !== expectedParas) {
+        if (age <= 7) v3WrongArcKid++;
+        else          v3WrongArcBigTween++;
+        if (v3MissDetail.length < 5) v3MissDetail.push(`${bp} age=${age} got ${s.paragraphs?.length} paras (expected ${expectedParas})`);
+      }
       for (const w of expectedWords) {
         if (!wordRx(w).test(paraClean))   { v3WordMiss++; if (v3MissDetail.length < 5) v3MissDetail.push(`${bp} age=${age} word "${w}" not in body`); break; }
         if (!tokenRx(w).test(paraRaw))    { v3HlMiss++;   if (v3MissDetail.length < 5) v3MissDetail.push(`${bp} age=${age} word "${w}" not highlighted`); break; }
@@ -196,11 +215,12 @@ for (const bp of blueprints) {
     }
   }
 }
-gate('0 nulls (v3 matrix)',          v3Nulls === 0,        v3Nulls + '/960');
-gate('0 unresolved tokens',          v3Unresolved === 0,   v3Unresolved + '/960');
-gate('6-paragraph arc every time',   v3WrongArc === 0,     v3WrongArc + ' wrong arc');
-gate('all picked words in body',     v3WordMiss === 0,     v3WordMiss + ' stories with body miss');
-gate('all picked words highlighted', v3HlMiss === 0,       v3HlMiss + ' stories with hl miss');
+gate('0 nulls (v3 matrix)',                          v3Nulls === 0,             v3Nulls + '/960');
+gate('0 unresolved tokens',                          v3Unresolved === 0,        v3Unresolved + '/960');
+gate('5-paragraph arc every time (kid, ages 6-7)',   v3WrongArcKid === 0,       v3WrongArcKid + ' wrong arc');
+gate('6-paragraph arc every time (big+tween, 8-13)', v3WrongArcBigTween === 0,  v3WrongArcBigTween + ' wrong arc');
+gate('all picked words in body',                     v3WordMiss === 0,          v3WordMiss + ' stories with body miss');
+gate('all picked words highlighted',                 v3HlMiss === 0,            v3HlMiss + ' stories with hl miss');
 if (v3MissDetail.length) v3MissDetail.forEach(d => console.log('    ' + d));
 
 /* === 3b. v3 TOT/LITTLE MATRIX (added v2.10.0) ===
@@ -501,13 +521,18 @@ if (agencyRatio < 0.65) {
  *
  * Open defect from 2026-05-21: "Stories too long globally — early tier most severe,
  * sentence caps not enforced." Defect proposes hard caps per tier (tot 3-4, little 5-6,
- * kid 7-8, big 9-11, tween 10-12) and a QA gate that fails on exceedance. This
- * release ships the METRIC as a report only — gives John a baseline to decide what
- * caps to enforce in a future content-trimming sprint. Doesn't change any story
- * content or fail the build. Sample 30 stories per tier and report median + p90
- * sentence count.
+ * kid 7-8, big 9-11, tween 10-12) and a QA gate that fails on exceedance.
+ *
+ * v0.9.3 · b20 — Section 10 fixed to measure V3 (production-default engine, since
+ * v3.0.0) as the PRIMARY metric. Previously this section measured generateStoryV2
+ * directly, but buildStory() in index.html routes V3 first for all ages 2-13, so the
+ * old numbers described a fallback engine real users never hit. V2 stays available
+ * as a SECONDARY diagnostic so we can spot if the silent fallback drifts.
+ *
+ * scripts/sentence-count-snapshot.js reports the same V3+V2 matrix at 120 reps for
+ * release-time before/after comparisons. Section 10 here uses 30 reps for speed.
  */
-console.log('\n=== 10. Sentence-count report (advisory, v2.10.2) ===');
+console.log('\n=== 10. Sentence-count report (advisory, v0.9.3 b20 — V3 primary, V2 secondary) ===');
 function sentenceCount(text) {
   // Conservative sentence-splitter: split on . ! ? followed by whitespace or EOL.
   // Counts terminal punctuation as a sentence boundary. Ignores ellipses by collapsing.
@@ -517,31 +542,41 @@ function sentenceCount(text) {
     .filter(s => s.trim().length > 0)
     .length;
 }
-const sentenceCountByTier = {};
-for (const tier of ['tot', 'little', 'kid', 'big', 'tween']) {
-  const ages = { tot:[2,3], little:[4,5], kid:[6,7], big:[8,9,10], tween:[11,12,13] }[tier];
+const TIER_TARGETS = { tot:'3-4', little:'5-6', kid:'7-8', big:'9-11', tween:'10-12' };
+const TIER_AGES    = { tot:[2,3], little:[4,5], kid:[6,7], big:[8,9,10], tween:[11,12,13] };
+function sampleSentenceCounts(engineFn, tier, reps) {
+  const ages = TIER_AGES[tier];
   const counts = [];
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < reps; i++) {
     const age = ages[i % ages.length];
     const picks = randomPicks(tier);
-    const s = ctx.generateStoryV2('Cole', picks, age);
+    const s = engineFn('Cole', picks, age);
     if (!s) continue;
     counts.push(sentenceCount(strip(s.paragraphs.join(' '))));
   }
   counts.sort((a, b) => a - b);
-  const median = counts[Math.floor(counts.length / 2)];
-  const p90    = counts[Math.floor(counts.length * 0.9)];
-  const max    = counts[counts.length - 1];
-  sentenceCountByTier[tier] = { median, p90, max, n: counts.length };
+  return {
+    median: counts[Math.floor(counts.length / 2)],
+    p90:    counts[Math.floor(counts.length * 0.9)],
+    max:    counts[counts.length - 1],
+    n:      counts.length,
+  };
 }
-const TIER_TARGETS = { tot:'3-4', little:'5-6', kid:'7-8', big:'9-11', tween:'10-12' };
+console.log('  V3 (production-default engine — what real users hit):');
 console.log('  tier    median  p90  max  target (defect-proposed cap)');
 for (const tier of ['tot','little','kid','big','tween']) {
-  const { median, p90, max } = sentenceCountByTier[tier];
+  const { median, p90, max } = sampleSentenceCounts(ctx.generateStoryV3, tier, 30);
   const target = TIER_TARGETS[tier];
   console.log(`  ${tier.padEnd(7)} ${String(median).padStart(6)}  ${String(p90).padStart(3)}  ${String(max).padStart(3)}  ${target}`);
 }
-console.log('  (advisory — no gate. See Defect: "Stories too long globally" for context.)');
+console.log('  V2 (silent fallback — diagnostic only; route only hits this when V3 returns null):');
+console.log('  tier    median  p90  max  target');
+for (const tier of ['tot','little','kid','big','tween']) {
+  const { median, p90, max } = sampleSentenceCounts(ctx.generateStoryV2, tier, 30);
+  const target = TIER_TARGETS[tier];
+  console.log(`  ${tier.padEnd(7)} ${String(median).padStart(6)}  ${String(p90).padStart(3)}  ${String(max).padStart(3)}  ${target}`);
+}
+console.log('  (advisory — no gate. V3 numbers are the ones that matter for the "Stories too long globally" defect.)');
 
 /* === 11. EMOJI UNIQUENESS WITHIN PICKER ROUNDS (added v3.0.1) ===
  *

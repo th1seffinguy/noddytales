@@ -39,24 +39,28 @@
    first-party STOCK voices, available on every ElevenLabs account — NOT
    celebrity / real-person impersonations.
 
-   v0.9.3 · b18 — Silly Cartoon distinctiveness fix. The b17 default for
-   `silly` (Gigi, `jBpfuIE2acCO8z3wKNLl`) read too close to Rachel (the Sunny
-   default) when parents A/B-tested previews in production — both are calm
-   American-female timbres despite Gigi's "childish character" label. b18
-   swaps in Mimi (`zrHiDhphv9ZnVXBqCLjz`), an ElevenLabs stock voice
-   explicitly labeled as a Swedish childish character with a noticeably
-   higher pitch and quirky cadence. We also drop `stability` from 0.55 → 0.40
-   and raise `style` from 0.70 → 0.85 to maximize playful expressiveness.
+   v0.9.3 · b18 — Silly first stock-voice swap (Gigi → Mimi). Rejected
+   in user testing: Mimi reads as Australian / foreign-accented rather than
+   high-pitched + goofy + American. Two blind-pick stock attempts have now
+   failed (Gigi b17 too calm-American; Mimi b18 foreign accent).
 
-   Operator can still override per preset via the env vars; resolveVoice
-   priority is (strongest → weakest):
+   v0.9.3 · b20 — Silly stays on Mimi as the hardcoded BACKSTOP so the app
+   doesn't 500 when ELEVENLABS_VOICE_SILLY is unset, but operators are now
+   STRONGLY RECOMMENDED to override `ELEVENLABS_VOICE_SILLY` in Vercel with a
+   custom high-pitched cartoon voice — either a find from the ElevenLabs Voice
+   Library (search: "cartoon", "kids", "high pitch", "character") or a cloned
+   voice. The per-request warn copy and README narrator-lineup table both
+   flag this. Silly is the only preset with this operator-override
+   recommendation; Sunny / Storybook / Adventure ship complete out of the box.
+
+   Operator can override any preset via env vars; resolveVoice priority is
+   (strongest → weakest):
      1. env[envVar]    (operator per-preset override)
-     2. cfg.defaultId  (curated hardcoded default — happy path)
+     2. cfg.defaultId  (curated hardcoded default — happy path for 3 of 4)
      3. env.ELEVENLABS_VOICE_ID  (legacy universal fallback)
      4. 'JBFqnCBsd6RMkjVDRZzb' (George — final backstop)
    Steps 3-4 are effectively unreachable when cfg.defaultId is set for every
-   known preset. If a custom high-pitched/cartoon voice is wanted that beats
-   Mimi for "silly", set `ELEVENLABS_VOICE_SILLY` in Vercel. */
+   known preset. */
 const VOICE_MAP = {
   sunny: {
     envVar:        'ELEVENLABS_VOICE_SUNNY',       // American · warm / clear
@@ -74,14 +78,24 @@ const VOICE_MAP = {
     voice_settings:{ stability: 0.65, similarity_boost: 0.85, style: 0.50, use_speaker_boost: true },
   },
   silly: {
-    envVar:        'ELEVENLABS_VOICE_SILLY',       // quirky · cartoon / goofy / high-pitched
-    // b18 — swapped from Gigi (`jBpfuIE2acCO8z3wKNLl`) to Mimi because Gigi's
-    // timbre was too close to Rachel in production user testing. Mimi is an
-    // ElevenLabs stock voice (childish character, Swedish-tinged) — explicitly
-    // higher-pitched and quirkier than the other three defaults. Original Gigi
-    // ID kept in code comments as a fallback option if Mimi ever gets
-    // deprecated from the stock library.
-    defaultId:     'zrHiDhphv9ZnVXBqCLjz',         // Mimi — childish character, higher-pitched, quirky cadence
+    envVar:        'ELEVENLABS_VOICE_SILLY',       // PERFORMANCE STYLE: high-pitched / goofy / extra expressive
+    // b18 — swapped Gigi → Mimi to escape Rachel's calm-American timbre.
+    // b20 — Mimi was REJECTED in user testing because she reads as Australian /
+    // foreign-accented rather than high-pitched + goofy + kid-cartoon.
+    //
+    // Mimi stays as the hardcoded BACKSTOP so the app does not 500 if
+    // ELEVENLABS_VOICE_SILLY is unset, but production should override:
+    //
+    //   ELEVENLABS_VOICE_SILLY=<custom_voice_id>
+    //
+    // in Vercel → Project Settings → Environment Variables. Good search
+    // terms in the ElevenLabs Voice Library: "cartoon", "kids", "high pitch",
+    // "character", "animated". A cloned voice also works.
+    //
+    // Failed stock-voice candidates so far (do NOT re-try without listening):
+    //   Gigi   (jBpfuIE2acCO8z3wKNLl) — too calm-American, reads similar to Rachel (Sunny)
+    //   Mimi   (zrHiDhphv9ZnVXBqCLjz) — too Australian / foreign-accented, doesn't read as goofy
+    defaultId:     'zrHiDhphv9ZnVXBqCLjz',         // Mimi — backstop only; override via ELEVENLABS_VOICE_SILLY
     voice_settings:{ stability: 0.40, similarity_boost: 0.75, style: 0.85, use_speaker_boost: true },
   },
 };
@@ -147,15 +161,23 @@ module.exports = async function handler(req, res) {
     }),
   });
   // v0.9.3 · b16/b17/b18 — log at console.log on the happy path
-  // (envPerPreset or hardcodedPerPreset). Escalate to console.warn only when
-  // the LEGACY chain fires (envUniversal or hardcodedFinal) — meaning the
-  // curated per-preset default got bypassed, which on b17+ should be
-  // unreachable for the 4 known presets. Seeing this warn in production
-  // signals a code change that removed a defaultId.
-  const logFn = resolved.usedFallback ? console.warn : console.log;
+  // (envPerPreset or hardcodedPerPreset). Escalate to console.warn when:
+  //   (a) the LEGACY chain fires (envUniversal or hardcodedFinal) — meaning
+  //       the curated per-preset default got bypassed, which signals a code
+  //       bug (missing defaultId);
+  //   (b) v0.9.3 · b20 — `silly` resolved via its hardcoded backstop (Mimi),
+  //       which user testing showed reads as foreign-accented rather than
+  //       high-pitched/goofy. The operator should set ELEVENLABS_VOICE_SILLY
+  //       to a custom cartoon voice — surface the recommendation in Vercel
+  //       logs every time the Silly preset fires on the backstop.
+  const sillyOnBackstop = resolved.preset === 'silly' && resolved.source === 'hardcodedPerPreset';
+  const logFn = (resolved.usedFallback || sillyOnBackstop) ? console.warn : console.log;
   logFn(`[TTS] chars=${text.length} preset=${resolved.preset} voice=${resolved.voiceId} source=${resolved.source} status=${response.status}`);
   if (resolved.usedFallback) {
     console.warn(`[TTS] preset "${resolved.preset}" resolved via legacy fallback (source=${resolved.source}). Curated per-preset defaultId is missing from VOICE_MAP — investigate api/tts.js.`);
+  }
+  if (sillyOnBackstop) {
+    console.warn('[TTS] Silly preset is using its hardcoded Mimi backstop. Mimi reads as foreign-accented in user testing. Set ELEVENLABS_VOICE_SILLY in Vercel to a custom high-pitched cartoon voice for the intended Silly performance. See api/tts.js header.');
   }
   if (!response.ok) return res.status(response.status).json({ error: 'ElevenLabs API error' });
 

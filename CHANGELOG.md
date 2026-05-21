@@ -9,6 +9,102 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 20, engine v3.0.3) — 2026-05-21
+**Narrator label rename + Silly override-required + Section 10 V3 + structural kid 6→5**
+
+Combined voice/UI cleanup + QA accuracy fix + first structural story-length pass.
+
+### Part A — Narrator UI labels simplified (away from accent/geography)
+
+User feedback after b16/b18: the labels *"Sunny American"*, *"Storybook British"*, *"Adventure American"*, *"Silly Cartoon"* exposed underlying-voice accent details in a way that felt off for a kid app and made the foreign-accented Mimi (b18 Silly default) read as confusing rather than playful.
+
+New labels describe **performance style only**:
+
+| Key (unchanged) | Old label | New label | Tagline |
+|---|---|---|---|
+| `sunny` | Sunny American | **Sunny** | Warm, clear, everyday reader |
+| `cozy` | Storybook British | **Storybook** | Classic bedtime narrator |
+| `adventure` | Adventure American | **Adventure** | Bold, energetic, exciting |
+| `silly` | Silly Cartoon | **Silly** | High-pitched, goofy, extra expressive |
+
+`previewText` updated to match. Preset keys (`sunny`/`cozy`/`adventure`/`silly`) unchanged — saved `nt_voice_preset` + IndexedDB cache survive.
+
+### Part B — Silly voice: override-required documented (no third blind stock pick)
+
+Two stock-voice attempts at "Silly" have now failed in production user testing:
+
+1. **b17 — Gigi** (`jBpfuIE2acCO8z3wKNLl`, American childish character) → reads too close to Rachel (Sunny)
+2. **b18 — Mimi** (`zrHiDhphv9ZnVXBqCLjz`, Swedish childish character) → reads as Australian / foreign-accented rather than high-pitched + goofy
+
+Claude has no audio playback — every stock-voice candidate is metadata-only, the same blind-pick category that produced Gigi and Mimi. Rather than gamble a third stock pick:
+
+- **Mimi stays as the hardcoded backstop** so the app doesn't 500 if `ELEVENLABS_VOICE_SILLY` is unset.
+- **Operators are now strongly recommended** to set `ELEVENLABS_VOICE_SILLY` in Vercel to a custom high-pitched cartoon voice (an ElevenLabs Voice Library find — search "cartoon" / "kids" / "high pitch" / "character" / "animated" — or a cloned voice).
+- A new per-request `console.warn` fires every time Silly resolves on the Mimi backstop, surfacing the recommendation in Vercel logs.
+- README + `api/tts.js` header + the silly `defaultId` comment all document the rejected candidates so future builds don't re-try them blindly.
+
+### Part C — Section 10 fixed to measure V3 (production-default engine)
+
+Bug: `scripts/qa-current.js` Section 10 measured `generateStoryV2` directly. But `buildStory()` in `index.html` has routed V3 first for all ages 2-13 since v3.0.0 — the old advisory numbers described a fallback engine real users never hit.
+
+- Section 10 now reports **V3 primary** + **V2 secondary** (labeled diagnostic).
+- `scripts/sentence-count-snapshot.js` continues to report the same matrix at 120 reps for release-time before/after; updated comments to flag V3 as the number that matters.
+
+### Part D — Structural kid 6→5 paragraph trim
+
+b18's flourish-trim pass dropped tot/little median 19→15 / 18→14 (−22%) but barely moved kid (27→26, −4%). Further density wins required a structural change.
+
+Per-blueprint kid drops (only stage names that don't carry the joke):
+
+- **`lost_snack_v3`** → drops `attempt` (kid-investigates-false-suspect middle beat). Keeps `escalation` because the ally-was-the-culprit twist IS the joke.
+- **`goal_spine_v3`** → drops `escalation` (obstacle-worsens beat). Keeps `attempt` (kid tries with signature_action) — the agency lift.
+- **`show_wrong_v3`** → drops `escalation` (climax wind-up). Keeps `attempt` because the improv IS the save.
+- **`rule_loophole_v3`** → drops `escalation` (imposer-vs-tool clash). Keeps `attempt` (kid uses loophole_tool).
+
+Implementation:
+- New `skipStagesForKid` field on each kid+big+tween blueprint
+- New tier-resolution logic in `generateStoryV3` (`stagesForThisStory = tier==='kid' ? stages.filter(...) : stages`)
+- Both `blueprint.stages` reads in the engine routed through the resolved array
+- Section 3 paragraph-count gate split tier-aware: **5 for kid (ages 6-7)**, **6 for big+tween (8-13)**
+
+Big + tween retain the full 6-stage arc.
+
+### Results (V3 default engine, 120 stories/tier)
+
+| tier   | b19 median | b20 median | Δ     | b18→b20 total |
+|--------|------------|------------|-------|----------------|
+| tot    | 15         | 15         | 0     | 19→15 (−22%)   |
+| little | 14         | 14         | 0     | 18→14 (−22%)   |
+| kid    | 27         | **23**     | **−15%** | 27→23 (−15%) |
+| big    | 27         | 26         | −4%   | 27→26 (−4%)    |
+| tween  | 26         | 26         | 0     | 26→26 (0)      |
+
+Kid p90 dropped 31 → 28; kid max 37 → 33.
+
+### Limitations
+
+- **Kid still 3× over the defect-proposed 7-8 cap.** Going lower requires per-beat content trimming inside the remaining 5 kid stages — that's b21 territory.
+- **Tot/little p90 unchanged.** The cozy-repetition pattern (call/response + parallel structure beats) intentionally keeps its sentences. Hard floor for the design.
+- **Silly voice** still depends on operator setting `ELEVENLABS_VOICE_SILLY`. Until then, kid hears Mimi (foreign-accented), which the warn now surfaces.
+
+### Acceptance
+
+- `scripts/qa-current.js` — **24 gates green** (Section 3 paragraph gate split kid/big-tween)
+- Section 14 voice unit tests — **14/14 green**
+- Section 16 voice preview unit tests — **12/12 green**
+- Inline `<script>` syntax — clean
+- Sample 5-paragraph kid stories across all 4 blueprints eyeballed — narrative arc holds, picked words + highlights survive
+
+`APP_VERSION` stays `v0.9.3`; `BUILD_NUMBER` 19 → **20**; `ENGINE_V2_VERSION` stays `v3.0.3`. Badge reads `v0.9.3 · b20`.
+
+### Notion
+
+- Build Idea `36713aa1-d4db-816f-9df9-cc50dafb251c` — marked Done
+- "Stories too long globally" defect — updated with new V3 numbers
+- Build-number conflict: spec asked for b19; b19 was already taken by the favicon hardening fix shipped earlier today (PR #30 → main `5402fcd`). Shipped as b20 instead.
+
+---
+
 ## v0.9.3 (build 19, engine v3.0.3) — 2026-05-21
 **Favicon stale-cache hardening — root `/favicon.ico` + absolute icon paths so the BN4c mark survives Chrome's favicon cache**
 
