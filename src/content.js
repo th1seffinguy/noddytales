@@ -17,7 +17,7 @@
    labeling: product is in late beta (v0.9.x), engine is still v3 internally. The
    historical v3.0.0-v3.0.3 CHANGELOG entries stay as-is for traceability. */
 const APP_VERSION  = 'v0.9.3';
-const BUILD_NUMBER = 6;
+const BUILD_NUMBER = 7;
 
 /* Verb form lookup — maps each past-tense move-pool entry to its base + gerund forms.
    Templates use moveBase()/moveGerund() to derive the right form for the syntactic slot

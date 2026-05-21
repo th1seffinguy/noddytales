@@ -1,29 +1,37 @@
 /* ================================================================
-   NoddyTales v2 Engine — Phase 1: Thin Kid-Tier Prototype
+   NoddyTales Story Engine (v2 + v3 combined module)
    ================================================================
-   Goal: authored comedy engine using rich word objects + beat cards
-   + recipes, replacing the v1 template-substitution model.
+   This file is the authored comedy engine that drives every NoddyTales
+   story. It is the production default for ALL ages 2-13 and runs on
+   every story request — no URL flag, no localStorage gate.
 
-   This file ships disabled by default. Activate with:
-     - URL param: ?engine=v2 (persists to localStorage)
-     - localStorage: nt_engine_v2 = "1"
+   Two engines coexist in this module (named v2 and v3 for historical
+   reasons; both ship together and route by blueprint):
 
-   When inactive, buildStory() in index.html runs the v1 engine.
-   When active for kid tier, buildStory() delegates to generateStoryV2();
-   any failure falls back to v1 silently so the user never sees an
-   empty story.
+   - v3 (default, since v3.0.0): role-based engine with 8 blueprints
+     covering every age tier.
+       * ages 6-13 (kid/big/tween): lost_snack_v3, goal_spine_v3,
+         show_wrong_v3, rule_loophole_v3 — 4-stage / 6-paragraph arcs.
+       * ages 2-5 (tot/little, since v2.10.0): tot_wonder_v3, tot_sky_v3,
+         little_quest_v3, little_food_v3 — 3-role contract / 4-paragraph
+         arcs.
 
-   This is Segment A of the v2.0 build:
-     - Grammar helpers (article, plural, render, slot resolution)
-     - ~10 of each rich word type (companions, visitors, places,
-       foods, objects, sounds, adverbs, numbers, liquids, jobs)
-     - 1 recipe (Quest, 5-beat)
-     - 5 story seeds
-     - 15 beat cards
-     - generateStoryV2() — kid tier only
+   - v2 (silent fallback): the prior authored engine. Retained as a
+     runtime fallback for any v3 blueprint that returns null. Scheduled
+     for deletion in the engine-v3.1.0 release (the formerly-queued
+     "delete v2 codepath" Build Idea) once production v3 stability is
+     confirmed.
 
-   Subsequent segments expand the library, add recipes, add tiers,
-   add a QA harness, and eventually flip v2 to default in v2.0.0.
+   buildStory() in index.html (and generateStoryRouted() here) attempt
+   v3 first for every age, fall through to v2 on null, and v1 is the
+   final fallback (template-substitution from index.html; deprecated,
+   emits a console.warn on fire).
+
+   Versioning policy (since v0.9.3): APP_VERSION is the user-facing
+   product version (currently v0.9.x late beta). ENGINE_V2_VERSION
+   below is the internal engine architecture lineage, shown in
+   CHANGELOG / DevTools but NOT in the badge. Bumps on engine-arch
+   changes (v2 deletion → v3.1.0). See docs/versioning.md.
    ================================================================ */
 
 const ENGINE_V2_VERSION = 'v3.0.3';
