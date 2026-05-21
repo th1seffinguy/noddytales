@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v3.0.2';
+const ENGINE_V2_VERSION = 'v3.0.3';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -635,10 +635,14 @@ const V2_WORDS = {
       traits:['bearded','suspicious','tiny'],
       actions:['guarded a mushroom','muttered at the weather','offered an unsolicited rule'],
       sounds:['harumph','tiny shuffle','grumble'] },
-    { id:'banshee', text:'banshee', emoji:'🌬️', article:'a',
-      traits:['shrieky','dramatic','well-meaning'],
-      actions:['wailed once for effect','floated upside-down','apologized for the noise'],
-      sounds:['WAAAA','soft sigh','tiny whistle'] },
+    /* v3.0.3 — "banshee" was reported by parent as too advanced for kid tier (6-7) +
+       the 🌬️ wind emoji didn't read as creature. Renamed to "yeti" — universally
+       known by 6-year-olds (Frozen, Lego, kids' books) with intuitive 🦣 mammoth
+       emoji conveying "big furry beast." */
+    { id:'yeti', text:'yeti', emoji:'🦣', article:'a',
+      traits:['snowy','huge','surprisingly gentle'],
+      actions:['stomped softly through the snow','offered a warm mitten','left enormous footprints behind'],
+      sounds:['low rumble','soft growl','quiet huff'] },
     { id:'dinosaur', text:'dinosaur', emoji:'🦖', article:'a',
       traits:['huge','clumsy','sincere'],
       actions:['stepped on a daisy','tried to whisper','offered a tiny snack with a giant claw'],
