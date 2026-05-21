@@ -4,6 +4,76 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v3.0.2 — 2026-05-21
+**Picker UX hotfix — "labyrinth" too advanced for kid tier + swirl emoji cross-round meaning overload**
+
+User-reported (second screenshot in 24 hours): kid-tier "Pick a location" round showed `desert 🏜️` next to `labyrinth 🌀`. Two complaints in one screenshot: the word "labyrinth" is not age-appropriate for a 6-year-old, and the swirl emoji was being used for unrelated concepts in different rounds.
+
+**Note:** This release is now in the v3.0.x cosmetic-patch sequence. The originally-planned "delete v2 codepath" work has been renumbered **twice** (originally v3.0.1, then v3.0.2 after the emoji hotfix, now **v3.0.3**). Build Idea renamed accordingly.
+
+### Problem 1 — "labyrinth" is too advanced for ages 6-7
+
+The `kid.place` round (target age 6-7) included `labyrinth` as a picker option. A 6-year-old reading independently doesn't know the word; even the swirl emoji didn't help convey what it meant. Parent's literal feedback: *"I dont know what it means and the image doesnt help."*
+
+**Fix:** Renamed the kid.place picker option `labyrinth` → `maze`. Maze is the age-appropriate synonym — kids encounter mazes in corn-maze outings, hedge-maze storybooks, puzzle books. The concept is identical; the word is familiar.
+
+`V2_WORDS.places` entry also renamed (`id:'labyrinth'` → `id:'maze'`, `text:'labyrinth'` → `text:'maze'`). The big-tier `mossy labyrinth` picker option is unchanged — at age 8-10, kids know the word, and the deliberately-literary picker voice fits the tier.
+
+### Problem 2 — 🌀 swirl meant TWO different things across rounds
+
+Audit showed `🌀` was used 6 times across the picker, with two distinct meanings:
+
+| Round | Word | Meaning |
+|---|---|---|
+| `tot.move` | spun | motion |
+| `little.move` | twirled | motion |
+| `kid.move` | spun | motion |
+| `big.move` | meandered thoughtfully | motion |
+| `kid.place` | labyrinth | place (different meaning) |
+| `tween.place` | weird stairwell | place (different meaning) |
+
+A kid playing through several rounds sees `🌀 = spinning` then `🌀 = labyrinth` then `🌀 = stairwell`. The mental model breaks. v3.0.1's emoji-uniqueness gate caught **within-round** collisions but missed **cross-round semantic overload**.
+
+**Fix:**
+- `kid.place` labyrinth (now `maze`) gets `🧩` (puzzle piece — intuitive maze visual)
+- `tween.place` weird stairwell gets `🪜` (ladder — vertical structure, distinct from spinning)
+
+After the fix, **`🌀` only ever means "motion/spinning"** across the entire picker. Same emoji, consistent meaning.
+
+### Acceptance
+
+- `node scripts/qa-current.js` — **all 11 gates green**, including the Section 11 emoji-uniqueness gate (still 0 within-round collisions).
+- **`maze` engine integration verified:** 20-story test at kid tier with `place=maze` — `"maze"` appears in body text of **20/20** stories. The V2_WORDS rename preserved the picker→engine mapping; no silent replacement, no missing-pick coverage failure.
+- **`labyrinth` in `mossy_labyrinth` (big tier) preserved** — only the kid-tier picker word + V2_WORDS entry were renamed.
+
+### Other potentially-advanced kid-tier words (NOT fixed in this release, flagged for review)
+
+While investigating, noticed a few other kid-tier (6-7) words that might be too advanced. **Not fixing now** without your call, but flagging:
+
+- `kid.creature`: **banshee** (screaming-spirit, scary/obscure for 6-7)
+- `kid.creature`: **centaur** (mythological — borderline; kids who read Percy Jackson know it)
+- `kid.color`: **luminous teal** (abstract adjective + uncommon color name)
+- `kid.color`: **impossible green** (abstract — but charming and arguably tier-appropriate)
+- `kid.mood`: **jubilant** (advanced synonym for joyful)
+
+If any of these should be replaced, file a follow-up defect. Different from labyrinth in that the parent feedback was specifically about labyrinth — these are my suspicions, not user-reported.
+
+### Versions
+
+`APP_VERSION` → `v3.0.2`. `ENGINE_V2_VERSION` → `v3.0.2`. No engine code logic changes — only one `V2_WORDS.places` entry text edit. v2 fallback path unchanged.
+
+### Cumulative v3.0.x patch line
+
+```
+v3.0.0 ✓ Router flip + v3 default everywhere
+v3.0.1 ✓ Emoji-uniqueness hotfix (within-round) + new QA gate
+v3.0.2 ✓ Labyrinth/maze rename + 🌀 cross-round semantic cleanup (THIS RELEASE)
+v3.0.3 (queued) Delete v2 codepath + rename engine file + rewrite QA
+v3.0.x (queued) Content sprint: Stories-too-long against unified engine
+```
+
+---
+
 ## v3.0.1 — 2026-05-21
 **Critical UX fix — duplicate emojis in picker rounds + new permanent QA gate**
 

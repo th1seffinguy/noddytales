@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v3.0.1';
+const ENGINE_V2_VERSION = 'v3.0.2';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -1014,7 +1014,10 @@ const V2_WORDS = {
 
     /* ----- kid place missing (2 entries) ----- */
     { id:'canyon',     text:'canyon',     emoji:'🏞️', article:'a' },
-    { id:'labyrinth',  text:'labyrinth',  emoji:'🌀', article:'a' },
+    /* v3.0.2 — `labyrinth` renamed to `maze` (age-appropriate for kid tier 6-7).
+       Picker emoji also changed from 🌀 (swirl, also used for spinning motion
+       elsewhere) to 🧩 (puzzle piece — intuitive maze visual). */
+    { id:'maze',       text:'maze',       emoji:'🧩', article:'a' },
 
     /* ----- big place pool (12 entries — comedic adjective+noun voice) ----- */
     { id:'mossy_labyrinth',       text:'mossy labyrinth',         emoji:'🌿', article:'a' },
