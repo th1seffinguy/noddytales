@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v2.9.0';
+const ENGINE_V2_VERSION = 'v2.9.1';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -2110,10 +2110,13 @@ const V2_BEATS = [
       'The {companion.text} waved at the {sky.text}. Hello {sky.text}! Hello!',
       'The {companion.text} pointed at the {sky.text}. The {sky.text} was up high. Way up.',
     ] },
+  /* v2.9.1 — second variant previously rendered '"snowflake!" said Cole' (lowercase).
+     Switched the exclamation tokens to {sky.cap} so the sky word is sentence-cased
+     when it's the only word inside the quote. */
   { id:'to_repeat_sky', beatType:'tot_silly_repeat', tiers:['tot'], requiredSlots:['kid','companion','sky'],
     lines: [
       '{kid.name} waved at the {sky.text}. The {companion.text} waved too. The {sky.text} just smiled.',
-      '"{sky.text}!" said {kid.name}. "{sky.text}!" said the {companion.text}. The {sky.text} stayed put. So pretty.',
+      '"{sky.cap}!" said {kid.name}. "{sky.cap}!" said the {companion.text}. The {sky.text} stayed put. So pretty.',
     ] },
   { id:'to_end_sky', beatType:'tot_cozy_end', tiers:['tot'], requiredSlots:['kid','sky'],
     lines: [
@@ -2262,9 +2265,11 @@ const V2_BEATS = [
     lines: [
       '{kid.name} climbed onto a rock and pointed at the {creature.text}. "Hi!" said {kid.name}. The {creature.text} blinked. {kid.cap} climbed down and waved. Friendship achieved.',
     ] },
+  /* v2.9.1 — `{kid.lc}'s pocket` rendered "cole's pocket" mid-sentence. Switched to
+     `{kid.name}'s pocket` so the possessive uses the sentence-cased name. */
   { id:'li_silly_action_3', beatType:'little_silly_event', tiers:['little'], requiredSlots:['kid','companion','food'],
     lines: [
-      '{kid.name} pulled {food.articleText} out of {kid.lc}\'s pocket. "Snack time," said {kid.name}. The {companion.text} agreed. So did a passing bug.',
+      '{kid.name} pulled {food.articleText} out of {kid.name}\'s pocket. "Snack time," said {kid.name}. The {companion.text} agreed. So did a passing bug.',
     ] },
   { id:'li_end_action_1', beatType:'little_cozy_end', tiers:['little'], requiredSlots:['kid','companion'],
     lines: [
@@ -3143,7 +3148,15 @@ function generateStoryV2(name, picks, age) {
   // the universal patterns also fire for any recipe.
   const tc = V2Grammar.titleCase;
   const kidCap = V2Grammar.capitalize(slots.kid.name);
-  const universalTitlePatterns = [
+  /* v2.9.1 — filter universal title patterns to exclude references to slots that
+     weren't user-picked AND aren't guaranteed to appear in the body. Previously a
+     tot story (which has no creature round) could render "Cole vs the Group Chat"
+     when the engine auto-filled visitor with a random pick from the setting bias,
+     even though "Group Chat" never appeared in the body. Same issue for object,
+     which is always auto-picked even when no object round runs. */
+  const userPickedVisitor_title = !!picks.creature?.w;
+  const userPickedObject_title  = !!picks.object?.w;
+  const allUniversalTitlePatterns = [
     `${kidCap} and the ${tc(companion.text)}`,
     `The Day ${kidCap} Met ${tc(visitor.text)}`,
     `${kidCap} and the ${tc(object.text)} Problem`,
@@ -3153,6 +3166,11 @@ function generateStoryV2(name, picks, age) {
     `How ${kidCap} Met ${tc(visitor.text)}`,
     `${kidCap} vs the ${tc(visitor.text)}`,
   ];
+  const universalTitlePatterns = allUniversalTitlePatterns.filter(p => {
+    if (!userPickedVisitor_title && /\bMet\b|\bvs the\b/.test(p)) return false;
+    if (!userPickedObject_title  && /Problem/.test(p))            return false;
+    return true;
+  });
   const recipeTitlePatterns = {
     mystery:     [`The Curious Case of the ${tc(object.text)}`, `The Mystery of the ${tc(place.text)}`, `${kidCap} and the Missing ${tc(object.text)}`],
     trial:       [`The Trial of ${kidCap}`, `${kidCap} on Trial`, `The People vs ${kidCap}`],
@@ -3161,7 +3179,9 @@ function generateStoryV2(name, picks, age) {
     quest:       [`${kidCap}'s Adventure to the ${tc(place.text)}`, `${kidCap} Goes to the ${tc(place.text)}`],
     /* Segment D — simpler titles for tot + little */
     tot_loop:    [`${kidCap} and the ${tc(companion.text)}`, `${kidCap} Says Hi!`, `Hi, ${tc(companion.text)}!`],
-    gentle_quest:[`${kidCap} and the ${tc(companion.text)}`, `${kidCap}'s ${tc(place.text)} Day`, `The ${tc(companion.text)} with the Tiny Hat`],
+    /* v2.9.1 — removed `The ${companion} with the Tiny Hat` because it referenced a beat-specific
+       detail (li_comp1's "tiny hat") that doesn't always fire. Title-content mismatch defect. */
+    gentle_quest:[`${kidCap} and the ${tc(companion.text)}`, `${kidCap}'s ${tc(place.text)} Day`, `${kidCap} and the ${tc(food.text)}`],
     /* v2.3.0 — goal-spine titles reference the actual goal so the title sells the story */
     goal_spine: [
       `How ${kidCap} ${tc(goal.past.replace(/^[a-z]/, c => c.toUpperCase()))}`,

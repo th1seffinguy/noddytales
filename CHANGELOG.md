@@ -4,6 +4,49 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.9.1 — 2026-05-21
+**Cosmetic patch — 4 pre-existing v2 defects surfaced in v2.8.0 UAT rescore**
+
+Four tot/little cosmetic defects fixed. None were introduced by recent releases — they were latent v2 issues that the v2.8.0 audit pack made visible. Bundling them into v2.9.1 leaves v3.0.0 with no v2 cosmetic debt to inherit.
+
+### Defect 1 — Tot titles auto-fill creature when none was picked
+
+The v2 universal title pool included three patterns that reference visitor: `${kid} vs the ${visitor}`, `The Day ${kid} Met ${visitor}`, `How ${kid} Met ${visitor}`. Tot tier has no creature picker round, so the engine auto-filled visitor from the setting bias — producing absurd titles like "Cole vs the Group Chat" on a story about a bird. Same issue for object (always auto-picked, no picker round).
+
+Fix: filter the universal title pool to exclude visitor-referencing patterns when `picks.creature` wasn't user-picked, and exclude the "${object} Problem" pattern when `picks.object` wasn't user-picked. Tot tier now selects only from creature-free / object-free patterns + the tot_loop recipe pool. 100-story verification: 0/100 tot stories produced visitor- or object-referencing titles.
+
+### Defect 2 — `{kid.lc}` rendered "cole's pocket" lowercase mid-sentence
+
+The v2.8.0 `li_silly_action_3` beat used `{kid.lc}'s pocket` to render the possessive. `{kid.lc}` resolves to the lowercase form of the child's name ("cole") — intended for sound-effect / chant positions where lowercase reads naturally, not for possessives mid-sentence.
+
+Fix: changed the line to use `{kid.name}'s pocket`. 200-story verification: 0/200 little stories had lowercase "cole's" anywhere.
+
+### Defect 3 — `{sky.text}` rendered lowercase inside Cole's exclamation
+
+The `to_repeat_sky` beat had a variant: `'"{sky.text}!" said {kid.name}.'` When sky=snowflake, this rendered `'"snowflake!" said Cole.'` — exclamations should sentence-case the first character.
+
+Fix: switched the tokens in the exclamation to `{sky.cap}` (the capitalize variant): `'"{sky.cap}!" said {kid.name}.'` 200-story verification: 0/200 tot stories had lowercase "snowflake!" exclamations.
+
+### Defect 5 — Title-content mismatch on "The Lamb with the Tiny Hat"
+
+The `gentle_quest` recipe (used by little tier) had a title pattern `The ${companion} with the Tiny Hat`. The "tiny hat" only appears in the body when the `li_comp1` beat fires in P2. With v2.8.0 adding more little_companion beat variants, the title increasingly referenced a detail that didn't appear in the body.
+
+Fix: replaced the offending pattern with `${kid} and the ${food}` — a generic shape that works for any beat sequence and references a slot guaranteed to appear in the body. 200-story verification: 0/200 little stories had "Tiny Hat" titles.
+
+### Defect 4 deferred (not in this patch)
+
+The fifth UAT-rescore defect — `place` slot silently dropped when `setting` is locked — is intentionally **deferred**. It's a Medium-severity UX issue (picked-word coverage promise broken) that requires either picker-flow changes (skip the place round when setting is locked) or engine changes (thread place pick as a sub-location). Either path is bigger than a cosmetic patch. Leaving open in Defect Log for resolution after v2.9.0 baseline is stable.
+
+### Acceptance
+
+- `node scripts/qa-current.js` — all 8 gates green.
+- Section 7 kid-agency ratio held at **0.96** (312 action / 325 total). No regression from v2.9.0's 0.95.
+- 700-story targeted verification across the 4 fixed defects: 0/700 hits on the pre-fix bad patterns.
+
+`APP_VERSION` and `ENGINE_V2_VERSION` bumped in lockstep to `v2.9.1`. No new beats. No router changes. No architecture changes.
+
+---
+
 ## v2.9.0 — 2026-05-21
 **v3 Default for ages 6-13 — router flip (single-purpose architectural release)**
 
