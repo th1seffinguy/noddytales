@@ -17,7 +17,7 @@
    labeling: product is in late beta (v0.9.x), engine is still v3 internally. The
    historical v3.0.0-v3.0.3 CHANGELOG entries stay as-is for traceability. */
 const APP_VERSION  = 'v0.9.3';
-const BUILD_NUMBER = 17;
+const BUILD_NUMBER = 18;
 
 /* v0.9.3 · b8 — Narrator Voice Selector MVP. v0.9.3 · b16 — lineup refresh:
    1 British storybook + 3 American (warm / energetic / cartoon) so parents
@@ -38,8 +38,12 @@ const VOICE_PRESETS = [
     previewText: "Hi, I'm Storybook British. I'll read this like a proper bedtime tale." },
   { key: 'adventure', label: 'Adventure American', tagline: 'Energetic + expressive',
     previewText: "Hi, I'm Adventure American. Let's make this story sound big." },
-  { key: 'silly',     label: 'Silly Cartoon',      tagline: 'Goofy, bouncy, kid-favorite',
-    previewText: "Hi, I'm Silly Cartoon. I make stories sound ridiculous." },
+  // b18 — tagline + previewText updated so parents A/B-ing the 4 presets can
+  // immediately hear the contrast between Silly Cartoon (high-pitched, quirky)
+  // and the three steadier voices. Label stays "Silly Cartoon" so saved
+  // nt_voice_preset values + cache keys are unaffected.
+  { key: 'silly',     label: 'Silly Cartoon',      tagline: 'High-pitched, goofy, completely ridiculous',
+    previewText: "Hi, I'm Silly Cartoon. I make stories sound completely ridiculous!" },
 ];
 const VOICE_PRESET_DEFAULT = 'sunny';
 const VOICE_PRESET_KEYS    = VOICE_PRESETS.map(p => p.key); // for validation

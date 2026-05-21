@@ -3730,9 +3730,13 @@ const V3_BEATS = [
      lost_snack_v3 — kid + ally lose food, false_suspect framed,
      real culprit is the ally (twist).
      ============================================================ */
+  /* v3_ls_setup_1 — b18 length pass: line-1 redundant intensifier
+     "They were excited." dropped (no tokens; next sentence already says
+     "extra excited" with the ally token). Line 2 keeps "Just one second."
+     as the callback-rhythm punchline. */
   { id:'v3_ls_setup_1', stage:'setup', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting','mcguffin'],
     lines: [
-      '[name:{protagonist.name}] and the [c:{ally.text}] were at the [y:{setting.text}]. [name:{protagonist.name}] had been saving the [c:{mcguffin.text}] all morning. They were excited. The [c:{ally.text}] was extra excited.',
+      '[name:{protagonist.name}] and the [c:{ally.text}] were at the [y:{setting.text}]. [name:{protagonist.name}] had been saving the [c:{mcguffin.text}] all morning. The [c:{ally.text}] was extra excited.',
       'At the [y:{setting.text}], [name:{protagonist.name}] set the [c:{mcguffin.text}] down for one second. The [c:{ally.text}] watched. [name:{protagonist.name}] turned to grab a napkin. Just one second.',
     ] },
   { id:'v3_ls_setup_2', stage:'setup', blueprintId:'lost_snack_v3', tiers:['tween'], requiredRoles:['protagonist','ally','setting','mcguffin'],
@@ -3784,10 +3788,12 @@ const V3_BEATS = [
       '[name:{protagonist.name}] [c:{signature_action.text}] past the [c:{false_suspect.text}] in a way that read as deliberate. It was not deliberate. It happened to be exactly right.',
     ] },
 
+  /* v3_ls_escalation_1 — b18 length pass: line-2 weak one-word flourish
+     "Mostly." dropped. The "very sorry" beat lands cleanly without it. */
   { id:'v3_ls_escalation_1', stage:'escalation', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','mcguffin'],
     lines: [
       'The trail led to the [c:{ally.text}]. Of course. The [c:{ally.text}] had a single crumb of [c:{mcguffin.text}] on its face. "YOU?" said [name:{protagonist.name}]. The [c:{ally.text}] looked away politely.',
-      'Plot twist nobody saw coming except maybe the [c:{ally.text}]: it was the [c:{ally.text}]. The [c:{ally.text}] had been the [c:{mcguffin.text}] thief the whole time. It was very sorry. Mostly.',
+      'Plot twist nobody saw coming except maybe the [c:{ally.text}]: it was the [c:{ally.text}]. The [c:{ally.text}] had been the [c:{mcguffin.text}] thief the whole time. It was very sorry.',
     ] },
   /* v2.7.0 — funnier guilty-pet reveals. Ally pet shows guilt in kid-readable ways:
      burp gives them away, can\'t make eye contact, pretends to be asleep, ear pinned. */
@@ -3810,9 +3816,12 @@ const V3_BEATS = [
       'The [c:{ally.text}] was avoiding eye contact in a way that was, frankly, suspicious. Also there were [c:{mcguffin.text}] crumbs on the floor in a perfect trail leading to the [c:{ally.text}]. [name:{protagonist.name}] connected the dots without saying a word.',
     ] },
 
+  /* v3_ls_payoff_chant — b18 length pass: weak terminal flourish
+     "Case closed." dropped. The "formal apology" sentence is already the
+     resolution beat. */
   { id:'v3_ls_payoff_chant', stage:'payoff', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','mcguffin','chant'],
     lines: [
-      '"[y:{chant.text}]!" yelled [name:{protagonist.name}]. The [c:{ally.text}] squawked back. Everyone agreed to share the next batch of [c:{mcguffin.text}]. The [c:{false_suspect.text}] demanded a formal apology. [name:{protagonist.name}] gave one. Case closed.',
+      '"[y:{chant.text}]!" yelled [name:{protagonist.name}]. The [c:{ally.text}] squawked back. Everyone agreed to share the next batch of [c:{mcguffin.text}]. The [c:{false_suspect.text}] demanded a formal apology. [name:{protagonist.name}] gave one.',
     ] },
   { id:'v3_ls_payoff_payword', stage:'payoff', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','mcguffin','payoff_word'],
     lines: [
@@ -3863,10 +3872,12 @@ const V3_BEATS = [
       'At the [y:{setting.text}], [name:{protagonist.name}] had one objective: {goal.text}. The [c:{ally.text}] knew it. [name:{protagonist.name}] knew it. Everybody else would find out shortly.',
       'Today\'s mission, agreed silently between [name:{protagonist.name}] and the [c:{ally.text}] at the [y:{setting.text}]: {goal.text}. [name:{protagonist.name}] did not love announcing missions out loud, but this one felt different.',
     ] },
-  /* Fallback set when goal slot is somehow absent — kept for safety, mirrors v2.6.x voice. */
+  /* Fallback set when goal slot is somehow absent — kept for safety, mirrors v2.6.x voice.
+     b18 length pass: terminal flourish "Whatever the plan was, today was the day."
+     dropped (no tokens; the "woke up with a plan" already established that). */
   { id:'v3_gs_setup_1', stage:'setup', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting'],
     lines: [
-      '[name:{protagonist.name}] woke up with a plan at the [y:{setting.text}]. The [c:{ally.text}] was already on board. Whatever the plan was, today was the day.',
+      '[name:{protagonist.name}] woke up with a plan at the [y:{setting.text}]. The [c:{ally.text}] was already on board.',
     ] },
   { id:'v3_gs_setup_tween', stage:'setup', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','ally','setting'],
     lines: [
@@ -4262,48 +4273,56 @@ const V3_BEATS = [
      heavy repetition with restraint, one memorable image per paragraph.
      ============================================================ */
 
-  /* --- TOT SETUP (5 variants) --- */
+  /* --- TOT SETUP (5 variants) ---
+     b18 story-length pass: trailing flourishes ("They were a team.",
+     "Off we go!", "Big day!", "Adventure time.") removed from setup_1
+     through setup_4 to drop per-paragraph sentence count from 4 → 3.
+     setup_5 already lands in 4 short sentences and stays as-is for variety. */
   { id:'v3_tl_tot_setup_1', stage:'tl_setup', tiers:['tot'], requiredRoles:['protagonist','ally'],
     lines: [
-      '[name:{protagonist.name}] ran outside. The [c:{ally.text}] was right there. "Hi [c:{ally.text}]!" said [name:{protagonist.name}]. They were a team.',
+      '[name:{protagonist.name}] ran outside. The [c:{ally.text}] was right there. "Hi [c:{ally.text}]!" said [name:{protagonist.name}].',
     ] },
   { id:'v3_tl_tot_setup_2', stage:'tl_setup', tiers:['tot'], requiredRoles:['protagonist','ally'],
     lines: [
-      '[name:{protagonist.name}] spotted the [c:{ally.text}] from across the room. [name:{protagonist.name}] waved. The [c:{ally.text}] waved back. Off we go!',
+      '[name:{protagonist.name}] spotted the [c:{ally.text}] from across the room. [name:{protagonist.name}] waved. The [c:{ally.text}] waved back.',
     ] },
   { id:'v3_tl_tot_setup_3', stage:'tl_setup', tiers:['tot'], requiredRoles:['protagonist','ally'],
     lines: [
-      '"Come on, [c:{ally.text}]!" said [name:{protagonist.name}]. The [c:{ally.text}] came. [name:{protagonist.name}] led the way. Big day!',
+      '"Come on, [c:{ally.text}]!" said [name:{protagonist.name}]. The [c:{ally.text}] came. [name:{protagonist.name}] led the way.',
     ] },
   { id:'v3_tl_tot_setup_4', stage:'tl_setup', tiers:['tot'], requiredRoles:['protagonist','ally'],
     lines: [
-      '[name:{protagonist.name}] grabbed the [c:{ally.text}]\'s paw. "Ready?" said [name:{protagonist.name}]. The [c:{ally.text}] nodded. Adventure time.',
+      '[name:{protagonist.name}] grabbed the [c:{ally.text}]\'s paw. "Ready?" said [name:{protagonist.name}]. The [c:{ally.text}] nodded.',
     ] },
   { id:'v3_tl_tot_setup_5', stage:'tl_setup', tiers:['tot'], requiredRoles:['protagonist','ally'],
     lines: [
       '[name:{protagonist.name}] opened the door. There was the [c:{ally.text}]! "Hi!" said [name:{protagonist.name}]. "Hi!" said the [c:{ally.text}] back.',
     ] },
 
-  /* --- TOT SILLY REPEAT (8 variants, fires twice per story) --- */
+  /* --- TOT SILLY REPEAT (8 variants, fires twice per story) ---
+     b18 story-length pass: redundant flourishes ("Yay!", "Hee hee.",
+     "Big win!", final "Hee hee." after "Everyone danced.", redundant "Then"
+     before "both giggled") trimmed. Call/response + hat + share keep their
+     full structure because the repetition IS the cozy pattern for ages 2-3. */
   { id:'v3_tl_tot_repeat_pick_up', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object'],
     lines: [
-      '[name:{protagonist.name}] picked up the [c:{wonder_object.text}]. [name:{protagonist.name}] held it up high. "Look!" said [name:{protagonist.name}]. The [c:{ally.text}] looked. Yay!',
+      '[name:{protagonist.name}] picked up the [c:{wonder_object.text}]. [name:{protagonist.name}] held it up high. "Look!" said [name:{protagonist.name}]. The [c:{ally.text}] looked.',
     ] },
   { id:'v3_tl_tot_repeat_point', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object'],
     lines: [
-      '[name:{protagonist.name}] pointed at the [c:{wonder_object.text}]. "[c:{wonder_object.cap}]!" said [name:{protagonist.name}]. "[c:{wonder_object.cap}]!" said the [c:{ally.text}]. Hee hee.',
+      '[name:{protagonist.name}] pointed at the [c:{wonder_object.text}]. "[c:{wonder_object.cap}]!" said [name:{protagonist.name}]. "[c:{wonder_object.cap}]!" said the [c:{ally.text}].',
     ] },
   { id:'v3_tl_tot_repeat_share', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object'],
     lines: [
-      '[name:{protagonist.name}] showed the [c:{wonder_object.text}] to the [c:{ally.text}]. The [c:{ally.text}] sniffed it. [name:{protagonist.name}] giggled. The [c:{wonder_object.text}] just sat there.',
+      '[name:{protagonist.name}] showed the [c:{wonder_object.text}] to the [c:{ally.text}]. The [c:{ally.text}] sniffed it. [name:{protagonist.name}] giggled.',
     ] },
   { id:'v3_tl_tot_repeat_carry', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object'],
     lines: [
-      '[name:{protagonist.name}] carried the [c:{wonder_object.text}] very carefully. The [c:{ally.text}] watched. [name:{protagonist.name}] did not drop it. Big win!',
+      '[name:{protagonist.name}] carried the [c:{wonder_object.text}] very carefully. The [c:{ally.text}] watched. [name:{protagonist.name}] did not drop it.',
     ] },
   { id:'v3_tl_tot_repeat_dance', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object'],
     lines: [
-      '[name:{protagonist.name}] did a little dance with the [c:{wonder_object.text}]. The [c:{ally.text}] danced too. So did a tiny bug. Everyone danced. Hee hee.',
+      '[name:{protagonist.name}] did a little dance with the [c:{wonder_object.text}]. The [c:{ally.text}] danced too. So did a tiny bug.',
     ] },
   { id:'v3_tl_tot_repeat_call_response', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object'],
     lines: [
@@ -4311,75 +4330,88 @@ const V3_BEATS = [
     ] },
   { id:'v3_tl_tot_repeat_hat', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object'],
     lines: [
-      '[name:{protagonist.name}] put the [c:{wonder_object.text}] on top of the [c:{ally.text}]\'s head. The [c:{ally.text}] held still. [name:{protagonist.name}] clapped. The [c:{wonder_object.text}] stayed put.',
+      '[name:{protagonist.name}] put the [c:{wonder_object.text}] on top of the [c:{ally.text}]\'s head. The [c:{ally.text}] held still. [name:{protagonist.name}] clapped.',
     ] },
   { id:'v3_tl_tot_repeat_chase', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object'],
     lines: [
-      '[name:{protagonist.name}] reached for the [c:{wonder_object.text}]. The [c:{ally.text}] reached too. They both reached. Then both giggled.',
+      '[name:{protagonist.name}] reached for the [c:{wonder_object.text}]. The [c:{ally.text}] reached too. Both giggled.',
     ] },
 
-  /* --- TOT COZY END — bedtime (3 variants) --- */
+  /* --- TOT COZY END — bedtime (3 variants) ---
+     b18 story-length pass: drop redundant terminal closers ("Goodnight.",
+     "Sweet dreams.") because "Night, [ally]" already carries the closing.
+     end_bed_3 keeps its full repetition because the parallel structure IS
+     the cozy pattern. */
   { id:'v3_tl_tot_end_bed_1', stage:'tl_cozy_end', tiers:['tot'], mode:'bedtime', requiredRoles:['protagonist','ally'],
     lines: [
-      '[name:{protagonist.name}] picked up the [c:{ally.text}] for a hug. "Night, [c:{ally.text}]," said [name:{protagonist.name}]. Then [name:{protagonist.name}] curled up. Goodnight.',
+      '[name:{protagonist.name}] picked up the [c:{ally.text}] for a hug. "Night, [c:{ally.text}]," said [name:{protagonist.name}]. Then [name:{protagonist.name}] curled up.',
     ] },
   { id:'v3_tl_tot_end_bed_2', stage:'tl_cozy_end', tiers:['tot'], mode:'bedtime', requiredRoles:['protagonist','ally'],
     lines: [
-      'Time for a hug. [name:{protagonist.name}] hugged the [c:{ally.text}]. Then [name:{protagonist.name}] yawned. The [c:{ally.text}] yawned too. Sweet dreams.',
+      'Time for a hug. [name:{protagonist.name}] hugged the [c:{ally.text}]. Then [name:{protagonist.name}] yawned. The [c:{ally.text}] yawned too.',
     ] },
   { id:'v3_tl_tot_end_bed_3', stage:'tl_cozy_end', tiers:['tot'], mode:'bedtime', requiredRoles:['protagonist','ally'],
     lines: [
       'Now [name:{protagonist.name}] is sleepy. The [c:{ally.text}] is sleepy too. Good night, [c:{ally.text}]. Good night, [name:{protagonist.name}].',
     ] },
 
-  /* --- TOT COZY END — anytime (2 variants) --- */
+  /* --- TOT COZY END — anytime (2 variants) ---
+     b18 story-length pass: drop tail closers ("See you soon!", "Yay!") —
+     "Bye for now!" and the nod already close the anytime beat cleanly. */
   { id:'v3_tl_tot_end_any_1', stage:'tl_cozy_end', tiers:['tot'], mode:'anytime', requiredRoles:['protagonist','ally'],
     lines: [
-      '[name:{protagonist.name}] waved at the [c:{ally.text}]. "Bye for now!" said [name:{protagonist.name}]. The [c:{ally.text}] waved back. See you soon!',
+      '[name:{protagonist.name}] waved at the [c:{ally.text}]. "Bye for now!" said [name:{protagonist.name}]. The [c:{ally.text}] waved back.',
     ] },
   { id:'v3_tl_tot_end_any_2', stage:'tl_cozy_end', tiers:['tot'], mode:'anytime', requiredRoles:['protagonist','ally'],
     lines: [
-      '[name:{protagonist.name}] hugged the [c:{ally.text}] one more time. "Come back tomorrow?" said [name:{protagonist.name}]. The [c:{ally.text}] nodded. Yay!',
+      '[name:{protagonist.name}] hugged the [c:{ally.text}] one more time. "Come back tomorrow?" said [name:{protagonist.name}]. The [c:{ally.text}] nodded.',
     ] },
 
-  /* --- LITTLE SETUP (5 variants) --- */
+  /* --- LITTLE SETUP (5 variants) ---
+     b18 story-length pass: trim narrator flourishes ("Adventure unlocked.",
+     "The day had decided to be fun.", redundant "They were extra ready.")
+     while keeping the kid-agency openers ("We have a plan", "Hi back!") intact. */
   { id:'v3_tl_little_setup_1', stage:'tl_setup', tiers:['little'], requiredRoles:['protagonist','ally'],
     lines: [
-      'It was a bright morning. [name:{protagonist.name}] grabbed the [c:{ally.text}] and headed out. "We have a plan," said [name:{protagonist.name}]. They did, actually.',
+      'It was a bright morning. [name:{protagonist.name}] grabbed the [c:{ally.text}] and headed out. "We have a plan," said [name:{protagonist.name}].',
     ] },
   { id:'v3_tl_little_setup_2', stage:'tl_setup', tiers:['little'], requiredRoles:['protagonist','ally'],
     lines: [
-      '[name:{protagonist.name}] packed a tiny bag and called the [c:{ally.text}]. The [c:{ally.text}] came running. [name:{protagonist.name}] led the way. Adventure unlocked.',
+      '[name:{protagonist.name}] packed a tiny bag and called the [c:{ally.text}]. The [c:{ally.text}] came running. [name:{protagonist.name}] led the way.',
     ] },
   { id:'v3_tl_little_setup_3', stage:'tl_setup', tiers:['little'], requiredRoles:['protagonist','ally'],
     lines: [
-      '[name:{protagonist.name}] spotted the [c:{ally.text}] across the yard. "Hey [c:{ally.text}]!" said [name:{protagonist.name}]. [name:{protagonist.name}] ran over. The [c:{ally.text}] was already smiling.',
+      '[name:{protagonist.name}] spotted the [c:{ally.text}] across the yard. "Hey [c:{ally.text}]!" said [name:{protagonist.name}]. The [c:{ally.text}] was already smiling.',
     ] },
   { id:'v3_tl_little_setup_4', stage:'tl_setup', tiers:['little'], requiredRoles:['protagonist','ally'],
     lines: [
-      '[name:{protagonist.name}] opened a door and the [c:{ally.text}] tumbled in. "Hi!" said [name:{protagonist.name}]. "Hi back!" said the [c:{ally.text}] — somehow. The day had decided to be fun.',
+      '[name:{protagonist.name}] opened a door and the [c:{ally.text}] tumbled in. "Hi!" said [name:{protagonist.name}]. "Hi back!" said the [c:{ally.text}] — somehow.',
     ] },
   { id:'v3_tl_little_setup_5', stage:'tl_setup', tiers:['little'], requiredRoles:['protagonist','ally'],
     lines: [
-      '[name:{protagonist.name}] told the [c:{ally.text}], "Today is going to be a big one." The [c:{ally.text}] agreed. They were ready. They were extra ready.',
+      '[name:{protagonist.name}] told the [c:{ally.text}], "Today is going to be a big one." The [c:{ally.text}] agreed. They were ready.',
     ] },
 
-  /* --- LITTLE SILLY REPEAT (8 variants, fires twice per story) --- */
+  /* --- LITTLE SILLY REPEAT (8 variants, fires twice per story) ---
+     b18 story-length pass: trim trailing flourishes that don't carry any
+     selected words or {wonder_object} / {ally} tokens. Keep call-response
+     (point) + repetition-as-pattern (chase). The "build" variant keeps its
+     "looked very safe" close because that contains the wonder_object token. */
   { id:'v3_tl_little_repeat_pick_up', stage:'tl_silly_repeat', tiers:['little'], requiredRoles:['protagonist','ally','wonder_object'],
     lines: [
-      '[name:{protagonist.name}] spotted the [c:{wonder_object.text}] and picked it up like a treasure. "Look what I found!" said [name:{protagonist.name}]. The [c:{ally.text}] bowed dramatically. Treasure confirmed.',
+      '[name:{protagonist.name}] spotted the [c:{wonder_object.text}] and picked it up like a treasure. "Look what I found!" said [name:{protagonist.name}]. The [c:{ally.text}] bowed dramatically.',
     ] },
   { id:'v3_tl_little_repeat_share', stage:'tl_silly_repeat', tiers:['little'], requiredRoles:['protagonist','ally','wonder_object'],
     lines: [
-      '[name:{protagonist.name}] showed the [c:{wonder_object.text}] to the [c:{ally.text}]. "Want some?" said [name:{protagonist.name}]. The [c:{ally.text}] very much wanted some. So did a passing bug.',
+      '[name:{protagonist.name}] showed the [c:{wonder_object.text}] to the [c:{ally.text}]. "Want some?" said [name:{protagonist.name}]. The [c:{ally.text}] very much wanted some.',
     ] },
   { id:'v3_tl_little_repeat_carry', stage:'tl_silly_repeat', tiers:['little'], requiredRoles:['protagonist','ally','wonder_object'],
     lines: [
-      '[name:{protagonist.name}] carried the [c:{wonder_object.text}] carefully across the room. The [c:{ally.text}] followed, watching every step. "Steady," said [name:{protagonist.name}]. They both stayed steady.',
+      '[name:{protagonist.name}] carried the [c:{wonder_object.text}] carefully across the room. The [c:{ally.text}] followed, watching every step. "Steady," said [name:{protagonist.name}].',
     ] },
   { id:'v3_tl_little_repeat_dance', stage:'tl_silly_repeat', tiers:['little'], requiredRoles:['protagonist','ally','wonder_object'],
     lines: [
-      '[name:{protagonist.name}] held up the [c:{wonder_object.text}] and did a little dance. The [c:{ally.text}] copied the dance. Then they made up a new one together. Then a third one.',
+      '[name:{protagonist.name}] held up the [c:{wonder_object.text}] and did a little dance. The [c:{ally.text}] copied the dance. Then they made up a new one together.',
     ] },
   { id:'v3_tl_little_repeat_point', stage:'tl_silly_repeat', tiers:['little'], requiredRoles:['protagonist','ally','wonder_object'],
     lines: [
@@ -4387,39 +4419,47 @@ const V3_BEATS = [
     ] },
   { id:'v3_tl_little_repeat_build', stage:'tl_silly_repeat', tiers:['little'], requiredRoles:['protagonist','ally','wonder_object'],
     lines: [
-      '[name:{protagonist.name}] built a tiny fort around the [c:{wonder_object.text}]. The [c:{ally.text}] approved. "Safe now," said [name:{protagonist.name}]. The [c:{wonder_object.text}] looked very safe.',
+      '[name:{protagonist.name}] built a tiny fort around the [c:{wonder_object.text}]. The [c:{ally.text}] approved. "Safe now," said [name:{protagonist.name}].',
     ] },
   { id:'v3_tl_little_repeat_decide', stage:'tl_silly_repeat', tiers:['little'], requiredRoles:['protagonist','ally','wonder_object'],
     lines: [
-      '[name:{protagonist.name}] decided the [c:{wonder_object.text}] needed a name. "I name you Friend," said [name:{protagonist.name}]. The [c:{ally.text}] solemnly agreed. The naming was official now.',
+      '[name:{protagonist.name}] decided the [c:{wonder_object.text}] needed a name. "I name you Friend," said [name:{protagonist.name}]. The [c:{ally.text}] solemnly agreed.',
     ] },
   { id:'v3_tl_little_repeat_chase', stage:'tl_silly_repeat', tiers:['little'], requiredRoles:['protagonist','ally','wonder_object'],
     lines: [
-      'The [c:{wonder_object.text}] rolled. [name:{protagonist.name}] chased. The [c:{ally.text}] chased too. They caught it together. Teamwork.',
+      'The [c:{wonder_object.text}] rolled. [name:{protagonist.name}] chased. The [c:{ally.text}] chased too. They caught it together.',
     ] },
 
-  /* --- LITTLE COZY END — bedtime (3 variants) --- */
+  /* --- LITTLE COZY END — bedtime (3 variants) ---
+     b18 story-length pass: drop terminal closers ("Time to sleep.",
+     "Goodnight.") — the bedtime imagery in the prior sentence carries the
+     close. end_bed_3 keeps its full structure because "already half asleep"
+     IS the punchline. */
   { id:'v3_tl_little_end_bed_1', stage:'tl_cozy_end', tiers:['little'], mode:'bedtime', requiredRoles:['protagonist','ally'],
     lines: [
-      '[name:{protagonist.name}] pulled the [c:{ally.text}] into a small pillow fort. "We made it," said [name:{protagonist.name}]. The [c:{ally.text}] yawned. Time to sleep.',
+      '[name:{protagonist.name}] pulled the [c:{ally.text}] into a small pillow fort. "We made it," said [name:{protagonist.name}]. The [c:{ally.text}] yawned.',
     ] },
   { id:'v3_tl_little_end_bed_2', stage:'tl_cozy_end', tiers:['little'], mode:'bedtime', requiredRoles:['protagonist','ally'],
     lines: [
-      'By the end of the day, [name:{protagonist.name}] and the [c:{ally.text}] were tired and happy. They hugged. Then they went to bed. Goodnight.',
+      'By the end of the day, [name:{protagonist.name}] and the [c:{ally.text}] were tired and happy. They hugged. Then they went to bed.',
     ] },
   { id:'v3_tl_little_end_bed_3', stage:'tl_cozy_end', tiers:['little'], mode:'bedtime', requiredRoles:['protagonist','ally'],
     lines: [
       '[name:{protagonist.name}] tucked the [c:{ally.text}] in first, then climbed in too. "Same time tomorrow?" said [name:{protagonist.name}]. The [c:{ally.text}] was already half asleep.',
     ] },
 
-  /* --- LITTLE COZY END — anytime (2 variants) --- */
+  /* --- LITTLE COZY END — anytime (2 variants) ---
+     b18 story-length pass: drop trailing brag flourishes ("Big plans for
+     tomorrow.", "Good day!"). The "what happens next" hook the anytime mode
+     wants is already implied by "Onto the next thing" / "ready for whatever
+     came next". */
   { id:'v3_tl_little_end_any_1', stage:'tl_cozy_end', tiers:['little'], mode:'anytime', requiredRoles:['protagonist','ally'],
     lines: [
-      '[name:{protagonist.name}] grabbed the [c:{ally.text}]\'s paw. "Onto the next thing," said [name:{protagonist.name}]. They walked home together. Big plans for tomorrow.',
+      '[name:{protagonist.name}] grabbed the [c:{ally.text}]\'s paw. "Onto the next thing," said [name:{protagonist.name}]. They walked home together.',
     ] },
   { id:'v3_tl_little_end_any_2', stage:'tl_cozy_end', tiers:['little'], mode:'anytime', requiredRoles:['protagonist','ally'],
     lines: [
-      'By the end of the day, [name:{protagonist.name}] and the [c:{ally.text}] were happy and ready for whatever came next. They high-fived and headed home. Good day!',
+      'By the end of the day, [name:{protagonist.name}] and the [c:{ally.text}] were happy and ready for whatever came next. They high-fived and headed home.',
     ] },
 ];
 

@@ -66,34 +66,32 @@ vercel dev
 Required environment variables for TTS (set in Vercel dashboard or `.env.local` for `vercel dev`):
 
 - `ELEVENLABS_API_KEY` — your ElevenLabs API key
-- `ELEVENLABS_VOICE_ID` — default voice, used as fallback for any preset whose specific env var is unset
+- `ELEVENLABS_VOICE_ID` — legacy universal default. Optional in b17+ because every preset has a hardcoded `defaultId` in `api/tts.js`; kept as a final safety net if a future code change ever removes a per-preset default
 
 ### Narrator voice lineup
 
 NoddyTales offers **4 narrator presets** (since v0.9.3 · b8; refreshed in `b16`): 1 British + 3 American voices. Pick in Parent Settings or via the story-screen `Change` button.
 
-| Preset key | Label | Accent | Vibe | Env var |
+| Preset key | Label | Accent | Vibe | Env var (optional override) |
 |---|---|---|---|---|
 | `sunny` (default) | Sunny American | American | Warm, clear, everyday read-aloud | `ELEVENLABS_VOICE_SUNNY` |
 | `cozy` | Storybook British | British | Classic storybook narrator | `ELEVENLABS_VOICE_COZY` |
 | `adventure` | Adventure American | American | Energetic + expressive | `ELEVENLABS_VOICE_ADVENTURE` |
-| `silly` | Silly Cartoon | American | Goofy, bouncy, kid-favorite | `ELEVENLABS_VOICE_SILLY` |
+| `silly` | Silly Cartoon | Quirky | High-pitched, goofy, completely ridiculous | `ELEVENLABS_VOICE_SILLY` |
 
 ### Setup checklist (Vercel)
 
-Only two env vars are **required** for TTS to work at all:
+Only one env var is **required** for TTS to work at all (since b17):
 
 1. ☑ `ELEVENLABS_API_KEY` — your ElevenLabs API key
-2. ☑ `ELEVENLABS_VOICE_ID` — universal default voice ID (used as a final safety-net fallback)
+2. ⬜ `ELEVENLABS_VOICE_ID` — legacy universal default (optional in b17+; safety-net only)
 
-Since `v0.9.3 · b17`, the four presets ship with **curated ElevenLabs stock voice IDs hardcoded** as `defaultId` in `api/tts.js`'s `VOICE_MAP`:
+Since `v0.9.3 · b17`, the four presets ship with **curated ElevenLabs stock voice IDs hardcoded** as `defaultId` in `api/tts.js`'s `VOICE_MAP`. A fresh deploy with **no preset env vars set** produces **4 distinct preview voices** automatically — the per-preset env vars are optional operator overrides, not requirements.
 
 - sunny → **Rachel** (`21m00Tcm4TlvDq8ikWAM`) — American female, calm narration
 - cozy → **George** (`JBFqnCBsd6RMkjVDRZzb`) — British male, mature narrative
 - adventure → **Antoni** (`ErXwobaYiN019PkySvjV`) — American male, expressive
-- silly → **Gigi** (`jBpfuIE2acCO8z3wKNLl`) — American female, childish character
-
-A fresh deploy with no preset env vars set will produce **4 distinct preview voices** automatically.
+- silly → **Mimi** (`zrHiDhphv9ZnVXBqCLjz`) — childish character, higher-pitched, quirky cadence (swapped from Gigi in b18 because Gigi's timbre read too close to Rachel in production)
 
 ### Optional: override a preset via env var
 
@@ -102,7 +100,7 @@ If you want to swap any preset to a different ElevenLabs voice, set the matching
 - `ELEVENLABS_VOICE_SUNNY` — overrides Rachel
 - `ELEVENLABS_VOICE_COZY` — overrides George
 - `ELEVENLABS_VOICE_ADVENTURE` — overrides Antoni
-- `ELEVENLABS_VOICE_SILLY` — overrides Gigi
+- `ELEVENLABS_VOICE_SILLY` — overrides Mimi (set this to a custom high-pitched / cartoon voice if Mimi isn't silly enough)
 
 Voice IDs are **server-side only** — the browser never sees them. Per-preset `voice_settings` (stability / similarity / style) layer per-preset moods on top of the voice ID.
 
