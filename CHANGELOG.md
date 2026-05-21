@@ -4,6 +4,96 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v3.0.0 — 2026-05-21
+**Unified Engine — v3 is the default for every age 2-13**
+
+The architectural promise the v3.0 roadmap was built on. The age gate is gone. Every story request — tot, little, kid, big, tween — now flows through the role-based v3 engine. The journey: v2.7.x stability, v2.8.0 content depth, v2.9.0 v3-default-for-6+, v2.10.0 tot/little-v3 blueprints, v2.10.1 setting/place UX fix, v2.10.2 parent-trust + QA hardening. **This release flips the last switch.**
+
+### What changed
+
+**Router (`buildStory()` in `index.html`, `generateStoryRouted()` in `src/engine-v2.js`):**
+
+```js
+// Before (v2.10.2):
+const preferV3 = age >= 6 || isEngineV3Enabled();
+if (preferV3 && typeof generateStoryV3 === 'function') { ... }
+
+// After (v3.0.0):
+const preferV3 = (typeof generateStoryV3 === 'function');
+if (preferV3) { ... }
+```
+
+The `age >= 6` gate is removed. Every age tries v3 first. The `?engine=v2` / `?engine=v1` URL flags still work as testing overrides; they no longer matter for normal production routing.
+
+**Verified behavior (160-story router test, no flags):**
+
+| Age | Routes to | Paragraphs |
+|---:|---|---|
+| 2 | v3 (`tot_wonder_v3` / `tot_sky_v3`) | 4 |
+| 3 | v3 (`tot_*_v3`) | 4 |
+| 4 | v3 (`little_quest_v3` / `little_food_v3`) | 4 |
+| 5 | v3 (`little_*_v3`) | 4 |
+| 6 | v3 (kid blueprints) | 6 |
+| 8 | v3 (big blueprints) | 6 |
+| 10 | v3 (big blueprints) | 6 |
+| 12 | v3 (tween blueprints) | 6 |
+
+**Rollback safety preserved:**
+
+This is a **phased cutover**. v2 stays in code as a silent fallback for v3.0.0. If v3 returns null for any reason (latent blueprint issue, unexpected slot resolution), `buildStory()` and `generateStoryRouted()` fall through to v2 — the same behavior the engine has had since v2.10.x. Verified with a null-injection test: when `generateStoryV3` is stubbed to always return null, v2 catches 30/30 attempts across ages 2/6/12.
+
+The v3 engine has been the kid/big/tween default since v2.9.0 and was extended to tot/little in v2.10.0. The router flip in v3.0.0 just removes the age guard. No new engine code; no new beats.
+
+### Why not delete v2 in v3.0.0?
+
+The Build Idea title is "Unified Engine — v2 deleted, App Store ready." This release ships the unified-engine **routing**; v2 deletion is queued for **v3.0.1**.
+
+Rationale: smallest safe cutover. The router flip is the user-facing behavior change. Once that's verified in production for a release cycle, deleting ~1,500 lines of v2 code is just hygiene. If something unexpected fires at production scale during the first day of v3-everywhere traffic, v3.0.0 can fall back silently without a redeploy. v3.0.1 deletes v2 once that confidence is earned.
+
+### `legacy/engine-v2.js` snapshot
+
+A copy of `src/engine-v2.js` as it was at the v3.0.0 cutover lives in `legacy/engine-v2.js`. If a critical bug requires a full revert, that file can be moved back to `src/engine.js` (in v3.0.1) or `src/engine-v2.js` (now) in minutes. Rollback artifact, not active code.
+
+### Documentation cleanup
+
+`docs/tot-little-v3-design.md` had a stale note: *"Setting Modes — The `setting` lock continues to override `place` in tot/little stories (until the separate `place`-vs-`setting` defect is resolved)."* v2.10.1 resolved that defect. The note now correctly reflects v2.10.1's `buildRounds()` fix (skips the place round entirely when a non-`surprise` setting is locked).
+
+### Story-length defect — explicitly deferred to v3.0.x content sprint
+
+The Open Defect Log entry "Stories too long globally" remains **In Progress**, intentionally not addressed in v3.0.0. The Section 10 advisory metric (added in v2.10.2) measures the gap: tot/little median ~20 sentences vs. defect-proposed caps of 3-6; kid/big/tween median ~26 vs. caps of 7-12.
+
+**Rationale for deferral:** trimming beat content against the v2 codepath (which v3.0.1 deletes) wastes effort. The post-cutover content sprint targets the unified v3 engine where trimming can be measured, gated, and rolled out cleanly. Section 10 stays in the harness so the content sprint has a baseline to improve against.
+
+### What's NOT in v3.0.0 (deferred to later sprints)
+
+Per the task scope: these App Store / packaging items remain queued, not in this release:
+
+- **Apple Parental Gate** — required before Kids Category premium / IAP. Build Idea on the hub.
+- **iOS native packaging** (Capacitor / Expo / etc.) — web-only ship for v3.0.0.
+- **App Store metadata** (screenshots, description, keywords, age rating, privacy policy URL).
+- **Mobile / audio / parent / privacy UAT signoff** — real-kid playtest is the practical gate for trust; structured App Store UAT is a separate sprint.
+- **Narrator voice selector, Potty Word Mode UX, freemium/paywall, structured story parts** — explicitly out of scope for v3.0.0 per the task brief.
+
+### Acceptance
+
+- `node scripts/qa-current.js` — **all 10 gates green** (Sections 1-5, 7-9, advisory 10). v2 matrix still passes (proves v2 fallback is healthy). v3 matrix passes 960/960 + 240/240 tot/little.
+- **160-story router behavior test** — every age 2-12 routes through v3.
+- **30-story rollback safety test** — v2 catches 30/30 when v3 stubbed to null.
+- Section 10 advisory baseline unchanged from v2.10.2.
+
+### Versions
+
+`APP_VERSION` → `v3.0.0`. `ENGINE_V2_VERSION` → `v3.0.0` (the variable name stays as-is in this release; v3.0.1 will rename to `ENGINE_VERSION` alongside the `src/engine-v2.js` → `src/engine.js` rename).
+
+### Path forward
+
+- **v3.0.1** — delete `V2_BEATS` / `V2_BLUEPRINTS` / `generateStoryV2` / `generateStoryV1`. Rename `src/engine-v2.js` → `src/engine.js`. Rewrite `scripts/qa-current.js` for v3-only world (delete Sections 1, 2, 5 v2 matrix; expand Section 3b to all 12 ages). One focused release.
+- **v3.0.x content sprint** — Story-length defect resolution (engine beat trimming) against the unified v3 engine.
+- **Real-kid playtest** at noddytales.app (no `?engine=v3` flag needed anymore — v3 is the default).
+- **App Store sprint** after playtest signoff: Apple Parental Gate, iOS packaging, screenshots, age rating, privacy policy.
+
+---
+
 ## v2.10.2 — 2026-05-21
 **Defect-cleanup release — Critical parent-trust fix, tween anytime flake fix, 2 new QA gates**
 
