@@ -9,6 +9,69 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 17, engine v3.0.3) — 2026-05-21
+**Voice previews now genuinely distinct out-of-the-box — hardcoded per-preset stock voice IDs**
+
+Direct fix for the user-reported issue *"voice previews in settings is all the same british voice."*
+
+### Root cause
+
+b16 made the identical-previews trap **visible** (server `console.warn` per request when a preset falls back to `ELEVENLABS_VOICE_ID`) but did not actually fix it. Production has `ELEVENLABS_VOICE_ID` set to George (the British narrator) and no per-preset env vars — so every preset still resolved to the same British voice. The user shouldn't need to paste 4 ElevenLabs voice IDs into Vercel just to get distinct previews.
+
+### Fix
+
+Added a `defaultId` field to each entry in `api/tts.js`'s `VOICE_MAP` pointing to a curated ElevenLabs first-party stock voice. New `resolveVoice` priority chain:
+
+1. `env[cfg.envVar]` — operator per-preset override (strongest)
+2. **`cfg.defaultId`** — per-preset hardcoded curated stock voice (NEW)
+3. `env.ELEVENLABS_VOICE_ID` — legacy universal fallback
+4. `'JBFqnCBsd6RMkjVDRZzb'` — final backstop (George)
+
+Out-of-the-box, with NO env vars set, every preset resolves to its curated default → **4 distinct voices**. Operator can still override any preset via env vars; hardcoded defaults only fill in when the env var is unset.
+
+### Curated stock voice IDs
+
+All four are ElevenLabs **first-party stock voices**, available on every ElevenLabs account — **NOT celebrity or real-person impersonations**. ElevenLabs' own brand.
+
+| Preset | Voice | Voice ID | Why |
+|---|---|---|---|
+| sunny (Sunny American) | Rachel | `21m00Tcm4TlvDq8ikWAM` | American female, calm narration — fits "warm, clear, everyday read-aloud" |
+| cozy (Storybook British) | George | `JBFqnCBsd6RMkjVDRZzb` | British male, mature narrative — canonical bedtime narrator |
+| adventure (Adventure American) | Antoni | `ErXwobaYiN019PkySvjV` | American male, well-rounded, expressive |
+| silly (Silly Cartoon) | Gigi | `jBpfuIE2acCO8z3wKNLl` | American female, childish character voice |
+
+2 female + 2 male, 1 British + 3 American — maximally distinct timbres so previews sound genuinely different on first play.
+
+### Operator override behavior
+
+`ELEVENLABS_VOICE_SUNNY` / `_COZY` / `_ADVENTURE` / `_SILLY` env vars **still work** as per-preset overrides if the operator wants different voices. They beat the hardcoded defaults in the priority chain. The four env vars are now **strictly optional** rather than required-for-distinct-voices.
+
+`ELEVENLABS_VOICE_ID` becomes effectively unreachable for the 4 known presets (still in the chain as a safety net for future presets that might lack a hardcoded default).
+
+### QA updates
+
+Section 14 went 13 → 14 cases:
+
+- **Case 2 updated** — "cozy with no per-preset env → uses cozy hardcoded George (not the mocked `ELEVENLABS_VOICE_ID`)." Asserts source is `hardcodedPerPreset` and `usedFallback` is false.
+- **Case 12 updated + +1 new** — "no env vars set → 4 presets STILL resolve to 4 distinct voice IDs via `hardcodedPerPreset` source." Catches future bugs where two presets share the same hardcoded default.
+
+All 14 voice cases pass. `console.warn` on fallback (from b16) is now effectively unreachable for the 4 known presets — happy path stays quiet in logs.
+
+### README updated
+
+Env vars section now correctly describes them as **optional operator overrides**, not required setup. The "identical previews" diagnostic note removed — no longer a failure mode out-of-the-box.
+
+### Acceptance
+
+- `scripts/qa-current.js` — **all 23 gates green**.
+- Section 14: **14/14 voice cases pass** (was 13/13 in b16).
+
+### Zero remaining manual steps
+
+First deploy from main will produce 4 distinct preview voices automatically. No Vercel env vars need to be set for the lineup to work.
+
+---
+
 ## v0.9.3 (build 16, engine v3.0.3) — 2026-05-21
 **Narrator voice lineup refresh + identical-previews configuration safety**
 

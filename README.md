@@ -81,26 +81,41 @@ NoddyTales offers **4 narrator presets** (since v0.9.3 · b8; refreshed in `b16`
 
 ### Setup checklist (Vercel)
 
-For the four narrator presets to sound **actually distinct**, the operator must paste **four different ElevenLabs voice IDs** into Vercel Project Settings → Environment Variables → `Production` (and `Preview` if you want them in PR previews):
+Only two env vars are **required** for TTS to work at all:
 
-1. ☑ `ELEVENLABS_API_KEY` — required for any TTS
-2. ☑ `ELEVENLABS_VOICE_ID` — required fallback default
-3. `ELEVENLABS_VOICE_SUNNY` — distinct American warm/clear voice ID
-4. `ELEVENLABS_VOICE_COZY` — distinct British storybook voice ID
-5. `ELEVENLABS_VOICE_ADVENTURE` — distinct American energetic voice ID
-6. `ELEVENLABS_VOICE_SILLY` — distinct American cartoon voice ID
+1. ☑ `ELEVENLABS_API_KEY` — your ElevenLabs API key
+2. ☑ `ELEVENLABS_VOICE_ID` — universal default voice ID (used as a final safety-net fallback)
 
-Redeploy after pasting env vars; no code change needed.
+Since `v0.9.3 · b17`, the four presets ship with **curated ElevenLabs stock voice IDs hardcoded** as `defaultId` in `api/tts.js`'s `VOICE_MAP`:
 
-### Identical-previews diagnostic
+- sunny → **Rachel** (`21m00Tcm4TlvDq8ikWAM`) — American female, calm narration
+- cozy → **George** (`JBFqnCBsd6RMkjVDRZzb`) — British male, mature narrative
+- adventure → **Antoni** (`ErXwobaYiN019PkySvjV`) — American male, expressive
+- silly → **Gigi** (`jBpfuIE2acCO8z3wKNLl`) — American female, childish character
 
-If voice previews all sound the same on production, **the preset env vars 3–6 above are not set**. Every preset has fallen back to `ELEVENLABS_VOICE_ID`. The server logs a `console.warn` per request when fallback fires:
+A fresh deploy with no preset env vars set will produce **4 distinct preview voices** automatically.
+
+### Optional: override a preset via env var
+
+If you want to swap any preset to a different ElevenLabs voice, set the matching env var. The per-preset env var **beats** the hardcoded default:
+
+- `ELEVENLABS_VOICE_SUNNY` — overrides Rachel
+- `ELEVENLABS_VOICE_COZY` — overrides George
+- `ELEVENLABS_VOICE_ADVENTURE` — overrides Antoni
+- `ELEVENLABS_VOICE_SILLY` — overrides Gigi
+
+Voice IDs are **server-side only** — the browser never sees them. Per-preset `voice_settings` (stability / similarity / style) layer per-preset moods on top of the voice ID.
+
+### Priority chain (api/tts.js `resolveVoice`)
 
 ```
-[TTS] preset "cozy" fell back to ELEVENLABS_VOICE_ID — set ELEVENLABS_VOICE_COZY in Vercel for a distinct voice.
+1. env[ELEVENLABS_VOICE_<PRESET>]   ← operator per-preset override
+2. cfg.defaultId                     ← per-preset hardcoded curated voice
+3. env.ELEVENLABS_VOICE_ID           ← legacy universal fallback
+4. 'JBFqnCBsd6RMkjVDRZzb' (George)   ← final backstop
 ```
 
-Voice IDs are **server-side only** — the browser never sees them. Per-preset `voice_settings` (stability / similarity / style) still differ even when all four resolve to the same voice, so the moods land slightly distinct even in fallback.
+Levels 3–4 are effectively unreachable for the 4 known presets (every preset has a `defaultId` since b17).
 
 ## QA harness
 
