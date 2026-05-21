@@ -39,7 +39,7 @@ NoddyTales tracks **three independent versions** (adopted 2026-05-21, see [`docs
 
 1. **`APP_VERSION`** (`v0.9.3`) — user-facing **product maturity**. `v0.9.x` = late beta, pre-App-Store. `v1.0.0` is reserved for public App Store launch. Shown in the in-app badge.
 2. **`ENGINE_V2_VERSION`** (`v3.0.3`) — internal **engine architecture** lineage. Bumps on engine-arch changes (e.g., v2 deletion → `v3.1.0`). Visible in DevTools / CHANGELOG context only; **not** in the badge.
-3. **`BUILD_NUMBER`** (`8`) — increments every release shipped to `main`. Shown in the badge alongside the product version as `v0.9.3 · b8`. (Sequence so far: `b1` versioning policy → `b2` Phase 1 sound tap round → `b3` Phase 4 shuffle 🎲 button → `b4` highlight defect fix → `b5` brand icon refresh → `b6` in-app mark contrast fix → `b7` QA cleanup → `b8` README cleanup + Narrator Voice Selector MVP.)
+3. **`BUILD_NUMBER`** (`14`) — increments every release shipped to `main`. Shown in the badge alongside the product version as `v0.9.3 · b14`. (Sequence so far: `b1` versioning policy → `b2` Phase 1 sound tap round → `b3` Phase 4 shuffle 🎲 button → `b4` highlight defect fix → `b5` brand icon refresh → `b6` in-app mark contrast → `b7` QA cleanup → `b8` Narrator Voice Selector MVP → `b9` Setting 2.0 → `b10` narrator-on-story + voice previews → `b11` Setting 2.0 mobile compact → `b12` Setting 2.0 polish + rainbow fix → `b13` animal-emoji audit → `b14` QA hardening: rapid-tap guard + burst a11y + 320×568 fit.)
 
 CHANGELOG entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine vA.B.C) — DATE`. Historical v3.0.0–v3.0.3 entries stay as-is for traceability — we don't rewrite history.
 
