@@ -9,6 +9,85 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 16, engine v3.0.3) — 2026-05-21
+**Narrator voice lineup refresh + identical-previews configuration safety**
+
+The b8 narrator MVP shipped with vague labels (Sunny / Cozy Bedtime / Big Adventure / Silly Cartoon) and a silent failure mode: when the four preset env vars are unset, every preset falls back to `ELEVENLABS_VOICE_ID` → identical previews. This release fixes both.
+
+### Lineup refresh (1 British + 3 American)
+
+| Preset key | Label (was → now) | Accent | Vibe |
+|---|---|---|---|
+| `sunny` | Sunny → **Sunny American** | American | Warm, clear, everyday read-aloud |
+| `cozy` | Cozy Bedtime → **Storybook British** | **British** | Classic storybook narrator |
+| `adventure` | Big Adventure → **Adventure American** | American | Energetic + expressive |
+| `silly` | Silly Cartoon → **Silly Cartoon** | American | Goofy, bouncy, kid-favorite |
+
+Preset **keys are unchanged** (`sunny` / `cozy` / `adventure` / `silly`) so saved `nt_voice_preset` and IndexedDB cache entries (`<preset>|<sha256>` for stories, `preview:<preset>` for previews) survive across the rename.
+
+All four `previewText` lines updated to name the voice clearly:
+- *"Hi, I'm Sunny American. I'm your personal story reader."*
+- *"Hi, I'm Storybook British. I'll read this like a proper bedtime tale."*
+- *"Hi, I'm Adventure American. Let's make this story sound big."*
+- *"Hi, I'm Silly Cartoon. I make stories sound ridiculous."*
+
+### Identical-previews trap
+
+Pre-b16 behavior: if the four preset env vars are unset, every preset silently falls back to `ELEVENLABS_VOICE_ID`. The operator + parent both see four distinct preset labels but hear the same voice. Worse than offering one voice transparently.
+
+**Fix 1 — server-side console.warn.** `api/tts.js` now emits a per-request warning when a preset falls back:
+
+```
+[TTS] preset "cozy" fell back to ELEVENLABS_VOICE_ID — set ELEVENLABS_VOICE_COZY in Vercel for a distinct voice.
+```
+
+Visible in Vercel logs immediately. The misconfig is now loud, not silent.
+
+**Fix 2 — new QA assertions.** Section 14 went 10 → 13 cases:
+
+| New sub-case | What it catches |
+|---|---|
+| Production-like env with 4 distinct preset env vars → **4 distinct voice IDs** | The all-fallback failure mode (got 1 distinct = misconfig) |
+| Missing preset env vars → every preset reports `usedFallback: true` | Detectability — server logs will fire warnings |
+| Label / tagline / previewText scanned against a celebrity / licensed-character / real-person blocklist | Disney / Pixar / Sesame / Morgan Freeman / David Attenborough / James Earl Jones / etc. — all confirmed clean |
+
+### Env vars (production)
+
+For the four narrators to sound **actually distinct**, paste four different ElevenLabs voice IDs into Vercel Project Settings → Environment Variables:
+
+| Env var | Role |
+|---|---|
+| `ELEVENLABS_API_KEY` | Required for any TTS |
+| `ELEVENLABS_VOICE_ID` | Required fallback default |
+| `ELEVENLABS_VOICE_SUNNY` | Distinct American warm/clear voice |
+| `ELEVENLABS_VOICE_COZY` | Distinct British storybook voice |
+| `ELEVENLABS_VOICE_ADVENTURE` | Distinct American energetic voice |
+| `ELEVENLABS_VOICE_SILLY` | Distinct American cartoon voice |
+
+### README updated
+
+New sections: voice lineup table, 6-step Vercel setup checklist, "Identical-previews diagnostic" with the exact failure-mode log line.
+
+### What didn't change
+
+- Preset keys (4 stable values)
+- Server allowlist + 400-rejection of unknown presets
+- IndexedDB cache key shape (story + preview namespaces still distinct)
+- `/with-timestamps` endpoint → karaoke highlighting unaffected
+- v2 + v3 story engines, picker, all UI surfaces
+
+### Acceptance
+
+- `scripts/qa-current.js` — **all 23 gates green**.
+- Section 14 (narrator voice selector unit tests): **13/13 pass**.
+- No celebrity / licensed-character / real-person language in any voice string.
+
+### Remaining manual step
+
+Operator must paste four distinct ElevenLabs voice IDs into the four Vercel env vars above for the lineup to sound genuinely distinct in production. Until then, server logs will show the fallback warnings on every TTS request and all 4 previews will use the same underlying voice with different `voice_settings` tunings.
+
+---
+
 ## v0.9.3 (build 15, engine v3.0.3) — 2026-05-21
 **Picker Library Polish — image/word matching + replay variety + v2 fallback safety**
 
