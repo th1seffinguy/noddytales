@@ -479,6 +479,45 @@ for (const tier of ['tot','little','kid','big','tween']) {
 }
 console.log('  (advisory — no gate. See Defect: "Stories too long globally" for context.)');
 
+/* === 11. EMOJI UNIQUENESS WITHIN PICKER ROUNDS (added v3.0.1) ===
+ *
+ * v3.0.1 critical UX defect: kid-tier food round had two options ("nachos" and
+ * "cheese puffs") both using the cheese-wedge 🧀 emoji. Parent screenshot showed
+ * the picker rendering two visually-identical cards. Audit found 38 collisions
+ * across tot/little/kid/big/tween. v3.0.1 fixed each one and added this gate so
+ * the class cannot recur.
+ *
+ * Within each WORD_BANK[tier].rounds[].options array, every option's `e` emoji
+ * must be distinct from every other option's `e` in the same round. Different
+ * rounds can share emojis (a `place` round and a `creature` round can both use
+ * 🏫 — they're never shown together).
+ */
+console.log('\n=== 11. Emoji uniqueness within picker rounds (v3.0.1) ===');
+const WORD_BANK = ctx.WORD_BANK;
+let emojiCollisions = 0;
+const emojiCollisionDetail = [];
+for (const tier of Object.keys(WORD_BANK)) {
+  for (const round of WORD_BANK[tier]) {
+    if (!round.options || !round.options.length) continue;
+    const byEmoji = {};
+    for (const opt of round.options) {
+      const e = opt.e || '(no-emoji)';
+      if (!byEmoji[e]) byEmoji[e] = [];
+      byEmoji[e].push(opt.w);
+    }
+    for (const [emoji, words] of Object.entries(byEmoji)) {
+      if (words.length > 1) {
+        emojiCollisions++;
+        if (emojiCollisionDetail.length < 10) {
+          emojiCollisionDetail.push(`${tier}.${round.cat}: ${emoji} used for [${words.join(', ')}]`);
+        }
+      }
+    }
+  }
+}
+gate('0 emoji collisions within picker rounds', emojiCollisions === 0, emojiCollisions + ' collisions');
+if (emojiCollisionDetail.length) emojiCollisionDetail.forEach(d => console.log('    ' + d));
+
 /* === 9. BLOCKED-WORD SCAN (added v2.10.2) ===
  *
  * Critical defect from 2026-05-21: the freetext prompt examples for "Invent a battle

@@ -4,6 +4,78 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v3.0.1 — 2026-05-21
+**Critical UX fix — duplicate emojis in picker rounds + new permanent QA gate**
+
+**Note:** This v3.0.1 is a user-reported hotfix and **replaces the originally-planned v3.0.1 "delete v2 codepath" release**, which is now requeued as v3.0.2. Phase 2 of the v3.0.0 cutover (v2 deletion + engine rename + QA rewrite for v3-only world) was on the schedule but a higher-priority UX defect surfaced from a real-user screenshot.
+
+### The defect
+
+Parent screenshot at noddytales.app: kid tier "Pick a snack" round showed two options side-by-side — **nachos** and **cheese puffs** — both rendered with the same 🧀 cheese-wedge emoji. Two visually-identical card faces, two different words. A 6-year-old can't tell them apart by image; a parent immediately loses trust in the picker's care.
+
+Audit across the entire `WORD_BANK` revealed **38 emoji collisions in total** across tot/little/kid/big/tween rounds:
+
+- 1 in `tot.sky` (bubbles vs high bubbles, both 🫧)
+- 4 in `little` (pet duplicates × 3, place backyard vs treehouse 🌳)
+- 6 in `kid` (the screenshot food, plus pet, creature × 2, move × 2, mood × 3)
+- 12 in `big` (color × 3, food × 2, place, creature, move × 3, mood × 2)
+- 15 in `tween` (pet, color, food × 3, place × 2, creature × 2, mood × 3) — tween had the highest density because its picker words are long and descriptive but emoji vocabulary is limited
+
+Total **40 individual words affected** (some collisions were three-way — e.g., tween food had 🍟 used for mystery chips, vending machine chips, AND cafeteria fries).
+
+### The fix
+
+**38 emoji replacements in `src/content.js`.** For each collision, kept one option's existing emoji and assigned the colliding option a visually-distinct alternative that still themed appropriately:
+
+| Round | Before | After |
+|---|---|---|
+| `kid.food` nachos | 🧀 (collided with cheese puffs) | 🫓 flatbread |
+| `little.pet` guinea pig | 🐹 (collided with hamster) | 🐀 rat |
+| `little.pet` chick | 🐥 (collided with duckling) | 🐤 front-on chick |
+| `little.pet` pony | 🐴 (collided with foal) | 🐎 running horse |
+| `little.place` backyard | 🌳 (collided with treehouse) | 🏡 house with garden |
+| `kid.pet` red panda | 🦊 (collided with fennec fox) | 🦝 raccoon |
+| `kid.creature` lunch wizard | 🧙 (collided with wizard) | 🍱 bento |
+| `kid.creature` hallway ghost | 👻 (collided with ghost) | 🚪 door |
+| `kid.move` zigzagged | ⚡ (collided with zoomed) | 🪃 boomerang |
+| `kid.move` cartwheeled | 🤸 (collided with tumbled) | 🛞 wheel |
+| `kid.mood` suspicious | 🕵️ (collided with sneaky) | 🤨 raised eyebrow |
+| `kid.mood` extra brave | 🦁 (collided with brave) | 🛡️ shield |
+| `kid.mood` confused | 🤔 (collided with prof. confused) | 😵‍💫 dizzy |
+| ...26 more across big/tween | various | various |
+
+Full collision list and replacements documented in the file diff.
+
+### NEW QA Section 11 — emoji-uniqueness gate
+
+`scripts/qa-current.js` now walks every `WORD_BANK[tier].rounds[].options` array and fails the harness if any two options in the same round share an emoji. v3.0.1 result: **0 collisions across all 5 tiers**.
+
+This gate prevents recurrence. Future picker additions cannot ship with a duplicate emoji without an explicit override.
+
+### Acceptance
+
+- `node scripts/qa-current.js` — **all 11 gates green** (Sections 1-5, 7-9, 11, advisory 10).
+- Manual re-render of the "Pick a snack" kid round: nachos = 🫓, cheese puffs = 🧀 — visually distinct.
+- 160-story router behavior unchanged from v3.0.0 (still routes all ages to v3).
+- v2 fallback still healthy (Section 1 v2 matrix still passes 600/600).
+
+### What this means for the original v3.0.1
+
+The "delete v2 codepath" release is now **v3.0.2**. Build Idea renamed and re-queued. The phased v3.0.0 cutover sequence becomes:
+
+```
+v3.0.0 (DONE — router flip + v3 default)
+  → v3.0.1 (THIS RELEASE — emoji uniqueness + new QA gate)
+  → v3.0.2 (queued — delete v2 codepath + rename engine file + rewrite QA for v3-only)
+  → v3.0.x content sprint — Stories-too-long against the unified engine
+```
+
+### Versions
+
+`APP_VERSION` → `v3.0.1`. `ENGINE_V2_VERSION` → `v3.0.1`. No engine code changes; the v2 fallback codepath is identical to v3.0.0.
+
+---
+
 ## v3.0.0 — 2026-05-21
 **Unified Engine — v3 is the default for every age 2-13**
 
