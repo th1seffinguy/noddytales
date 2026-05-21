@@ -9,6 +9,33 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 6, engine v3.0.3) — 2026-05-21
+**In-app brand mark swap — BN4d → BN4c (contrast fix)**
+
+User-reported low-contrast issue from b5: BN4d (cream N + orange spine on a sage gradient) blended too closely with the app's cream + sage backdrop, making the top-left brand mark visually weak. Switching the in-app mark + browser-tab favicon to **BN4c** (solid orange ground + cream N + sage diagonal spine) so the icon pops against both the cream story screen and the sage welcome screen.
+
+### What changed
+
+- `public/brand/favicon.svg` ← `icon-BN4c.svg`
+- `public/brand/favicon-{16,32,48}.png` ← resized from `icon-BN4c-1024.png` via `sips`
+
+### What didn't change
+
+- App icons (`icon.svg`, `icon-square.svg`, all `icon-N.png`) — still BN4c from b5.
+- `manifest.json`, `<head>` link tags, `renderLogo()` — all reference filenames that now point at BN4c.
+- `.logo-mark` wrapper CSS — transparent 36×36 box from b5 still works: BN4c's designed rounded-square corners render natively.
+
+### BN4d disposition
+
+BN4d artwork is no longer used in production. Files remain in the design package for any future variant rotation.
+
+### Acceptance
+
+- `scripts/qa-current.js` — **all 16 gates green** (asset swap is non-functional).
+- Badge reads `v0.9.3 · b6`.
+
+---
+
 ## v0.9.3 (build 5, engine v3.0.3) — 2026-05-21
 **Brand icon refresh — BN4c app icon (sage spine) + BN4d in-app mark (sage background)**
 
