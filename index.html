@@ -343,18 +343,32 @@
      ≥ 540px so iPad / tablets get the airier original layout. */
   .setting-grid--flavors {
     grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
+    /* v0.9.3 · b12 — 8 → 10 for breathing room on roomier viewports. */
+    gap: 10px;
     margin-top: 4px;
+  }
+  /* v0.9.3 · b12 — wraps header + grid + note on the setting step so the
+     cluster vertically centers in any leftover space (auto margins absorb
+     it). On iPhone SE where content fills the canvas, the auto margins
+     collapse to 0 — no layout shift. On Pro Max-class viewports (430×932)
+     the cluster centers within the available canvas above the footer. */
+  .setting-step-inner {
+    margin: auto 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
   .setting-grid--flavors .setting-tile {
     aspect-ratio: auto;
-    min-height: 52px;
-    padding: 4px 12px;
+    /* v0.9.3 · b12 — bumped 52 → 60 for a chunkier tap target on Pro Max-class
+       viewports while still well under iPhone SE's vertical budget. */
+    min-height: 60px;
+    padding: 6px 14px;
     border-radius: 16px;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    gap: 10px;
+    gap: 12px;
     text-align: left;
   }
   .setting-grid--flavors .setting-tile::before {
@@ -362,23 +376,25 @@
     border-radius: 12px;
   }
   .setting-grid--flavors .setting-tile .setting-emoji {
-    font-size: 24px;
+    font-size: 26px;
     margin-bottom: 0;
     flex-shrink: 0;
   }
   .setting-grid--flavors .setting-tile .setting-label {
-    font-size: 12.5px;
+    font-size: 13px;
     line-height: 1.2;
     text-align: left;
   }
   .setting-grid--flavors .setting-tile--surprise {
     grid-column: 1 / -1;
-    min-height: 56px;
-    padding: 6px 16px;
+    /* v0.9.3 · b12 — Surprise was disproportionately tiny vs the rest; 56 → 68
+       restores its visual hierarchy as the default + recommended option. */
+    min-height: 68px;
+    padding: 8px 18px;
     gap: 14px;
   }
-  .setting-grid--flavors .setting-tile--surprise .setting-emoji { font-size: 28px; }
-  .setting-grid--flavors .setting-tile--surprise .setting-label { font-size: 15px; }
+  .setting-grid--flavors .setting-tile--surprise .setting-emoji { font-size: 32px; }
+  .setting-grid--flavors .setting-tile--surprise .setting-label { font-size: 16px; }
   @media (min-width: 540px) {
     .setting-grid--flavors {
       grid-template-columns: repeat(4, 1fr);
@@ -1274,7 +1290,10 @@
     filter: drop-shadow(0 3px 4px rgba(0,0,0,0.1));
   }
   .deco--1 { top: 12%; right: 8%; font-size: 38px; animation-delay: 0s; }
-  .deco--2 { top: 18%; left: 6%; animation-delay: 1.2s; }
+  /* v0.9.3 · b12 — bumped left from 6% to 10% so the 🌈 deco isn't clipped by
+     the screen's overflow-x: hidden on the leftmost edge during its rotate
+     animation. Visible across every welcome substep including the setting step. */
+  .deco--2 { top: 18%; left: 10%; animation-delay: 1.2s; }
   .deco--3 { bottom: 22%; right: 10%; animation-delay: 2.4s; }
   .deco--4 { bottom: 30%; left: 8%; font-size: 28px; animation-delay: 0.6s; }
   @keyframes float {
@@ -1516,6 +1535,8 @@ const MAX_SHUFFLES = 2;
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v0.9.3 · b12', title: 'Setting 2.0 step — vertically center the cluster on tall phones; chunkier tiles; rainbow no longer clipped',
+    detail: 'Three small polish fixes layered on top of b11\'s mobile-compact pass, all from a real-device screenshot on iPhone 16 Pro Max (430×932). (1) VERTICAL CENTERING: b11 anchored content to the top of the canvas while the footer pinned to the bottom via margin-top: auto. On a Pro Max viewport that left ~400px of empty space between the setting-note and the Next button. New `.setting-step-inner` wrapper around the header + grid + note uses `margin: auto 0` so leftover canvas distributes EQUALLY above + below the content cluster — content vertically centers within the available space, footer stays pinned. On iPhone SE where content fills the canvas, the auto margins collapse to 0 and the layout is unchanged. (2) CHUNKIER TILES: standard tile min-height 52 → 60, Surprise 56 → 68, emoji 24 → 26 (Surprise 28 → 32), label 12.5 → 13 (Surprise 15 → 16), tile padding 4px 12px → 6px 14px, grid gap 8 → 10. All still well under iPhone SE\'s vertical budget. (3) RAINBOW NO LONGER CLIPPED: the welcome screen\'s `.deco--2` (🌈) was positioned at `left: 6%` which placed its bounding box right at the left edge — at peak rotate(-4deg) of the float animation it visibly clipped against the screen\'s overflow-x:hidden boundary. Moved to `left: 10%` so the full emoji sits inside the safe area through the entire animation cycle. Affects every welcome substep (name / age / sidekicks / setting / storyMode). ACCEPTANCE: scripts/qa-current.js all 23 gates green (no engine/picker/data touched). APP_VERSION stays v0.9.3; BUILD_NUMBER 11 → 12; ENGINE_V2_VERSION stays v3.0.3. Badge reads v0.9.3 · b12.' },
   { v: 'v0.9.3 · b11', title: '"What kind of place?" step — mobile-compact so the whole step fits without scrolling on iPhone SE',
     detail: 'User feedback: the b9 Setting 2.0 flavor picker required scrolling on mobile to reach the Next button. Root cause: b9 inherited `.setting-tile { aspect-ratio: 1 }` from the v2.1.0 exact-setting grid. At 375px viewport each square tile rendered ~165px tall; the full 8-tile grid alone consumed ~800px, well past iPhone SE\'s ~617px usable canvas. CSS-only fix in this release. CHANGES: (1) Killed `aspect-ratio: 1` on .setting-grid--flavors tiles. Tiles flatten to row-style (emoji-left, label-right) with `min-height: 52px` — well above Apple HIG\'s 44px minimum tap target. (2) Surprise Me keeps its full-width prominence but drops from 92px → 56px min-height; emoji 36px → 28px; label 16px → 15px. (3) Grid gap 12px → 8px on mobile (kept 12px on ≥540px). (4) Emoji 30px → 24px on standard tiles. Label 13px → 12.5px line-height 1.2. (5) Tile padding 6px → 4px 12px to match the new row layout. (6) New `.display--compact` modifier (28px, letter-spacing -0.3px) on the step h1; new `.lede--compact` modifier (14px) on the subtitle. Single-line h1 "What kind of place?" (no `<br>` split). Shorter lede copy "Pick a flavor — or let us surprise you." (7) Stack gap-20 → gap-12 between step children. (8) `.setting-note` font 13px → 12px, min-height 18px → 14px, margin-top 8px → 4px. SCOPE: all rule changes live UNDER `.setting-grid--flavors`, NOT base `.setting-tile`, so the storyMode picker (bedtime/anytime) and any other consumer of `.setting-tile` are unaffected. Same for `.display--compact` / `.lede--compact` — modifier-only, applied only on the setting step. VIEWPORT MATH: full step now budgets to ~590-600px content height on iPhone SE 2nd gen (375×667), within the ~617px usable canvas after Safari URL bar. Modern iPhone (390×844) and tablets (≥540px breakpoint switches to 4-column grid + 36px h1) get airier original layout. NO ENGINE / PICKER / DATA CHANGES. ACCEPTANCE: scripts/qa-current.js all 23 gates green (unchanged from b10). APP_VERSION stays v0.9.3; BUILD_NUMBER 10 → 11; ENGINE_V2_VERSION stays v3.0.3. Badge reads v0.9.3 · b11.' },
   { v: 'v0.9.3 · b10', title: 'Narrator selector on the story screen + voice preview clips',
@@ -3082,36 +3103,41 @@ function renderWelcome() {
     <!-- v0.9.3 · b9 — Setting 2.0: broad story-flavor categories replace the
          exact-setting grid. 8 visible vibes; each one hides a pool of 8 specific
          places that the engine picks per session. Surprise Me is visually first
-         + recommended. Step copy softened from "where should the story happen"
-         to "what kind of place" / "pick a story flavor."
+         + recommended.
          v0.9.3 · b11 — mobile-compact: single-line h1, smaller lede, tighter
-         gap-12 stack so the whole step fits without scrolling on iPhone SE. -->
-    <div class="stack gap-12 grow">
-      <div>
-        <h1 class="display display--compact" style="text-align:center">
-          What kind of <span style="color:var(--orange-dark)">place?</span>
-        </h1>
-        <p class="lede lede--compact" style="text-align:center;margin-top:6px">
-          Pick a flavor — or let us surprise you.
-        </p>
-      </div>
-      <div class="setting-grid setting-grid--flavors">
-        ${SETTING_FLAVORS.map(f => `
-          <button
-            class="setting-tile${state.setting === f.key ? ' is-selected' : ''}${f.key === 'surprise' ? ' setting-tile--surprise' : ''}"
-            data-setting="${esc(f.key)}"
-            aria-label="${esc(f.label)}"
-          >
-            <span class="setting-emoji">${f.emoji}</span>
-            <span class="setting-label">${esc(f.label)}</span>
-          </button>
-        `).join('')}
-      </div>
-      <div class="setting-note">
-        ${(() => {
-          const cur = SETTING_FLAVORS.find(f => f.key === state.setting);
-          return cur ? esc(cur.note) : '';
-        })()}
+         gap-12 stack so the step fits without scrolling on iPhone SE.
+         v0.9.3 · b12 — vertical-centering wrapper (.setting-step-inner) so
+         the cluster centers in the leftover canvas on Pro Max-class
+         viewports. SE behavior preserved (auto margins collapse when no
+         leftover space exists). Tile + Surprise sizes nudged up. -->
+    <div class="stack grow">
+      <div class="setting-step-inner">
+        <div>
+          <h1 class="display display--compact" style="text-align:center">
+            What kind of <span style="color:var(--orange-dark)">place?</span>
+          </h1>
+          <p class="lede lede--compact" style="text-align:center;margin-top:6px">
+            Pick a flavor — or let us surprise you.
+          </p>
+        </div>
+        <div class="setting-grid setting-grid--flavors">
+          ${SETTING_FLAVORS.map(f => `
+            <button
+              class="setting-tile${state.setting === f.key ? ' is-selected' : ''}${f.key === 'surprise' ? ' setting-tile--surprise' : ''}"
+              data-setting="${esc(f.key)}"
+              aria-label="${esc(f.label)}"
+            >
+              <span class="setting-emoji">${f.emoji}</span>
+              <span class="setting-label">${esc(f.label)}</span>
+            </button>
+          `).join('')}
+        </div>
+        <div class="setting-note">
+          ${(() => {
+            const cur = SETTING_FLAVORS.find(f => f.key === state.setting);
+            return cur ? esc(cur.note) : '';
+          })()}
+        </div>
       </div>
       <div class="footer">
         <button class="btn" id="btn-setting-go">
