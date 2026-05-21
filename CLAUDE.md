@@ -6,6 +6,17 @@ Read this file at the start of every Claude Code session in this repo. Treat it 
 
 If the user asks for a build, fix, QA pass, UAT pass, audit, or release prep, follow the relevant workflow here without requiring the user to restate the process.
 
+## Session Start Protocol (run before any work)
+
+Before doing anything else in a new session, sync local with remote:
+
+1. `git fetch origin`
+2. `git checkout dev && git pull origin dev`
+3. `git checkout main && git pull origin main`
+4. Report what changed since the last session (new commits, merged PRs, any overnight routine activity) in one short summary.
+
+Never start editing until the local repo matches origin. The overnight routines commit to dev and open PRs, so local is frequently behind at the start of a day.
+
 ## Required Notion Logging
 
 Every time you make a meaningful project update, you must also update Notion before calling the work complete.
