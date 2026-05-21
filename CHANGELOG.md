@@ -9,6 +9,37 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 21, engine v3.0.3) — 2026-05-21
+**Rainbow decoration no longer clips the welcome-back lede — moved to empty top-center band**
+
+Tiny CSS hotfix. User screenshot on iPhone (welcome-back substep) showed the decorative 🌈 emoji clipping the leading *"s"* of the lede paragraph *"still age 6? Same crew? Add or remove anyone."*
+
+### Root cause
+
+`.deco--2 { top: 18%; left: 10%; }` from b12 anchored the rainbow inside the lede-text band on most viewport sizes. b12 had moved it from `left: 6%` to `left: 10%` to fix a left-edge clipping issue during the float-rotate animation, but didn't address vertical overlap with the lede paragraph below the heading.
+
+### Fix
+
+```css
+.deco--2 { top: 5%; right: 38%; animation-delay: 1.2s; }
+```
+
+- `top: 5%` sits the rainbow at ~30-45px from the top of the canvas (depending on viewport height) — well above the heading band (~20-30%) and the lede band (~30-38%).
+- `right: 38%` (instead of `left: 10%`) anchors the position from the right edge so the rainbow tracks consistently across phone widths (320 / 375 / 430 px). On narrow viewports the previous `left: 10%` could drift dangerously close to the brand mark; `right: 38%` keeps it in the empty band between brand mark (top-left) and back/gear buttons (top-right).
+
+Verified visually clear of all text + buttons across iPhone SE / iPhone 15-16 / iPhone Pro Max widths.
+
+### Acceptance
+
+- `scripts/qa-current.js` — all **24 gates green** (asset position is non-functional from the engine's perspective)
+- Inline `<script>` syntax — clean
+
+**No engine / picker / story-data / voice changes.**
+
+`APP_VERSION` stays `v0.9.3`; `BUILD_NUMBER` 20 → **21**; `ENGINE_V2_VERSION` stays `v3.0.3`. Badge reads `v0.9.3 · b21`.
+
+---
+
 ## v0.9.3 (build 20, engine v3.0.3) — 2026-05-21
 **Narrator label rename + Silly override-required + Section 10 V3 + structural kid 6→5**
 
