@@ -772,6 +772,98 @@ for (const t of ut) {
 gate(`parseStoryLine unit tests (${ut.length} cases)`, ut_fail === 0, ut_fail + ' failed');
 console.log(`    ${ut_pass}/${ut.length} cases passed`);
 
+/* === 14. NARRATOR VOICE SELECTOR — proxy resolver + cache key (added v0.9.3 · b8) ===
+ *
+ * v0.9.3 · b8 introduces a curated narrator voice picker (sunny/cozy/adventure/silly).
+ * The client sends voicePreset to /api/tts; the proxy:
+ *   - rejects unknown presets with 400
+ *   - resolves preset → voice ID via per-preset env vars (ELEVENLABS_VOICE_SUNNY etc.)
+ *   - falls back to ELEVENLABS_VOICE_ID when a specific env var is unset
+ *   - never accepts a raw voice ID from the client (defense vs. spoofed payloads)
+ *
+ * Cache: the client-side TTSManager keys IndexedDB entries by "${voicePreset}|${hash}"
+ * so switching voices does NOT replay cached audio from a different voice.
+ *
+ * This gate is a pure-function unit test on the proxy's resolveVoice() + the hashKey
+ * shape. No network. No DOM.
+ */
+console.log('\n=== 14. Narrator Voice Selector — proxy resolver + cache key (v0.9.3 · b8) ===');
+const tts = require(path.join(ROOT, 'api/tts.js'));
+const voiceCases = [];
+function vAssert(label, cond, detail) {
+  voiceCases.push({ label, ok: !!cond, detail });
+}
+
+// 1. Known preset 'sunny' resolves via its specific env var.
+{
+  const r = tts.resolveVoice('sunny', { ELEVENLABS_VOICE_SUNNY: 'voice_sunny_xyz', ELEVENLABS_VOICE_ID: 'voice_default' });
+  vAssert('sunny → ELEVENLABS_VOICE_SUNNY when set', r.ok && r.voiceId === 'voice_sunny_xyz' && r.usedFallback === false);
+}
+// 2. Known preset 'cozy' falls back to ELEVENLABS_VOICE_ID when its var is unset.
+{
+  const r = tts.resolveVoice('cozy', { ELEVENLABS_VOICE_ID: 'voice_default' });
+  vAssert('cozy with no specific env → falls back to ELEVENLABS_VOICE_ID', r.ok && r.voiceId === 'voice_default' && r.usedFallback === true);
+}
+// 3. Known preset 'adventure' picks its own env var when present.
+{
+  const r = tts.resolveVoice('adventure', { ELEVENLABS_VOICE_ADVENTURE: 'voice_adv_abc', ELEVENLABS_VOICE_ID: 'voice_default' });
+  vAssert('adventure → ELEVENLABS_VOICE_ADVENTURE when set', r.ok && r.voiceId === 'voice_adv_abc');
+}
+// 4. Known preset 'silly' picks its own env var.
+{
+  const r = tts.resolveVoice('silly', { ELEVENLABS_VOICE_SILLY: 'voice_silly_qrs', ELEVENLABS_VOICE_ID: 'voice_default' });
+  vAssert('silly → ELEVENLABS_VOICE_SILLY when set', r.ok && r.voiceId === 'voice_silly_qrs');
+}
+// 5. Unknown preset is rejected 400.
+{
+  const r = tts.resolveVoice('hacker_voice', { ELEVENLABS_VOICE_ID: 'voice_default' });
+  vAssert('unknown preset rejected 400', !r.ok && r.status === 400);
+}
+// 6. Arbitrary voice ID strings from the client are NOT accepted as presets.
+{
+  const r = tts.resolveVoice('JBFqnCBsd6RMkjVDRZzb', { ELEVENLABS_VOICE_ID: 'voice_default' });
+  vAssert('raw voice ID from client rejected', !r.ok && r.status === 400);
+}
+// 7. Empty / null preset defaults to Sunny.
+{
+  const r = tts.resolveVoice(null, { ELEVENLABS_VOICE_SUNNY: 'voice_sunny', ELEVENLABS_VOICE_ID: 'voice_default' });
+  vAssert('null preset → default Sunny', r.ok && r.preset === 'sunny' && r.voiceId === 'voice_sunny');
+}
+// 8. Per-preset voice_settings differ (mood differentiation even on shared fallback voice).
+{
+  const sunny = tts.resolveVoice('sunny', { ELEVENLABS_VOICE_ID: 'v' });
+  const cozy  = tts.resolveVoice('cozy',  { ELEVENLABS_VOICE_ID: 'v' });
+  const silly = tts.resolveVoice('silly', { ELEVENLABS_VOICE_ID: 'v' });
+  const distinctStyles = new Set([sunny.voice_settings.style, cozy.voice_settings.style, silly.voice_settings.style]).size;
+  vAssert('per-preset voice_settings.style differ', distinctStyles === 3, `got ${distinctStyles} distinct styles`);
+}
+// 9. Cache key differs by preset (client-side hash shape replication).
+{
+  // Mirror the TTSManager.hashKey shape: `${voicePreset}|${hex16}`
+  // We can't run crypto.subtle here, but we can test the prefix discrimination.
+  const buildKey = (preset, hex) => `${preset}|${hex}`;
+  const same = 'a1b2c3d4e5f6a7b8';
+  vAssert('cache key prefix differs by preset',
+    buildKey('sunny', same) !== buildKey('cozy', same) &&
+    buildKey('sunny', same) !== buildKey('silly', same) &&
+    buildKey('adventure', same) !== buildKey('cozy', same));
+}
+// 10. All client-side VOICE_PRESETS have a server-side allowlist entry.
+{
+  const clientPresets = ['sunny','cozy','adventure','silly']; // mirrors VOICE_PRESET_KEYS in content.js
+  const missing = clientPresets.filter(k => !tts.VALID_PRESETS.includes(k));
+  vAssert('every client VOICE_PRESET has a server VOICE_MAP entry', missing.length === 0, missing.join(','));
+}
+
+let v_fail = 0;
+for (const c of voiceCases) {
+  if (c.ok) continue;
+  v_fail++;
+  console.log(`    ✗ ${c.label}${c.detail ? ' — ' + c.detail : ''}`);
+}
+gate(`Narrator voice selector unit tests (${voiceCases.length} cases)`, v_fail === 0, v_fail + ' failed');
+console.log(`    ${voiceCases.length - v_fail}/${voiceCases.length} cases passed`);
+
 /* === 9. BLOCKED-WORD SCAN (added v2.10.2) ===
  *
  * Critical defect from 2026-05-21: the freetext prompt examples for "Invent a battle

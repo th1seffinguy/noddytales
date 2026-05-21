@@ -17,21 +17,21 @@ A bedtime-and-anytime story generator for kids ages 2–13. Kids pick a name, ag
 
 ## Age tiers
 
-| Ages   | Tier    | Rounds | Notes                                  |
-|--------|---------|--------|----------------------------------------|
-| 2–3    | tot     | 5      | Emoji + single-syllable words          |
-| 4–5    | little  | 6      | Sight words, emoji support             |
-| 6–7    | kid     | 8      | 1 free-text round, v3 engine eligible  |
-| 8–10   | big     | 9      | 2 free-text rounds, v3 engine eligible |
-| 11–13  | tween   | 9      | Older-skewing vocab + beats, v3 eligible |
+| Ages   | Tier    | Rounds | Notes                                                                  |
+|--------|---------|--------|------------------------------------------------------------------------|
+| 2–3    | tot     | 6      | Emoji + single-syllable words; all tap, no free-text                   |
+| 4–5    | little  | 7      | Sight words + silly-sound tap round (no free-text typing)              |
+| 6–7    | kid     | 8      | Silly-sound tap round + "or type your own ✏️" escape hatch; v3 default |
+| 8–10   | big     | 9      | 2 free-text rounds; v3 default                                         |
+| 11–13  | tween   | 9      | Older-skewing vocab + beats; 2 free-text rounds; v3 default            |
 
 ## Story engines
 
-- **v3 (default, since v3.0.0)** — role-based engine with 8 blueprints covering every age tier:
+- **v3 (default for every age 2–13, since v3.0.0)** — role-based engine with 8 blueprints covering every age tier:
   - ages 6-13 (kid/big/tween): `lost_snack_v3`, `goal_spine_v3`, `show_wrong_v3`, `rule_loophole_v3` — 4-stage / 6-paragraph arcs with declarative role maps, token-direct authoring, stage progression.
   - ages 2-5 (tot/little, since v2.10.0): `tot_wonder_v3`, `tot_sky_v3`, `little_quest_v3`, `little_food_v3` — simplified 3-role contract (protagonist / ally / wonder_object) / 4-paragraph arcs.
-- **v2 (silent fallback)** — the authored comedy engine that was the production default v2.0.0 → v2.10.2. Retained in code as a runtime fallback for v3.0.0; will be deleted in v3.0.3+ once production traffic confirms v3 stability across all releases.
-- **v1 (deprecated)** — template-substitution engine. Reachable only if both v3 and v2 return null. Emits a console deprecation warning when it fires. Scheduled for removal alongside v2 (the formerly-queued "delete v2 codepath" Build Idea, see versioning section).
+- **v2 (silent fallback)** — the authored comedy engine that was the production default v2.0.0 → v2.10.2. Retained in code as a runtime fallback. Scheduled for deletion in engine `v3.1.0` (the formerly-queued "delete v2 codepath" Build Idea, see versioning section).
+- **v1 (deprecated)** — template-substitution engine. Reachable only if both v3 and v2 return null. Emits a console deprecation warning when it fires. Scheduled for removal alongside v2.
 
 ## Versioning
 
@@ -39,7 +39,7 @@ NoddyTales tracks **three independent versions** (adopted 2026-05-21, see [`docs
 
 1. **`APP_VERSION`** (`v0.9.3`) — user-facing **product maturity**. `v0.9.x` = late beta, pre-App-Store. `v1.0.0` is reserved for public App Store launch. Shown in the in-app badge.
 2. **`ENGINE_V2_VERSION`** (`v3.0.3`) — internal **engine architecture** lineage. Bumps on engine-arch changes (e.g., v2 deletion → `v3.1.0`). Visible in DevTools / CHANGELOG context only; **not** in the badge.
-3. **`BUILD_NUMBER`** (`1`) — increments every release shipped to `main`. Shown in the badge alongside the product version as `v0.9.3 · b1`.
+3. **`BUILD_NUMBER`** (`8`) — increments every release shipped to `main`. Shown in the badge alongside the product version as `v0.9.3 · b8`. (Sequence so far: `b1` versioning policy → `b2` Phase 1 sound tap round → `b3` Phase 4 shuffle 🎲 button → `b4` highlight defect fix → `b5` brand icon refresh → `b6` in-app mark contrast fix → `b7` QA cleanup → `b8` README cleanup + Narrator Voice Selector MVP.)
 
 CHANGELOG entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine vA.B.C) — DATE`. Historical v3.0.0–v3.0.3 entries stay as-is for traceability — we don't rewrite history.
 
@@ -48,7 +48,7 @@ CHANGELOG entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build
 - Vanilla HTML/JS single-page app (no framework, no build step for the core app)
 - ElevenLabs TTS via Vercel serverless proxy (`api/tts.js`) — uses the `/with-timestamps` endpoint to deliver per-character timing for karaoke highlighting
 - IndexedDB audio + alignment cache (DB `noddytales-tts`, store `audio-v2`) — replayed stories don't re-fetch from ElevenLabs
-- localStorage profile (`nt_name`, `nt_age`, `nt_sidekicks`, `nt_setting`, `nt_potty_mode`, `nt_story_mode`)
+- localStorage profile (`nt_name`, `nt_age`, `nt_sidekicks`, `nt_setting`, `nt_potty_mode`, `nt_story_mode`, `nt_voice_preset`)
 - Deployed to Vercel from the `main` branch
 
 ## Local dev
@@ -66,7 +66,16 @@ vercel dev
 Required environment variables for TTS (set in Vercel dashboard or `.env.local` for `vercel dev`):
 
 - `ELEVENLABS_API_KEY` — your ElevenLabs API key
-- `ELEVENLABS_VOICE_ID` — voice ID (defaults to George — British narrator)
+- `ELEVENLABS_VOICE_ID` — default voice ID (the **Sunny** preset, used as fallback for every other preset when its specific env var is unset). Defaults to George — British narrator — if also unset.
+
+Optional voice-preset env vars (narrator selector, added in `v0.9.3 · b8`):
+
+- `ELEVENLABS_VOICE_SUNNY` — daytime/anytime warm narrator (falls back to `ELEVENLABS_VOICE_ID`)
+- `ELEVENLABS_VOICE_COZY` — bedtime soft narrator
+- `ELEVENLABS_VOICE_ADVENTURE` — energetic action narrator
+- `ELEVENLABS_VOICE_SILLY` — playful cartoon narrator
+
+Any preset whose env var is unset silently falls back to `ELEVENLABS_VOICE_ID`. Voice IDs are server-side only — the browser never sees them.
 
 ## QA harness
 
