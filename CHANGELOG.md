@@ -9,6 +9,60 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 14, engine v3.0.3) — 2026-05-21
+**QA hardening — rapid-tap guard + burst a11y + 320×568 fit + README sync**
+
+Four small hardening fixes after the b9-b13 wave. No engine / picker / token logic touched.
+
+### 1. Rapid multi-tap guard on word cards
+
+`pickWord()` runs a 650ms burst/pop animation before `advanceRound()` fires. Without a guard, a fast double-tap (or a kid mashing both cards) could schedule **two** `advanceRound` calls — the second would advance an extra round with a stale pick.
+
+- New `state.wordAdvancing` flag (initialized `false`; reset on `startWords()` and `backToWelcome()`)
+- `pickWord()` short-circuits when `wordAdvancing === true`
+- Flag flips on at pick time, off in `advanceRound()`
+- Belt-and-suspenders: every `.word-card` gets `pointer-events: none` the moment a selection lands so the OS-level click handler also stops firing
+
+### 2. Burst-spark accessibility
+
+`spawnBursts()` creates decorative sparkle characters (⭐ ✨ 💫 🌟) inside the picked card. Without `aria-hidden` they get spliced into the parent `.word-card`'s accessible name — screen readers would announce *"Pizza star sparkle shooting-star sparkle"* instead of *"Pizza"*.
+
+- Every burst span now gets `aria-hidden="true"` + `role="presentation"`
+- The word-card still announces its own picked word + emoji
+
+### 3. 320×568 fit (iPhone SE 1st gen)
+
+b12 fit 375×667, 390×844, 430×932, but the iPhone SE 1st gen (320×568) still required a slight scroll on the Setting 2.0 step. New `@media (max-height: 600px)` block tightens further **only on very short viewports** — modern phones (667-932px) are unaffected.
+
+| | b12 (default) | b14 @media (max-height: 600px) |
+|---|---|---|
+| Standard tile min-height | 60px | **50px** |
+| Surprise tile min-height | 68px | **54px** |
+| Standard emoji | 26px | **22px** |
+| Surprise emoji | 32px | **26px** |
+| Standard label | 13px | **12px** |
+| Surprise label | 16px | **14px** |
+| Grid gap | 10px | **6px** |
+| `.display--compact` h1 | 28px | **24px** |
+| `.lede--compact` | 14px | **12px** |
+
+Total step now budgets ~520px content height at 320×568, comfortably under the iPhone SE 1st gen's ~500-520px usable canvas.
+
+### 4. README sync
+
+README versioning section still cited `BUILD_NUMBER (8)` — 6 builds stale. Bumped to `(14)` with the full b1-b14 sequence summary.
+
+### Version-number note
+
+This release was originally requested as **b13** in the prompt, but b13 was already taken by the prior turn's animal-emoji audit (commit `51b1696`). This QA hardening pass ships as **b14** to preserve a monotonic sequence.
+
+### Acceptance
+
+- `scripts/qa-current.js` — **all 23 gates green** (no engine/picker/token logic touched).
+- Section 8 inline `<script>` syntax — clean.
+
+---
+
 ## v0.9.3 (build 13, engine v3.0.3) — 2026-05-21
 **Animal-emoji audit — "red panda 🦝" raccoon mismatch removed**
 
