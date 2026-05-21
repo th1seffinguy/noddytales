@@ -4,6 +4,54 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v2.10.1 — 2026-05-21
+**UX fix — skip the place round when setting is locked (last open v2.8.0 UAT defect)**
+
+The fifth defect from the v2.8.0 UAT rescore — `place` slot silently dropped when `setting` is locked — has been deferred since v2.9.1's cosmetic patch shipped because it was a UX change rather than a one-line cosmetic. Now resolved as a focused single-edit fix.
+
+### The defect
+
+When a non-`surprise` setting was locked (Diner / Mall / Beach / Football / School / Backyard / Grocery / Zoo / Bus), the engine already used `setting.place` as the story's location and silently discarded any user-picked `place` word. The selectable-coverage promise broke: the child picked "volcano" but read a mall story. "Volcano" never appeared in the body.
+
+### The fix
+
+`buildRounds()` in `index.html` now filters the `place` category out of the round plan when the setting is locked. The child is no longer asked to pick a word that the engine throws away.
+
+```js
+const settingLocked = !!(state.setting && state.setting !== 'surprise');
+const effectivePlan = settingLocked ? plan.filter(cat => cat !== 'place') : plan;
+const binaryRounds = effectivePlan.map(...)...;
+```
+
+When the setting is `surprise` (the default), all rounds run as before — including the place round.
+
+### Behavior matrix
+
+| Setting | Picker shows `place` round? | Story location |
+|---|---|---|
+| `surprise` (default) | Yes | Child's picked `place` |
+| `diner` / `mall` / `beach` / etc. (locked) | **No** | The locked setting |
+
+### Acceptance
+
+- `node scripts/qa-current.js` — **all 9 gates green**. The inline-script syntax gate (Section 8) confirms `buildRounds()` parses cleanly after the edit.
+- Section 1 v2 matrix (600 stories) and Section 3b v3 tot/little matrix (240 stories) still pass with 0 misses — engine-side slot resolution was already protected against undefined `picks.place` when setting wins.
+- Kid-agency ratio held at 0.96.
+
+### What this doesn't change
+
+- The engine's slot construction is unchanged. `setting.place` continues to win over `picks.place` whether or not the place round runs.
+- The freetext-round insertion logic in kid/big/tween (`binaryRounds.slice(0, 4)` + freetext + `binaryRounds.slice(4)`) still produces well-formed round sequences after place is filtered out — the front slice is `[pet, color, food, creature]` and the back slice is `[move, mood]` in those tiers.
+- Round count drops by 1 in locked-setting flows (e.g., kid: 8 → 7 rounds; tween: 9 → 8 rounds). The picker UI handles variable round counts already.
+
+`APP_VERSION` and `ENGINE_V2_VERSION` bumped in lockstep to `v2.10.1`. No engine code changes; pure UI flow fix.
+
+### Defect Log closure
+
+This closes the last open Open defect in the Defect Log. The repo is now at a 100%-clean baseline going into the v2.10.0 real-kid playtest and the eventual v3.0.0 cutover.
+
+---
+
 ## v2.10.0 — 2026-05-21
 **tot/little-v3 beat authoring — v3.0.0 critical path content sprint**
 
