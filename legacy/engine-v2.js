@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v3.0.0';
+const ENGINE_V2_VERSION = 'v2.10.2';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -4636,24 +4636,25 @@ function generateStoryV3(name, picks, age) {
 
 /* Engine router.
  *
- * v3.0.0: v3 is the UNIFIED ENGINE for all ages 2-13. The v2.9.0 router routed
- * ages 6+ to v3; v2.10.0 added tot/little-v3 blueprints (tot_wonder_v3, tot_sky_v3,
- * little_quest_v3, little_food_v3); v3.0.0 removes the age gate entirely so every
- * age tries v3 first. v2 is retained as a silent fallback for one release so any
- * latent v3 issue can be rolled back without redeploy. v3.0.1 (next release) will
- * delete the v2 codepath entirely once production traffic confirms v3 is stable.
- * legacy/engine-v2.js holds a snapshot for rollback safety.
+ * v2.9.0: v3 is the default for ages 6-13. Previously v3 was opt-in via
+ * window.NODDY_ENGINE = 'v3'. Now any age 6+ goes through v3 first and falls back
+ * to v2 only on null (e.g. blueprint unfulfillable). The flag still works as a
+ * testing override — setting it forces v3 attempts at all ages, including tot/
+ * little where v3 returns null today and falls through to v2. v2 fallback is
+ * retained throughout v2.9.0 so a v3 issue can be rolled back without redeploy.
  *
  * Note: index.html has its own router in buildStory() that mirrors this logic
  * for direct browser execution. This function is kept in sync for tests and
  * any caller that imports the engine module directly.
  */
 function generateStoryRouted(name, picks, age) {
-  // v3.0.0 — every age routes to v3 first. v2 fallback fires only when v3 returns
-  // null (shouldn't happen in normal operation post-v2.10.0 since tot/little-v3
-  // covers ages 2-5).
-  const v3 = generateStoryV3(name, picks, age);
-  if (v3) return v3;
+  const engineFlag = (typeof window !== 'undefined' && window.NODDY_ENGINE) || null;
+  const preferV3 = age >= 6 || engineFlag === 'v3';
+  if (preferV3) {
+    const v3 = generateStoryV3(name, picks, age);
+    if (v3) return v3;
+    // v3 fell through (e.g. tot/little, or blueprint unfulfillable) — fall back to v2.
+  }
   return generateStoryV2(name, picks, age);
 }
 

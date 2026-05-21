@@ -202,7 +202,7 @@ These are content-authoring questions, not architecture questions. They get reso
 
 - **The picker UX.** Same picker, same rounds, same age tiers. Kids don't see anything different.
 - **Story Mode.** Bedtime vs. Anytime cozy_end variants continue to work the same way — mode-tagged beats filter on `picks.storyMode`.
-- **Setting Modes.** The `setting` lock continues to override `place` in tot/little stories (until the separate `place`-vs-`setting` defect is resolved).
+- **Setting Modes.** The `setting` lock continues to override `place` as the story's location. The picker UI was updated in v2.10.1 to skip the place round entirely when a non-`surprise` setting is locked, so the child no longer picks a word that the engine throws away. The `place`-vs-`setting` defect is closed.
 - **Sidekicks.** Profile sidekicks continue to be additive cast surfaced in the body.
 - **TTS, karaoke, IndexedDB cache.** Unchanged.
 - **Tot/little quality bar.** v3.0.0 must match or exceed the v2.8.0 baseline. No regression allowed.
