@@ -4,7 +4,7 @@
    Story template logic lives in index.html (buildStory).
    ================================================================ */
 
-const APP_VERSION = 'v2.10.1';
+const APP_VERSION = 'v2.10.2';
 
 /* Verb form lookup — maps each past-tense move-pool entry to its base + gerund forms.
    Templates use moveBase()/moveGerund() to derive the right form for the syntactic slot
@@ -293,7 +293,11 @@ const FREE_TEXT_ROUNDS = {
     { type: 'freetext', cat: 'freeword', subtype: 'dance', label: "Invent a really embarrassing dance move.",      examples: ['the noodle', 'flap-shuffle', 'the wobble-stomp'] },
     { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "What's the loudest word you can think of?",     examples: ['BOOM', 'KABLAM', 'WHAMMO'] },
     { type: 'freetext', cat: 'freeword', subtype: 'smell', label: "Name a smell that means trouble.",              examples: ['burnt toast', 'wet dog', 'old socks'] },
-    { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "Invent a battle cry for a tiny knight.",        examples: ['ONWARD!', 'STABBY-STAB!', 'EAT MY BOOT!'] },
+    /* v2.10.2 — replaced 'STABBY-STAB!' and 'EAT MY BOOT!' which appeared as visible
+       prompt examples to children. Critical defect: violent/weapon-adjacent language
+       has no place in a bedtime story app for ages 6-7. Replacements are age-appropriate
+       knight-themed exclamations. */
+    { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "Invent a battle cry for a tiny knight.",        examples: ['ONWARD!', 'TO THE CASTLE!', 'FOR HONOR!'] },
     { type: 'freetext', cat: 'freeword', subtype: 'name',  label: "Make up a name for the world's grumpiest cat.", examples: ['Sir Grumblebottom', 'Snarls', 'Mr. NO'] },
     { type: 'freetext', cat: 'freeword', subtype: 'shout', label: "What would your superhero catchphrase be?",     examples: ['NOT ON MY WATCH', 'SNACK ATTACK', 'BY THE POWER OF PIZZA'] },
     /* v2.2.1 — kid expansion to 40 with new subtypes: spell, rule, excuse, job, warning, password, announcement, snack, secret */
@@ -337,7 +341,9 @@ const FREE_TEXT_ROUNDS = {
     { type: 'freetext', cat: 'freeword2', label: "What's the secret name of your left sock?",               examples: ['Gerald', 'Flumf', 'Sir Woolsworth'] },
     { type: 'freetext', cat: 'freeword2', label: "Name an award you definitely deserve.",                   examples: ['Most Dramatically Sighing', 'Outstanding Snack Selection', 'Gold Medal Overthinker'] },
     { type: 'freetext', cat: 'freeword2', label: "What noise does a disappointed sandwich make?",           examples: ['squelp', 'glumch', 'oh no'] },
-    { type: 'freetext', cat: 'freeword2', label: "Invent a word for the feeling of stepping on a lego.",    examples: ['scream-stomp', 'floorstab', 'brick agony'] },
+    /* v2.10.2 — replaced 'floorstab' (contained 'stab' root) per Critical defect cleanup.
+       'brick agony' is hyperbolic but acceptable big-tier voice. */
+    { type: 'freetext', cat: 'freeword2', label: "Invent a word for the feeling of stepping on a lego.",    examples: ['scream-stomp', 'ouch-mageddon', 'brick agony'] },
     { type: 'freetext', cat: 'freeword2', label: "What's the proper term for losing your train of thought mid-sentence?", examples: ['thoughtlapse', 'brain-hiccup', 'wordinosauritis'] },
     /* v2.2.1 — big tier expansion to 40 with varied subtypes */
     { type: 'freetext', cat: 'freeword',  subtype: 'rule',  label: "Rule that should be enforced in libraries.", examples: ['no whispering to cupcakes', 'turn pages clockwise', 'cite your snack'] },

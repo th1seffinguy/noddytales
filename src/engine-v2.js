@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v2.10.1';
+const ENGINE_V2_VERSION = 'v2.10.2';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -539,7 +539,9 @@ const V2_WORDS = {
       sounds:['tiny chirp','sleepy breath','soft cluck'],
       comedy:{ energy:'deadpan', dignity:'medium', absurdity:5 } },
     { id:'tiny_possum',       text:'tiny possum',          emoji:'🐾', article:'a',
-      traits:['nocturnal','clutchy','possibly playing dead'],
+      /* v2.10.2 — "possibly playing dead" → "possibly playing possum". The real
+         possum idiom, no blocked-word trigger, more recognizable to kids. */
+      traits:['nocturnal','clutchy','possibly playing possum'],
       actions:['hung from a low branch','toppled over politely','accepted a single grape'],
       sounds:['tiny hiss','soft chitter','scrabble'],
       comedy:{ energy:'deadpan', dignity:'low', absurdity:6 } },
@@ -821,8 +823,10 @@ const V2_WORDS = {
       sounds:['cackle','metallic clank','tiny giggle'],
       comedy:{ energy:'chaotic', dignity:'low', absurdity:7 } },
     { id:'discount_vampire',       text:'discount vampire',       emoji:'🦇', article:'a',
+      /* v2.10.2 — "demanded juice instead of blood" → "demanded juice and a quiet corner".
+         Vampire-comedy still lands, no blocked-word trigger. */
       traits:['theatrical','off-brand','garlic-tolerant'],
-      actions:['used a plastic cape','demanded juice instead of blood','asked for the wifi password'],
+      actions:['used a plastic cape','demanded juice and a quiet corner','asked for the wifi password'],
       sounds:['vlah-lite','dramatic sigh','tiny hiss'],
       comedy:{ energy:'chaotic', dignity:'medium', absurdity:7 } },
     { id:'shadow_entity',          text:'shadow entity',          emoji:'👤', article:'a',
