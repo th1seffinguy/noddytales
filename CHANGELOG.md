@@ -9,6 +9,45 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 12, engine v3.0.3) — 2026-05-21
+**Setting 2.0 step — vertical centering on tall phones + chunkier tiles + unclipped rainbow**
+
+Three small polish fixes layered on top of b11's mobile-compact pass, all from a real-device screenshot on iPhone 16 Pro Max (430×932).
+
+### 1. Vertical centering on tall viewports
+
+b11 anchored the content cluster to the top of the canvas while the footer pinned to the bottom via `margin-top: auto`. On a Pro Max viewport that left **~400px of empty space** between the setting-note and the Next button.
+
+Fix: new `.setting-step-inner` wrapper around the header + grid + note uses `margin: auto 0`. Leftover canvas distributes **equally above + below** the content cluster — content vertically centers, footer stays pinned.
+
+On iPhone SE where content fills the canvas, the auto margins collapse to 0 and the layout is **unchanged**. No SE regression.
+
+### 2. Chunkier tiles
+
+| | b11 | b12 |
+|---|---|---|
+| Standard tile `min-height` | 52px | **60px** |
+| Surprise tile `min-height` | 56px | **68px** |
+| Standard emoji | 24px | **26px** |
+| Surprise emoji | 28px | **32px** |
+| Standard label | 12.5px | **13px** |
+| Surprise label | 15px | **16px** |
+| Tile padding | 4px 12px | **6px 14px** |
+| Grid gap (mobile) | 8px | **10px** |
+
+All still well under iPhone SE's vertical budget; all still above Apple HIG's 44px minimum tap target.
+
+### 3. Rainbow no longer clipped
+
+The welcome screen's `.deco--2` (🌈) was at `left: 6%` — its bounding box sat right at the left edge, and at peak `rotate(-4deg)` of the float animation it visibly clipped against the screen's `overflow-x: hidden` boundary. Moved to `left: 10%` so the full emoji stays inside the safe area through the entire animation cycle. Affects every welcome substep.
+
+### Acceptance
+
+- `scripts/qa-current.js` — **all 23 gates green** (no engine / picker / data touched).
+- Section 8 inline `<script>` syntax — clean.
+
+---
+
 ## v0.9.3 (build 11, engine v3.0.3) — 2026-05-21
 **"What kind of place?" step — mobile-compact (fits without scrolling on iPhone SE)**
 
