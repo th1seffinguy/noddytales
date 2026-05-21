@@ -1499,8 +1499,17 @@ const V2_SETTINGS = [
     objectBias: ['bus_ticket','backpack_zipper','lost_mitten','lunch_tray','sticker_sheet','water_bottle'] },
 ];
 
-/* Helper: look up a setting by id, with safe fallback to "surprise". */
+/* Helper: look up a setting by id, with safe fallback to "surprise".
+   v0.9.3 · b9 — when the id is a Setting 2.0 flavor key (e.g. 'food_place'),
+   route through resolveSetting (defined in content.js) which picks a random
+   hidden specific-place per call. Legacy exact keys still resolve via the
+   V2_SETTINGS table for backward compatibility. */
 function getSetting(id) {
+  if (typeof resolveSetting === 'function'
+      && typeof SETTING_FLAVOR_KEYS !== 'undefined'
+      && SETTING_FLAVOR_KEYS.includes(id)) {
+    return resolveSetting(id);
+  }
   return V2_SETTINGS.find(s => s.id === id) || V2_SETTINGS[0];
 }
 
@@ -2982,7 +2991,13 @@ function generateStoryV2(name, picks, age) {
   // v2.1.0 — read setting from picks (default: surprise). Setting locks the place slot
   // and biases the visitor/object pools toward setting-appropriate characters.
   // Falls back gracefully to "surprise" (the existing v2 behavior) if no setting given.
-  const setting = getSetting(picks.setting?.id || picks.setting?.w || 'surprise');
+  // v0.9.3 · b9 — buildStory in index.html now passes picks.setting as a fully
+  // resolved Setting 2.0 object (id + place + biases) with the per-session
+  // hidden place already chosen. Use it directly when present; only call
+  // getSetting (which may re-randomize) when picks.setting is just a {id} stub.
+  const setting = (picks.setting && 'place' in picks.setting && 'visitorBias' in picks.setting)
+    ? picks.setting
+    : getSetting(picks.setting?.id || picks.setting?.w || 'surprise');
 
   // Build the slots map for this story.
   // Map user picks (v1 format: {w: 'dragon'}) to rich v2 word objects when possible.
@@ -4440,7 +4455,13 @@ function generateStoryV3(name, picks, age) {
 
   // Reuse v2's slot construction by calling the helpers directly. We build slots
   // the same way generateStoryV2 does so role resolution mirrors v2 grammar.
-  const setting = getSetting(picks.setting?.id || picks.setting?.w || 'surprise');
+  // v0.9.3 · b9 — buildStory in index.html now passes picks.setting as a fully
+  // resolved Setting 2.0 object (id + place + biases) with the per-session
+  // hidden place already chosen. Use it directly when present; only call
+  // getSetting (which may re-randomize) when picks.setting is just a {id} stub.
+  const setting = (picks.setting && 'place' in picks.setting && 'visitorBias' in picks.setting)
+    ? picks.setting
+    : getSetting(picks.setting?.id || picks.setting?.w || 'surprise');
   function mapPickToWord(pickValue, lib) {
     if (!pickValue) return rawPick(lib);
     const hit = lib.find(w => w.text === pickValue || w.id === pickValue);

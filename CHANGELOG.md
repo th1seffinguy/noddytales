@@ -9,6 +9,86 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 9, engine v3.0.3) — 2026-05-21
+**Setting 2.0 — broad story-flavor categories with hidden place variety**
+
+User feedback: the original 9-tile exact-setting grid (Diner / Mall / Football Game / Grocery Store / Zoo / Bus / etc.) made the app feel limited because the visible list **was** the full list of places the engine supports. Setting 2.0 keeps the grounding benefits of settings — first-paragraph place anchoring, visitor / object pool biases — but repositions them as broad "story flavor" categories with hidden specific-place variety underneath.
+
+### Visible categories (8)
+
+| # | Category | Vibe |
+|---|---|---|
+| 1 | **Surprise Me** ✨ | Default + visually prominent (spans full row) — engine picks freely |
+| 2 | At Home 🏠 | Bedrooms, kitchens, blanket forts |
+| 3 | At School 🏫 | Classroom, library, cafeteria, playground |
+| 4 | Outside 🌳 | Parks, forests, beaches, treehouses |
+| 5 | Food Place 🍕 | Diners, bakeries, ice cream trucks |
+| 6 | Animal Place 🦁 | Zoos, pet stores, dog parks |
+| 7 | On the Go 🚌 | Buses, trains, planes, sidewalks |
+| 8 | Somewhere Weird 🌀 | Moon bases, cloud castles, noodle planets |
+
+Each non-surprise category holds a **hidden pool of 8 specific places** that the engine picks per session. Locking "Food Place" gets diner one session, bakery the next, ice cream truck the one after. **64 hidden places** + Surprise random.
+
+### Step copy
+
+Softened from *"Where should the story happen?"* → *"What kind of place?"* / *"Pick a story flavor — or let us surprise you."*
+
+### Data model
+
+New in `src/content.js`:
+
+- `SETTING_FLAVORS` — 8 entries, each `{ key, label, emoji, note, hiddenPlaces, visitorBias, objectBias }`. Hidden place objects use the same `{ id, text, emoji, article }` shape the engine's grammar helpers already consume.
+- `resolveSetting(key)` — returns a fully-realized object compatible with the legacy `V2_SETTINGS` shape; engine code consumes it unchanged. Random hidden-place selection happens at call time.
+- `migrateLegacySetting(value)` — maps old keys to closest flavor: `diner` / `grocery_store` → `food_place`; `football_game` / `school` → `at_school`; `backyard` → `at_home`; `zoo` → `animal_place`; `bus` → `on_the_go`; `mall` / unknown / empty → `surprise`.
+
+### Engine integration
+
+- `buildStory()` in `index.html` resolves the flavor **before** handing `picks.setting` to the engine. The per-session hidden place is fixed at story-build time so the v2 + v3 generators see a stable specific place.
+- `getSetting()` in `src/engine-v2.js` routes flavor keys through `resolveSetting`; legacy exact keys still resolve via `V2_SETTINGS`.
+- The v2 + v3 generation paths prefer the already-resolved `picks.setting` object directly when present (has `place` + `visitorBias`), only calling `getSetting` for legacy stub callsites.
+
+### Broad category labels do NOT leak
+
+Stories say *"the pizza shop"* or *"the noodle planet"* — **never** *"the Food Place"* or *"the Somewhere Weird"*. QA Section 15 enforces this via prose scan.
+
+### Backward compatibility
+
+Saved `nt_setting` values from pre-b9 (`diner`, `mall`, `zoo`, `football_game`, `bus`, etc.) migrate transparently on `Profile.load()` via `migrateLegacySetting`. No data loss; no broken stories.
+
+### UI
+
+- 2-column grid on mobile (`< 540px`), 4-column on wider viewports.
+- Surprise Me spans the full width at top (`grid-column: 1 / -1`) with 36px emoji + 16px label for visual prominence.
+- Other 7 tiles use the existing `.setting-tile` design.
+- New CSS: `.setting-grid--flavors` + `.setting-tile--surprise`.
+
+### New QA gate (Section 15)
+
+5 sub-gates × 8 flavors × 20 reps = **160 stories** total per harness run:
+
+| Sub-gate | Result |
+|---|---|
+| Every flavor generates a non-null story | 0 nulls / 160 ✓ |
+| Hidden place appears in body across all flavors | 0 misses ✓ |
+| Broad category label never leaks into prose | 0 leaks ✓ |
+| `resolveSetting` returns legacy V2_SETTINGS-compatible shape | 0 bad shapes ✓ |
+| `migrateLegacySetting` maps 12 legacy-key cases correctly | 0 wrong mappings ✓ |
+
+### Acceptance
+
+- `scripts/qa-current.js` — **all 22 gates green** (17 prior + 5 new Setting 2.0 sub-gates).
+- Section 8 inline `<script>` syntax check — clean.
+
+### Not in this release
+
+- Per-place visual previews
+- Expanded hidden pools (>8 per category)
+- Mixing categories (e.g., "Home + Animals")
+- Setting-tagged `WORD_BANK` options (Phase 2 of the Selection Joy Pass)
+- Simplified setting step for ages 2-5 (kept consistent across all ages for v1; revisit after real-kid playtest)
+
+---
+
 ## v0.9.3 (build 8, engine v3.0.3) — 2026-05-21
 **README drift cleanup + Narrator Voice Selector MVP**
 
