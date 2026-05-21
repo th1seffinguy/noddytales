@@ -3487,6 +3487,12 @@ const V3_BLUEPRINTS = {
       { name: 'payoff',     requiredRoles: ['protagonist','ally','mcguffin'] },
       { name: 'landing',    requiredRoles: ['protagonist','ally'] },
     ],
+    // v0.9.3 · b20 — structural story-length pass: kid (ages 6-7) drops the
+    // `attempt` stage (the kid-investigates-false-suspect middle beat) so
+    // kid stories run 5 paragraphs instead of 6. The `escalation` beat is
+    // kept because it's the load-bearing ALLY-WAS-THE-CULPRIT twist — that's
+    // the joke. Big + tween keep all 6 stages for a fuller arc.
+    skipStagesForKid: ['attempt'],
     titlePatterns: [
       'Who Took the [c:{mcguffin.titleText}]?',
       '[name:{protagonist.name}] and the [c:{mcguffin.titleText}] Mystery',
@@ -3524,6 +3530,10 @@ const V3_BLUEPRINTS = {
       { name: 'payoff',     requiredRoles: ['protagonist','ally','goal'] },
       { name: 'landing',    requiredRoles: ['protagonist','ally'] },
     ],
+    // v0.9.3 · b20 — kid drops `escalation` (the obstacle-worsens beat),
+    // keeps `attempt` (the kid-tries-with-signature-action beat) which IS
+    // the agency lift for ages 6-7. 5 paragraphs for kid.
+    skipStagesForKid: ['escalation'],
     titlePatterns: [
       'The Day [name:{protagonist.name}] {goal.titleText}',
       'How [name:{protagonist.name}] Tried to {goal.titleText}',
@@ -3558,6 +3568,9 @@ const V3_BLUEPRINTS = {
       { name: 'payoff',     requiredRoles: ['protagonist','ally'] },
       { name: 'landing',    requiredRoles: ['protagonist','ally'] },
     ],
+    // v0.9.3 · b20 — kid drops `escalation` (climax wind-up); keeps
+    // `attempt` because it IS the improv that saves the show. 5 paragraphs.
+    skipStagesForKid: ['escalation'],
     titlePatterns: [
       'The Day [name:{protagonist.name}] Saved the Show',
       '[name:{protagonist.name}] and the [c:{ally.titleText}] Take the Stage',
@@ -3592,6 +3605,9 @@ const V3_BLUEPRINTS = {
       { name: 'payoff',     requiredRoles: ['protagonist','mcguffin','rule_imposer'] },
       { name: 'landing',    requiredRoles: ['protagonist','ally'] },
     ],
+    // v0.9.3 · b20 — kid drops `escalation` (the imposer-vs-tool clash);
+    // keeps `attempt` (kid uses loophole_tool — the agency beat). 5 paragraphs.
+    skipStagesForKid: ['escalation'],
     titlePatterns: [
       '[name:{protagonist.name}] and the [c:{rule_imposer.titleText}]\'s Rule',
       'The Loophole at the [y:{setting.titleText}]',
@@ -4566,10 +4582,20 @@ function generateStoryV3(name, picks, age) {
     roles[role] = slots[slotName] || null;
   }
 
+  // v0.9.3 · b20 — tier-aware stage resolution. Kid (ages 6-7) drops one stage
+  // per blueprint (named in `blueprint.skipStagesForKid`) so kid stories run
+  // 5 paragraphs instead of 6. Big + tween keep the full 6-stage arc.
+  // The Section 3 v3-matrix QA gate is tier-aware to match.
+  const stagesForThisStory = (tier === 'kid' && blueprint.skipStagesForKid && blueprint.skipStagesForKid.length)
+    ? blueprint.stages.filter(s => !blueprint.skipStagesForKid.includes(s.name))
+    : blueprint.stages;
+
   // Validate required roles for the blueprint as a whole — union of all stage roles.
   // If any role required by any stage is unfulfilled, the blueprint can't fire cleanly.
+  // (Computed over the tier-resolved stages array so kid doesn't fail validation for
+  // a role only the dropped stage required.)
   const blueprintRequired = new Set();
-  for (const stage of blueprint.stages) {
+  for (const stage of stagesForThisStory) {
     for (const r of (stage.requiredRoles || [])) blueprintRequired.add(r);
   }
   for (const r of blueprintRequired) {
@@ -4634,7 +4660,7 @@ function generateStoryV3(name, picks, age) {
   }
 
   const paragraphs = [];
-  for (const stage of blueprint.stages) {
+  for (const stage of stagesForThisStory) {
     const card = pickStageBeat(stage);
     if (!card) return null;
     usedInStory.add(card.id);

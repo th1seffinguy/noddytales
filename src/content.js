@@ -17,33 +17,44 @@
    labeling: product is in late beta (v0.9.x), engine is still v3 internally. The
    historical v3.0.0-v3.0.3 CHANGELOG entries stay as-is for traceability. */
 const APP_VERSION  = 'v0.9.3';
-const BUILD_NUMBER = 19;
+const BUILD_NUMBER = 20;
 
-/* v0.9.3 · b8 — Narrator Voice Selector MVP. v0.9.3 · b16 — lineup refresh:
-   1 British storybook + 3 American (warm / energetic / cartoon) so parents
-   hear a clear distinction between the four. Keys stay stable
-   (sunny/cozy/adventure/silly) so saved `nt_voice_preset` and IndexedDB cache
-   entries (`<preset>|<sha256>` for stories, `preview:<preset>` for previews)
-   survive across the rename. No celebrity / licensed-character / real-person
-   imitation in any label, tagline, or previewText — QA Section 14 scans for it.
+/* v0.9.3 · b8 — Narrator Voice Selector MVP.
+   v0.9.3 · b16 — lineup refresh.
+   v0.9.3 · b20 — labels simplified to performance-style names (Sunny /
+   Storybook / Adventure / Silly). User feedback after b16/b18: accent +
+   geography labels ("Sunny American" / "Storybook British" / "Adventure
+   American" / "Silly Cartoon") felt off for a kid app and exposed the
+   accent of the underlying ElevenLabs voice in a way that was confusing
+   when the voice itself was foreign-sounding (Mimi b18). UI now describes
+   the PERFORMANCE STYLE only; accent details live in implementation docs.
+
+   Keys (sunny/cozy/adventure/silly) stay stable so saved `nt_voice_preset`
+   and IndexedDB cache entries (`<preset>|<sha256>` for stories,
+   `preview:<preset>` for previews) survive across every rename.
+
+   No celebrity / licensed-character / real-person imitation in any label,
+   tagline, or previewText — QA Section 14 scans for it.
 
    The client knows only `key`, `label`, `tagline`, and `previewText`. Raw
-   ElevenLabs voice IDs live server-side in env vars (api/tts.js). Adding a
-   preset here requires a matching server-side allowlist entry; unknown
-   presets are 400'd. */
+   ElevenLabs voice IDs live server-side (api/tts.js VOICE_MAP `defaultId`
+   + env-var overrides). Adding a preset here requires a matching server-side
+   allowlist entry; unknown presets are 400'd. */
 const VOICE_PRESETS = [
-  { key: 'sunny',     label: 'Sunny American',     tagline: 'Warm, clear, everyday read-aloud',
-    previewText: "Hi, I'm Sunny American. I'm your personal story reader." },
-  { key: 'cozy',      label: 'Storybook British',  tagline: 'Classic storybook narrator',
-    previewText: "Hi, I'm Storybook British. I'll read this like a proper bedtime tale." },
-  { key: 'adventure', label: 'Adventure American', tagline: 'Energetic + expressive',
-    previewText: "Hi, I'm Adventure American. Let's make this story sound big." },
-  // b18 — tagline + previewText updated so parents A/B-ing the 4 presets can
-  // immediately hear the contrast between Silly Cartoon (high-pitched, quirky)
-  // and the three steadier voices. Label stays "Silly Cartoon" so saved
-  // nt_voice_preset values + cache keys are unaffected.
-  { key: 'silly',     label: 'Silly Cartoon',      tagline: 'High-pitched, goofy, completely ridiculous',
-    previewText: "Hi, I'm Silly Cartoon. I make stories sound completely ridiculous!" },
+  { key: 'sunny',     label: 'Sunny',     tagline: 'Warm, clear, everyday reader',
+    previewText: "Hi, I'm Sunny. I'm your personal story reader." },
+  { key: 'cozy',      label: 'Storybook', tagline: 'Classic bedtime narrator',
+    previewText: "Hi, I'm Storybook. I'll read this like a cozy tale." },
+  { key: 'adventure', label: 'Adventure', tagline: 'Bold, energetic, exciting',
+    previewText: "Hi, I'm Adventure. Let's make this story sound big." },
+  // b20 — label simplified to "Silly". Two stock-voice attempts have now
+  // failed (Gigi b17 too calm-American; Mimi b18 foreign-accented). The
+  // hardcoded backstop in api/tts.js stays as Mimi to keep the app working,
+  // but operators are strongly recommended to override ELEVENLABS_VOICE_SILLY
+  // in Vercel with a custom high-pitched cartoon voice (ElevenLabs Voice
+  // Library find or cloned voice). See api/tts.js header + README.
+  { key: 'silly',     label: 'Silly',     tagline: 'High-pitched, goofy, extra expressive',
+    previewText: "Hi, I'm Silly. I make stories sound extra goofy!" },
 ];
 const VOICE_PRESET_DEFAULT = 'sunny';
 const VOICE_PRESET_KEYS    = VOICE_PRESETS.map(p => p.key); // for validation

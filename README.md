@@ -70,14 +70,14 @@ Required environment variables for TTS (set in Vercel dashboard or `.env.local` 
 
 ### Narrator voice lineup
 
-NoddyTales offers **4 narrator presets** (since v0.9.3 · b8; refreshed in `b16`): 1 British + 3 American voices. Pick in Parent Settings or via the story-screen `Change` button.
+NoddyTales offers **4 narrator presets** (since v0.9.3 · b8; labels simplified in `b20`). Pick in Parent Settings or via the story-screen `Change` button. UI labels describe the **performance style** — accent / origin of the underlying ElevenLabs voice is an implementation detail, not user-facing.
 
-| Preset key | Label | Accent | Vibe | Env var (optional override) |
-|---|---|---|---|---|
-| `sunny` (default) | Sunny American | American | Warm, clear, everyday read-aloud | `ELEVENLABS_VOICE_SUNNY` |
-| `cozy` | Storybook British | British | Classic storybook narrator | `ELEVENLABS_VOICE_COZY` |
-| `adventure` | Adventure American | American | Energetic + expressive | `ELEVENLABS_VOICE_ADVENTURE` |
-| `silly` | Silly Cartoon | Quirky | High-pitched, goofy, completely ridiculous | `ELEVENLABS_VOICE_SILLY` |
+| Preset key | Label | Vibe | Env var (optional override) |
+|---|---|---|---|
+| `sunny` (default) | **Sunny** | Warm, clear, everyday reader | `ELEVENLABS_VOICE_SUNNY` |
+| `cozy` | **Storybook** | Classic bedtime narrator | `ELEVENLABS_VOICE_COZY` |
+| `adventure` | **Adventure** | Bold, energetic, exciting | `ELEVENLABS_VOICE_ADVENTURE` |
+| `silly` | **Silly** | High-pitched, goofy, extra expressive | `ELEVENLABS_VOICE_SILLY` (**override strongly recommended** — see below) |
 
 ### Setup checklist (Vercel)
 
@@ -86,21 +86,29 @@ Only one env var is **required** for TTS to work at all (since b17):
 1. ☑ `ELEVENLABS_API_KEY` — your ElevenLabs API key
 2. ⬜ `ELEVENLABS_VOICE_ID` — legacy universal default (optional in b17+; safety-net only)
 
-Since `v0.9.3 · b17`, the four presets ship with **curated ElevenLabs stock voice IDs hardcoded** as `defaultId` in `api/tts.js`'s `VOICE_MAP`. A fresh deploy with **no preset env vars set** produces **4 distinct preview voices** automatically — the per-preset env vars are optional operator overrides, not requirements.
+Since `v0.9.3 · b17`, the four presets ship with **ElevenLabs stock voice IDs hardcoded** as `defaultId` in `api/tts.js`'s `VOICE_MAP`. A fresh deploy with **no preset env vars set** produces **4 distinct preview voices** automatically — for the first three presets. **Silly is the exception** and needs an operator override; see below.
 
-- sunny → **Rachel** (`21m00Tcm4TlvDq8ikWAM`) — American female, calm narration
-- cozy → **George** (`JBFqnCBsd6RMkjVDRZzb`) — British male, mature narrative
-- adventure → **Antoni** (`ErXwobaYiN019PkySvjV`) — American male, expressive
-- silly → **Mimi** (`zrHiDhphv9ZnVXBqCLjz`) — childish character, higher-pitched, quirky cadence (swapped from Gigi in b18 because Gigi's timbre read too close to Rachel in production)
+- sunny → **Rachel** (`21m00Tcm4TlvDq8ikWAM`) — calm narration
+- cozy → **George** (`JBFqnCBsd6RMkjVDRZzb`) — warm mature narrative
+- adventure → **Antoni** (`ErXwobaYiN019PkySvjV`) — well-rounded, expressive
+- silly → **Mimi** (`zrHiDhphv9ZnVXBqCLjz`) — **BACKSTOP ONLY (override recommended)**. Two ElevenLabs first-party stock voices have now failed user testing for this slot (Gigi `jBpfuIE2acCO8z3wKNLl` in b17 — read too close to Rachel; Mimi in b18 — read as Australian / foreign-accented rather than high-pitched/goofy). Mimi stays as the backstop so the app doesn't 500 if the env var is unset.
 
-### Optional: override a preset via env var
+### Required for genuine Silly: override `ELEVENLABS_VOICE_SILLY`
 
-If you want to swap any preset to a different ElevenLabs voice, set the matching env var. The per-preset env var **beats** the hardcoded default:
+Set `ELEVENLABS_VOICE_SILLY` in Vercel → Project Settings → Environment Variables to a custom high-pitched cartoon voice. Good candidates:
+
+- An ElevenLabs Voice Library find — search terms: `cartoon`, `kids`, `high pitch`, `character`, `animated`
+- A cloned voice you've made or licensed
+
+The per-request `console.warn` in `api/tts.js` fires every time the Silly preset resolves to the Mimi backstop, so the recommendation is visible in Vercel logs.
+
+### Optional: override the other presets
+
+If you want to swap Sunny / Storybook / Adventure to a different ElevenLabs voice, set the matching env var. The per-preset env var **beats** the hardcoded default:
 
 - `ELEVENLABS_VOICE_SUNNY` — overrides Rachel
 - `ELEVENLABS_VOICE_COZY` — overrides George
 - `ELEVENLABS_VOICE_ADVENTURE` — overrides Antoni
-- `ELEVENLABS_VOICE_SILLY` — overrides Mimi (set this to a custom high-pitched / cartoon voice if Mimi isn't silly enough)
 
 Voice IDs are **server-side only** — the browser never sees them. Per-preset `voice_settings` (stability / similarity / style) layer per-preset moods on top of the voice ID.
 
