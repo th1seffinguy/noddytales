@@ -30,21 +30,35 @@
      5. Keeps the /with-timestamps endpoint so karaoke highlighting still works.
 */
 
+/* v0.9.3 · b17 — per-preset hardcoded `defaultId` so the 4 presets sound
+   genuinely distinct out-of-the-box without requiring the operator to paste 4
+   ElevenLabs voice IDs into Vercel. All four IDs below are ElevenLabs
+   first-party STOCK voices, available on every ElevenLabs account — NOT
+   celebrity / real-person impersonations. Operator can still override per
+   preset via the env vars; resolveVoice priority is:
+     1. env[envVar]    (operator per-preset override — strongest)
+     2. cfg.defaultId  (curated hardcoded default — new)
+     3. env.ELEVENLABS_VOICE_ID  (legacy universal fallback)
+     4. 'JBFqnCBsd6RMkjVDRZzb' (George — final backstop) */
 const VOICE_MAP = {
   sunny: {
     envVar:        'ELEVENLABS_VOICE_SUNNY',       // American · warm / clear
+    defaultId:     '21m00Tcm4TlvDq8ikWAM',         // Rachel — American female, calm narration
     voice_settings:{ stability: 0.80, similarity_boost: 0.90, style: 0.20, use_speaker_boost: true },
   },
   cozy: {
     envVar:        'ELEVENLABS_VOICE_COZY',        // British · storybook narrator
+    defaultId:     'JBFqnCBsd6RMkjVDRZzb',         // George — British male, warm mature narrative
     voice_settings:{ stability: 0.85, similarity_boost: 0.92, style: 0.10, use_speaker_boost: true },
   },
   adventure: {
     envVar:        'ELEVENLABS_VOICE_ADVENTURE',   // American · energetic / expressive
+    defaultId:     'ErXwobaYiN019PkySvjV',         // Antoni — American male, well-rounded, expressive
     voice_settings:{ stability: 0.65, similarity_boost: 0.85, style: 0.50, use_speaker_boost: true },
   },
   silly: {
     envVar:        'ELEVENLABS_VOICE_SILLY',       // American · cartoon / goofy
+    defaultId:     'jBpfuIE2acCO8z3wKNLl',         // Gigi — American female, childish character
     voice_settings:{ stability: 0.55, similarity_boost: 0.80, style: 0.70, use_speaker_boost: true },
   },
 };
@@ -58,17 +72,29 @@ function resolveVoice(presetRequested, env) {
   if (!VALID_PRESETS.includes(preset)) {
     return { ok: false, status: 400, error: 'unknown voice preset' };
   }
-  const cfg     = VOICE_MAP[preset];
-  // Per-preset env var first; fall back to ELEVENLABS_VOICE_ID; finally the
-  // historical default (George — British narrator) so first-time deploys still
-  // produce audio.
-  const voiceId = env[cfg.envVar] || env.ELEVENLABS_VOICE_ID || 'JBFqnCBsd6RMkjVDRZzb';
+  const cfg = VOICE_MAP[preset];
+  // v0.9.3 · b17 — priority chain (highest → lowest):
+  //   1. env[cfg.envVar]    — operator per-preset override
+  //   2. cfg.defaultId      — per-preset hardcoded curated stock voice (NEW)
+  //   3. env.ELEVENLABS_VOICE_ID — legacy universal operator fallback
+  //   4. 'JBFqnCBsd6RMkjVDRZzb' — final backstop (George)
+  // `usedFallback` is true only when we ended up in the legacy chain
+  // (envUniversal or hardcodedFinal) — meaning the curated default was
+  // bypassed somehow. With cfg.defaultId set for every known preset, the
+  // legacy chain is effectively unreachable, and the per-request
+  // console.warn in the handler no longer fires for the happy path.
+  let voiceId, source;
+  if (env[cfg.envVar])              { voiceId = env[cfg.envVar];        source = 'envPerPreset'; }
+  else if (cfg.defaultId)           { voiceId = cfg.defaultId;          source = 'hardcodedPerPreset'; }
+  else if (env.ELEVENLABS_VOICE_ID) { voiceId = env.ELEVENLABS_VOICE_ID; source = 'envUniversal'; }
+  else                              { voiceId = 'JBFqnCBsd6RMkjVDRZzb'; source = 'hardcodedFinal'; }
   return {
     ok: true,
     preset,
     voiceId,
     voice_settings: cfg.voice_settings,
-    usedFallback: !env[cfg.envVar],
+    source,
+    usedFallback: source === 'envUniversal' || source === 'hardcodedFinal',
   };
 }
 

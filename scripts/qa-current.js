@@ -805,10 +805,14 @@ function vAssert(label, cond, detail) {
   const r = tts.resolveVoice('sunny', { ELEVENLABS_VOICE_SUNNY: 'voice_sunny_xyz', ELEVENLABS_VOICE_ID: 'voice_default' });
   vAssert('sunny → ELEVENLABS_VOICE_SUNNY when set', r.ok && r.voiceId === 'voice_sunny_xyz' && r.usedFallback === false);
 }
-// 2. Known preset 'cozy' falls back to ELEVENLABS_VOICE_ID when its var is unset.
+// 2. v0.9.3 · b17 — cozy with no per-preset env now resolves to cozy's HARDCODED
+//    defaultId (George, the British storybook voice), NOT to ELEVENLABS_VOICE_ID.
+//    The hardcoded default beats the universal env fallback so all 4 presets sound
+//    distinct out-of-the-box without operator action.
 {
   const r = tts.resolveVoice('cozy', { ELEVENLABS_VOICE_ID: 'voice_default' });
-  vAssert('cozy with no specific env → falls back to ELEVENLABS_VOICE_ID', r.ok && r.voiceId === 'voice_default' && r.usedFallback === true);
+  vAssert('cozy with no per-preset env → uses cozy hardcoded default (not ELEVENLABS_VOICE_ID)',
+    r.ok && r.voiceId === 'JBFqnCBsd6RMkjVDRZzb' && r.source === 'hardcodedPerPreset' && r.usedFallback === false);
 }
 // 3. Known preset 'adventure' picks its own env var when present.
 {
@@ -876,15 +880,24 @@ function vAssert(label, cond, detail) {
   const distinct = new Set(ids).size;
   vAssert('production-like env: 4 presets → 4 distinct voice IDs', distinct === 4, `got ${distinct} distinct (${ids.join(', ')})`);
 }
-// 12. Missing preset env vars still resolve, but the result MUST flag usedFallback=true
-//     so the proxy's console.warn fires + the all-identical-previews failure mode
-//     is detectable from logs.
+// 12. v0.9.3 · b17 — with hardcoded per-preset defaults shipped, NO env vars set
+//     still resolves to 4 DISTINCT voice IDs (curated stock voices). This catches
+//     the b16 identical-previews trap at the source: if any two presets ever share
+//     the same defaultId, this assertion fails. Inverts the b16 detectability
+//     assertion (which expected usedFallback=true everywhere when env vars were
+//     missing) — with hardcoded defaults that assertion is no longer the right
+//     contract.
 {
-  const onlyDefault = { ELEVENLABS_VOICE_ID: 'voice_id_default' };
-  const fallbackFlags = ctx.VOICE_PRESET_KEYS.map(k => tts.resolveVoice(k, onlyDefault).usedFallback);
-  const allFlagged = fallbackFlags.every(Boolean);
-  vAssert('missing preset env vars → every preset reports usedFallback=true (detectable)',
-    allFlagged, `flags: ${fallbackFlags.join(', ')}`);
+  const noEnv = {};
+  const ids = ctx.VOICE_PRESET_KEYS.map(k => tts.resolveVoice(k, noEnv).voiceId);
+  const distinct = new Set(ids).size;
+  vAssert('no env vars set → 4 presets STILL resolve to 4 distinct hardcoded voice IDs',
+    distinct === 4, `got ${distinct} distinct (${ids.join(', ')})`);
+  // And every preset uses its hardcoded-per-preset source (not the legacy fallback chain).
+  const sources = ctx.VOICE_PRESET_KEYS.map(k => tts.resolveVoice(k, noEnv).source);
+  const allHardcoded = sources.every(s => s === 'hardcodedPerPreset');
+  vAssert('no env vars set → every preset resolves via hardcodedPerPreset source',
+    allHardcoded, `sources: ${sources.join(', ')}`);
 }
 // 13. Label/tagline/previewText must NOT contain celebrity, licensed-character,
 //     or real-person imitation language. Conservative blocklist — common Disney /
