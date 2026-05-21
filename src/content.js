@@ -4,7 +4,7 @@
    Story template logic lives in index.html (buildStory).
    ================================================================ */
 
-const APP_VERSION = 'v3.0.2';
+const APP_VERSION = 'v3.0.3';
 
 /* Verb form lookup — maps each past-tense move-pool entry to its base + gerund forms.
    Templates use moveBase()/moveGerund() to derive the right form for the syntactic slot
@@ -76,7 +76,11 @@ const VERB_FORMS = {
 const BODY_PG  = ['toot', 'burp', 'wedgie', 'stinky sock', 'smelly shoe', 'hiccup', 'sneeze', 'snort', 'drool', 'snore', 'yawn', 'sniffle'];
 const BODY_HOT = ['fart', 'poop', 'butt', 'pee', 'booger', 'snot rocket', 'underpants', 'stinky armpit', 'swamp foot', 'nostril', 'toilet', 'wedgie'];
 const SOUND_PG  = ['SPLAT', 'BOING', 'PFFT', 'WUMP', 'FWOOSH', 'KERPLUNK', 'BLORP', 'SQUISH', 'HONK', 'BWAH', 'BLARP', 'WAFLOOP', 'POOF', 'ZINK', 'PLOP', 'YIKES', 'BANG', 'WHEE'];
-const SOUND_HOT = ['PFFFFART', 'BTHHHPP', 'PLOPP', 'FAAAARP', 'TOOOT', 'PARP', 'BLEEEEH', 'SCHPLAT', 'GLOOP', 'KAFOOM', 'BWAHAHA', 'SQUOMP'];
+/* v3.0.3 — replaced bathroom-style sound words (PARP / PFFFFART / FAAAARP / BTHHHPP
+   / PLOPP / SQUOMP / BLEEEEH / SCHPLAT / TOOOT / GLOOP) with cartoon-style action
+   sounds per parent feedback. Kid-readable, punchy, distinct from bodily-function
+   register. BWAHAHA + KAFOOM retained — already inoffensive Looney Tunes-style. */
+const SOUND_HOT = ['BABOOM', 'WHAMMY', 'CRASH', 'TOOT', 'ZAP', 'SPLAT', 'CLANG', 'SMASH', 'BONK', 'WHOOSH', 'BWAHAHA', 'KAFOOM'];
 
 /* Always-on absurd objects for kid-tier stories — never gated by pottyMode, never user-picked.
    One gets injected as a parenthetical aside per kid story so every story has a baseline of
@@ -178,11 +182,15 @@ const BODY_HOT_OPTS = [
   {w:'toilet',        e:'🚽'}, {w:'snot rocket',   e:'💦'}, {w:'swamp foot',   e:'🦶'},
   {w:'stinky armpit', e:'🧅'}, {w:'wedgie',        e:'😱'}, {w:'nostril hair', e:'👃'},
 ];
+/* v3.0.3 — replaced bathroom-style picker options. Parent screenshot showed
+   "Pick a chaotic sound" rendering PARP + PFFFFART side-by-side. User feedback:
+   "they just arent good words. go with Baboom! Whammy! Crash! Toot! stuff like
+   that". 12 distinct cartoon-style action sounds with distinct emojis. */
 const SOUND_HOT_OPTS = [
-  {w:'PFFFFART', e:'💨'}, {w:'BTHHHPP',  e:'🌬️'}, {w:'FAAAARP',  e:'📯'},
-  {w:'KAFOOM',   e:'💥'}, {w:'BWAHAHA',  e:'😂'}, {w:'PARP',     e:'🎺'},
-  {w:'BLEEEEH',  e:'😝'}, {w:'SQUOMP',   e:'💦'}, {w:'PLOPP',    e:'💧'},
-  {w:'TOOOT',    e:'🎺'}, {w:'SCHPLAT',  e:'💥'}, {w:'GLOOP',    e:'🟢'},
+  {w:'BABOOM!', e:'💥'}, {w:'WHAMMY!', e:'⚡'}, {w:'CRASH!',  e:'🥁'},
+  {w:'TOOT!',   e:'🎺'}, {w:'ZAP!',    e:'💢'}, {w:'SPLAT!',  e:'💦'},
+  {w:'CLANG!',  e:'🔔'}, {w:'SMASH!',  e:'🔨'}, {w:'BONK!',   e:'👊'},
+  {w:'WHOOSH!', e:'🌬️'}, {w:'BWAHAHA!',e:'😂'}, {w:'KAFOOM!', e:'🎆'},
 ];
 
 /* Binary rounds by tier — each round has 12 options; buildRounds() picks 2 randomly per session */
@@ -213,9 +221,9 @@ const WORD_BANK = {
     { cat: 'color',   label: 'Pick a color',          options: [{w:'purple',    e:'🟣'}, {w:'rainbow',   e:'🌈'}, {w:'golden',    e:'🥇'}, {w:'scarlet',   e:'🔴'}, {w:'silver',    e:'🥈'}, {w:'teal',      e:'🦚'}, {w:'neon',      e:'💚'}, {w:'pitch black',e:'🖤'}, {w:'electric blue',e:'⚡'},{w:'moss green', e:'🌿'}, {w:'burnt orange',e:'🍊'},{w:'rose gold',  e:'🌸'}, {w:'tomato red', e:'🍅'}, {w:'lemon yellow',e:'🍋'},{w:'watermelon pink',e:'🍉'},{w:'mint green',e:'🍃'},{w:'sunset orange',e:'🌅'},{w:'midnight blue',e:'🌌'}] },
     { cat: 'food',    label: 'Pick a snack',           options: [{w:'tacos',     e:'🌮'}, {w:'donuts',    e:'🍩'}, {w:'nachos',    e:'🫓'}, {w:'sushi',     e:'🍣'}, {w:'waffles',   e:'🧇'}, {w:'pizza',     e:'🍕'}, {w:'ramen',     e:'🍜'}, {w:'burritos',  e:'🌯'}, {w:'dumplings', e:'🥟'}, {w:'ice cream', e:'🍦'}, {w:'pretzels',  e:'🥨'}, {w:'grilled cheese',e:'🥪'}, {w:'spaghetti', e:'🍝'}, {w:'popcorn',   e:'🍿'}, {w:'hot dogs',  e:'🌭'}, {w:'pancakes',  e:'🥞'}, {w:'cupcakes',  e:'🧁'}, {w:'french fries',e:'🍟'}, {w:'milkshake', e:'🥤'}, {w:'cereal',    e:'🥣'}, {w:'garlic bread',e:'🥖'}, {w:'pickles',   e:'🥒'}, {w:'cheese puffs',e:'🧀'}, {w:'birthday cake',e:'🎂'}] },
     { cat: 'place',   label: 'Pick a location',        options: [{w:'jungle',    e:'🌴'}, {w:'castle',    e:'🏰'}, {w:'cavern',    e:'🕳️'}, {w:'forest',    e:'🌲'}, {w:'meadow',    e:'🌾'}, {w:'canyon',    e:'🏞️'}, {w:'volcano',   e:'🌋'}, {w:'maze',      e:'🧩'}, {w:'shipwreck', e:'⚓'}, {w:'glacier',   e:'🧊'}, {w:'rooftop',   e:'🏙️'}, {w:'desert',    e:'🏜️'}, {w:'treehouse', e:'🌳'}, {w:'lighthouse',e:'🗼'}, {w:'carnival',  e:'🎡'}, {w:'aquarium',  e:'🐠'}, {w:'planetarium',e:'🪐'},{w:'bakery',    e:'🥐'}, {w:'school cafeteria',e:'🏫'}, {w:'grocery store',e:'🛒'}, {w:'diner',     e:'🍔'}, {w:'mall',      e:'🛍️'}, {w:'bus stop',  e:'🚌'}, {w:'playground',e:'🛝'}] },
-    { cat: 'creature',label: 'Pick a creature',        options: [{w:'robot',     e:'🤖'}, {w:'mermaid',   e:'🧜'}, {w:'wizard',    e:'🧙'}, {w:'pirate',    e:'🏴‍☠️'}, {w:'ninja',     e:'🥷'}, {w:'goblin',    e:'👺'}, {w:'knight',    e:'⚔️'}, {w:'alien',     e:'👽'}, {w:'witch',     e:'🧙‍♀️'}, {w:'giant',    e:'🗿'}, {w:'ghost',     e:'👻'}, {w:'troll',     e:'🧌'}, {w:'vampire',   e:'🧛'}, {w:'fairy',     e:'🧚'}, {w:'dinosaur',  e:'🦖'}, {w:'phoenix',   e:'🔥'}, {w:'centaur',   e:'🐎'}, {w:'banshee',   e:'🌬️'}, {w:'talking sandwich',e:'🥪'}, {w:'substitute teacher',e:'🧑‍🏫'}, {w:'lunch wizard',e:'🍱'}, {w:'hallway ghost',e:'🚪'}, {w:'tiny king', e:'👑'}, {w:'grumpy cloud',e:'☁️'}] },
+    { cat: 'creature',label: 'Pick a creature',        options: [{w:'robot',     e:'🤖'}, {w:'mermaid',   e:'🧜'}, {w:'wizard',    e:'🧙'}, {w:'pirate',    e:'🏴‍☠️'}, {w:'ninja',     e:'🥷'}, {w:'goblin',    e:'👺'}, {w:'knight',    e:'⚔️'}, {w:'alien',     e:'👽'}, {w:'witch',     e:'🧙‍♀️'}, {w:'giant',    e:'🗿'}, {w:'ghost',     e:'👻'}, {w:'troll',     e:'🧌'}, {w:'vampire',   e:'🧛'}, {w:'fairy',     e:'🧚'}, {w:'dinosaur',  e:'🦖'}, {w:'phoenix',   e:'🔥'}, {w:'centaur',   e:'🐎'}, {w:'yeti',      e:'🦣'}, {w:'talking sandwich',e:'🥪'}, {w:'substitute teacher',e:'🧑‍🏫'}, {w:'lunch wizard',e:'🍱'}, {w:'hallway ghost',e:'🚪'}, {w:'tiny king', e:'👑'}, {w:'grumpy cloud',e:'☁️'}] },
     { cat: 'move',    label: 'Pick a move',            options: [{w:'zoomed',    e:'⚡'}, {w:'tiptoed',   e:'👣'}, {w:'bounced',   e:'🏀'}, {w:'spun',      e:'🌀'}, {w:'leapt',     e:'🦘'}, {w:'galloped',  e:'🏇'}, {w:'tumbled',   e:'🤸'}, {w:'glided',    e:'🪂'}, {w:'charged',   e:'🐂'}, {w:'crept',     e:'🐛'}, {w:'soared',    e:'🦅'}, {w:'skated',    e:'⛸️'}, {w:'shimmied',  e:'🎵'}, {w:'wobbled',   e:'🌊'}, {w:'marched',   e:'🥁'}, {w:'stomped',   e:'🦶'}, {w:'danced',    e:'💃'}, {w:'sprinted',  e:'🏃'}, {w:'cartwheeled',e:'🛞'}, {w:'slid',      e:'🛝'}, {w:'zigzagged', e:'🪃'}, {w:'moonwalked',e:'🕺'}, {w:'belly-flopped',e:'💦'}, {w:'shuffled',  e:'🚶'}] },
-    { cat: 'mood',    label: 'Pick a feeling',         options: [{w:'silly',     e:'🤪'}, {w:'sneaky',    e:'🕵️'}, {w:'brave',     e:'🦁'}, {w:'goofy',     e:'🎪'}, {w:'spooky',    e:'👻'}, {w:'grumpy',    e:'😤'}, {w:'wobbly',    e:'🫨'}, {w:'dramatic',  e:'🎭'}, {w:'mysterious',e:'🌙'}, {w:'determined',e:'💪'}, {w:'clumsy',    e:'🤦'}, {w:'legendary', e:'🏆'}, {w:'cozy',      e:'🥰'}, {w:'suspiciously polite',e:'🎩'},{w:'professionally confused',e:'🤔'},{w:'ridiculously cheerful',e:'🌟'},{w:'sleepy',    e:'😴'}, {w:'jubilant',  e:'🎉'}, {w:'snacky',    e:'🍿'}, {w:'confused',  e:'😵‍💫'}, {w:'overexcited',e:'🤩'}, {w:'suspicious',e:'🤨'}, {w:'extra brave',e:'🛡️'}, {w:'secretly proud',e:'😌'}] },
+    { cat: 'mood',    label: 'Pick a feeling',         options: [{w:'silly',     e:'🤪'}, {w:'sneaky',    e:'🕵️'}, {w:'brave',     e:'🦁'}, {w:'goofy',     e:'🎪'}, {w:'spooky',    e:'👻'}, {w:'grumpy',    e:'😤'}, {w:'wobbly',    e:'🫨'}, {w:'dramatic',  e:'🎭'}, {w:'mysterious',e:'🌙'}, {w:'determined',e:'💪'}, {w:'clumsy',    e:'🤦'}, {w:'legendary', e:'🏆'}, {w:'cozy',      e:'🥰'}, {w:'polite',e:'🎩'},{w:'professionally confused',e:'🤔'},{w:'ridiculously cheerful',e:'🌟'},{w:'sleepy',    e:'😴'}, {w:'jubilant',  e:'🎉'}, {w:'snacky',    e:'🍿'}, {w:'confused',  e:'😵‍💫'}, {w:'overexcited',e:'🤩'}, {w:'suspicious',e:'🤨'}, {w:'extra brave',e:'🛡️'}, {w:'secretly proud',e:'😌'}] },
   ],
   big: [
     /* v2.4.6 — picker expansion: big 12 → 18 per category. */

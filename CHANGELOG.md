@@ -4,6 +4,91 @@ Semantic versioning: `MAJOR.MINOR.PATCH`. Every shipped version is tagged here s
 
 ---
 
+## v3.0.3 — 2026-05-21
+**Picker UX hotfix bundle — three user-reported kid-tier defects**
+
+Three picker UX defects reported simultaneously by parent screenshots at noddytales.app. All three fall into the same category: word or content choices inappropriate for the kid tier (ages 6-7). Bundled into one focused release.
+
+**Note (FIFTH renumber):** The "delete v2 codepath" Build Idea — originally v3.0.1, then v3.0.2, then v3.0.3 — is now **v3.0.4**. Each renumber is because user-reported UX defects keep preempting the architectural hygiene work. That sequence is correct: ship the user-visible fixes immediately, then return to deletion when no UX defect is open.
+
+### Fix 1 — `banshee` → `yeti` (kid.creature)
+
+Parent feedback: *"kids dont know what banshee is and the image doesnt make sense"*. The 🌬️ wind emoji didn't convey "creature." Flagged in my v3.0.2 release notes as a "potentially-advanced kid-tier word" candidate; now user-confirmed.
+
+- `src/content.js` kid.creature: `{w:'banshee',e:'🌬️'}` → `{w:'yeti',e:'🦣'}`
+- `src/engine-v2.js` V2_WORDS.visitors: renamed entry, rewrote traits/actions/sounds:
+  ```
+  { id:'yeti', text:'yeti', emoji:'🦣', article:'a',
+    traits:['snowy','huge','surprisingly gentle'],
+    actions:['stomped softly through the snow','offered a warm mitten','left enormous footprints behind'],
+    sounds:['low rumble','soft growl','quiet huff'] },
+  ```
+
+Yeti is universally known by 6-year-olds (Frozen, Lego, kids' books) and the 🦣 mammoth emoji conveys "big furry beast" intuitively.
+
+### Fix 2 — `suspiciously polite` → `polite` (kid.mood)
+
+Parent feedback: *"suspiciously polite is not good for 6 year old. should just be polite"*. Flagged in my v3.0.2 notes as a candidate (alongside `jubilant`); now user-confirmed.
+
+- `src/content.js` kid.mood: `{w:'suspiciously polite',e:'🎩'}` → `{w:'polite',e:'🎩'}`
+- No `V2_WORDS` entry needed — moods are free-string slots used directly in story body.
+
+The 🎩 top-hat emoji stays — still reads as "polite/formal."
+
+### Fix 3 — `SOUND_HOT_OPTS` bathroom-style sounds → cartoon action sounds
+
+Parent feedback (Potty Word Mode "Pick a chaotic sound" round): *"re-assess the chaotic sounds. Parp, Pfffart. they just arent good words. go with Baboom! Whammy! Crash! Toot! stuff like that"*.
+
+Bathroom-style options removed (10): `PFFFFART`, `BTHHHPP`, `FAAAARP`, `PARP`, `BLEEEEH`, `SQUOMP`, `PLOPP`, `TOOOT`, `SCHPLAT`, `GLOOP`.
+
+Kept (2 that were already inoffensive): `BWAHAHA`, `KAFOOM` — both Looney-Tunes-style register, kid-friendly.
+
+Added (10 cartoon action sounds): `BABOOM!`, `WHAMMY!`, `CRASH!`, `TOOT!`, `ZAP!`, `SPLAT!`, `CLANG!`, `SMASH!`, `BONK!`, `WHOOSH!`.
+
+Each gets a distinct emoji (verified all 12 unique). Updated in both:
+- `src/content.js` `SOUND_HOT_OPTS` — the picker UI array
+- `src/content.js` `SOUND_HOT` — the legacy v2 template sound pool (defense-in-depth; still reachable in edge cases until v3.0.4 deletes v2)
+
+### What Potty Word Mode actually is
+
+Worth recording: Potty Word Mode is a parent-toggled mode in Settings. When enabled, the kid-tier picker shows two extra rounds — "Pick a silly body word" (BODY_HOT_OPTS) and "Pick a chaotic sound" (SOUND_HOT_OPTS). Even with the mode on, the chaotic-sound options should be kid-appropriate; "PARP" being British slang for a fart noise is too on-the-nose for the explicit purpose of the mode. Cartoon action sounds preserve the "chaotic energy" of the mode without the bathroom-specific register.
+
+(`BODY_HOT_OPTS` — the body-word pool — is NOT changed in this release. It's the literally-named "silly body word" pool and its purpose is intentionally body-themed. Parents who enable the mode opt into that.)
+
+### Acceptance
+
+- `node scripts/qa-current.js` — **all 12 gates green** including Section 11 emoji-uniqueness (the new SOUND_HOT_OPTS emojis are all distinct; the yeti 🦣 is unique in kid.creature).
+- Verified yeti / polite / BABOOM! all flow through engine: 20/20 stories at kid tier contain each picked value in body text.
+- No emoji collisions introduced.
+
+### Versions
+
+`APP_VERSION` → `v3.0.3`. `ENGINE_V2_VERSION` → `v3.0.3`. V2_WORDS.visitors `banshee` entry deleted (replaced by yeti); no other code logic changes.
+
+### Cumulative v3.0.x patch line
+
+```
+v3.0.0 ✓ Router flip + v3 default everywhere
+v3.0.1 ✓ Emoji-uniqueness within-round gate (Section 11)
+v3.0.2 ✓ Labyrinth→maze + 🌀 cross-round meaning cleanup
+v3.0.2-stability ✓ Tween anytime QA gate flake fixed (test-harness only, no version bump)
+v3.0.3 ✓ banshee→yeti + suspiciously polite→polite + SOUND_HOT_OPTS cleanup (THIS RELEASE)
+v3.0.4 (queued, FIFTH renumber) Delete v2 codepath + rename engine file + rewrite QA
+v3.0.x (queued) Content sprint: Stories-too-long against unified engine
+```
+
+### Other potentially-advanced kid-tier words STILL flagged (not yet user-reported)
+
+Surfaced in my v3.0.2 audit; not fixed without explicit ask:
+- `kid.creature` **centaur** (mythological — borderline)
+- `kid.color` **luminous teal** + **impossible green** (abstract adjectives)
+- `kid.mood` **jubilant** (advanced synonym for joyful)
+- `kid.mood` **professionally confused** (similar tier to "suspiciously polite" — likely should also be just `confused`, but `confused` already exists in the same round, so this needs careful handling)
+
+If any of these surface in a screenshot the same way, file a defect and I'll patch.
+
+---
+
 ## v3.0.2 — 2026-05-21
 **Picker UX hotfix — "labyrinth" too advanced for kid tier + swirl emoji cross-round meaning overload**
 
