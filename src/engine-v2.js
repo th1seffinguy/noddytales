@@ -26,7 +26,7 @@
    add a QA harness, and eventually flip v2 to default in v2.0.0.
    ================================================================ */
 
-const ENGINE_V2_VERSION = 'v2.7.3';
+const ENGINE_V2_VERSION = 'v2.8.0';
 
 /* ================================================================
    GRAMMAR HELPERS
@@ -2048,9 +2048,11 @@ const V2_BEATS = [
     lines: [
       'Hi! {kid.name} met {companion.articleText}. The {companion.text} said hi. {kid.name} said hi back.',
     ] },
+  /* v2.8.0 — rewrote from passive ("Cole heard a sound") to action-first
+     ("Cole spotted... ran right over") to lift tot kid-agency. */
   { id:'to_intro2', beatType:'tot_intro', tiers:['tot'], requiredSlots:['kid','companion','sound'],
     lines: [
-      '{kid.name} heard a {sound.text}. It was {companion.articleText}! {companion.cap}! Hi {companion.text}!',
+      '{kid.name} spotted {companion.articleText} across the room. {kid.cap} ran right over. "{sound.text}!" said {kid.name}. The {companion.text} said "{sound.text}!" back.',
     ] },
 
   /* TOT SILLY MEET — silly little event
@@ -2119,6 +2121,40 @@ const V2_BEATS = [
       'The {sky.text} watched {kid.name} fall asleep. The {sky.text} stayed up all night. Just to keep watch.',
     ] },
 
+  /* v2.8.0 — KID-AGENCY action beats for tot tier. Cole is the subject of an
+     action verb (spotted, picked up, grabbed, decided, led, pointed, built).
+     v2.7.1 UAT flagged tot agency at 2.2/5 because Cole was usually the
+     observer ("Cole giggled / Cole heard / Cole loves"). These beats shift
+     the random pool so the action-verb ratio across 100 stories clears 0.65. */
+  { id:'to_intro_action_1', beatType:'tot_intro', tiers:['tot'], requiredSlots:['kid','companion'],
+    lines: [
+      '{kid.name} ran outside. {kid.cap} spotted {companion.articleText} right away. "Come on!" said {kid.name}. {kid.cap} led the way.',
+    ] },
+  { id:'to_intro_action_sky', beatType:'tot_intro', tiers:['tot'], requiredSlots:['kid','sky','companion'],
+    lines: [
+      '{kid.name} pointed up. "Look! A {sky.text}!" The {companion.text} looked too. {kid.cap} found it first.',
+    ] },
+  { id:'to_silly_action_1', beatType:'tot_silly_meet', tiers:['tot'], requiredSlots:['kid','companion','food'],
+    lines: [
+      '{kid.name} picked up {food.articleText}. {kid.cap} held it up high. "For you!" said {kid.name}. The {companion.text} took a tiny bite.',
+    ] },
+  { id:'to_silly_action_2', beatType:'tot_silly_meet', tiers:['tot'], requiredSlots:['kid','companion'],
+    lines: [
+      '{kid.name} grabbed the {companion.text}\'s paw. They jumped together. One. Two. Three. Hee hee!',
+    ] },
+  { id:'to_repeat_action_1', beatType:'tot_silly_repeat', tiers:['tot'], requiredSlots:['kid','companion'],
+    lines: [
+      '{kid.name} pulled out a tiny hat. {kid.cap} put it on the {companion.text}. The {companion.text} kept it on. Yay!',
+    ] },
+  { id:'to_repeat_action_sound', beatType:'tot_silly_repeat', tiers:['tot'], requiredSlots:['kid','companion','sound'],
+    lines: [
+      '{kid.name} clapped and said "{sound.text}!" {kid.cap} clapped harder. "{sound.text}!" The {companion.text} joined in.',
+    ] },
+  { id:'to_end_action_1', beatType:'tot_cozy_end', tiers:['tot'], requiredSlots:['kid','companion'],
+    lines: [
+      '{kid.name} picked up the {companion.text} for a hug. "Night, {companion.text}," said {kid.name}. Then {kid.name} curled up. Goodnight.',
+    ] },
+
   /* ============================================================
      Segment D — Little (ages 4-5) beat library
      Voice: tiny jobs, confused animals, weather nonsense, gentle.
@@ -2158,9 +2194,11 @@ const V2_BEATS = [
     lines: [
       'A friendly {companion.text} came to say hello. The {companion.text} had a tiny hat on. The hat was a little too big.',
     ] },
+  /* v2.8.0 — rewrote from passive ("Cole giggled") to action-first
+     ("Cole grabbed... clapped along") for little kid-agency. */
   { id:'li_comp2', beatType:'little_companion', tiers:['little'], requiredSlots:['kid','companion','sound'],
     lines: [
-      '"{sound.text}!" said the {companion.text}. {kid.name} giggled. "{sound.text}!" said the {companion.text} again. {kid.name} giggled even more.',
+      '"{sound.text}!" said the {companion.text}. {kid.name} grabbed the {companion.text}\'s paw. "Again!" said {kid.name}. The {companion.text} said "{sound.text}!" louder. {kid.cap} clapped along.',
     ] },
 
   { id:'li_silly1', beatType:'little_silly_event', tiers:['little'], requiredSlots:['kid','companion','food'],
@@ -2198,6 +2236,43 @@ const V2_BEATS = [
   { id:'li_end_any2', beatType:'little_cozy_end', tiers:['little'], mode:'anytime', requiredSlots:['kid','companion','food'],
     lines: [
       'They each had one more bite of {food.text}. The {companion.text} grinned. {kid.name} grinned back. "Tomorrow?" "Tomorrow."',
+    ] },
+
+  /* v2.8.0 — KID-AGENCY action beats for little tier. Cole is the subject of
+     an action verb (packed, grabbed, spotted, climbed, pulled, built). Targets
+     the same agency gap surfaced at ages 2-5 in v2.7.1 UAT. New action beats
+     coexist with the existing pool — random selection shifts toward action. */
+  { id:'li_intro_action_1', beatType:'little_intro', tiers:['little'], requiredSlots:['kid','companion','place','food'],
+    lines: [
+      '{kid.name} packed {food.articleText} into a tiny bag, called the {companion.text}, and headed for the {place.text}. {kid.cap} had a plan.',
+    ] },
+  { id:'li_intro_action_2', beatType:'little_intro', tiers:['little'], requiredSlots:['kid','companion','place'],
+    lines: [
+      '{kid.name} grabbed {companion.articleText} by the paw and ran toward the {place.text}. The {companion.text} kept up. Barely.',
+    ] },
+  { id:'li_comp_action_1', beatType:'little_companion', tiers:['little'], requiredSlots:['kid','companion'],
+    lines: [
+      '{kid.name} ran over to the {companion.text}. "Want to come?" said {kid.name}. The {companion.text} nodded. They were a team now.',
+    ] },
+  { id:'li_silly_action_1', beatType:'little_silly_event', tiers:['little'], requiredSlots:['kid','companion','object'],
+    lines: [
+      '{kid.name} spotted {object.articleText} on the ground. {kid.cap} picked it up and held it like a treasure. "It\'s mine now," said {kid.name}. The {companion.text} bowed dramatically.',
+    ] },
+  { id:'li_silly_action_2', beatType:'little_silly_event', tiers:['little'], requiredSlots:['kid','companion','creature'],
+    lines: [
+      '{kid.name} climbed onto a rock and pointed at the {creature.text}. "Hi!" said {kid.name}. The {creature.text} blinked. {kid.cap} climbed down and waved. Friendship achieved.',
+    ] },
+  { id:'li_silly_action_3', beatType:'little_silly_event', tiers:['little'], requiredSlots:['kid','companion','food'],
+    lines: [
+      '{kid.name} pulled {food.articleText} out of {kid.lc}\'s pocket. "Snack time," said {kid.name}. The {companion.text} agreed. So did a passing bug.',
+    ] },
+  { id:'li_end_action_1', beatType:'little_cozy_end', tiers:['little'], requiredSlots:['kid','companion'],
+    lines: [
+      '{kid.name} built a tiny pillow fort and pulled the {companion.text} inside. "We made it," said {kid.name}. The {companion.text} yawned. Time to sleep.',
+    ] },
+  { id:'li_end_action_any_1', beatType:'little_cozy_end', tiers:['little'], mode:'anytime', requiredSlots:['kid','companion'],
+    lines: [
+      '{kid.name} grabbed the {companion.text}\'s paw. "Onto the next thing," said {kid.name}. They walked home together. Big plans for tomorrow.',
     ] },
 
   /* ============================================================
@@ -3904,6 +3979,87 @@ const V3_BEATS = [
   { id:'v3_rl_landing_any_tween', stage:'landing', blueprintId:'rule_loophole_v3', mode:'anytime', tiers:['tween'], requiredRoles:['protagonist','ally'],
     lines: [
       'On the walk home, [name:{protagonist.name}] mentally filed the loophole for future use. The [c:{ally.text}] was definitely going to use it on [name:{protagonist.name}] eventually. That was fair.',
+    ] },
+
+  /* ============================================================
+     v2.8.0 — TWEEN VOICE PASS
+     Distinct deadpan voice for ages 11-13. Reuses the tween mood
+     vocabulary already in V2_WORDS ("aggressively normal",
+     "professionally unhinged", "NPC behavior") and leans into the
+     screenshot / group-chat / replay-mentally / "filed for later"
+     register. 4 new tween-only beats per blueprint = 16 total.
+     ============================================================ */
+
+  /* --- lost_snack_v3 tween additions --- */
+  { id:'v3_ls_attempt_tween_screenshot', stage:'attempt', blueprintId:'lost_snack_v3', tiers:['tween'], requiredRoles:['protagonist','ally','false_suspect'],
+    lines: [
+      '[name:{protagonist.name}] took a mental screenshot of the room. Three angles. Multiple suspects. The [c:{ally.text}] looked away too quickly. Filed for later.',
+    ] },
+  { id:'v3_ls_escalation_tween_group', stage:'escalation', blueprintId:'lost_snack_v3', tiers:['tween'], requiredRoles:['protagonist','ally'],
+    lines: [
+      'If this were a group chat, the [c:{ally.text}] would have already left it. [name:{protagonist.name}] could feel the guilty silence. So could everyone.',
+    ] },
+  { id:'v3_ls_payoff_tween_filed', stage:'payoff', blueprintId:'lost_snack_v3', tiers:['tween'], requiredRoles:['protagonist','ally','mcguffin'],
+    lines: [
+      'Mystery solved without a single accusation. [name:{protagonist.name}] filed it under: ally-related incidents, low priority. Crumbs were everywhere. So was the [c:{ally.text}].',
+    ] },
+  { id:'v3_ls_landing_tween_replay', stage:'landing', blueprintId:'lost_snack_v3', mode:'anytime', tiers:['tween'], requiredRoles:['protagonist','ally'],
+    lines: [
+      'Walking back, [name:{protagonist.name}] replayed the whole thing. The [c:{ally.text}] kept pretending nothing happened. Both knew. Neither said. Vibe correct.',
+    ] },
+
+  /* --- goal_spine_v3 tween additions --- */
+  { id:'v3_gs_setup_tween_committed', stage:'setup', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','ally','setting','goal'],
+    lines: [
+      'At the [y:{setting.text}], [name:{protagonist.name}] had decided. Today: {goal.text}. The [c:{ally.text}] was on board. Quietly. Without making it a thing.',
+    ] },
+  { id:'v3_gs_attempt_tween_unhinged', stage:'attempt', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','obstacle','signature_action'],
+    lines: [
+      '[name:{protagonist.name}] [c:{signature_action.text}] in a way that read as professionally unhinged. The [c:{obstacle.text}] had not budgeted for this. [name:{protagonist.name}] did not break eye contact.',
+    ] },
+  { id:'v3_gs_escalation_tween_screenshot', stage:'escalation', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','obstacle','mcguffin'],
+    lines: [
+      'The [c:{obstacle.text}] tried something with the [c:{mcguffin.text}]. [name:{protagonist.name}] mentally screenshotted it. Could be evidence later. Probably wouldn\'t be.',
+    ] },
+  { id:'v3_gs_payoff_tween_logged', stage:'payoff', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','goal','obstacle','ally'],
+    lines: [
+      '[name:{protagonist.name}] {goal.text}. The [c:{obstacle.text}] said nothing. Win logged. No comment from the [c:{ally.text}], because the [c:{ally.text}] was already moving on.',
+    ] },
+
+  /* --- show_wrong_v3 tween additions --- */
+  { id:'v3_sw_setup_tween_committed', stage:'setup', blueprintId:'show_wrong_v3', tiers:['tween'], requiredRoles:['protagonist','ally','setting'],
+    lines: [
+      '[name:{protagonist.name}] had a bit planned at the [y:{setting.text}]. Nobody had asked. [name:{protagonist.name}] was doing it anyway. The [c:{ally.text}] was either co-star or hostage. To be determined.',
+    ] },
+  { id:'v3_sw_attempt_tween_unhinged', stage:'attempt', blueprintId:'show_wrong_v3', tiers:['tween'], requiredRoles:['protagonist','prop','signature_action'],
+    lines: [
+      'The [c:{prop.text}] failed exactly on cue. [name:{protagonist.name}] [c:{signature_action.text}] across the stage like that had been the plan all along. The audience was, technically, into it. Mostly.',
+    ] },
+  { id:'v3_sw_escalation_tween_filmed', stage:'escalation', blueprintId:'show_wrong_v3', tiers:['tween'], requiredRoles:['protagonist','ally'],
+    lines: [
+      'Someone in the back was filming. [name:{protagonist.name}] noticed and leaned in. If it was going viral, it was going viral with intent. The [c:{ally.text}] adjusted posture accordingly.',
+    ] },
+  { id:'v3_sw_payoff_tween_replay', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['tween'], requiredRoles:['protagonist','ally'],
+    lines: [
+      'The bit ended. [name:{protagonist.name}] took a bow that was 40% real, 60% ironic. The [c:{ally.text}] respected it. So did everybody else, secretly. The whole disaster was now content.',
+    ] },
+
+  /* --- rule_loophole_v3 tween additions --- */
+  { id:'v3_rl_setup_tween_calm', stage:'setup', blueprintId:'rule_loophole_v3', tiers:['tween'], requiredRoles:['protagonist','ally','setting'],
+    lines: [
+      'At the [y:{setting.text}], [name:{protagonist.name}] was doing the bare minimum. So was the [c:{ally.text}]. Suspiciously calm energy. Things were technically fine. They would not stay fine.',
+    ] },
+  { id:'v3_rl_problem_tween_rookie', stage:'problem', blueprintId:'rule_loophole_v3', tiers:['tween'], requiredRoles:['protagonist','rule_imposer','mcguffin'],
+    lines: [
+      'The [c:{rule_imposer.text}] declared the [c:{mcguffin.text}] forbidden. [name:{protagonist.name}] did not react. Reacting is rookie behavior. The [c:{rule_imposer.text}] expected something. There was nothing.',
+    ] },
+  { id:'v3_rl_attempt_tween_filed', stage:'attempt', blueprintId:'rule_loophole_v3', tiers:['tween'], requiredRoles:['protagonist','loophole_tool'],
+    lines: [
+      '[name:{protagonist.name}] located the loophole within seconds. It involved the [c:{loophole_tool.text}] and a generous interpretation. Pointing it out would be amateur. [name:{protagonist.name}] simply executed.',
+    ] },
+  { id:'v3_rl_payoff_tween_logged', stage:'payoff', blueprintId:'rule_loophole_v3', tiers:['tween'], requiredRoles:['protagonist','mcguffin','rule_imposer'],
+    lines: [
+      'The [c:{mcguffin.text}] was acquired. The [c:{rule_imposer.text}] could not technically argue. [name:{protagonist.name}] filed it under: small wins, large vibes. Justice was unevenly served. As expected.',
     ] },
 ];
 

@@ -279,7 +279,74 @@ const totAny = endingAudit('anytime', 2, 40);
 console.log(`  tot bedtime: bedtime-words=${totBed.bedtimeWords}/40   tot anytime: bedtime-words=${totAny.bedtimeWords}/40`);
 gate('tot storyMode=anytime DOES NOT default to bedtime (≤25%)', totAny.bedtimeWords <= 10, totAny.bedtimeWords + '/40');
 
-/* === 6. INLINE <script> SYNTAX (added v2.7.1) ===
+// v2.8.0 — tween (age 12) explicit anytime gate. Previously only age 9 + tot age 2 were gated.
+// Adds parity coverage for the highest-age tier so tween anytime stories don't silently drift
+// toward bedtime endings. Same thresholds as age 9 (≤10% bedtime words, ≥60% anytime markers).
+const tweenAny = endingAudit('anytime', 12, 60);
+console.log(`  anytime age 12 (60 stories): bedtime-words=${tweenAny.bedtimeWords}/60 anytime-footprint=${tweenAny.anytimeFootprint}/60 nulls=${tweenAny.nulls}`);
+gate('tween (age 12) storyMode=anytime stories DON\'T close with sleep (≤10%)', tweenAny.bedtimeWords <= 6,  tweenAny.bedtimeWords + '/60');
+gate('tween (age 12) storyMode=anytime stories use day-ending language (≥60%)', tweenAny.anytimeFootprint >= 36, tweenAny.anytimeFootprint + '/60');
+
+/* === 7. TOT/LITTLE KID-AGENCY GATE (added v2.8.0) ===
+ *
+ * v2.7.1 UAT found ages 2-5 kid-agency averaging 2.2-2.6 (below the plan's 3.5 target).
+ * The v2.8.0 content pass added Cole-initiates action beats for tot and little. This
+ * gate quantifies the shift: across 100 sampled tot+little stories, classify every
+ * verb that follows "Cole" as the sentence subject. The action-verb share must clear
+ * 0.65 (i.e. Cole drives in ≥2/3 of subject-verb pairs).
+ *
+ * Action verbs: spotted, reached, picked, decided, pulled, climbed, opened, grabbed,
+ *               led, built, found, chose, jumped, ran, spun, packed, brought, hugged,
+ *               clapped, pointed, put, carried, called, waved, held, gave, knelt,
+ *               leapt, drew, made, wrote.
+ * Reaction verbs: heard, saw, noticed, watched, giggled, smiled, loved, looked, felt,
+ *                 listened, laughed, grinned, stared, blinked.
+ * Other verbs are neutral and don't count either way.
+ */
+console.log('\n=== 7. Tot/little kid-agency action-verb gate (added v2.8.0) ===');
+const ACTION_VERBS_RX = /^(spotted|reached|picked|decided|pulled|climbed|opened|grabbed|led|built|found|chose|jumped|ran|spun|packed|brought|hugged|clapped|pointed|put|carried|called|waved|held|gave|knelt|leapt|drew|made|wrote)$/i;
+const REACTION_VERBS_RX = /^(heard|saw|noticed|watched|giggled|smiled|loved|looked|felt|listened|laughed|grinned|stared|blinked)$/i;
+const TOT_LITTLE_AGES = [2, 3, 4, 5];
+const AGENCY_SAMPLES_PER_AGE = 25;
+let kidActionTotal = 0, kidReactionTotal = 0;
+const agencyWorst = [];
+for (const age of TOT_LITTLE_AGES) {
+  const tier = tierFor(age);
+  for (let i = 0; i < AGENCY_SAMPLES_PER_AGE; i++) {
+    const picks = randomPicks(tier);
+    const s = ctx.generateStoryV2('Cole', picks, age);
+    if (!s) continue;
+    const body = strip(s.paragraphs.join(' '));
+    let storyActions = 0, storyReactions = 0;
+    body.replace(/\bCole\s+([a-z]+)/g, (_, verb) => {
+      if (ACTION_VERBS_RX.test(verb)) storyActions++;
+      else if (REACTION_VERBS_RX.test(verb)) storyReactions++;
+      return _;
+    });
+    kidActionTotal    += storyActions;
+    kidReactionTotal  += storyReactions;
+    if (storyActions + storyReactions > 0) {
+      agencyWorst.push({
+        age,
+        actions: storyActions,
+        reactions: storyReactions,
+        ratio: storyActions / (storyActions + storyReactions),
+        snippet: body.slice(0, 140),
+      });
+    }
+  }
+}
+const agencyDenom = kidActionTotal + kidReactionTotal;
+const agencyRatio = agencyDenom > 0 ? kidActionTotal / agencyDenom : 0;
+console.log(`  tot+little Cole-subject verbs: action=${kidActionTotal} reaction=${kidReactionTotal} ratio=${agencyRatio.toFixed(2)}`);
+gate('tot/little kid-agency action-verb ratio ≥ 0.65', agencyRatio >= 0.65, `${kidActionTotal} action / ${agencyDenom} total`);
+if (agencyRatio < 0.65) {
+  agencyWorst.sort((a, b) => a.ratio - b.ratio);
+  console.log('  Worst 5 stories by action-verb ratio:');
+  agencyWorst.slice(0, 5).forEach(w => console.log(`    age=${w.age} actions=${w.actions} reactions=${w.reactions} ratio=${w.ratio.toFixed(2)}: ${w.snippet}...`));
+}
+
+/* === 8. INLINE <script> SYNTAX (added v2.7.1, renumbered v2.8.0) ===
  *
  * Why this gate exists: v2.6.2 shipped with a broken ternary in an inline <script>
  * block in index.html, which silently parse-failed at page load and produced a blank
@@ -287,7 +354,7 @@ gate('tot storyMode=anytime DOES NOT default to bedtime (≤25%)', totAny.bedtim
  * inline <script> body via `new Function(body)` — if the parser throws, the gate
  * fails. Cheap, fast, and catches the class of bug that hurt us most.
  */
-console.log('\n=== 6. Inline <script> syntax (index.html) ===');
+console.log('\n=== 8. Inline <script> syntax (index.html) ===');
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 const scriptBlockRx = /<script(?:\s+[^>]*)?>([\s\S]*?)<\/script>/gi;
 let blockCount = 0;
