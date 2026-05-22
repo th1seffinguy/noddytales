@@ -990,6 +990,18 @@
   .word-card:active { transform: translateY(4px) scale(0.97); }
   .word-card.is-picked { animation: pickedPop 0.5s ease-out forwards; }
   .word-card.is-faded { opacity: 0.3; transform: scale(0.92); }
+  /* v0.9.3 · b27 — Wild Card visual (Selection Joy Pass Phase 5).
+     Golden ring + star badge marks the surprise card clearly without changing
+     the card's background color (colour identity stays so nth-child theming holds). */
+  .word-card.is-wild { box-shadow: 0 0 0 3px gold, 0 8px 0 var(--orange-dark), 0 16px 32px rgba(224,138,69,0.35); }
+  .word-card:nth-child(2).is-wild { box-shadow: 0 0 0 3px gold, 0 8px 0 var(--yellow-dark), 0 16px 32px rgba(242,184,56,0.35); }
+  .word-card.is-wild::after {
+    content: "🌟 WILD";
+    position: absolute; top: 8px; right: 10px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.4px;
+    color: #fff; background: rgba(0,0,0,0.18);
+    border-radius: 8px; padding: 2px 6px; pointer-events: none;
+  }
 
   .word-emoji { font-size: 72px; line-height: 1; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15)); }
   .word-emoji--sm { font-size: 56px; opacity: 0.85; }
@@ -1944,6 +1956,26 @@ function buildRounds(age) {
       const shuffled = [...round.options].sort(() => Math.random() - 0.5);
       return { ...round, options: shuffled.slice(0, 2), fullPool: round.options };
     });
+
+  // v0.9.3 · b27 — Selection Joy Pass Phase 5: Wild Card injection.
+  // Once per session, one binary-round card may be silently replaced with a surprise
+  // entry from WILD_POOL. 7.5% per round, max 1 wild per session. The wild word feeds
+  // the round's normal slot (picks.pet / picks.food / etc.) so story integration needs
+  // no engine changes — the incongruity of a 'talking sandwich' landing in the pet slot
+  // IS the joke. fullPool is intentionally not mutated so the shuffle button re-rolls
+  // from the original WORD_BANK pool (the wild vanishes on re-roll, which is fine).
+  const _wildPool = (typeof WILD_POOL !== 'undefined' && WILD_POOL[tier]) || [];
+  let _wildUsed = false;
+  for (let _wi = 0; _wi < binaryRounds.length; _wi++) {
+    if (_wildUsed || _wildPool.length === 0) break;
+    if (Math.random() < 0.075) {
+      _wildUsed = true;
+      const _entry = _wildPool[Math.floor(Math.random() * _wildPool.length)];
+      const _opts = [...binaryRounds[_wi].options];
+      _opts[Math.floor(Math.random() * 2)] = { w: _entry.w, e: _entry.e, isWild: true };
+      binaryRounds[_wi] = { ...binaryRounds[_wi], options: _opts };
+    }
+  }
 
   // v0.9.3 · b2 — Selection Joy Pass Phase 1: little + kid sessions get a TAP-BY-DEFAULT
   // silly-sound round in place of the prior freetext-by-default round. Live testing showed
@@ -3345,7 +3377,7 @@ function renderWords() {
       <div class="pair-wrap" id="pair-wrap">
         ${round.options.map((opt, i) => `
           <button
-            class="word-card is-bouncing"
+            class="word-card is-bouncing${opt.isWild ? ' is-wild' : ''}"
             data-side="${i}"
             id="card-${i}"
           >

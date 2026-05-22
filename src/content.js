@@ -17,7 +17,7 @@
    labeling: product is in late beta (v0.9.x), engine is still v3 internally. The
    historical v3.0.0-v3.0.3 CHANGELOG entries stay as-is for traceability. */
 const APP_VERSION  = 'v0.9.3';
-const BUILD_NUMBER = 26;
+const BUILD_NUMBER = 27;
 
 /* v0.9.3 · b8 — Narrator Voice Selector MVP.
    v0.9.3 · b16 — lineup refresh.
@@ -909,6 +909,72 @@ const FREE_TEXT_ROUNDS = {
     { type: 'freetext', cat: 'freeword2', subtype: 'name',  label: "Name a mascot for your boring elective.",   examples: ['Lord PowerPoint', 'Captain Worksheet', 'Sir Group Project'] },
     { type: 'freetext', cat: 'freeword2', subtype: 'secret',label: "Word that means 'leave now without explaining'.", examples: ['banana', 'mango protocol', 'sweater drill'] },
     { type: 'freetext', cat: 'freeword2', subtype: 'excuse',label: "Why you're suddenly busy this weekend.",     examples: ['family thing', 'I have to be elsewhere', 'previously committed to a nap'] },
+  ],
+};
+
+/* v0.9.3 · b27 — Selection Joy Pass Phase 5: Wild Card pool.
+   Once per session, one tap-round card may be replaced by a surprise entry from this pool.
+   The wild word feeds the normal round slot (picks.pet / picks.food / etc.) with no engine
+   changes needed. Emojis must remain unique WITHIN each tier pool (enforced by QA Section 19).
+   Cross-tier collisions are permitted — kids don't switch tiers mid-session.
+   All entries pass the Section 9 blocked-word scan automatically. */
+const WILD_POOL = {
+  tot: [
+    /* Ages 2-3 — simple, physical, visual, concrete */
+    {w:'magic button',   e:'🔴'}, {w:'tiny dragon',    e:'🐲'}, {w:'dancing hat',    e:'🎩'},
+    {w:'wiggly worm',    e:'🪱'}, {w:'happy cloud',    e:'☁️'}, {w:'bouncy star',    e:'⭐'},
+    {w:'silly sock',     e:'🧦'}, {w:'glow bug',       e:'🐛'}, {w:'wobbly egg',     e:'🥚'},
+    {w:'sleepy moon',    e:'🌙'}, {w:'funny nose',     e:'👃'}, {w:'tiny boat',      e:'⛵'},
+    {w:'musical box',    e:'🎵'}, {w:'sparkly gem',    e:'💎'}, {w:'round rock',     e:'🪨'},
+    {w:'fuzzy leaf',     e:'🍃'}, {w:'shiny coin',     e:'🪙'}, {w:'squiggly stick', e:'✏️'},
+    {w:'purple berry',   e:'🫐'}, {w:'bouncy ball',    e:'⚽'},
+  ],
+  little: [
+    /* Ages 4-5 — slightly more imaginative; talking / magic things */
+    {w:'tiny wizard',    e:'🧙'}, {w:'mystery scroll', e:'📜'}, {w:'magic fog',      e:'🌫️'},
+    {w:'talking rock',   e:'🪨'}, {w:'dancing spoon',  e:'🥄'}, {w:'sneaky rainbow', e:'🌈'},
+    {w:'glowing marble', e:'🔮'}, {w:'wobbly tower',   e:'🗼'}, {w:'grumpy flower',  e:'🌸'},
+    {w:'tiny knight',    e:'⚔️'}, {w:'bouncy pillow',  e:'🛏️'}, {w:'sparkle jar',    e:'✨'},
+    {w:'whispering leaf',e:'🌿'}, {w:'funny mirror',   e:'🪞'}, {w:'wobbly jelly',   e:'🫙'},
+    {w:'mystery crown',  e:'👑'}, {w:'dancing noodle', e:'🍜'}, {w:'tiny compass',   e:'🧭'},
+    {w:'grumpy button',  e:'🔵'}, {w:'backwards clock',e:'🕐'},
+  ],
+  kid: [
+    /* Ages 6-7 — classic silly magical objects; incongruity IS the joke */
+    {w:'phoenix egg',       e:'🥚'}, {w:'talking sandwich',  e:'🥪'}, {w:'mystery key',       e:'🗝️'},
+    {w:'walkie-talkie',     e:'📻'}, {w:'treasure map',      e:'🗺️'}, {w:'magic shoe',        e:'👟'},
+    {w:'confused compass',  e:'🧭'}, {w:'stubborn snail',    e:'🐌'}, {w:'dancing umbrella',  e:'☂️'},
+    {w:'tiny detective',    e:'🔍'}, {w:'exploding balloon', e:'🎈'}, {w:'talking briefcase', e:'💼'},
+    {w:'wobbly wand',       e:'🪄'}, {w:'squeaky robot',     e:'🤖'}, {w:'lost trophy',       e:'🏆'},
+    {w:'rogue sock',        e:'🧦'}, {w:'mystery donut',     e:'🍩'}, {w:'upside-down bucket',e:'🪣'},
+    {w:'haunted pencil',    e:'✏️'}, {w:'tiny drum',         e:'🥁'}, {w:'confetti bag',      e:'🎊'},
+    {w:'mystery button',    e:'🟡'},
+  ],
+  big: [
+    /* Ages 8-10 — wordplay + absurdist objects with faint irony */
+    {w:'rogue shadow',             e:'👤'}, {w:'dramatic clam',           e:'🐚'},
+    {w:'confused comb',            e:'🪮'}, {w:'slightly haunted lamp',   e:'🪔'},
+    {w:'official teacup',          e:'🫖'}, {w:'diplomatic handshake',    e:'🤝'},
+    {w:'awkward silence jar',      e:'🫙'}, {w:'confused weather',        e:'🌦️'},
+    {w:'abandoned hourglass',      e:'⏳'}, {w:'extremely loud doorbell', e:'🔔'},
+    {w:'ancient calculator',       e:'🧮'}, {w:'mysterious cap',          e:'🧢'},
+    {w:'overly formal fork',       e:'🍴'}, {w:'extremely specific craving',e:'🫕'},
+    {w:'suspicious folder',        e:'🗂️'}, {w:'historical building',     e:'🏛️'},
+    {w:'unexpected violin',        e:'🎻'}, {w:'passive-aggressive rug',  e:'🪵'},
+    {w:'deeply formal bow',        e:'🎀'}, {w:'confused megaphone',      e:'📣'},
+  ],
+  tween: [
+    /* Ages 11-13 — ironic, meta, slightly self-aware */
+    {w:'retired ghost',                   e:'👻'}, {w:'feral vending machine',        e:'🏧'},
+    {w:'extremely online wizard',         e:'🧙'}, {w:'emotionally unavailable cactus',e:'🌵'},
+    {w:'haunted group chat',              e:'💬'}, {w:'retired villain',              e:'🎭'},
+    {w:'slightly cursed notebook',        e:'📓'}, {w:'aggressively neutral rock',    e:'🗿'},
+    {w:'suspiciously helpful stranger',   e:'🕵️'}, {w:'chronically online brain',     e:'🧠'},
+    {w:'passive-aggressive sticky note',  e:'📝'}, {w:'deeply unfair coin',           e:'🪙'},
+    {w:'certified weird dream',           e:'💭'}, {w:'overcaffeinated robot',        e:'🤖'},
+    {w:'abandoned shopping cart',         e:'🛒'}, {w:'unexplained trophy',           e:'🥇'},
+    {w:'extremely minor catastrophe',     e:'💥'}, {w:'accidental celebrity',         e:'🌟'},
+    {w:'highly specific regret',          e:'😬'}, {w:'slightly possessed phone',     e:'📱'},
   ],
 };
 

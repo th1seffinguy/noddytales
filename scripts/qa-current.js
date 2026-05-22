@@ -54,6 +54,7 @@ return {
   HIGH_IMPACT_ROLES,                 // v0.9.3 · b23
   HIGH_IMPACT_PICKER_CATEGORIES,     // v0.9.3 · b23
   FREE_TEXT_ROUNDS,                  // v0.9.3 · b23 — needed to audit static freetext examples
+  WILD_POOL,                         // v0.9.3 · b27 — Wild Card pool integrity gate (Section 19)
 };
 `;
 const ctx = (new Function(harness))();
@@ -1526,6 +1527,51 @@ while ((scriptMatch = scriptBlockRx.exec(html)) !== null) {
 }
 gate('all inline <script> blocks parse cleanly', syntaxErrors === 0, blockCount + ' blocks scanned, ' + syntaxErrors + ' errors');
 if (syntaxErrorDetail.length) syntaxErrorDetail.forEach(d => console.log('    ' + d));
+
+/* === 19. WILD_POOL integrity gate (v0.9.3 · b27) ===
+ *
+ * Selection Joy Pass Phase 5: a WILD_POOL per tier supplies surprise cards that can
+ * replace one of the 2 options on a random tap round (7.5% per round, max 1 per
+ * session). The wild word feeds the normal round slot so stories don't need engine
+ * changes. This section verifies:
+ *   (a) WILD_POOL exists for all 5 tiers with ≥ 20 entries each.
+ *   (b) Within-tier emoji uniqueness (kids shouldn't see two identical emoji cards).
+ * Blocked-word coverage is provided by the existing Section 9 scan of src/content.js.
+ */
+console.log('\n=== 19. Wild Card pool integrity (v0.9.3 · b27) ===');
+const WILD_TIERS = ['tot', 'little', 'kid', 'big', 'tween'];
+const WILD_MIN   = 20;
+let wildSizeOk  = true;
+let wildSizeDetail = [];
+for (const t of WILD_TIERS) {
+  const pool = ctx.WILD_POOL && ctx.WILD_POOL[t];
+  const ok   = Array.isArray(pool) && pool.length >= WILD_MIN;
+  if (!ok) { wildSizeOk = false; wildSizeDetail.push(`${t}: ${pool ? pool.length : 'missing'}`); }
+}
+gate(`WILD_POOL — all 5 tiers present with ≥${WILD_MIN} entries each`,
+  wildSizeOk,
+  wildSizeOk ? 'ok' : wildSizeDetail.join(', '));
+
+for (const t of WILD_TIERS) {
+  const pool = ctx.WILD_POOL && ctx.WILD_POOL[t];
+  if (!pool) continue;
+  const seen = {};
+  let collisions = 0;
+  const collisionDetail = [];
+  for (const entry of pool) {
+    const e = entry.e || '(no-emoji)';
+    if (seen[e]) {
+      collisions++;
+      collisionDetail.push(`${e}: ${seen[e]} + ${entry.w}`);
+    } else {
+      seen[e] = entry.w;
+    }
+  }
+  gate(`WILD_POOL.${t} — all emojis unique within tier (${pool.length} entries)`,
+    collisions === 0,
+    collisions + ' collisions');
+  if (collisionDetail.length) collisionDetail.forEach(d => console.log('    ' + d));
+}
 
 /* === SUMMARY === */
 console.log('\n=== SUMMARY ===');

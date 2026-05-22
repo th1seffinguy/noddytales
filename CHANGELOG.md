@@ -9,6 +9,26 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 27, engine v3.0.3) — 2026-05-22
+**Selection Joy Pass Phase 5 — Wild Card (automated daily loop)**
+
+Once per session, one tap-round card may be silently replaced by a surprise entry from `WILD_POOL` — an unexpected, funny item that feeds the round's normal slot with no engine changes. The incongruity of a "talking sandwich" landing in the pet round IS the joke. 7.5% chance per round, max 1 wild per session, golden-ring visual indicator on the card.
+
+### What shipped
+- **`WILD_POOL`** in `src/content.js`: 102 tier-tagged entries across 5 tiers (tot 20 / little 20 / kid 22 / big 20 / tween 20). Ages 2-3: simple physical items. Ages 4-5: talking/magic things. Ages 6-7: classic silly magical objects. Ages 8-10: absurdist wordplay items. Ages 11-13: ironic, meta entries.
+- **Wild card injection** in `buildRounds()` (`index.html`): 7.5% per binary round, max 1 per session. Wild option has `isWild: true` marker. The wild word feeds the round's existing `picks.X` slot (no engine changes). `fullPool` is not mutated so the shuffle 🎲 button re-rolls from the original WORD_BANK pool.
+- **Wild card CSS**: `.word-card.is-wild` gets a gold ring (`box-shadow: 0 0 0 3px gold`) + `::after` badge `"🌟 WILD"`. No color change — nth-child orange/yellow theming preserved.
+- **New QA Section 19** (6 gates): WILD_POOL covers all 5 tiers with ≥20 entries each; within-tier emoji uniqueness per tier. Blocked-word coverage provided by existing Section 9.
+
+### Acceptance
+- `scripts/qa-current.js` — 31 gates green (25 prior + 6 new Section 19)
+- `node --check` on `src/content.js` — clean
+- Inline `<script>` syntax (Section 8) — 1 block scanned, 0 errors
+
+`APP_VERSION` v0.9.3; `BUILD_NUMBER` 26 → 27; `ENGINE_V2_VERSION` stays v3.0.3.
+
+---
+
 ## v0.9.3 (build 26, engine v3.0.3) — 2026-05-22
 **Story Comedy Mechanics Pass — 28 new beats (callbacks + consequences + tot call-response) + engine plural fix**
 
