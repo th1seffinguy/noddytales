@@ -3938,26 +3938,26 @@ const V3_BEATS = [
   /* v0.9.3 · b24 — HIGH_IMPACT absurd_consequence variants. The kid's
      chosen chant CAUSES a scene event (mcguffin reacts / ally misunderstands
      / audience chants back) instead of just decorating the moment. */
-  { id:'v3_ls_payoff_chant_mcguffin_reacts', stage:'payoff', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','mcguffin','chant'], jokeJob:'absurd_consequence',
+  { id:'v3_ls_payoff_chant_mcguffin_reacts', stage:'payoff', blueprintId:'lost_snack_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','mcguffin','chant'], jokeJob:'absurd_consequence',
     lines: [
       '"[y:{chant.text}]!" yelled [name:{protagonist.name}]. The [c:{mcguffin.text}] heard it. The [c:{mcguffin.text}] reappeared on the table like nothing had happened. The [c:{ally.text}] tried to look surprised.',
     ] },
-  { id:'v3_ls_payoff_chant_ally_misunderstands', stage:'payoff', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','mcguffin','chant'], jokeJob:'absurd_consequence',
+  { id:'v3_ls_payoff_chant_ally_misunderstands', stage:'payoff', blueprintId:'lost_snack_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','mcguffin','chant'], jokeJob:'absurd_consequence',
     lines: [
       '"[y:{chant.text}]!" said [name:{protagonist.name}], meaning case closed. The [c:{ally.text}] heard it as a command and immediately did a tiny dance. Mid-dance, the [c:{mcguffin.text}] arrived back on the table. No questions.',
     ] },
-  { id:'v3_ls_payoff_chant_room_chants_back', stage:'payoff', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','mcguffin','chant'], jokeJob:'absurd_consequence',
+  { id:'v3_ls_payoff_chant_room_chants_back', stage:'payoff', blueprintId:'lost_snack_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','mcguffin','chant'], jokeJob:'absurd_consequence',
     lines: [
       '"[y:{chant.text}]!" went [name:{protagonist.name}]. "[y:{chant.text}]!" went the [c:{ally.text}]. "[y:{chant.text}]!" went the [c:{mcguffin.text}], somehow. The investigation closed on the spot.',
     ] },
   /* v0.9.3 · b26 — three more lost_snack absurd_consequence beats
      hitting the missing-snack mechanic (clue/suspicious/reveal/snack
      payoff) with chant + payoff_word causation. */
-  { id:'v3_ls_payoff_chant_suspect_caves', stage:'payoff', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','mcguffin','false_suspect','chant'], jokeJob:'absurd_consequence',
+  { id:'v3_ls_payoff_chant_suspect_caves', stage:'payoff', blueprintId:'lost_snack_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','mcguffin','false_suspect','chant'], jokeJob:'absurd_consequence',
     lines: [
       '[name:{protagonist.name}] looked straight at the [c:{false_suspect.text}] and said one word: "[y:{chant.text}]." The [c:{false_suspect.text}] confessed immediately. To a different crime. [name:{protagonist.name}] noted it for later.',
     ] },
-  { id:'v3_ls_payoff_payword_crumb_reveal', stage:'payoff', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','mcguffin','payoff_word'], jokeJob:'absurd_consequence',
+  { id:'v3_ls_payoff_payword_crumb_reveal', stage:'payoff', blueprintId:'lost_snack_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','mcguffin','payoff_word'], jokeJob:'absurd_consequence',
     lines: [
       'A tiny crumb of [c:{mcguffin.text}] fell out of the [c:{ally.text}]\'s mouth right as [name:{protagonist.name}] said "[y:{payoff_word.text}]." Perfect timing. The [c:{ally.text}] didn\'t even pretend to deny it.',
     ] },
@@ -4114,30 +4114,30 @@ const V3_BEATS = [
   /* v0.9.3 · b24 — goal_spine absurd_consequence variants. The chant
      causes the obstacle to react absurdly OR the ally adopts it as their
      new favorite word. */
-  { id:'v3_gs_payoff_chant_obstacle_caves', stage:'payoff', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','goal','obstacle','chant'], jokeJob:'absurd_consequence',
+  { id:'v3_gs_payoff_chant_obstacle_caves', stage:'payoff', blueprintId:'goal_spine_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','goal','obstacle','chant'], jokeJob:'absurd_consequence',
     lines: [
       '"[y:{chant.text}]!" said [name:{protagonist.name}]. The [c:{obstacle.text}] heard it, made a small noise, and stepped aside in a way that looked rehearsed. [name:{protagonist.name}] {goal.past}. The [c:{ally.text}] applauded the [c:{obstacle.text}], because manners.',
     ] },
-  { id:'v3_gs_payoff_chant_ally_adopts', stage:'payoff', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','goal','chant'], jokeJob:'absurd_consequence',
+  { id:'v3_gs_payoff_chant_ally_adopts', stage:'payoff', blueprintId:'goal_spine_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','goal','chant'], jokeJob:'absurd_consequence',
     lines: [
       '[name:{protagonist.name}] {goal.past} and said "[y:{chant.text}]" the second it was over. The [c:{ally.text}] said "[y:{chant.text}]" back. The [c:{ally.text}] then said it again, mostly to itself. New favorite word, apparently.',
     ] },
-  { id:'v3_gs_payoff_payword_mcguffin_responds', stage:'payoff', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','goal','mcguffin','payoff_word'], jokeJob:'absurd_consequence',
+  { id:'v3_gs_payoff_payword_mcguffin_responds', stage:'payoff', blueprintId:'goal_spine_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','goal','mcguffin','payoff_word'], jokeJob:'absurd_consequence',
     lines: [
       '[name:{protagonist.name}] {goal.past} and held up the [c:{mcguffin.text}] like proof. "[y:{payoff_word.text}]!" yelled [name:{protagonist.name}]. The [c:{mcguffin.text}] vibrated slightly. Nobody talked about that part.',
     ] },
   /* v0.9.3 · b26 — three more goal_spine absurd_consequence beats:
      obstacle physically caves to the chant, obstacle misunderstands the
      chant as instructions, kid solves the goal "sideways" via the chant. */
-  { id:'v3_gs_payoff_chant_obstacle_collapses', stage:'payoff', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','goal','obstacle','chant'], jokeJob:'absurd_consequence',
+  { id:'v3_gs_payoff_chant_obstacle_collapses', stage:'payoff', blueprintId:'goal_spine_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','goal','obstacle','chant'], jokeJob:'absurd_consequence',
     lines: [
       '"[y:{chant.text}]!" said [name:{protagonist.name}]. The [c:{obstacle.text}] tried to argue, tipped slightly, and folded in on itself like cheap furniture. [name:{protagonist.name}] {goal.past}. Sideways victory.',
     ] },
-  { id:'v3_gs_payoff_chant_obstacle_misreads', stage:'payoff', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','goal','obstacle','chant'], jokeJob:'absurd_consequence',
+  { id:'v3_gs_payoff_chant_obstacle_misreads', stage:'payoff', blueprintId:'goal_spine_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','goal','obstacle','chant'], jokeJob:'absurd_consequence',
     lines: [
       '[name:{protagonist.name}] said "[y:{chant.text}]" softly, like a code word. The [c:{obstacle.text}] heard it as an instruction it apparently knew, stepped aside, and held the door. [name:{protagonist.name}] {goal.past} without breaking stride.',
     ] },
-  { id:'v3_gs_payoff_payword_audience_responds', stage:'payoff', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','goal','payoff_word'], jokeJob:'absurd_consequence',
+  { id:'v3_gs_payoff_payword_audience_responds', stage:'payoff', blueprintId:'goal_spine_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','goal','payoff_word'], jokeJob:'absurd_consequence',
     lines: [
       '[name:{protagonist.name}] {goal.past}. "[y:{payoff_word.text}]!" yelled [name:{protagonist.name}]. The [c:{ally.text}] yelled "[y:{payoff_word.text}]!" louder. Somewhere distantly, a third voice yelled it back. The day was officially named "[y:{payoff_word.text}]" now.',
     ] },
@@ -4220,7 +4220,7 @@ const V3_BEATS = [
     lines: [
       'Right on cue, the [c:{prop.text}] did the WRONG thing. It launched itself off the table, bounced once, and landed in the [c:{ally.text}]\'s lap. The [c:{ally.text}] looked at [name:{protagonist.name}] like, "Well now what?"',
       'The [c:{prop.text}] made a noise it should not have been able to make. Then it tipped sideways. Then it kept tipping. It was still tipping. The audience leaned in. [name:{protagonist.name}] thought fast.',
-      'The [c:{prop.text}] just... gave up. It sat there. Completely uncooperative. The [c:{ally.text}] poked it. Nothing. The [c:{ally.text}] poked it again. Still nothing. [name:{protagonist.name}] had eight seconds to fix this.',
+      'The [c:{prop.text}] just gave up. It sat there. Completely uncooperative. The [c:{ally.text}] poked it. Nothing. The [c:{ally.text}] poked it again. Still nothing. [name:{protagonist.name}] had eight seconds to fix this.',
     ] },
   { id:'v3_sw_problem_tween', stage:'problem', blueprintId:'show_wrong_v3', tiers:['tween'], requiredRoles:['protagonist','prop'],
     lines: [
@@ -4266,30 +4266,30 @@ const V3_BEATS = [
   /* v0.9.3 · b24 — show_wrong absurd_consequence variants. The prop comes
      back to life via the chant, the audience adopts it as the show's
      name, or the ally treats the payoff word as the new cue. */
-  { id:'v3_sw_payoff_chant_prop_revives', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','prop','chant'], jokeJob:'absurd_consequence',
+  { id:'v3_sw_payoff_chant_prop_revives', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','prop','chant'], jokeJob:'absurd_consequence',
     lines: [
       '"[y:{chant.text}]!" yelled [name:{protagonist.name}], pointing at the broken [c:{prop.text}]. The [c:{prop.text}] twitched. Twitched again. Then it did exactly what it had refused to do five minutes ago. Pillows lost it.',
     ] },
-  { id:'v3_sw_payoff_chant_crowd_chants', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','chant'], jokeJob:'absurd_consequence',
+  { id:'v3_sw_payoff_chant_crowd_chants', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','chant'], jokeJob:'absurd_consequence',
     lines: [
       '"[y:{chant.text}]!" went [name:{protagonist.name}]. The [c:{ally.text}] picked it up. Then the whole audience picked it up — pillows, lamp, the dog who had wandered in. The show was named "[y:{chant.text}]" now. There was no going back.',
     ] },
-  { id:'v3_sw_payoff_payword_ally_cues', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','payoff_word'], jokeJob:'absurd_consequence',
+  { id:'v3_sw_payoff_payword_ally_cues', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','payoff_word'], jokeJob:'absurd_consequence',
     lines: [
       '[name:{protagonist.name}] said "[y:{payoff_word.text}]" once, like a cue. The [c:{ally.text}] heard "cue" and did the entire finale from memory, even the parts they had never rehearsed. The bow at the end was perfect.',
     ] },
   /* v0.9.3 · b26 — three more show_wrong absurd_consequence beats hitting
      the broken-show mechanic (prop failure → improvised save → audience
      reaction → catchphrase callback). */
-  { id:'v3_sw_payoff_chant_prop_unbreaks', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','prop','chant'], jokeJob:'absurd_consequence',
+  { id:'v3_sw_payoff_chant_prop_unbreaks', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','prop','chant'], jokeJob:'absurd_consequence',
     lines: [
       '[name:{protagonist.name}] pointed at the broken [c:{prop.text}] and shouted "[y:{chant.text}]." The [c:{prop.text}] reassembled itself in roughly the wrong order. The [c:{ally.text}] applauded the wrong order. The show was now better.',
     ] },
-  { id:'v3_sw_payoff_payword_audience_chants', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','payoff_word'], jokeJob:'absurd_consequence',
+  { id:'v3_sw_payoff_payword_audience_chants', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','payoff_word'], jokeJob:'absurd_consequence',
     lines: [
       '"[y:{payoff_word.text}]!" yelled [name:{protagonist.name}]. The audience (the pillows, the [c:{ally.text}], a dog who had wandered in) all said it back. Then they said it again, louder, like a chant. The roof did not lift but it considered it.',
     ] },
-  { id:'v3_sw_payoff_chant_obstacle_caves', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','obstacle','chant'], jokeJob:'absurd_consequence',
+  { id:'v3_sw_payoff_chant_obstacle_caves', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','obstacle','chant'], jokeJob:'absurd_consequence',
     lines: [
       'The [c:{obstacle.text}] tried to heckle. "[y:{chant.text}]," replied [name:{protagonist.name}], calmly. The [c:{obstacle.text}] forgot what it was going to say. The show kept going. The [c:{obstacle.text}] later claimed it had been a planned bit.',
     ] },
@@ -4416,29 +4416,29 @@ const V3_BEATS = [
      either makes the rule literally break, or the rule_imposer
      misinterprets the chant as a code word, or the loophole_tool
      activates absurdly. */
-  { id:'v3_rl_payoff_chant_rule_cracks', stage:'payoff', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','mcguffin','rule_imposer','chant'], jokeJob:'absurd_consequence',
+  { id:'v3_rl_payoff_chant_rule_cracks', stage:'payoff', blueprintId:'rule_loophole_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','mcguffin','rule_imposer','chant'], jokeJob:'absurd_consequence',
     lines: [
       '"[y:{chant.text}]!" said [name:{protagonist.name}]. The rule developed a small visible crack. Nobody could see it, but everyone agreed it was there. The [c:{rule_imposer.text}] handed over the [c:{mcguffin.text}] without comment.',
     ] },
-  { id:'v3_rl_payoff_chant_imposer_misreads', stage:'payoff', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','mcguffin','rule_imposer','chant'], jokeJob:'absurd_consequence',
+  { id:'v3_rl_payoff_chant_imposer_misreads', stage:'payoff', blueprintId:'rule_loophole_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','mcguffin','rule_imposer','chant'], jokeJob:'absurd_consequence',
     lines: [
       '"[y:{chant.text}]!" went [name:{protagonist.name}]. The [c:{rule_imposer.text}] heard a code word it apparently knew, mumbled "ah, the [c:{chant.text}] clause," and waved [name:{protagonist.name}] through with the [c:{mcguffin.text}]. There was no [c:{chant.text}] clause.',
     ] },
-  { id:'v3_rl_payoff_payword_tool_activates', stage:'payoff', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','mcguffin','loophole_tool','payoff_word'], jokeJob:'absurd_consequence',
+  { id:'v3_rl_payoff_payword_tool_activates', stage:'payoff', blueprintId:'rule_loophole_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','mcguffin','loophole_tool','payoff_word'], jokeJob:'absurd_consequence',
     lines: [
       '[name:{protagonist.name}] held up the [c:{loophole_tool.text}] and said "[y:{payoff_word.text}]." The [c:{loophole_tool.text}] did something briefly impressive that nobody could later describe. The [c:{mcguffin.text}] arrived in [name:{protagonist.name}]\'s hand.',
     ] },
   /* v0.9.3 · b26 — three more rule_loophole absurd_consequence beats
      hitting the literal-interpretation / authority-confusion mechanic. */
-  { id:'v3_rl_payoff_chant_rule_inverts', stage:'payoff', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','mcguffin','rule_imposer','chant'], jokeJob:'absurd_consequence',
+  { id:'v3_rl_payoff_chant_rule_inverts', stage:'payoff', blueprintId:'rule_loophole_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','mcguffin','rule_imposer','chant'], jokeJob:'absurd_consequence',
     lines: [
       '"[y:{chant.text}]," said [name:{protagonist.name}]. The rule, which had said "no [c:{mcguffin.text}]," now apparently said "yes [c:{mcguffin.text}]." The [c:{rule_imposer.text}] checked the paperwork. The paperwork agreed.',
     ] },
-  { id:'v3_rl_payoff_payword_imposer_resigns', stage:'payoff', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','rule_imposer','payoff_word'], jokeJob:'absurd_consequence',
+  { id:'v3_rl_payoff_payword_imposer_resigns', stage:'payoff', blueprintId:'rule_loophole_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','rule_imposer','payoff_word'], jokeJob:'absurd_consequence',
     lines: [
       '[name:{protagonist.name}] said "[y:{payoff_word.text}]" with such confidence that the [c:{rule_imposer.text}] stepped back. The [c:{rule_imposer.text}] muttered something about a coffee break. The [c:{rule_imposer.text}] did not return.',
     ] },
-  { id:'v3_rl_payoff_chant_audience_validates', stage:'payoff', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','rule_imposer','chant'], jokeJob:'absurd_consequence',
+  { id:'v3_rl_payoff_chant_audience_validates', stage:'payoff', blueprintId:'rule_loophole_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','rule_imposer','chant'], jokeJob:'absurd_consequence',
     lines: [
       '"[y:{chant.text}]!" said [name:{protagonist.name}]. The [c:{ally.text}] nodded. Three witnesses appeared from nowhere. They also nodded. The [c:{rule_imposer.text}] tried to recount. The recount confirmed the loophole.',
     ] },
@@ -4665,26 +4665,26 @@ const V3_BEATS = [
      small physical gag. Read-aloud safe, no irony, age 2-3 friendly. */
   { id:'v3_tl_tot_repeat_chant_call', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object','chant'], jokeJob:'physical_gag',
     lines: [
-      '"[y:{chant.text}]?" said [name:{protagonist.name}]. "[y:{chant.text}]!" said the [c:{ally.text}]. Then the [c:{wonder_object.text}] wiggled. Just a little. Everyone saw it.',
+      '"[y:{chant.text}]?" said [name:{protagonist.name}]. "[y:{chant.text}]!" said the [c:{ally.text}]. Then the [c:{wonder_object.text}] wiggled.',
     ] },
   { id:'v3_tl_tot_repeat_chant_sneeze', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object','chant'], jokeJob:'physical_gag',
     lines: [
-      '"[y:{chant.text}]!" said [name:{protagonist.name}]. The [c:{ally.text}] said "[y:{chant.text}]!" back. Then the [c:{wonder_object.text}] sneezed. The [c:{ally.text}] said "bless you" to the [c:{wonder_object.text}].',
+      '"[y:{chant.text}]!" said [name:{protagonist.name}]. "[y:{chant.text}]!" said the [c:{ally.text}]. Then the [c:{wonder_object.text}] sneezed.',
     ] },
   /* v0.9.3 · b26 — three more tot call-and-response variants.
      Pattern: "Glorp?" said Cole. "Glorp!" said the puppy. Then the X did Y.
      Short. Physical. Repeatable. Easy to say aloud. Ages 2-3. */
   { id:'v3_tl_tot_repeat_chant_clap', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object','chant'], jokeJob:'physical_gag',
     lines: [
-      '"[y:{chant.text}]!" said [name:{protagonist.name}] and clapped. "[y:{chant.text}]!" said the [c:{ally.text}] and clapped too. The [c:{wonder_object.text}] hopped. Once. Cole laughed.',
+      '"[y:{chant.text}]!" said [name:{protagonist.name}]. "[y:{chant.text}]!" said the [c:{ally.text}]. The [c:{wonder_object.text}] hopped. Once.',
     ] },
   { id:'v3_tl_tot_repeat_chant_tip', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object','chant'], jokeJob:'physical_gag',
     lines: [
-      '"[y:{chant.text}]?" whispered [name:{protagonist.name}]. "[y:{chant.text}]?" whispered the [c:{ally.text}]. The [c:{wonder_object.text}] tipped over by itself. They both gasped. Then giggled.',
+      '"[y:{chant.text}]?" whispered [name:{protagonist.name}]. "[y:{chant.text}]?" whispered the [c:{ally.text}]. The [c:{wonder_object.text}] tipped over by itself.',
     ] },
   { id:'v3_tl_tot_repeat_chant_dance', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object','chant'], jokeJob:'physical_gag',
     lines: [
-      '[name:{protagonist.name}] sang "[y:{chant.text}]." The [c:{ally.text}] sang it too. They sang it together. The [c:{wonder_object.text}] joined in. So did a tiny bug. Everyone sang.',
+      '[name:{protagonist.name}] sang "[y:{chant.text}]." The [c:{ally.text}] sang it too. The [c:{wonder_object.text}] joined in.',
     ] },
 
   /* --- TOT COZY END — bedtime (3 variants) ---
@@ -5012,6 +5012,23 @@ function generateStoryV3(name, picks, age) {
     const pool = fresh.length > 0 ? fresh : candidates;
     const maxRoles = Math.max(...pool.map(c => (c.requiredRoles || []).length));
     const top = pool.filter(c => (c.requiredRoles || []).length === maxRoles);
+    // v0.9.3 · b27 — HIGH_IMPACT beat weighting. When the picked roles include
+    // chant or payoff_word (the kid actually selected a HIGH_IMPACT word), 2x-
+    // weight any candidate beat tagged jokeJob='absurd_consequence' or
+    // jokeJob='callback'. Boosts the kid's chosen silly word landing as a real
+    // event instead of a quoted decoration. Codex post-b26 audit showed tween
+    // changes_scene at 22.6% (lagging kid/big); this lifts the rate without
+    // requiring more beat authoring.
+    const hasHighImpact = !!(roles.chant || roles.payoff_word);
+    if (hasHighImpact) {
+      const weighted = [];
+      for (const c of top) {
+        weighted.push(c);
+        if (c.jokeJob === 'absurd_consequence' || c.jokeJob === 'callback') weighted.push(c);
+      }
+      const card = weighted[Math.floor(Math.random() * weighted.length)];
+      return card;
+    }
     const card = top[Math.floor(Math.random() * top.length)];
     return card;
   }
@@ -5056,11 +5073,18 @@ function generateStoryV3(name, picks, age) {
      uniform-random in renderFlavorCallback. */
   const FLAVOR_CALLBACKS = {
     signature_action: [
+      // v0.9.3 · b27 — pool expanded 5 → 8. The b26 repetition-report still
+      // showed "one more time, just to make a point" at 22% and "There was a
+      // small <move> moment..." also surfacing. New variants drop each
+      // line's selection from 20% to 12.5%.
       '[name:{protagonist.name}] [c:{signature_action.text}] one more time, just to make a point.',
       'Somewhere in there, [name:{protagonist.name}] [c:{signature_action.text}] for emphasis.',
       '[name:{protagonist.name}] [c:{signature_action.text}] without thinking. It was a thing they did now.',
       'There was a small [c:{signature_action.text}] moment that nobody quite witnessed in full.',
       'For exactly two seconds, [name:{protagonist.name}] [c:{signature_action.text}] like it was a job.',
+      'Halfway through, [name:{protagonist.name}] [c:{signature_action.text}] for absolutely no reason.',
+      '[name:{protagonist.name}] [c:{signature_action.text}] briefly, then pretended that had not happened.',
+      'A short burst of [c:{signature_action.text}] happened. Witnesses disagreed about the details.',
     ],
     visual_signature: [
       // v0.9.3 · b26 — pool expanded 5 → 8. b24 baseline showed
@@ -5095,12 +5119,25 @@ function generateStoryV3(name, picks, age) {
        even when the blueprint shape doesn't naturally call for them (e.g. show_wrong_v3
        has no native mcguffin = food beat — kid is busy with the prop, not snacks). */
     mood_throughline: [
+      // v0.9.3 · b27 — pool expanded 2 → 6 to drop the b26 repetition-report
+      // hit on "<name> felt <mood> about" (36%/100 stories) by distributing
+      // mood-callback selection across more sentence shapes.
       '[name:{protagonist.name}] kept feeling [c:{mood_throughline.text}] about the whole thing.',
       'Throughout, [name:{protagonist.name}] stayed [c:{mood_throughline.text}]. Steadily [c:{mood_throughline.text}].',
+      'The whole day had a [c:{mood_throughline.text}] energy to it. Nobody could explain why.',
+      'Underneath everything, [name:{protagonist.name}] was running on pure [c:{mood_throughline.text}].',
+      'There was a [c:{mood_throughline.text}] quality to the air, if anyone noticed.',
+      'You could call the mood [c:{mood_throughline.text}], and nobody would disagree.',
     ],
     mcguffin: [
-      '[c:{mcguffin.articleText}] sat off to the side, mostly forgotten, definitely still part of the day.',
+      // v0.9.3 · b27 — old line started "[c:{mcguffin.articleText}] sat off..."
+      // which renders "some donuts sat off..." (lowercase 's'). When appendToMiddle
+      // appends this after a period+space, it produces "...whatever it was. some
+      // donuts sat..." flagging the grammar-lint lowercase-sentence-start. Reworded
+      // to start with a capital so the sentence-start is grammatical.
+      'Off to the side, [c:{mcguffin.articleText}] sat there, mostly forgotten, definitely still part of the day.',
       'Somebody had brought [c:{mcguffin.text}]. Nobody knew when. Nobody minded.',
+      'Meanwhile, [c:{mcguffin.articleText}] waited patiently for its moment.',
     ],
     /* v2.6.1 — obstacle added as a safety net. show_wrong_v3 tween escalation didn't
        always reference the chosen creature even though it was in the role map. */
@@ -5124,7 +5161,20 @@ function generateStoryV3(name, picks, age) {
   const titleLine = blueprint.titlePatterns[Math.floor(Math.random() * blueprint.titlePatterns.length)];
   const title = renderV3Line(titleLine);
 
-  return { title, paragraphs };
+  // v0.9.3 · b27 — Expose blueprint metadata to content-QA scripts via __-prefixed
+  // fields. Non-rendered, non-iterated. renderStory() in index.html reads only
+  // {title, paragraphs}; the extras are inert at render time. The audit scripts
+  // (content-comedy-mechanics.js, content-blueprint-health.js) read story.__blueprint
+  // to report the actual blueprint instead of "(v2 fallback)" when V3 generated.
+  // __stages tracks which stage names actually fired this story (after kid 5-stage
+  // filtering), useful for per-stage diagnostics.
+  return {
+    title,
+    paragraphs,
+    __blueprint: blueprint.id,
+    __tier:      tier,
+    __stages:    stagesForThisStory.map(s => s.name),
+  };
 }
 
 /* Engine router.

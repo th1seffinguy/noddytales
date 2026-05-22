@@ -17,7 +17,7 @@
    labeling: product is in late beta (v0.9.x), engine is still v3 internally. The
    historical v3.0.0-v3.0.3 CHANGELOG entries stay as-is for traceability. */
 const APP_VERSION  = 'v0.9.3';
-const BUILD_NUMBER = 26;
+const BUILD_NUMBER = 27;
 
 /* v0.9.3 · b8 — Narrator Voice Selector MVP.
    v0.9.3 · b16 — lineup refresh.
@@ -718,7 +718,7 @@ const WORD_BANK = {
        even though user suggested "escalator"; escalator is 🚇 or 🛗 depending; elevator
        word matches the emoji exactly), empty movie theater 🎬, forgotten hallway 🚪.
        Pool 18 → 21. */
-    { cat: 'place',   label: 'Pick a location',       options: [{w:'abandoned mall',e:'🏚️'}, {w:'rooftop',      e:'🏙️'}, {w:'skatepark',    e:'🛹'}, {w:'arcade',       e:'🕹️'}, {w:'bus stop',     e:'🚏'}, {w:'parking garage',e:'🚗'}, {w:'library at closing time',e:'📚'},{w:'empty school hallway',e:'🏫'},{w:'convenience store',e:'🏪'},{w:'slightly wrong neighborhood',e:'🗺️'},{w:'the back of the bus',e:'🚌'},{w:'someone else\'s backyard',e:'🌿'}, {w:'school cafeteria',e:'🍱'}, {w:'mall food court',e:'🛍️'}, {w:'drama hallway',e:'🎭'}, {w:'late bus',     e:'⏰'}, {w:'weird stairwell',e:'🪜'}, {w:'gym bleachers',e:'🏀'}, {w:'mall elevator',e:'🛗'}, {w:'empty movie theater',e:'🎬'}, {w:'forgotten hallway',e:'🚪'}] },
+    { cat: 'place',   label: 'Pick a location',       options: [{w:'abandoned mall',e:'🏚️'}, {w:'rooftop',      e:'🏙️'}, {w:'skatepark',    e:'🛹'}, {w:'arcade',       e:'🕹️'}, {w:'bus stop',     e:'🚏'}, {w:'parking garage',e:'🚗'}, {w:'library at closing time',e:'📚'},{w:'empty school hallway',e:'🏫'},{w:'convenience store',e:'🏪'},{w:'slightly wrong neighborhood',e:'🗺️'},{w:'back of the bus',e:'🚌'},{w:'someone else\'s backyard',e:'🌿'}, {w:'school cafeteria',e:'🍱'}, {w:'mall food court',e:'🛍️'}, {w:'drama hallway',e:'🎭'}, {w:'late bus',     e:'⏰'}, {w:'weird stairwell',e:'🪜'}, {w:'gym bleachers',e:'🏀'}, {w:'mall elevator',e:'🛗'}, {w:'empty movie theater',e:'🎬'}, {w:'forgotten hallway',e:'🚪'}] },
     /* v0.9.3 · b15 — "unreasonably tall pigeon 🪿" → "unreasonably tall goose 🪿"
        (🪿 is goose, not pigeon; renaming the word side fixes the mismatch).
        Added algorithm ghost 🧠 (brain emoji = "the algorithm's mind"; 📱 already taken
