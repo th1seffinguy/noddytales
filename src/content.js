@@ -17,7 +17,7 @@
    labeling: product is in late beta (v0.9.x), engine is still v3 internally. The
    historical v3.0.0-v3.0.3 CHANGELOG entries stay as-is for traceability. */
 const APP_VERSION  = 'v0.9.3';
-const BUILD_NUMBER = 29;
+const BUILD_NUMBER = 30;
 
 /* v0.9.3 · b8 — Narrator Voice Selector MVP.
    v0.9.3 · b16 — lineup refresh.
@@ -658,10 +658,13 @@ const WORD_BANK = {
        Added arcade 🕹️, pizza shop 🍕, water park 💦, movie theater 🎬. Pool 24 → 28. */
     { cat: 'place',   label: 'Pick a location',        options: [{w:'jungle',    e:'🌴'}, {w:'castle',    e:'🏰'}, {w:'cavern',    e:'🕳️'}, {w:'forest',    e:'🌲'}, {w:'meadow',    e:'🌾'}, {w:'canyon',    e:'🏞️'}, {w:'volcano',   e:'🌋'}, {w:'maze',      e:'🧩'}, {w:'shipwreck', e:'⚓'}, {w:'glacier',   e:'🧊'}, {w:'rooftop',   e:'🏙️'}, {w:'desert',    e:'🏜️'}, {w:'treehouse', e:'🌳'}, {w:'tower',     e:'🗼'}, {w:'carnival',  e:'🎡'}, {w:'aquarium',  e:'🐠'}, {w:'planetarium',e:'🪐'},{w:'bakery',    e:'🥐'}, {w:'school cafeteria',e:'🏫'}, {w:'grocery store',e:'🛒'}, {w:'diner',     e:'🍔'}, {w:'mall',      e:'🛍️'}, {w:'bus stop',  e:'🚌'}, {w:'playground',e:'🛝'}, {w:'arcade',    e:'🕹️'}, {w:'pizza shop',e:'🍕'}, {w:'water park',e:'💦'}, {w:'movie theater',e:'🎬'}] },
     /* v0.9.3 · b15 — giant 🗿 → stone giant 🗿 (matches moai-face emoji);
-       phoenix 🔥 → fire bird 🔥 (Unicode 15.1 phoenix 🐦‍🔥 isn't universally supported on
-       older iOS/Android still in the wild; "fire bird" is the safe word-emoji match);
+       phoenix 🔥 → fire bird (kid-friendly word);
        centaur 🐎 → talking horse 🐎 (more age-6 friendly per user spec).
-       Added sock monster 🧦, tiny wizard 🪄, backpack troll 🎒. Pool 24 → 27. */
+       Added sock monster 🧦, tiny wizard 🪄, backpack troll 🎒. Pool 24 → 27.
+       v0.9.3 · b29 — fire bird emoji upgraded 🔥 → 🐦‍🔥 (Unicode 15.1
+       phoenix ZWJ, supported on iOS 17.4+, Android 14+, Win11 24H2+,
+       macOS Sonoma 14.4+). On older OS the emoji falls back to 🐦 + 🔥
+       rendered side-by-side, which still reads as fire bird. */
     { cat: 'creature',label: 'Pick a creature',        options: [{w:'robot',     e:'🤖'}, {w:'mermaid',   e:'🧜'}, {w:'wizard',    e:'🧙'}, {w:'pirate',    e:'🏴‍☠️'}, {w:'ninja',     e:'🥷'}, {w:'goblin',    e:'👺'}, {w:'knight',    e:'⚔️'}, {w:'alien',     e:'👽'}, {w:'witch',     e:'🧙‍♀️'}, {w:'stone giant',e:'🗿'}, {w:'ghost',     e:'👻'}, {w:'troll',     e:'🧌'}, {w:'vampire',   e:'🧛'}, {w:'fairy',     e:'🧚'}, {w:'dinosaur',  e:'🦖'}, {w:'fire bird', e:'🐦‍🔥'}, {w:'talking horse',e:'🐎'}, {w:'yeti',      e:'🐻‍❄️'}, {w:'talking sandwich',e:'🥪'}, {w:'substitute teacher',e:'🧑‍🏫'}, {w:'lunch wizard',e:'🍱'}, {w:'hallway ghost',e:'🚪'}, {w:'tiny king', e:'👑'}, {w:'grumpy cloud',e:'☁️'}, {w:'sock monster',e:'🧦'}, {w:'tiny wizard',e:'🪄'}, {w:'backpack troll',e:'🎒'}] },
     { cat: 'move',    label: 'Pick a move',            options: [{w:'zoomed',    e:'⚡'}, {w:'tiptoed',   e:'👣'}, {w:'bounced',   e:'🏀'}, {w:'spun',      e:'🌀'}, {w:'leapt',     e:'🦘'}, {w:'galloped',  e:'🏇'}, {w:'tumbled',   e:'🤸'}, {w:'glided',    e:'🪂'}, {w:'charged',   e:'🐂'}, {w:'crept',     e:'🐛'}, {w:'soared',    e:'🦅'}, {w:'skated',    e:'⛸️'}, {w:'shimmied',  e:'🎵'}, {w:'wobbled',   e:'🌊'}, {w:'marched',   e:'🥁'}, {w:'stomped',   e:'🦶'}, {w:'danced',    e:'💃'}, {w:'sprinted',  e:'🏃'}, {w:'cartwheeled',e:'🛞'}, {w:'slid',      e:'🛝'}, {w:'zigzagged', e:'🪃'}, {w:'moonwalked',e:'🕺'}, {w:'belly-flopped',e:'💦'}, {w:'shuffled',  e:'🚶'}] },
     /* v0.9.3 · b15 — "professionally confused 🤔" → "puzzled 🧩" (age-6 friendly +

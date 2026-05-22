@@ -9,6 +9,82 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 30, engine v3.0.3) — 2026-05-22
+**Human-Golden Story Quality Pass** (+ b29 fire bird drift cleanup)
+
+Two-part build: small b29 cleanup, then the Human-Golden story quality pass that was previously queued. No broad trim pass; targeted hand-authored content fixes based on reading the random-50 sample by hand.
+
+### Part 1 — b29 fire bird drift cleanup
+
+In b29 the picker shipped `fire bird` with `🐦‍🔥`, but the engine's `V2_WORDS` still had `phoenix` with `🔥` — a quiet mismatch where the picker word never resolved to the rich engine entry (would have fallen through the cloning path, losing the phoenix-specific traits/actions/sounds). b30 renames `V2_WORDS.phoenix` → `fire_bird` with `🐦‍🔥`, keeping the existing traits/actions/sounds. Stale comment in `src/content.js` updated so it no longer claims `🔥` is the chosen emoji.
+
+### Part 2 — Human-Golden Story Quality Pass
+
+Codex QA after b29 surfaced weak comedy (10.5/21), low causality (0.72/3), low callback (0.68/3). Read the random-50 sample by hand. Found six patterns where stories felt "told, not shown":
+
+1. **"The rule developed a small visible crack."** — pure metaphor, nothing happens
+2. **"Confessed immediately. To a different crime."** — identical outcome across many lost_snack stories
+3. **"Suddenly remembered somewhere else it needed to be."** — same outcome regardless of obstacle
+4. **"Cole located the loophole. It involved [tool] and a very specific reading of the rule."** — talks about loophole instead of showing
+5. **"Mentally screenshotted it. Could be evidence later. Probably wouldn't be."** — meta-comment, no event
+6. **"The audience leaned in. Sometimes nonsense lands."** — authorial telling
+7. **"Plot twist nobody saw coming except maybe the X: it was the X..."** — narrator-to-reader meta-narration
+
+### Fixes
+
+**Concrete authored consequence beats (replace vague outcomes)**
+- `v3_rl_payoff_chant_rule_cracks` rewritten with 2 variants — clipboard slips and "no" smudges into "yes"; OR the sign folds itself in half and falls
+- `v3_rl_payoff_payword_tool_activates` rewritten with 2 variants — tool vibrates and points itself at the mcguffin which rolls 3 feet on its own; OR the tool beeps for the first time, paperwork rearranges into a permission slip
+- `v3_gs_payoff_chant_obstacle_caves` got a 3rd variant — chant makes obstacle sneeze hard enough to pivot ninety degrees
+- `v3_gs_escalation_tween_screenshot` got 2 new variants — obstacle examines mcguffin like an artifact and puts it back upside down; OR fumbles it in slow motion
+- `v3_ls_payoff_chant_suspect_caves` got 2 new variants — suspect freezes mid-bite, snack falls onto Cole's plate; OR suspect's hiding spot collapses in three pieces and the snack rolls out
+- `v3_ls_escalation_1` line 2 — replaced "Plot twist" meta with: ally burps, intact crumb falls on Cole's shoe
+- `v3_rl_attempt_tween_tool` got a 2nd variant — tool held at a specific angle; the rule says nothing about that angle; "the angle is load-bearing now"
+- `v3_rl_attempt_tween_filed` rewritten — tool held like a permit, the angle is the loophole
+- `v3_sw_attempt_move_chant` line 2 — replaced "Sometimes nonsense lands" with: pillows lean forward, one falls over from leaning
+
+**Recontextualizing callbacks (word picks up new meaning, not just repeat)**
+- `v3_ls_landing_chant_recontext_kid` (NEW) — next morning, chant has become a noun ("X crackers", "Mom nodded")
+- `v3_ls_landing_payword_recontext_tween` (NEW) — word appears in group chat with no context; three people react, two weren't even there
+- `v3_gs_landing_chant_recontext_kid` (NEW) — Dad asks how the day went; "It was a X kind of day"; chant is now a unit of measure
+- `v3_gs_landing_chant_recontext_tween` (NEW) — days later, ally is using the chant as a verb; the word is "load-bearing now"
+
+### Headline (BEFORE = b29 main, AFTER = b30; comedy/punchline means across 4 runs)
+
+| Metric | BEFORE | AFTER | Δ |
+|---|---|---|---|
+| Comedy total | 10.22 / 21 | **11.26 mean** (range 11.06–11.38) | **+1.04** |
+| Causality (axis) | 0.66 | **1.06** | **+0.40** |
+| Callback (axis) | 0.66 | 0.70 | +0.04 |
+| Coherence (axis) | 1.20 | 1.26 | +0.06 |
+| **Punchline `changes_scene`** | **47.2%** | **53.3% mean** | **+6.1pp** |
+| Punchline `quoted_only` | 15.3% | 11.5% mean | −3.8pp |
+| Repetition >20% n-grams | 18 | **11** | **−7** |
+| Grammar lint hits | 0 | **0** | hold |
+| show_wrong_v3 median sentences | 22 | 22 | hold (b28 gains preserved) |
+
+The causality axis moved the most — direct result of replacing vague telling beats with concrete visible events.
+
+### Acceptance
+
+- `scripts/qa-current.js` — **25 gates green**
+- `node --check` on src/content.js + src/engine-v2.js + api/tts.js — clean
+- All 7 content audits run cleanly
+- BUILD_NUMBER 29 → 30; APP_VERSION stays v0.9.3; ENGINE_V2_VERSION stays v3.0.3
+
+### Deferred (b31+)
+
+1. Callback axis only +0.04 — the recontextualizing beats fire only when chant/payword is picked AND landing stage. Needs 4–6 more recontextualizing variants to lift further.
+2. Coherence still 1.26 — the heuristic rewards story-internal vocabulary consistency; could improve by sampling chant/payword in the title.
+3. show_wrong_v3 recontextualizing callback variants (kid/big/tween) — only goal_spine and lost_snack got new callbacks in b30.
+4. Tween rule_loophole still has "Bureaucracy is just words. Cole had the right ones." in its core escalation — could be made more visible.
+
+`APP_VERSION` stays `v0.9.3`; `BUILD_NUMBER` 29 → **30**; `ENGINE_V2_VERSION` stays `v3.0.3`. Badge reads `v0.9.3 · b30`.
+
+Full review doc: `docs/b30-human-golden-review.md`. Before/after audit outputs: `docs/b30-before/` + `docs/b30-after/`.
+
+---
+
 ## v0.9.3 (build 29, engine v3.0.3) — 2026-05-22
 **Picker Emoji Hotfix — yeti + fire bird**
 

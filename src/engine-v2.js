@@ -631,7 +631,12 @@ const V2_WORDS = {
       traits:['glittery','dramatic','sandy'],
       actions:['flopped onto the porch','sang an unprompted ballad','demanded fresh towels'],
       sounds:['la la la','splash','tiny sigh'] },
-    { id:'phoenix', text:'phoenix', emoji:'🔥', article:'a',
+    /* v0.9.3 · b30 — renamed phoenix → fire_bird to match the picker entry
+       ("fire bird" was the b15 rename to ship a kid-friendly word). Picker
+       used 🐦‍🔥 starting b29; engine entry was orphaned at 🔥. Both now
+       use 🐦‍🔥 (Unicode 15.1 phoenix ZWJ) so picker-to-engine word
+       resolution surfaces the rich traits/actions/sounds. */
+    { id:'fire_bird', text:'fire bird', emoji:'🐦‍🔥', article:'a',
       traits:['fiery','vain','dramatic'],
       actions:['caught fire on purpose','adjusted its feathers','posed for an imaginary photo'],
       sounds:['whoosh','crackle','tiny caw'] },
@@ -3908,7 +3913,7 @@ const V3_BEATS = [
   { id:'v3_ls_escalation_1', stage:'escalation', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','mcguffin'],
     lines: [
       'The trail led to the [c:{ally.text}]. Of course. The [c:{ally.text}] had a single crumb of [c:{mcguffin.text}] on its face. "YOU?" said [name:{protagonist.name}]. The [c:{ally.text}] looked away politely.',
-      'Plot twist nobody saw coming except maybe the [c:{ally.text}]: it was the [c:{ally.text}]. The [c:{ally.text}] had been the [c:{mcguffin.text}] thief the whole time. It was very sorry.',
+      'The [c:{ally.text}] burped. A whole intact [c:{mcguffin.text}] crumb fell out, landing on [name:{protagonist.name}]\'s shoe. "YOU?" said [name:{protagonist.name}]. The [c:{ally.text}] tried very hard to look like a regular [c:{ally.text}].',
     ] },
   /* v2.7.0 — funnier guilty-pet reveals. Ally pet shows guilt in kid-readable ways:
      burp gives them away, can\'t make eye contact, pretends to be asleep, ear pinned. */
@@ -3960,9 +3965,16 @@ const V3_BEATS = [
   /* v0.9.3 · b26 — three more lost_snack absurd_consequence beats
      hitting the missing-snack mechanic (clue/suspicious/reveal/snack
      payoff) with chant + payoff_word causation. */
+  /* v0.9.3 · b30 — added two concrete-event variants. The original "confessed
+     immediately. To a different crime" was funny once but read identically
+     in the b29 random-50 sample regardless of suspect or crime. New variants
+     have the chant cause SPECIFIC visible events (suspect drops the snack /
+     suspect's hiding spot collapses). */
   { id:'v3_ls_payoff_chant_suspect_caves', stage:'payoff', blueprintId:'lost_snack_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','mcguffin','false_suspect','chant'], jokeJob:'absurd_consequence',
     lines: [
       '[name:{protagonist.name}] looked straight at the [c:{false_suspect.text}] and said one word: "[y:{chant.text}]." The [c:{false_suspect.text}] confessed immediately. To a different crime. [name:{protagonist.name}] noted it for later.',
+      '"[y:{chant.text}]!" said [name:{protagonist.name}]. The [c:{false_suspect.text}] froze mid-bite and the [c:{mcguffin.text}] dropped out of its mouth, landing perfectly on [name:{protagonist.name}]\'s plate. Case closed by gravity.',
+      '[name:{protagonist.name}] tried "[y:{chant.text}]" one more time. The [c:{false_suspect.text}]\'s elaborate hiding spot collapsed in three pieces. The [c:{mcguffin.text}] rolled out, blinking in the light.',
     ] },
   { id:'v3_ls_payoff_payword_crumb_reveal', stage:'payoff', blueprintId:'lost_snack_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','mcguffin','payoff_word'], jokeJob:'absurd_consequence',
     lines: [
@@ -4024,6 +4036,20 @@ const V3_BEATS = [
   { id:'v3_ls_landing_payword_callback_tween', stage:'landing', blueprintId:'lost_snack_v3', tiers:['tween'], requiredRoles:['protagonist','ally','payoff_word'], jokeJob:'callback',
     lines: [
       'Walking home, [name:{protagonist.name}] mentally workshopped how to retell this. The [c:{ally.text}] was still chewing. "[y:{payoff_word.text}]," said [name:{protagonist.name}] one last time, just to close the bit. The [c:{ally.text}] said it back, mouth full.',
+    ] },
+  /* v0.9.3 · b30 — RECONTEXTUALIZING callbacks. Human-Golden review showed
+     existing callbacks mostly just REPEAT the silly word at bedtime; the
+     spec calls for callbacks where the word picks up a NEW meaning. These
+     four beats make the chant/payword become a category, a household
+     vocabulary item, a graffito, or shared shorthand — so the word ends
+     the story meaning something it didn't mean at the start. */
+  { id:'v3_ls_landing_chant_recontext_kid', stage:'landing', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','chant'], jokeJob:'callback',
+    lines: [
+      'The next morning at breakfast, [name:{protagonist.name}]\'s mom asked what was for snack. "[y:{chant.text}] crackers," said [name:{protagonist.name}], totally normal. Mom nodded. The [c:{ally.text}] approved. It was just a word that meant something now.',
+    ] },
+  { id:'v3_ls_landing_payword_recontext_tween', stage:'landing', blueprintId:'lost_snack_v3', tiers:['tween'], requiredRoles:['protagonist','ally','payoff_word'], jokeJob:'callback',
+    lines: [
+      'Later, in the group chat, somebody typed "[y:{payoff_word.text}]" with no context. Three people reacted. Two of them weren\'t even there today. The word was officially out. [name:{protagonist.name}] put the phone down.',
     ] },
 
   /* ============================================================
@@ -4125,10 +4151,17 @@ const V3_BEATS = [
      ("heard it made a small noise and stepped aside", "in a way that",
      "applauded the X because manners") in a single beat. Two structurally
      distinct replacements. */
+  /* v0.9.3 · b30 — added a third variant. b29 random-50 review showed the
+     "suddenly remembered somewhere else it needed to be" line was firing in
+     ~30% of kid+tween goal_spine stories and reading as the same outcome
+     regardless of obstacle. Third variant gives the obstacle a specific,
+     visible reaction (sneezes itself off-balance) so the chant feels like
+     a different consequence each time. */
   { id:'v3_gs_payoff_chant_obstacle_caves', stage:'payoff', blueprintId:'goal_spine_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','goal','obstacle','chant'], jokeJob:'absurd_consequence',
     lines: [
       '"[y:{chant.text}]!" yelled [name:{protagonist.name}]. The [c:{obstacle.text}] froze, blinked twice, and quietly slid out of the way. [name:{protagonist.name}] {goal.past}. The [c:{ally.text}] gave a single dignified nod.',
       '[name:{protagonist.name}] said "[y:{chant.text}]" once, calmly. The [c:{obstacle.text}] suddenly remembered somewhere else it needed to be. [name:{protagonist.name}] {goal.past} through the gap. The [c:{ally.text}] noted this for later.',
+      '"[y:{chant.text}]," whispered [name:{protagonist.name}], like a password. The [c:{obstacle.text}] sneezed so hard it lost its balance and pivoted ninety degrees. [name:{protagonist.name}] {goal.past} around it. The [c:{ally.text}] applauded with one paw.',
     ] },
   { id:'v3_gs_payoff_chant_ally_adopts', stage:'payoff', blueprintId:'goal_spine_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','goal','chant'], jokeJob:'absurd_consequence',
     lines: [
@@ -4207,6 +4240,17 @@ const V3_BEATS = [
     lines: [
       'On the way home, [name:{protagonist.name}] played it back. The [c:{ally.text}] kept bouncing along. "[y:{payoff_word.text}]," said [name:{protagonist.name}], filing it. The [c:{ally.text}] heard and stamped its approval, which is a thing the [c:{ally.text}] can apparently do now.',
     ] },
+  /* v0.9.3 · b30 — RECONTEXTUALIZING callbacks for goal_spine_v3. The chant
+     becomes a unit of measure, a class of moment, or a household phrase —
+     not just a repeated word. */
+  { id:'v3_gs_landing_chant_recontext_kid', stage:'landing', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','chant'], jokeJob:'callback',
+    lines: [
+      'After dinner, [name:{protagonist.name}]\'s dad asked how the day went. "It was a [c:{chant.text}] kind of day," said [name:{protagonist.name}]. Dad nodded like he understood. He did not understand. He filed it anyway.',
+    ] },
+  { id:'v3_gs_landing_chant_recontext_tween', stage:'landing', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','ally','chant'], jokeJob:'callback',
+    lines: [
+      'Days later, [name:{protagonist.name}] caught the [c:{ally.text}] using "[y:{chant.text}]" as a verb. As in, "I [c:{chant.text}]\'d the cereal." [name:{protagonist.name}] didn\'t correct it. The word was load-bearing now.',
+    ] },
 
   /* ============================================================
      show_wrong_v3 — kid + ally prepare a show; prop breaks or co-star
@@ -4258,7 +4302,7 @@ const V3_BEATS = [
   { id:'v3_sw_attempt_move_chant', stage:'attempt', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','signature_action','chant'],
     lines: [
       '[name:{protagonist.name}] improvised. "[y:{chant.text}]!" Then [c:{signature_action.text}]. Then "[y:{chant.text}]!" again, louder. The pillows were INTO IT.',
-      '[name:{protagonist.name}] [c:{signature_action.text}] and shouted "[y:{chant.text}]!" The audience leaned in. Sometimes nonsense lands.',
+      '[name:{protagonist.name}] [c:{signature_action.text}] and shouted "[y:{chant.text}]!" The pillows leaned forward. One actually fell over from leaning. The bit was working.',
       'Out came the only word that fit: "[y:{chant.text}]." [name:{protagonist.name}] [c:{signature_action.text}] for emphasis. The bit was a different bit now.',
     ] },
   { id:'v3_sw_attempt_move', stage:'attempt', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','signature_action'],
@@ -4431,9 +4475,13 @@ const V3_BEATS = [
     lines: [
       '[name:{protagonist.name}] [c:{signature_action.text}] sideways while holding the [c:{loophole_tool.text}]. This was a different move than the one the rule said no to. A different move! The rule said nothing back.',
     ] },
+  /* v0.9.3 · b30 — added a second variant. "located the loophole" was firing
+     repeatedly in tween rule_loophole stories and reading as the same
+     non-event. New variant has the loophole_tool DO something specific. */
   { id:'v3_rl_attempt_tween_tool', stage:'attempt', blueprintId:'rule_loophole_v3', tiers:['tween'], requiredRoles:['protagonist','loophole_tool'],
     lines: [
       '[name:{protagonist.name}] located the loophole. It involved the [c:{loophole_tool.text}] and a very specific reading of the rule. [name:{protagonist.name}] did not point this out. Pointing it out is rookie behavior.',
+      '[name:{protagonist.name}] picked up the [c:{loophole_tool.text}] and held it at a specific angle. The rule, as written, said nothing about that angle. The angle was now load-bearing. [name:{protagonist.name}] did not blink.',
     ] },
 
   { id:'v3_rl_escalation_1', stage:'escalation', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','rule_imposer','loophole_tool'],
@@ -4458,17 +4506,25 @@ const V3_BEATS = [
      either makes the rule literally break, or the rule_imposer
      misinterprets the chant as a code word, or the loophole_tool
      activates absurdly. */
+  /* v0.9.3 · b30 — replaced vague "rule developed a small visible crack"
+     metaphor with concrete physical events. Human-Golden review surfaced that
+     this beat was telling, not showing. */
   { id:'v3_rl_payoff_chant_rule_cracks', stage:'payoff', blueprintId:'rule_loophole_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','mcguffin','rule_imposer','chant'], jokeJob:'absurd_consequence',
     lines: [
-      '"[y:{chant.text}]!" said [name:{protagonist.name}]. The rule developed a small visible crack. Nobody could see it, but everyone agreed it was there. The [c:{rule_imposer.text}] handed over the [c:{mcguffin.text}] without comment.',
+      '"[y:{chant.text}]!" said [name:{protagonist.name}]. The [c:{rule_imposer.text}]\'s clipboard slipped. The "no" on the paper smudged into something that looked an awful lot like "yes." The [c:{mcguffin.text}] floated, unhurried, into [name:{protagonist.name}]\'s hand.',
+      '"[y:{chant.text}]!" went [name:{protagonist.name}]. The sign the [c:{rule_imposer.text}] had been holding folded itself neatly in half and fell to the floor. The [c:{rule_imposer.text}] stared at it. [name:{protagonist.name}] picked up the [c:{mcguffin.text}] in the silence.',
     ] },
   { id:'v3_rl_payoff_chant_imposer_misreads', stage:'payoff', blueprintId:'rule_loophole_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','mcguffin','rule_imposer','chant'], jokeJob:'absurd_consequence',
     lines: [
       '"[y:{chant.text}]!" went [name:{protagonist.name}]. The [c:{rule_imposer.text}] heard a code word it apparently knew, mumbled "ah, the [c:{chant.text}] clause," and waved [name:{protagonist.name}] through with the [c:{mcguffin.text}]. There was no [c:{chant.text}] clause.',
     ] },
+  /* v0.9.3 · b30 — "did something briefly impressive that nobody could later
+     describe" was the exact kind of vague outcome the spec called out. Now
+     the loophole_tool does a SPECIFIC silly thing the kid can picture. */
   { id:'v3_rl_payoff_payword_tool_activates', stage:'payoff', blueprintId:'rule_loophole_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','mcguffin','loophole_tool','payoff_word'], jokeJob:'absurd_consequence',
     lines: [
-      '[name:{protagonist.name}] held up the [c:{loophole_tool.text}] and said "[y:{payoff_word.text}]." The [c:{loophole_tool.text}] did something briefly impressive that nobody could later describe. The [c:{mcguffin.text}] arrived in [name:{protagonist.name}]\'s hand.',
+      '[name:{protagonist.name}] held up the [c:{loophole_tool.text}] and said "[y:{payoff_word.text}]." The [c:{loophole_tool.text}] vibrated. Then it pointed itself at the [c:{mcguffin.text}], which rolled three feet toward [name:{protagonist.name}] of its own accord.',
+      '"[y:{payoff_word.text}]," said [name:{protagonist.name}], lifting the [c:{loophole_tool.text}]. The [c:{loophole_tool.text}] beeped (it had never beeped before). The [c:{rule_imposer.text}]\'s paperwork rearranged itself into a permission slip. Hand-signed.',
     ] },
   /* v0.9.3 · b26 — three more rule_loophole absurd_consequence beats
      hitting the literal-interpretation / authority-confusion mechanic. */
@@ -4566,9 +4622,15 @@ const V3_BEATS = [
     lines: [
       '[name:{protagonist.name}] [c:{signature_action.text}] like a professional who had committed to a specific kind of unhinged. The [c:{obstacle.text}] had not budgeted for this. [name:{protagonist.name}] did not break eye contact.',
     ] },
+  /* v0.9.3 · b30 — added two variants. Original "mentally screenshotted it"
+     line was telling, not showing — landed identically across many tween
+     goal_spine stories. New variants give the obstacle a SPECIFIC visible
+     micro-fail with the mcguffin. */
   { id:'v3_gs_escalation_tween_screenshot', stage:'escalation', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','obstacle','mcguffin'],
     lines: [
       'The [c:{obstacle.text}] tried something with the [c:{mcguffin.text}]. [name:{protagonist.name}] mentally screenshotted it. Could be evidence later. Probably wouldn\'t be.',
+      'The [c:{obstacle.text}] picked up the [c:{mcguffin.text}], examined it like it was an artifact, and put it back upside down. [name:{protagonist.name}] said absolutely nothing. The silence was the whole bit.',
+      'The [c:{obstacle.text}] tried to do something authoritative with the [c:{mcguffin.text}] and instead just kind of fumbled it. [name:{protagonist.name}] watched. Time slowed down. The fumble kept fumbling.',
     ] },
   { id:'v3_gs_payoff_tween_logged', stage:'payoff', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','goal','obstacle','ally'],
     lines: [
@@ -4604,7 +4666,7 @@ const V3_BEATS = [
     ] },
   { id:'v3_rl_attempt_tween_filed', stage:'attempt', blueprintId:'rule_loophole_v3', tiers:['tween'], requiredRoles:['protagonist','loophole_tool'],
     lines: [
-      '[name:{protagonist.name}] located the loophole within seconds. It involved the [c:{loophole_tool.text}] and a generous interpretation. Pointing it out would be amateur. [name:{protagonist.name}] simply executed.',
+      '[name:{protagonist.name}] held up the [c:{loophole_tool.text}] like a permit. The angle was specific. The angle was correct. The rule, as written, had nothing to say about the angle. [name:{protagonist.name}] simply executed.',
     ] },
   { id:'v3_rl_payoff_tween_logged', stage:'payoff', blueprintId:'rule_loophole_v3', tiers:['tween'], requiredRoles:['protagonist','mcguffin','rule_imposer'],
     lines: [
