@@ -17,7 +17,7 @@
    labeling: product is in late beta (v0.9.x), engine is still v3 internally. The
    historical v3.0.0-v3.0.3 CHANGELOG entries stay as-is for traceability. */
 const APP_VERSION  = 'v0.9.3';
-const BUILD_NUMBER = 28;
+const BUILD_NUMBER = 29;
 
 /* v0.9.3 · b8 — Narrator Voice Selector MVP.
    v0.9.3 · b16 — lineup refresh.
@@ -662,7 +662,7 @@ const WORD_BANK = {
        older iOS/Android still in the wild; "fire bird" is the safe word-emoji match);
        centaur 🐎 → talking horse 🐎 (more age-6 friendly per user spec).
        Added sock monster 🧦, tiny wizard 🪄, backpack troll 🎒. Pool 24 → 27. */
-    { cat: 'creature',label: 'Pick a creature',        options: [{w:'robot',     e:'🤖'}, {w:'mermaid',   e:'🧜'}, {w:'wizard',    e:'🧙'}, {w:'pirate',    e:'🏴‍☠️'}, {w:'ninja',     e:'🥷'}, {w:'goblin',    e:'👺'}, {w:'knight',    e:'⚔️'}, {w:'alien',     e:'👽'}, {w:'witch',     e:'🧙‍♀️'}, {w:'stone giant',e:'🗿'}, {w:'ghost',     e:'👻'}, {w:'troll',     e:'🧌'}, {w:'vampire',   e:'🧛'}, {w:'fairy',     e:'🧚'}, {w:'dinosaur',  e:'🦖'}, {w:'fire bird', e:'🔥'}, {w:'talking horse',e:'🐎'}, {w:'yeti',      e:'🦣'}, {w:'talking sandwich',e:'🥪'}, {w:'substitute teacher',e:'🧑‍🏫'}, {w:'lunch wizard',e:'🍱'}, {w:'hallway ghost',e:'🚪'}, {w:'tiny king', e:'👑'}, {w:'grumpy cloud',e:'☁️'}, {w:'sock monster',e:'🧦'}, {w:'tiny wizard',e:'🪄'}, {w:'backpack troll',e:'🎒'}] },
+    { cat: 'creature',label: 'Pick a creature',        options: [{w:'robot',     e:'🤖'}, {w:'mermaid',   e:'🧜'}, {w:'wizard',    e:'🧙'}, {w:'pirate',    e:'🏴‍☠️'}, {w:'ninja',     e:'🥷'}, {w:'goblin',    e:'👺'}, {w:'knight',    e:'⚔️'}, {w:'alien',     e:'👽'}, {w:'witch',     e:'🧙‍♀️'}, {w:'stone giant',e:'🗿'}, {w:'ghost',     e:'👻'}, {w:'troll',     e:'🧌'}, {w:'vampire',   e:'🧛'}, {w:'fairy',     e:'🧚'}, {w:'dinosaur',  e:'🦖'}, {w:'fire bird', e:'🐦‍🔥'}, {w:'talking horse',e:'🐎'}, {w:'yeti',      e:'🐻‍❄️'}, {w:'talking sandwich',e:'🥪'}, {w:'substitute teacher',e:'🧑‍🏫'}, {w:'lunch wizard',e:'🍱'}, {w:'hallway ghost',e:'🚪'}, {w:'tiny king', e:'👑'}, {w:'grumpy cloud',e:'☁️'}, {w:'sock monster',e:'🧦'}, {w:'tiny wizard',e:'🪄'}, {w:'backpack troll',e:'🎒'}] },
     { cat: 'move',    label: 'Pick a move',            options: [{w:'zoomed',    e:'⚡'}, {w:'tiptoed',   e:'👣'}, {w:'bounced',   e:'🏀'}, {w:'spun',      e:'🌀'}, {w:'leapt',     e:'🦘'}, {w:'galloped',  e:'🏇'}, {w:'tumbled',   e:'🤸'}, {w:'glided',    e:'🪂'}, {w:'charged',   e:'🐂'}, {w:'crept',     e:'🐛'}, {w:'soared',    e:'🦅'}, {w:'skated',    e:'⛸️'}, {w:'shimmied',  e:'🎵'}, {w:'wobbled',   e:'🌊'}, {w:'marched',   e:'🥁'}, {w:'stomped',   e:'🦶'}, {w:'danced',    e:'💃'}, {w:'sprinted',  e:'🏃'}, {w:'cartwheeled',e:'🛞'}, {w:'slid',      e:'🛝'}, {w:'zigzagged', e:'🪃'}, {w:'moonwalked',e:'🕺'}, {w:'belly-flopped',e:'💦'}, {w:'shuffled',  e:'🚶'}] },
     /* v0.9.3 · b15 — "professionally confused 🤔" → "puzzled 🧩" (age-6 friendly +
        puzzle-piece emoji matches the word); "jubilant 🎉" → "super happy 😄" (age-6

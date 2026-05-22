@@ -645,9 +645,11 @@ const V2_WORDS = {
       sounds:['harumph','tiny shuffle','grumble'] },
     /* v3.0.3 — "banshee" was reported by parent as too advanced for kid tier (6-7) +
        the 🌬️ wind emoji didn't read as creature. Renamed to "yeti" — universally
-       known by 6-year-olds (Frozen, Lego, kids' books) with intuitive 🦣 mammoth
-       emoji conveying "big furry beast." */
-    { id:'yeti', text:'yeti', emoji:'🦣', article:'a',
+       known by 6-year-olds (Frozen, Lego, kids' books). v0.9.3 · b29 — emoji
+       changed from 🦣 mammoth (read as elephant / wooly mammoth, not yeti) to
+       🐻‍❄️ polar bear (large furry white snow creature — closest visual proxy
+       for yeti that exists in Unicode). */
+    { id:'yeti', text:'yeti', emoji:'🐻‍❄️', article:'a',
       traits:['snowy','huge','surprisingly gentle'],
       actions:['stomped softly through the snow','offered a warm mitten','left enormous footprints behind'],
       sounds:['low rumble','soft growl','quiet huff'] },
