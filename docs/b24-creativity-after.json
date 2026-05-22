@@ -1,0 +1,143 @@
+{
+  "N": 50,
+  "glueHits": {
+    "glow": 4,
+    "room_picked_up": 12,
+    "just_to_make": 8,
+    "possibly_memory": 3,
+    "act_normal": 4,
+    "meant_business": 6
+  },
+  "polishHits": {
+    "title_bare_verb": 0,
+    "plural_was": 0,
+    "a_plural": 0
+  },
+  "skyPhysHits": 0,
+  "highImpactPunchlineHits": 50,
+  "totalFreewordPicks": 50,
+  "best": [
+    {
+      "i": 9,
+      "age": 10,
+      "tier": "big",
+      "picks": {
+        "freeword": "sneezy-pants",
+        "freeword2": "Captain Noodle"
+      },
+      "title": "Who Took the Thunder Pancakes?",
+      "body": "Cole and the ancient tortoise were at the mossy labyrinth. Cole had been saving the thunder pancakes all morning. The ancient tortoise was extra excited.\nNo thunder pancakes anywhere. Cole went absolutely bonkers like a tiny detective. The philosophical crab hummed a song nobody had asked for.\nCole put on their most absolutely bonkers expression and walked very slowly toward the philosophical crab. The philosophical crab tried to back away. \"Tell me what you saw,\" said Cole, staying absolutely bonkers. The philosophical crab cracked immediately.\nThe ancient tortoise suddenly found something fascinating on the ceiling. \"Hey,\" said Cole. The ancient tortoise would not look down. The thunder pancakes had vanished. So had the ancient tortoise's alibi. Connected. Cole scuttled with purpose without thinking. It was a thing they did now.\n\"sneezy-pants!\" went Cole. \"sneezy-pants!\" went the ancient tortoise. \"sneezy-pants!\" went the thunder pancakes, somehow. The investigation closed on the spot. Somebody could have sworn the air went a little deep crimson. \"Captain Noodle,\" went somebody. Nobody asked who.\nThat night, Cole curled up. The ancient tortoise, full of stolen crumbs, curled up too. Tomorrow: more snacks. Tonight: rest.",
+      "score": 12
+    },
+    {
+      "i": 15,
+      "age": 2,
+      "tier": "tot",
+      "picks": {
+        "freeword": "glorp",
+        "freeword2": "bubble wand"
+      },
+      "title": "Cole Sees the Firework",
+      "body": "Cole spotted the duck from across the room. Cole waved. The duck waved back.\n\"glorp!\" said Cole. The duck said \"glorp!\" back. Then the firework sneezed. The duck said \"bless you\" to the firework.\n\"glorp?\" said Cole. \"glorp!\" said the duck. Then the firework wiggled. Just a little. Everyone saw it. There was a small stomped moment that nobody quite witnessed in full. The brown thing was happening again, whatever it was.\nCole picked up the duck for a hug. \"Night, duck,\" said Cole. Then Cole curled up.",
+      "score": 12
+    },
+    {
+      "i": 21,
+      "age": 3,
+      "tier": "tot",
+      "picks": {
+        "freeword": "bubble wand",
+        "freeword2": "splat"
+      },
+      "title": "Cole Says Hi!",
+      "body": "\"Come on, duck!\" said Cole. The duck came. Cole led the way.\n\"bubble wand?\" said Cole. \"bubble wand!\" said the duck. Then the cereal wiggled. Just a little. Everyone saw it.\n\"bubble wand!\" said Cole. The duck said \"bubble wand!\" back. Then the cereal sneezed. The duck said \"bless you\" to the cereal. For exactly two seconds, Cole crawled like it was a job. The silver thing was happening again, whatever it was.\nNow Cole is sleepy. The duck is sleepy too. Good night, duck. Good night, Cole.",
+      "score": 12
+    },
+    {
+      "i": 24,
+      "age": 3,
+      "tier": "tot",
+      "picks": {
+        "freeword": "bubble wand",
+        "freeword2": "tiny piano"
+      },
+      "title": "Cole and the Corn",
+      "body": "Cole ran outside. The cow was right there. \"Hi cow!\" said Cole.\n\"bubble wand!\" said Cole. The cow said \"bubble wand!\" back. Then the corn sneezed. The cow said \"bless you\" to the corn.\n\"bubble wand?\" said Cole. \"bubble wand!\" said the cow. Then the corn wiggled. Just a little. Everyone saw it. For exactly two seconds, Cole peeked like it was a job. For a beat the whole place looked weirdly pink.\nCole picked up the cow for a hug. \"Night, cow,\" said Cole. Then Cole curled up.",
+      "score": 12
+    },
+    {
+      "i": 49,
+      "age": 3,
+      "tier": "tot",
+      "picks": {
+        "freeword": "bonk",
+        "freeword2": "paper crown"
+      },
+      "title": "Hi, Pig!",
+      "body": "Cole spotted the pig from across the room. Cole waved. The pig waved back.\n\"bonk?\" said Cole. \"bonk!\" said the pig. Then the apple wiggled. Just a little. Everyone saw it.\n\"bonk!\" said Cole. The pig said \"bonk!\" back. Then the apple sneezed. The pig said \"bless you\" to the apple. Somewhere in there, Cole wiggled for emphasis. Somebody could have sworn the air went a little red.\nCole picked up the pig for a hug. \"Night, pig,\" said Cole. Then Cole curled up.",
+      "score": 12
+    }
+  ],
+  "worst": [
+    {
+      "i": 38,
+      "age": 13,
+      "tier": "tween",
+      "picks": {
+        "freeword": "blorp",
+        "freeword2": "grumblepoof"
+      },
+      "title": "Cole vs the Shadow Entity",
+      "body": "At the drama hallway, Cole had committed to one thing: the leftover pasta. The mantis shrimp was technically the witness. The mission, technically, involved the leftover pasta.\nThe leftover pasta had vanished. Cole felt minorly iconic about it, in a way that meant business. The shadow entity noticed and tried to act normal. It was not working.\nCole took a mental screenshot of the room. Three angles. Multiple suspects. The mantis shrimp looked away too quickly. Filed for later. For exactly two seconds, Cole speed-walked nowhere like it was a job. A faint moss green glow hung over the scene by then. Once, very quietly, Cole muttered \"blorp\" under their breath.\nThe real culprit, obviously, was the mantis shrimp. Cole should have known. The mantis shrimp had crumbs of leftover pasta on its face and zero regret in its eyes. Just then a \"grumblepoof\" cracked the silence. Nobody admitted to it.\nEveryone got some leftover pasta in the end, even the mantis shrimp, which was technically the criminal. Justice was unevenly served. Everyone agreed the leftover pasta tasted great.\nCole went home thinking about it. The mantis shrimp followed, looking satisfied. Some mysteries solve themselves. This one had the mantis shrimp on its face the whole time.",
+      "score": 0
+    },
+    {
+      "i": 26,
+      "age": 7,
+      "tier": "kid",
+      "picks": {
+        "freeword": "sproing",
+        "freeword2": "splat"
+      },
+      "title": "Who Took the Burritos?",
+      "body": "At the bus stop, Cole set the burritos down for one second. The fennec fox watched. Cole turned to grab a napkin. Just one second.\nThe burritos had vanished. Cole felt legendary about it, in a way that meant business. The robot noticed and tried to act normal. It was not working.\nCole turned slowly to the fennec fox. The fennec fox pretended to be very interested in a leaf. The fennec fox had been holding that leaf the whole time. It was a fake leaf. \"Caught,\" said Cole. Cole stomped without thinking. It was a thing they did now. \"splat,\" went somebody. Nobody asked who.\n\"sproing!\" yelled Cole. The fennec fox squawked back. Everyone agreed to share the next batch of burritos. The robot demanded a formal apology. Cole gave one. Everything in the room had picked up a faint neon tint.\nThat night, Cole curled up. The fennec fox, full of stolen crumbs, curled up too. Tomorrow: more snacks. Tonight: rest.",
+      "score": 0
+    },
+    {
+      "i": 34,
+      "age": 12,
+      "tier": "tween",
+      "picks": {
+        "freeword": "rubber duck",
+        "freeword2": "bonkledink"
+      },
+      "title": "Cole and the Gas Station Sushi Mystery",
+      "body": "At the bus stop, Cole had committed to one thing: the gas station sushi. The pigeon was technically the witness. The mission, technically, involved the gas station sushi.\nThe gas station sushi had vanished. Cole felt emotionally buffering about it, in a way that meant business. The cafeteria cryptid noticed and tried to act normal. It was not working.\nCole stared into the middle distance past the cafeteria cryptid in a way that read as deliberate. It was not deliberate. It happened to be exactly right. Later someone would swear they heard \"bonkledink\" in the rafters.\nThe pigeon was avoiding eye contact in a way that was, frankly, suspicious. Also there were gas station sushi crumbs on the floor in a perfect trail leading to the pigeon. Cole connected the dots without saying a word.\nIn the end the gas station sushi got shared. Sort of. The pigeon got the biggest piece, which felt correct, given the circumstances. Cole did not press charges. For a beat the whole place looked weirdly moss green. Out of nowhere, Cole said \"rubber duck\" like a small spell.\nCole went home thinking about it. The pigeon followed, looking satisfied. Some mysteries solve themselves. This one had the pigeon on its face the whole time.",
+      "score": 2
+    },
+    {
+      "i": 13,
+      "age": 10,
+      "tier": "big",
+      "picks": {
+        "freeword": "sock puppet",
+        "freeword2": "sprongulous"
+      },
+      "title": "Cole vs the Partially Trained Wizard",
+      "body": "Cole and the glittering octopus were at the bus depot. Cole had been saving the overconfident pudding all morning. The glittering octopus was extra excited.\nThe overconfident pudding had vanished. Cole felt gloriously incorrect about it, in a way that meant business. The partially trained wizard noticed and tried to act normal. It was not working.\nCole spotted it: a tiny obviously red crumb on the floor. Then another. Then another. The crumbs were leading somewhere. They were not leading to the partially trained wizard.\nCole turned slowly to the glittering octopus. The glittering octopus pretended to be very interested in a leaf. The glittering octopus had been holding that leaf the whole time. It was a fake leaf. \"Caught,\" said Cole. There was a small shuffled importantly moment that nobody quite witnessed in full.\n\"sock puppet!\" said Cole, meaning case closed. The glittering octopus heard it as a command and immediately did a tiny dance. Mid-dance, the overconfident pudding arrived back on the table. No questions. A \"sprongulous\" hung in the air for a second longer than expected.\nThat night, Cole curled up. The glittering octopus, full of stolen crumbs, curled up too. Tomorrow: more snacks. Tonight: rest.",
+      "score": 2
+    },
+    {
+      "i": 46,
+      "age": 4,
+      "tier": "little",
+      "picks": {
+        "freeword": "sneezy sandwich",
+        "freeword2": "gloop"
+      },
+      "title": "The Noisy Spoon Adventure",
+      "body": "It was a bright morning. Cole grabbed the lamb and headed out. \"We have a plan,\" said Cole.\n\"sneezy sandwich,\" whispered Cole, like it was a spell. The noisy spoon flipped over by itself. The lamb looked impressed.\n\"sneezy sandwich!\" said Cole. The lamb said it back. Then they said it together. The noisy spoon hummed along, kind of. Cole slid one more time, just to make a point. Somebody could have sworn the air went a little pink.\nCole tucked the lamb in first, then climbed in too. \"Same time tomorrow?\" said Cole. The lamb was already half asleep.",
+      "score": 4
+    }
+  ]
+}

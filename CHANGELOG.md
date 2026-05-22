@@ -9,6 +9,105 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 24, engine v3.0.3) — 2026-05-22
+**Story Humor Pass — polish fixes, consequence beats, glue-phrase variants, tot/little HIGH_IMPACT**
+
+Story-quality build addressing 5 priorities from a Codex 50-story creativity assessment. b23 raised the floor (Absurd Word Bank + HIGH_IMPACT slots) but humor was still inconsistent: absurd words appeared as decoration rather than causing funny outcomes, glue phrases dominated samples, and a handful of grammar bugs broke individual jokes. b24 fixes the polish bugs, adds 12 consequence beats, expands variant pools, and closes the b23 tot/little HIGH_IMPACT gap.
+
+### Priority 1 — Polish fixes (joke-breaking)
+
+- **goal_spine_v3 title patterns** rewrapped with `Tried to` / `Try to` so bare third-person verbs (`Cole Tell` / `Cole Invent` / `Cole Build`) become correct after the infinitive marker.
+- **4 lost_snack_v3 beats** fixed for plural-mcguffin singular-verb leaks: `pretzels was unaccounted for` / `taquitos was technically the mission` / `taquitos was very good` / `taquitos was acquired` → restructured to plural-neutral verbs.
+- **binoculars** in `V2_WORDS.objects` marked `isPlural: true` so `articleText` returns `some binoculars` instead of the leak `a binoculars` via the b15 picker-clone path.
+- **`v3_tl_tot_repeat_hat`** split into two lines — old `put the [wonder] on top of [ally]'s head` read absurd-in-a-bad-way when the wonder was sky-class (cloud, star, comet, moon).
+
+### Priority 2 — Comedy-role contract
+
+New `jokeJob` taxonomy comment + metadata field on `V3_BEATS`:
+
+```
+setup / escalation / reversal / physical_gag / callback /
+punchline / cozy_landing / absurd_consequence
+```
+
+NEW b24 beats tagged. Retroactive tagging of ~150 pre-b24 beats queued for **b25**.
+
+### Priority 3 — 12 new HIGH_IMPACT absurd_consequence beats
+
+3 per blueprint (lost_snack / goal_spine / show_wrong / rule_loophole). The kid's chosen chant or payoff_word now CAUSES a scene event instead of merely decorating it. Patterns:
+
+- mcguffin reappears on its own
+- ally misunderstands chant as a command
+- room/audience chants it back
+- obstacle steps aside hearing it
+- ally adopts it as new favorite word
+- mcguffin vibrates / responds physically
+- broken prop comes back to life
+- crowd makes chant the show's name
+- ally treats payoff_word as the new cue
+- rule develops a visible crack
+- rule_imposer misreads chant as a code word
+- loophole_tool activates absurdly
+
+All read-aloud safe, kid+big tier-tagged.
+
+### Priority 4 — Glue-phrase variant pools
+
+`FLAVOR_CALLBACKS` pools expanded from 2 → 5 variants for `signature_action`, `visual_signature`, `chant`, `payoff_word`. `v3_ls_problem_mood` expanded 1 → 4 variants.
+
+### Priority 5 — Tot/little HIGH_IMPACT
+
+`chant: 'sound'` role added to all 4 tot/little blueprint `roleMap`s. 5 new `tl_silly_repeat` beats authored with call-and-response `"[y:{chant.text}]?"` / `"[y:{chant.text}]!"` pattern + gentle physical gags (wonder wiggles, sneezes, hums, flips by itself). Beats require `chant` so they fire only when sound was picked. **Closes the b23 honest-callout gap:** ages 2-5 now ALSO surface absurd-bank picks in `[y:...]` punchline tokens.
+
+### Results (50-story random V3 sample, stripped-text regex)
+
+| Glue phrase | BEFORE | AFTER | Δ |
+|---|---|---|---|
+| "A faint X glow" | 52% | **8%** | −44pp |
+| "Everything in the room had picked up" | 44% | **24%** | −20pp |
+| "one more time, just to make a point" | 36% | **16%** | −20pp |
+| "possibly a memory" | 14% | **6%** | −8pp |
+| "noticed and tried to act normal" | 16% | **8%** | −8pp |
+| "in a way that meant business" | 16% | **12%** | −4pp |
+
+| Polish issue | BEFORE | AFTER |
+|---|---|---|
+| Title bare-verb (`Cole Tell/Share/Build/...`) | 1/50 | **0/50** |
+| Plural-mcguffin singular-verb | 4/50 | **0/50** |
+| `a binoculars`-class article error | 0/50 | 0/50 |
+| Sky-physicality leak | 1/50 | **0/50** |
+
+**HIGH_IMPACT punchline landing rate (freeword pick → `[y:...]` token): 60% → 100%** (gain from tot/little chant-role addition).
+
+### New QA Section 18 (Story Humor Pass audit, 7 cases)
+
+- No title bare-verb leaks in V3 patterns
+- No singular-verb on `{mcguffin.text}` ("was unaccounted for")
+- `binoculars` has `isPlural: true`
+- ≥12 `absurd_consequence` beats present
+- Spread across all 4 kid+big+tween blueprints
+- tot/little blueprints declare `chant: 'sound'`
+- ≥2 tot/little beats render `[y:{chant.*}]`
+
+All 7 pass.
+
+### New dev tool
+
+`scripts/creativity-sample.js` — reproducible 50-story BEFORE/AFTER report. `--json` mode emits structured output for diff scripting. `docs/b24-creativity-diff.md` captures the full b24 diff.
+
+### Acceptance
+
+- `scripts/qa-current.js` — all **25 gates green** (Section 18 added)
+- Section 14 voice resolver — 21/21
+- Section 17 HIGH_IMPACT audit — 18/18
+- Section 18 Story Humor Pass audit — 7/7 (new)
+- `node --check` on `src/content.js` + `src/engine-v2.js` + `api/tts.js` + `scripts/qa-current.js` — clean
+- Inline `<script>` syntax — clean
+
+`APP_VERSION` stays `v0.9.3`; `BUILD_NUMBER` 23 → **24**; `ENGINE_V2_VERSION` stays `v3.0.3`. Badge reads `v0.9.3 · b24`.
+
+---
+
 ## v0.9.3 (build 23, engine v3.0.3) — 2026-05-22
 **Absurd Word Bank + HIGH_IMPACT slots + Cheerful narrator rebrand**
 
