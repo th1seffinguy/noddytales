@@ -1568,6 +1568,8 @@ const MAX_SHUFFLES = 2;
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest 5 entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v0.9.3 · b23', title: 'Absurd Word Bank + HIGH_IMPACT slots + Cheerful narrator rebrand',
+    detail: 'Two coordinated content changes: (A) HIGH_IMPACT punchline slots now pull from a dedicated Absurd Word Bank so the kid\'s shouted/announced/revealed word lands funny, not flat; (B) the "Silly" narrator preset is rebranded to "Cheerful" so the label honestly describes the voice (Mimi reads as bright + warm, not high-pitched cartoon). PART A — ABSURD WORD BANK. Notion Build Idea 36813aa1-d4db-8147-84a8-eb888c5c6900 ("High-impact word slots: force funnier, more absurd choices"). Live testing flagged template lines like "shouted whatever came to mind: [WORD]" rendering as "shouted whatever came to mind: Zap" — technically correct, not funny. Root cause: the freetext example hints suggested neutral words. b23 ships ABSURD_WORD_BANK in src/content.js: 56 tier-tagged entries across 4 categories (sillySounds: glorp/blorp/squonk/fwoosh/kabloom/...; grossButSafe: stinky bananas/booger cloud/burp bubble/sneezy sandwich/...; randomObjects: cheese hat/rubber duck/underpants helmet/Captain Noodle/...; nonsenseCompound: wobble-flop/sneezy-pants/jiggly blorp/flumpy/...). tot has 15 eligible entries; little/kid/big/tween each have 30+. Tier eligibility excludes tot from grossButSafe + nonsenseCompound per design (ages 2-3 don\'t need bathroom humor primed and compound silliness is harder to grok). New absurdWordsForTier(tier, n) + absurdHintsForTier(tier) helpers. PART A — HIGH_IMPACT WIRING. New HIGH_IMPACT_ROLES = [chant, payoff_word] + HIGH_IMPACT_PICKER_CATEGORIES = [sound, freeword, freeword2] declarative constants in engine-v2.js. New applyHighImpact(round, tier) helper in index.html buildRounds(): when a freetext freeword/freeword2 round is selected, its `examples` array is replaced with 3 fresh absurd-bank hints tier-appropriate. Sound tap round (already SOUND_HOT_OPTS-sourced, already absurd by construction) gets the highImpact tag for QA-side verification. Kid escape-hatch freetext also wrapped. Static FREE_TEXT_ROUNDS arrays in src/content.js stay untouched — examples are stripped + replaced at session-construction time. NEW QA SECTION 17 (18 cases): ABSURD_WORD_BANK ≥50 entries across 4 named categories; per-tier eligibility floors (tot ≥12, little/kid/big/tween ≥30); every HIGH_IMPACT_ROLES role surfaces in [y:...] punchline tokens across V3_BEATS; HIGH_IMPACT_PICKER_CATEGORIES coverage; every HIGH_IMPACT freetext round has a non-empty examples array (so the override target exists); absurdHintsForTier returns ≥1 hint per tier. All 18 pass. Note on inverse direction: [y:...] is ALSO legitimately used for non-punchline emphasis (e.g. [y:{setting.text}] for place-name highlighting in setup beats), so the audit only enforces the forward direction (HIGH_IMPACT → [y:...]). PART B — CHEERFUL REBRAND. User feedback after b20/b22: "Silly" + "high-pitched, goofy" was the wrong target for Mimi\'s actual voice quality (bright, warm, lightly accented). b23 renames the preset to Cheerful: label "Silly" → "Cheerful"; tagline "High-pitched, goofy, extra expressive" → "Bright, warm, lifts the mood"; previewText "Hi, I\'m Silly. I make stories sound extra goofy!" → "Hi, I\'m Cheerful. I\'m here to lighten the mood." Preset KEY stays `silly` so saved nt_voice_preset values, the ELEVENLABS_VOICE_SILLY env-var name, and the b22 IndexedDB cache (preview:v2:silly + v2:silly|<sha>) all survive untouched. Mimi (zrHiDhphv9ZnVXBqCLjz) stays as the hardcoded defaultId — she\'s now the intended Cheerful voice, not a documented backstop. The per-request console.warn that fired on every Mimi resolve (added b20) is DROPPED; resolving silly via hardcodedPerPreset is now the happy path. api/tts.js header + silly comment block rewritten to reflect the rebrand; b17 Gigi and b18 Mimi-as-rejected-cartoon history kept in comments for traceability. README narrator-lineup table updated; the "Required for genuine Silly: override ELEVENLABS_VOICE_SILLY" panic section removed; ELEVENLABS_VOICE_SILLY documented at parity with the other three env vars (optional override). HONEST CALLOUT (deferred): tot/little v3 blueprints have no chant/payoff_word roles — they use protagonist/ally/wonder_object only. So tot/little kids see absurd hints in the picker but their picked word doesn\'t land in a [y:...] punchline. Adding HIGH_IMPACT slots to tot/little blueprints is a candidate follow-up build. ACCEPTANCE: scripts/qa-current.js all 24 gates green; Section 14 voice resolver 21/21 (celebrity blocklist clean on "Cheerful"); Section 17 HIGH_IMPACT audit 18/18; node --check on src/content.js + api/tts.js + src/engine-v2.js + scripts/qa-current.js — clean. Sample stories across all 5 tiers eyeballed + approved by John before merge. APP_VERSION stays v0.9.3; BUILD_NUMBER 22 → 23; ENGINE_V2_VERSION stays v3.0.3. Badge reads v0.9.3 · b23.' },
   { v: 'v0.9.3 · b22', title: 'Voice cache versioning + signature observability + same-voice collapse detection — fixes "all previews are George" at the cache layer',
     detail: 'Production-blocking defect. Parents report all 4 voice preview buttons play the same male British narrator (George). The resolver chain has been fixed 4 times since b8 (b16/b17/b18/b20) and Section 14 has been 14/14 green every time — but the bug kept recurring. ROOT CAUSE: stale IndexedDB preview blobs. The b8-b21 preview cache key was unversioned (`preview:sunny`, `preview:cozy`, etc.) so any user who EVER previewed during a deploy where production env vars collapsed all 4 presets to George has 4 IndexedDB entries containing George audio. Every subsequent tap returns CACHE HIT → replays George → never reaches the fixed resolver. Section 14 tests resolveVoice as a pure function with mock env; the cache layer is browser-side and was untested. FIX (4 parts): (1) VOICE_CACHE_VERSION constant in src/content.js (currently `v2`). New cache keys: `preview:v2:<preset>` + `v2:<preset>|<sha>`. Bumping this constant orphans pre-b22 blobs without forcing users to manually clear browser storage; orphans get GC\'d by the browser\'s IndexedDB quota policy. (2) /api/tts JSON response now carries voicePreset, voiceSource, voiceConfigVersion, and voiceSignature (first 8 hex chars of SHA-256(voiceId) — irreversible fingerprint). Lets DevTools verify 4 distinct voices without manual audio A/B. Raw ElevenLabs voice IDs stay server-side. (3) detectVoiceCollapse(env) helper in api/tts.js: runs resolveVoice for all 4 presets, returns collision groups. Per-request console.warn fires when any 2+ presets share a voiceSignature, naming the specific preset keys. Catches the b16 production failure mode (operator pointed all 4 env vars at George) at request time. (4) window.qaVoicePreviews() browser dev helper: fetches metadata for all 4 previews, prints a console.table with preset/cacheKey/cacheHit/voiceSignature, flags any signature collisions. Uses cache-aware probePreviewMeta that returns from cache when meta is present, otherwise hits /api/tts. Doesn\'t auto-play audio. NEW QA: 5 new Section 14 cases (voiceSignature shape + determinism + uniqueness, detectVoiceCollapse happy path + env-collapse + partial collapse, VOICE_CONFIG_VERSION shape). Section 14 went 14 → 19 cases (all pass). README adds a voice troubleshooting section covering stale-cache + env-collapse failure modes + the qaVoicePreviews diagnostic. README opener no longer says "warm British narrator voice" (stale since b8). HONESTY DISCLOSURE: Claude has no audio playback. b22 is the ARCHITECTURAL FIX that prevents the cache class of bug from recurring, but final audible verification must be done by John in production after deploy. If audio still sounds collapsed, qaVoicePreviews() + Vercel logs will show the exact diagnostic. APP_VERSION stays v0.9.3; BUILD_NUMBER 21 → 22; ENGINE_V2_VERSION stays v3.0.3. Badge reads v0.9.3 · b22.' },
   { v: 'v0.9.3 · b21', title: 'Rainbow decoration no longer clips the welcome-back lede — moved to empty top-center band',
@@ -1891,6 +1893,28 @@ function tierFor(age) {
 }
 
 
+/* v0.9.3 · b23 — HIGH_IMPACT round marker.
+   Notion Build Idea: 36813aa1-d4db-8147-84a8-eb888c5c6900.
+
+   Rounds that feed engine "punchline" roles (chant / payoff_word, rendered
+   with [y:...] yellow highlight tokens) are marked highImpact:true here.
+   For freetext rounds we ALSO swap the per-prompt `examples` array with
+   3 tier-appropriate entries drawn live from ABSURD_WORD_BANK so the
+   hint chips a kid sees are absurd-flavored (priming "stinky bananas"
+   over "Zap"). Original FREE_TEXT_ROUNDS entries are never mutated —
+   we return a new object every session. The chosen sound tap round
+   (SOUND_HOT_OPTS) is already absurd by construction; tagging it
+   highImpact lets the QA Section 17 audit verify the contract end-to-end. */
+function applyHighImpact(round, tier) {
+  if (!round) return round;
+  const out = { ...round, highImpact: true };
+  if (out.type === 'freetext') {
+    const fresh = (typeof absurdHintsForTier === 'function') ? absurdHintsForTier(tier) : null;
+    if (fresh && fresh.length) out.examples = fresh;
+  }
+  return out;
+}
+
 function buildRounds(age) {
   const tier = tierFor(age);
   const plan = ROUND_PLAN[tier];
@@ -1924,12 +1948,17 @@ function buildRounds(age) {
   // hatch (4-5 can't reliably type). See docs/versioning.md, Selection Joy Pass Build Idea.
   function buildSoundRound() {
     const shuffled = [...SOUND_HOT_OPTS].sort(() => Math.random() - 0.5);
-    return {
+    // v0.9.3 · b23 — sound tap round feeds the `chant` HIGH_IMPACT role.
+    // Both options come from SOUND_HOT_OPTS (BABOOM/WHAMMY/...) so the
+    // "both choices must come from the Absurd Word Bank" contract holds
+    // — SOUND_HOT_OPTS is the binary-round counterpart to ABSURD_WORD_BANK
+    // and is enumerated as a high-impact-eligible pool by QA Section 17.
+    return applyHighImpact({
       cat: 'freeword',          // engine reads picks.freeword same as the old freetext slot
       label: 'Pick a silly sound',
       options: shuffled.slice(0, 2),
       fullPool: SOUND_HOT_OPTS, // v0.9.3 · b3 — shuffle 🎲 re-roll source
-    };
+    }, tier);
   }
   // v1.19.2 — little tier gets one freeword round (Codex QA finding #2). Goofy Shorts: Little
   // Edition templates repeat the freeword as a shoutable spell — without this round, FW_SAFE
@@ -1958,7 +1987,10 @@ function buildRounds(age) {
     // hatch swaps state.rounds[idx] to the freetext round and re-renders. Default flow = zero
     // typing friction; escape hatch preserves the creativity door for kids who want it.
     const ftPool   = FREE_TEXT_ROUNDS.kid;
-    const ftRound  = ftPool[Math.floor(Math.random() * ftPool.length)];
+    // v0.9.3 · b23 — escape-hatch freetext round also feeds the chant HIGH_IMPACT slot,
+    // so its examples get the absurd-hint swap. Without this, tapping the hatch would
+    // surface generic example chips and undo the b23 priming.
+    const ftRound  = applyHighImpact(ftPool[Math.floor(Math.random() * ftPool.length)], tier);
     const sound    = buildSoundRound();
     sound.escapeHatchTo = ftRound;
     // v0.9.3 · b2 — Potty Mode flow simplified: sound is now universal at kid tier so Potty
@@ -1975,8 +2007,11 @@ function buildRounds(age) {
   }
   if (tier === 'big') {
     const pool = [...FREE_TEXT_ROUNDS.big].sort(() => Math.random() - 0.5);
-    const ft1 = pool.find(p => p.cat === 'freeword') || pool[0];
-    const ft2 = pool.find(p => p.cat === 'freeword2' && p !== ft1) || pool[1];
+    // v0.9.3 · b23 — both freetext rounds feed HIGH_IMPACT slots (chant + payoff_word).
+    // Wrap with applyHighImpact so examples are absurd-tier hints, not whatever the
+    // original prompt defined statically.
+    const ft1 = applyHighImpact(pool.find(p => p.cat === 'freeword')  || pool[0], tier);
+    const ft2 = applyHighImpact(pool.find(p => p.cat === 'freeword2' && p !== ft1) || pool[1], tier);
     return [
       ...binaryRounds.slice(0, 4),
       ft1,
@@ -1987,8 +2022,9 @@ function buildRounds(age) {
   }
   if (tier === 'tween') {
     const pool = [...FREE_TEXT_ROUNDS.tween].sort(() => Math.random() - 0.5);
-    const ft1 = pool.find(p => p.cat === 'freeword') || pool[0];
-    const ft2 = pool.find(p => p.cat === 'freeword2' && p !== ft1) || pool[1];
+    // v0.9.3 · b23 — same HIGH_IMPACT treatment as big tier.
+    const ft1 = applyHighImpact(pool.find(p => p.cat === 'freeword')  || pool[0], tier);
+    const ft2 = applyHighImpact(pool.find(p => p.cat === 'freeword2' && p !== ft1) || pool[1], tier);
     return [
       ...binaryRounds.slice(0, 4),
       ft1,

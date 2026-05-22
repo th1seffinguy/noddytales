@@ -9,6 +9,127 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 23, engine v3.0.3) — 2026-05-22
+**Absurd Word Bank + HIGH_IMPACT slots + Cheerful narrator rebrand**
+
+Two coordinated content changes shipping together:
+
+- **Part A:** HIGH_IMPACT punchline slots now pull from a dedicated Absurd Word Bank so the kid's shouted/announced/revealed word lands funny, not flat.
+- **Part B:** The "Silly" narrator preset is rebranded to **"Cheerful"** so the label honestly describes the voice we have (bright + warm) instead of the voice we were chasing (high-pitched cartoon).
+
+---
+
+### Part A — Absurd Word Bank + HIGH_IMPACT slots
+
+Notion Build Idea `36813aa1-d4db-8147-84a8-eb888c5c6900` *"High-impact word slots: force funnier, more absurd choices"*.
+
+#### The problem
+
+Live-testing call-out: template lines like `"shouted whatever came to mind: [WORD]"` rendered as `"shouted whatever came to mind: Zap"` — technically correct, not funny. Root cause: the kid's freeword pick is rendered into a structural punchline position, but the picker's example hints (`'YAY' / 'WIN' / 'KAPOW'`) primed neutral picks, not absurd ones.
+
+#### `ABSURD_WORD_BANK` (src/content.js)
+
+**56 tier-tagged entries** across the 4 categories from the Build Idea spec:
+
+| Category | Count | Examples |
+|---|---|---|
+| sillySounds | 15 | glorp, blorp, squonk, fwoosh, kabloom, sproing, gloop, wubba |
+| grossButSafe | 12 | stinky bananas, booger cloud, burp bubble, sneezy sandwich, ear cheese |
+| randomObjects | 14 | cheese hat, rubber duck, underpants helmet, Captain Noodle, banana phone, moon spoon |
+| nonsenseCompound | 15 | wobble-flop, sneezy-pants, jiggly blorp, flumpy, snorble-doo, sprongulous |
+
+Tier eligibility (per-entry `tiers` field):
+
+| Tier | Eligible entries | Notes |
+|---|---|---|
+| tot | 15 | Simpler single words only; excluded from grossButSafe + nonsenseCompound (ages 2-3 don't need bathroom humor primed and compound silliness is harder to grok) |
+| little | 39 | Full grossButSafe access opens up |
+| kid / big / tween | 40+ each | Compound silliness + wordplay tier-appropriate |
+
+New helpers:
+- `absurdWordsForTier(tier, n)` — Fisher-Yates shuffle, returns up to `n` entries eligible for `tier`
+- `absurdHintsForTier(tier)` — convenience wrapper returning 3 hints (matches `examples.length` shape)
+
+#### `HIGH_IMPACT_ROLES` declarative constant (engine-v2.js)
+
+```js
+const HIGH_IMPACT_ROLES = ['chant', 'payoff_word'];
+const HIGH_IMPACT_PICKER_CATEGORIES = ['sound', 'freeword', 'freeword2'];
+```
+
+These are the engine roles whose values render in `[y:...]` punchline tokens (the yellow-highlight treatment reserved for shouted/announced/revealed moments). Adding a role here is a CONTRACT change documented in inline comments.
+
+#### `applyHighImpact(round, tier)` wiring (index.html)
+
+New helper called from `buildRounds()` for every:
+- `freetext` round with `cat: 'freeword'` or `cat: 'freeword2'`
+- `sound` binary tap round (SOUND_HOT_OPTS-sourced, already absurd; tagged for QA verification)
+- Kid escape-hatch freetext round (when the kid taps "or type your own ✏️")
+
+For freetext rounds the helper replaces `round.examples` with `absurdHintsForTier(tier)`. Static `FREE_TEXT_ROUNDS` arrays in `src/content.js` stay untouched — examples are stripped + replaced at session-construction time.
+
+#### New QA Section 17 (18 cases)
+
+- ABSURD_WORD_BANK ≥ 50 entries across 4 named categories
+- Per-tier eligibility floors (tot ≥ 12; little/kid/big/tween ≥ 30 each)
+- Every `HIGH_IMPACT_ROLES` role surfaces in at least one `[y:...]` V3 beat line
+- `HIGH_IMPACT_PICKER_CATEGORIES` covers the picker-side counterparts
+- Every `HIGH_IMPACT` freetext round has a non-empty `examples` array (so the override target exists)
+- `absurdHintsForTier(tier)` returns ≥ 1 hint per tier
+
+All 18 pass.
+
+> **Audit direction note:** the inverse contract (every `[y:...]` token uses a `HIGH_IMPACT_ROLES` role) does **not** hold. `[y:...]` is legitimately used for non-punchline emphasis too (e.g. `[y:{setting.text}]` for place-name highlighting in setup beats). Section 17 only enforces the forward direction: HIGH_IMPACT roles must appear in punchline-style `[y:...]` beats.
+
+#### Sample story confirmation (eyeballed before merge)
+
+- **kid (age 7)** ends with: `"spoon hat!" yelled Cole. The parrot echoed back, mouth full.`
+- **big (age 9)** ends with: `"bonk!" yelled Cole. The eagle echoed back, mouth full.`
+- **tween (age 12)** payoff: `And one of them, very quietly, said "stinky bananas."`
+
+The Build Idea's "Zap → stinky bananas / wobble-flop / glorp" target landed.
+
+#### Honest callout (deferred)
+
+The tot + little v3 blueprints (`tot_wonder_v3`, `tot_sky_v3`, `little_quest_v3`, `little_food_v3`) use only `protagonist` / `ally` / `wonder_object` roles. They have **no `chant` or `payoff_word`** roles. So for ages 2-5 the kid sees absurd hints in the picker, but the picked word doesn't currently land in a `[y:...]` punchline because no such beat exists in those blueprints. Adding HIGH_IMPACT slots to tot/little blueprints is a candidate follow-up build (tag `tl_silly_repeat` call-response beats and add a `chant` role to the blueprint roleMaps).
+
+---
+
+### Part B — Cheerful narrator rebrand
+
+User feedback after b20/b22: *"Silly"* + *"high-pitched, goofy"* was the wrong target for Mimi's actual voice quality, which reads as bright, warm, lightly accented — not cartoony. The brief had been chasing a voice we never had.
+
+#### Rebrand
+
+| Field | Before (b22) | After (b23) |
+|---|---|---|
+| Label | Silly | **Cheerful** |
+| Tagline | High-pitched, goofy, extra expressive | **Bright, warm, lifts the mood** |
+| previewText | Hi, I'm Silly. I make stories sound extra goofy! | **Hi, I'm Cheerful. I'm here to lighten the mood.** |
+
+**Preset key stays `silly`** so saved `nt_voice_preset` values, the `ELEVENLABS_VOICE_SILLY` env-var name, and the b22 IndexedDB cache (`preview:v2:silly`, `v2:silly|<sha>`) all survive untouched.
+
+#### Mimi reframed from backstop → intended voice
+
+- **`api/tts.js`** silly preset comment block rewritten: Mimi (`zrHiDhphv9ZnVXBqCLjz`) is no longer documented as a "rejected cartoon attempt held only to prevent 500s" — she's now the intended Cheerful voice. b17 Gigi + b18 Mimi-as-rejected-cartoon history kept in comments for traceability.
+- **Per-request `console.warn` for silly-on-backstop DROPPED.** Was firing on every Mimi resolve telling operators to override. With the rebrand, resolving silly via `hardcodedPerPreset` is the happy path — no warn needed.
+- **README** — narrator-lineup table updated to "Cheerful"; the "Required for genuine Silly: override `ELEVENLABS_VOICE_SILLY`" panic section removed; `ELEVENLABS_VOICE_SILLY` documented at parity with the other three env vars (optional override). A note explains the env-var name keeps the `_SILLY` suffix for backward compatibility with the historical preset key.
+
+---
+
+### Acceptance
+
+- `scripts/qa-current.js` — all **24 gates green**
+- Section 14 voice resolver — **21/21** (celebrity blocklist clean on "Cheerful" copy)
+- Section 17 HIGH_IMPACT audit — **18/18** (new section)
+- `node --check` on `src/content.js` + `api/tts.js` + `src/engine-v2.js` + `scripts/qa-current.js` — clean
+- Inline `<script>` syntax — clean
+- **Manual review of 5 sample stories (one per tier) — approved by John before merge** (per his "I will review the samples and confirm before you push" gate)
+
+`APP_VERSION` stays `v0.9.3`; `BUILD_NUMBER` 22 → **23**; `ENGINE_V2_VERSION` stays `v3.0.3`. Badge reads `v0.9.3 · b23`.
+
+---
+
 ## v0.9.3 (build 22, engine v3.0.3) — 2026-05-21
 **Voice cache versioning + signature observability + same-voice collapse detection — fixes "all previews are George" at the cache layer**
 
