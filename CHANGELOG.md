@@ -9,6 +9,65 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 25, engine v3.0.3) — 2026-05-22
+**Content Quality QA System — 6 repeatable audits + playbook + b24 baseline (infrastructure only)**
+
+Tooling-only build. **No story-content rewrites.** Ships a repeatable content-quality QA system so story humor / content can improve continuously across future builds.
+
+The release-gate QA harness (`scripts/qa-current.js`) tells you *whether the engine works*. This system tells you *whether the stories are funny.*
+
+### Six new audit scripts
+
+| Script | Purpose |
+|---|---|
+| `scripts/content-golden-audit.js` | 20 **fixed** scenarios spanning all 5 tiers + 8 V3 blueprints + multiple setting flavors + both story modes. Markdown output with blank human score fields. Reproducible across builds so a fix can be diffed. |
+| `scripts/content-random-50.js` | 50 random V3 stories balanced 10/tier. Markdown + JSON. Includes sentence count, blueprint, age, tier, setting flavor, picked words. Successor to `creativity-sample.js` for per-build samples. |
+| `scripts/content-repetition-report.js` | Scans 100-200 stories for repeated 4-7-word n-grams + repeated last sentences. Normalizes picker words and protagonist name to placeholders. Configurable threshold (default 20%). |
+| `scripts/content-punchline-audit.js` | Classifies HIGH_IMPACT chant/payoff_word usages as `quoted_only` / `causes_reaction` / `changes_scene` / `returns_as_callback` / `lands_in_final_third`. |
+| `scripts/content-blueprint-health.js` | 10+ stories per V3 blueprint. Reports sentence median/max, HIGH_IMPACT render rate, top repeats per blueprint, one sample story per blueprint with blank score fields. |
+| `scripts/content-grammar-lint.js` | Standalone joke-breaker regex pass over a 100-story sample. Diagnostic only — release gate is `qa-current.js` Section 18. |
+
+### New playbook
+
+`docs/content-qa-playbook.md` documents the six audits, the post-build workflow, the 1-5 scoring rubric (with tier-specific minimum bars), the stop conditions, and Notion-logging conventions.
+
+### b24 baseline committed
+
+`docs/content-qa-b24-baseline/` contains a first-run output for every audit script against the current b24 codebase. Future content builds (b26+) diff against this baseline.
+
+**Headline numbers from the b24 baseline:**
+
+- **Punchline causation rate:** 45.5% `changes_scene` (above 35% target). 31.1% `quoted_only` (under 40% — healthy).
+- **Blueprint sentence medians:** tot_wonder/tot_sky 18 · little_quest/little_food 15 · lost_snack 24 · goal_spine 25 · **show_wrong 29 (longest)** · rule_loophole 19.
+- **Grammar lint (100-story sample):** 1 `a binoculars` leak (mapPickToWord clone path; static V2_WORDS already fixed), 1 `the the` duplicate, 14 lowercase-sentence-starts (mostly the by-design chant pattern `"glorp!" said Cole. then the chick...`).
+- **Repetition report:** ~60 n-grams above 20% threshold (top candidates for variant-pool expansion in b26).
+
+### Notion
+
+New page: **Content QA / Story Quality** under the NoddyTales hub. Hosts the recurring workflow + scoring rubric + a build-by-build run-history table.
+
+### Spec note
+
+User task referenced *"b23 baseline"* but `main` shipped b24 earlier today (Story Humor Pass merged at `5e43570`). The baseline is captured against the **actual current production state**, which is b24, and the directory is named `docs/content-qa-b24-baseline/` accordingly.
+
+### Acceptance
+
+- `scripts/qa-current.js` — all **25 gates still green** (this build is purely additive; no engine touched)
+- `node --check` on `src/content.js` — clean
+- All 6 new scripts run cleanly against the b24 codebase (verified — each wrote its expected output)
+
+`APP_VERSION` stays `v0.9.3`; `BUILD_NUMBER` 24 → **25**; `ENGINE_V2_VERSION` stays `v3.0.3`. Badge reads `v0.9.3 · b25`.
+
+### Next-build candidates surfaced by the baseline
+
+- `show_wrong_v3` sentence median 29 — biggest blueprint, candidate for content trim pass
+- 1 `a binoculars` still slipping through despite the b24 static V2_WORDS fix (`mapPickToWord` clone path doesn't re-derive `isPlural` from picker word — clean fix is a one-line check in the engine)
+- ~14% lowercase-sentence-start hits driven by the b23/b24 chant beats (`"glorp!" said Cole. then the X...`) — semantics-correct in context but the lint flags it; consider capitalizing the post-shout sentence start
+
+All three deferred per the no-content-rewrite constraint on this build.
+
+---
+
 ## v0.9.3 (build 24, engine v3.0.3) — 2026-05-22
 **Story Humor Pass — polish fixes, consequence beats, glue-phrase variants, tot/little HIGH_IMPACT**
 
