@@ -9,6 +9,31 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 29, engine v3.0.3) — 2026-05-22
+**Picker Emoji Hotfix — yeti + fire bird**
+
+User-reported defect from kid-tier picker: yeti was displaying as 🦣 mammoth, which renders visually as an elephant or wooly mammoth — not a yeti. Bundled with audit pass that caught one additional mismatch (fire bird → just fire).
+
+### Fixes
+
+1. **yeti 🦣 → 🐻‍❄️** — The v3.0.3 banshee→yeti rename intended 🦣 to convey "big furry beast", but on every modern platform 🦣 renders as a wooly mammoth (tusks + elephant body), which kids read as elephant or mammoth, not yeti. Polar bear 🐻‍❄️ is the closest visual proxy: large, white, furry, lives in cold environments — the exact mental model a 6-year-old has of "yeti" from Frozen, Lego, kids' books. Updated both `src/content.js` kid creature picker entry and `src/engine-v2.js` V2_WORDS.yeti entry.
+
+2. **fire bird 🔥 → 🐦‍🔥** — Picker entry was just the fire emoji with no bird visual. Replaced with the Unicode 15.1 phoenix ZWJ emoji (🐦 + 🔥 combined), which is officially a "bird on fire" and supported on iOS 17.4+, Android 14+, Windows 11 24H2+, macOS Sonoma 14.4+. Now reads as "fire bird" literally.
+
+### Audit (no other clear mismatches found)
+
+Reviewed all 4 creature picker pools (kid pet, kid creature, big creature, tween creature). The intentional metonymy choices (e.g. lunch wizard 🍱, hallway ghost 🚪, tiny king 👑, sock monster 🧦, backpack troll 🎒) are by-design — they represent the composite creature through its iconic object since no perfect emoji exists. The big/tween pools (philosophical crab 🦀, sentient vending machine 🤖, algorithm ghost 🧠, etc.) similarly use metonymy and pass the read-test. No additional fixes shipped.
+
+### Acceptance
+
+- `scripts/qa-current.js` — **25 gates green** (including Section 11 emoji-uniqueness within picker rounds: 0 collisions)
+- `node --check` on src/content.js + src/engine-v2.js + api/tts.js — clean
+- BUILD_NUMBER 28 → 29; APP_VERSION stays v0.9.3; ENGINE_V2_VERSION stays v3.0.3
+
+`APP_VERSION` stays `v0.9.3`; `BUILD_NUMBER` 28 → **29**; `ENGINE_V2_VERSION` stays `v3.0.3`. Badge reads `v0.9.3 · b29`.
+
+---
+
 ## v0.9.3 (build 28, engine v3.0.3) — 2026-05-22
 **Blueprint Depth Pass**
 
