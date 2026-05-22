@@ -10,3 +10,4 @@ dist/
 
 # Claude Code worktrees (per-session ephemeral)
 .claude/worktrees/
+docs/content-qa-runs/

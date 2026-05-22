@@ -1,0 +1,3269 @@
+{
+  "generatedAt": "2026-05-22T02:31:01.525Z",
+  "reps": 100,
+  "nulls": 0,
+  "overall": {
+    "premise": 1.92,
+    "causality": 0.91,
+    "escalation": 1.67,
+    "visual": 1.38,
+    "callback": 0.46,
+    "ageFit": 2.98,
+    "coherence": 1.22,
+    "total": 10.54
+  },
+  "tierSummaries": {
+    "tot": {
+      "premise": 1.5,
+      "causality": 1,
+      "escalation": 2.4,
+      "visual": 2.95,
+      "callback": 1,
+      "ageFit": 3,
+      "coherence": 1,
+      "total": 12.85
+    },
+    "little": {
+      "premise": 1.6,
+      "causality": 1,
+      "escalation": 2.05,
+      "visual": 1.7,
+      "callback": 1,
+      "ageFit": 2.9,
+      "coherence": 1,
+      "total": 11.25
+    },
+    "kid": {
+      "premise": 2.15,
+      "causality": 1.2,
+      "escalation": 1.7,
+      "visual": 1.15,
+      "callback": 0.2,
+      "ageFit": 3,
+      "coherence": 1.3,
+      "total": 10.7
+    },
+    "big": {
+      "premise": 2.3,
+      "causality": 0.75,
+      "escalation": 1.1,
+      "visual": 1.05,
+      "callback": 0.1,
+      "ageFit": 3,
+      "coherence": 1.2,
+      "total": 9.5
+    },
+    "tween": {
+      "premise": 2.05,
+      "causality": 0.6,
+      "escalation": 1.1,
+      "visual": 0.05,
+      "callback": 0,
+      "ageFit": 3,
+      "coherence": 1.6,
+      "total": 8.4
+    }
+  },
+  "rows": [
+    {
+      "tier": "tot",
+      "age": 2,
+      "blueprint": "(v2 fallback)",
+      "flavor": "somewhere_weird",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "bonk",
+        "freeword2": "tiny piano",
+        "sound": "blorp",
+        "food": "cereal",
+        "place": "farm"
+      },
+      "title": "Hi, Squirrel!",
+      "paragraphs": [
+        "Cole opened the door. There was the squirrel! \"Hi!\" said Cole. \"Hi!\" said the squirrel back.",
+        "\"bonk?\" said Cole. \"bonk!\" said the squirrel. Then the cereal wiggled. Just a little. Everyone saw it.",
+        "\"bonk!\" said Cole. The squirrel said \"bonk!\" back. Then the cereal sneezed. The squirrel said \"bless you\" to the cereal. Somewhere in there, Cole hopped for emphasis. The sky blue thing was happening again, whatever it was.",
+        "Now Cole is sleepy. The squirrel is sleepy too. Good night, squirrel. Good night, Cole."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 3,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 14
+      }
+    },
+    {
+      "tier": "tot",
+      "age": 3,
+      "blueprint": "(v2 fallback)",
+      "flavor": "animal_place",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "spoon hat",
+        "freeword2": "tiny piano",
+        "sound": "gloop",
+        "food": "strawberries",
+        "place": "bridge"
+      },
+      "title": "Cole and the Snowflake",
+      "paragraphs": [
+        "\"Come on, turtle!\" said Cole. The turtle came. Cole led the way.",
+        "\"spoon hat!\" said Cole. The turtle said \"spoon hat!\" back. Then the snowflake sneezed. The turtle said \"bless you\" to the snowflake.",
+        "\"spoon hat?\" said Cole. \"spoon hat!\" said the turtle. Then the snowflake wiggled. Just a little. Everyone saw it. Somewhere in there, Cole hopped for emphasis. A faint red glow hung over the scene by then.",
+        "Cole picked up the turtle for a hug. \"Night, turtle,\" said Cole. Then Cole curled up."
+      ],
+      "scores": {
+        "premise": 1,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 12
+      }
+    },
+    {
+      "tier": "tot",
+      "age": 3,
+      "blueprint": "(v2 fallback)",
+      "flavor": "surprise",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "bonk",
+        "freeword2": "cheese hat",
+        "sound": "paper crown",
+        "food": "banana",
+        "place": "beach"
+      },
+      "title": "Hi, Pony!",
+      "paragraphs": [
+        "Cole spotted the pony from across the room. Cole waved. The pony waved back.",
+        "\"bonk!\" said Cole. The pony said \"bonk!\" back. Then the banana sneezed. The pony said \"bless you\" to the banana.",
+        "\"bonk?\" said Cole. \"bonk!\" said the pony. Then the banana wiggled. Just a little. Everyone saw it. Cole peeked one more time, just to make a point. Everything in the room had picked up a faint black tint.",
+        "Cole waved at the pony. \"Bye for now!\" said Cole. The pony waved back."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 13
+      }
+    },
+    {
+      "tier": "tot",
+      "age": 2,
+      "blueprint": "(v2 fallback)",
+      "flavor": "at_home",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "bonk",
+        "freeword2": "paper crown",
+        "sound": "cheese hat",
+        "food": "strawberries",
+        "place": "garden"
+      },
+      "title": "Cole Says Hi!",
+      "paragraphs": [
+        "Cole ran outside. The monkey was right there. \"Hi monkey!\" said Cole.",
+        "\"bonk?\" said Cole. \"bonk!\" said the monkey. Then the strawberries wiggled. Just a little. Everyone saw it.",
+        "\"bonk!\" said Cole. The monkey said \"bonk!\" back. Then the strawberries sneezed. The monkey said \"bless you\" to the strawberries. For exactly two seconds, Cole ran like it was a job. Somebody could have sworn the air went a little brown.",
+        "Cole picked up the monkey for a hug. \"Night, monkey,\" said Cole. Then Cole curled up."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 1,
+        "visual": 2,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 11
+      }
+    },
+    {
+      "tier": "tot",
+      "age": 2,
+      "blueprint": "(v2 fallback)",
+      "flavor": "at_home",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "bonk",
+        "freeword2": "boing",
+        "sound": "bubble wand",
+        "food": "yogurt",
+        "place": "bus"
+      },
+      "title": "Cole Says Hi!",
+      "paragraphs": [
+        "\"Come on, bear!\" said Cole. The bear came. Cole led the way.",
+        "\"bonk?\" said Cole. \"bonk!\" said the bear. Then the yogurt wiggled. Just a little. Everyone saw it.",
+        "\"bonk!\" said Cole. The bear said \"bonk!\" back. Then the yogurt sneezed. The bear said \"bless you\" to the yogurt. Cole hugged without thinking. It was a thing they did now. The lime green thing was happening again, whatever it was.",
+        "Now Cole is sleepy. The bear is sleepy too. Good night, bear. Good night, Cole."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 1,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 12
+      }
+    },
+    {
+      "tier": "tot",
+      "age": 2,
+      "blueprint": "(v2 fallback)",
+      "flavor": "on_the_go",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "paper crown",
+        "freeword2": "spoon hat",
+        "sound": "rubber duck",
+        "food": "peas",
+        "place": "garden"
+      },
+      "title": "Cole Sees the Leaf",
+      "paragraphs": [
+        "Cole opened the door. There was the cat! \"Hi!\" said Cole. \"Hi!\" said the cat back.",
+        "\"paper crown!\" said Cole. The cat said \"paper crown!\" back. Then the leaf sneezed. The cat said \"bless you\" to the leaf.",
+        "\"paper crown?\" said Cole. \"paper crown!\" said the cat. Then the leaf wiggled. Just a little. Everyone saw it. Cole stomped without thinking. It was a thing they did now. A faint gold glow hung over the scene by then.",
+        "Now Cole is sleepy. The cat is sleepy too. Good night, cat. Good night, Cole."
+      ],
+      "scores": {
+        "premise": 1,
+        "causality": 1,
+        "escalation": 3,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 13
+      }
+    },
+    {
+      "tier": "tot",
+      "age": 2,
+      "blueprint": "(v2 fallback)",
+      "flavor": "outside",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "paper crown",
+        "freeword2": "honk",
+        "sound": "boing",
+        "food": "corn",
+        "place": "yard"
+      },
+      "title": "Cole Sees the Star",
+      "paragraphs": [
+        "Cole opened the door. There was the pig! \"Hi!\" said Cole. \"Hi!\" said the pig back.",
+        "\"paper crown?\" said Cole. \"paper crown!\" said the pig. Then the star wiggled. Just a little. Everyone saw it.",
+        "\"paper crown!\" said Cole. The pig said \"paper crown!\" back. Then the star sneezed. The pig said \"bless you\" to the star. There was a small peeked moment that nobody quite witnessed in full. A faint pink glow hung over the scene by then.",
+        "Now Cole is sleepy. The pig is sleepy too. Good night, pig. Good night, Cole."
+      ],
+      "scores": {
+        "premise": 1,
+        "causality": 1,
+        "escalation": 3,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 13
+      }
+    },
+    {
+      "tier": "tot",
+      "age": 3,
+      "blueprint": "(v2 fallback)",
+      "flavor": "somewhere_weird",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "rubber duck",
+        "freeword2": "glorp",
+        "sound": "splat",
+        "food": "cake",
+        "place": "beach"
+      },
+      "title": "Cole and the Pony",
+      "paragraphs": [
+        "\"Come on, pony!\" said Cole. The pony came. Cole led the way.",
+        "\"rubber duck!\" said Cole. The pony said \"rubber duck!\" back. Then the cake sneezed. The pony said \"bless you\" to the cake.",
+        "\"rubber duck?\" said Cole. \"rubber duck!\" said the pony. Then the cake wiggled. Just a little. Everyone saw it. Somewhere in there, Cole rolled for emphasis. For a beat the whole place looked weirdly green.",
+        "Cole waved at the pony. \"Bye for now!\" said Cole. The pony waved back."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 13
+      }
+    },
+    {
+      "tier": "tot",
+      "age": 2,
+      "blueprint": "(v2 fallback)",
+      "flavor": "at_school",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "gloop",
+        "freeword2": "blorp",
+        "sound": "honk",
+        "food": "strawberries",
+        "place": "shop"
+      },
+      "title": "The Rainbow and the Cow",
+      "paragraphs": [
+        "Cole spotted the cow from across the room. Cole waved. The cow waved back.",
+        "\"gloop!\" said Cole. The cow said \"gloop!\" back. Then the rainbow sneezed. The cow said \"bless you\" to the rainbow.",
+        "\"gloop?\" said Cole. \"gloop!\" said the cow. Then the rainbow wiggled. Just a little. Everyone saw it. For exactly two seconds, Cole splashed like it was a job. A faint purple glow hung over the scene by then.",
+        "Cole waved at the cow. \"Bye for now!\" said Cole. The cow waved back."
+      ],
+      "scores": {
+        "premise": 1,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 12
+      }
+    },
+    {
+      "tier": "tot",
+      "age": 3,
+      "blueprint": "(v2 fallback)",
+      "flavor": "animal_place",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "tiny piano",
+        "freeword2": "paper crown",
+        "sound": "cheese hat",
+        "food": "strawberries",
+        "place": "playground"
+      },
+      "title": "Cole and the Comet",
+      "paragraphs": [
+        "\"Come on, bear!\" said Cole. The bear came. Cole led the way.",
+        "\"tiny piano!\" said Cole. The bear said \"tiny piano!\" back. Then the comet sneezed. The bear said \"bless you\" to the comet.",
+        "\"tiny piano?\" said Cole. \"tiny piano!\" said the bear. Then the comet wiggled. Just a little. Everyone saw it. Somewhere in there, Cole spun for emphasis. Somebody could have sworn the air went a little apple red.",
+        "Cole waved at the bear. \"Bye for now!\" said Cole. The bear waved back."
+      ],
+      "scores": {
+        "premise": 1,
+        "causality": 1,
+        "escalation": 3,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 13
+      }
+    },
+    {
+      "tier": "tot",
+      "age": 3,
+      "blueprint": "(v2 fallback)",
+      "flavor": "on_the_go",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "cheese hat",
+        "freeword2": "bubble wand",
+        "sound": "banana phone",
+        "food": "milk",
+        "place": "yard"
+      },
+      "title": "The Cloud and the Fish",
+      "paragraphs": [
+        "\"Come on, fish!\" said Cole. The fish came. Cole led the way.",
+        "\"cheese hat!\" said Cole. The fish said \"cheese hat!\" back. Then the cloud sneezed. The fish said \"bless you\" to the cloud.",
+        "\"cheese hat?\" said Cole. \"cheese hat!\" said the fish. Then the cloud wiggled. Just a little. Everyone saw it. There was a small crawled moment that nobody quite witnessed in full. Somebody could have sworn the air went a little pink.",
+        "Cole picked up the fish for a hug. \"Night, fish,\" said Cole. Then Cole curled up."
+      ],
+      "scores": {
+        "premise": 1,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 12
+      }
+    },
+    {
+      "tier": "tot",
+      "age": 3,
+      "blueprint": "(v2 fallback)",
+      "flavor": "at_school",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "cheese hat",
+        "freeword2": "glorp",
+        "sound": "spoon hat",
+        "food": "milk",
+        "place": "park"
+      },
+      "title": "Cole and the Plane",
+      "paragraphs": [
+        "Cole spotted the bunny from across the room. Cole waved. The bunny waved back.",
+        "\"cheese hat!\" said Cole. The bunny said \"cheese hat!\" back. Then the plane sneezed. The bunny said \"bless you\" to the plane.",
+        "\"cheese hat?\" said Cole. \"cheese hat!\" said the bunny. Then the plane wiggled. Just a little. Everyone saw it. Cole hugged without thinking. It was a thing they did now. A faint rainbow glow hung over the scene by then.",
+        "Cole hugged the bunny one more time. \"Come back tomorrow?\" said Cole. The bunny nodded."
+      ],
+      "scores": {
+        "premise": 1,
+        "causality": 1,
+        "escalation": 3,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 13
+      }
+    },
+    {
+      "tier": "tot",
+      "age": 3,
+      "blueprint": "(v2 fallback)",
+      "flavor": "at_home",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "honk",
+        "freeword2": "glorp",
+        "sound": "bonk",
+        "food": "pancakes",
+        "place": "yard"
+      },
+      "title": "Cole and the Pancakes",
+      "paragraphs": [
+        "Cole grabbed the frog's paw. \"Ready?\" said Cole. The frog nodded.",
+        "\"honk?\" said Cole. \"honk!\" said the frog. Then the pancakes wiggled. Just a little. Everyone saw it.",
+        "\"honk!\" said Cole. The frog said \"honk!\" back. Then the pancakes sneezed. The frog said \"bless you\" to the pancakes. There was a small spun moment that nobody quite witnessed in full. Somebody could have sworn the air went a little apple red.",
+        "Cole hugged the frog one more time. \"Come back tomorrow?\" said Cole. The frog nodded."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 3,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 14
+      }
+    },
+    {
+      "tier": "tot",
+      "age": 2,
+      "blueprint": "(v2 fallback)",
+      "flavor": "outside",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "cheese hat",
+        "freeword2": "gloop",
+        "sound": "plop",
+        "food": "yogurt",
+        "place": "bedroom"
+      },
+      "title": "Hi, Bubbles!",
+      "paragraphs": [
+        "Cole opened the door. There was the bird! \"Hi!\" said Cole. \"Hi!\" said the bird back.",
+        "\"cheese hat?\" said Cole. \"cheese hat!\" said the bird. Then the bubbles wiggled. Just a little. Everyone saw it.",
+        "\"cheese hat!\" said Cole. The bird said \"cheese hat!\" back. Then the bubbles sneezed. The bird said \"bless you\" to the bubbles. Cole crawled without thinking. It was a thing they did now. A faint pink glow hung over the scene by then.",
+        "Cole hugged the bird one more time. \"Come back tomorrow?\" said Cole. The bird nodded."
+      ],
+      "scores": {
+        "premise": 1,
+        "causality": 1,
+        "escalation": 3,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 13
+      }
+    },
+    {
+      "tier": "tot",
+      "age": 2,
+      "blueprint": "(v2 fallback)",
+      "flavor": "surprise",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "boing",
+        "freeword2": "bonk",
+        "sound": "spoon hat",
+        "food": "cereal",
+        "place": "bus"
+      },
+      "title": "Cole and the Cereal",
+      "paragraphs": [
+        "Cole spotted the monkey from across the room. Cole waved. The monkey waved back.",
+        "\"boing!\" said Cole. The monkey said \"boing!\" back. Then the cereal sneezed. The monkey said \"bless you\" to the cereal.",
+        "\"boing?\" said Cole. \"boing!\" said the monkey. Then the cereal wiggled. Just a little. Everyone saw it. For exactly two seconds, Cole stomped like it was a job. A faint red glow hung over the scene by then.",
+        "Cole picked up the monkey for a hug. \"Night, monkey,\" said Cole. Then Cole curled up."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 13
+      }
+    },
+    {
+      "tier": "tot",
+      "age": 2,
+      "blueprint": "(v2 fallback)",
+      "flavor": "on_the_go",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "honk",
+        "freeword2": "splat",
+        "sound": "tiny piano",
+        "food": "strawberries",
+        "place": "bus"
+      },
+      "title": "Hi, Cat!",
+      "paragraphs": [
+        "Cole ran outside. The cat was right there. \"Hi cat!\" said Cole.",
+        "\"honk?\" said Cole. \"honk!\" said the cat. Then the strawberries wiggled. Just a little. Everyone saw it.",
+        "\"honk!\" said Cole. The cat said \"honk!\" back. Then the strawberries sneezed. The cat said \"bless you\" to the strawberries. Cole danced one more time, just to make a point. Everything in the room had picked up a faint white tint.",
+        "Time for a hug. Cole hugged the cat. Then Cole yawned. The cat yawned too."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 3,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 14
+      }
+    },
+    {
+      "tier": "tot",
+      "age": 3,
+      "blueprint": "(v2 fallback)",
+      "flavor": "outside",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "glorp",
+        "freeword2": "tiny piano",
+        "sound": "spoon hat",
+        "food": "apple",
+        "place": "pond"
+      },
+      "title": "Cole and the Apple",
+      "paragraphs": [
+        "Cole ran outside. The bear was right there. \"Hi bear!\" said Cole.",
+        "\"glorp!\" said Cole. The bear said \"glorp!\" back. Then the apple sneezed. The bear said \"bless you\" to the apple.",
+        "\"glorp?\" said Cole. \"glorp!\" said the bear. Then the apple wiggled. Just a little. Everyone saw it. For exactly two seconds, Cole rolled like it was a job. The gold thing was happening again, whatever it was.",
+        "Cole hugged the bear one more time. \"Come back tomorrow?\" said Cole. The bear nodded."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 3,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 14
+      }
+    },
+    {
+      "tier": "tot",
+      "age": 3,
+      "blueprint": "(v2 fallback)",
+      "flavor": "surprise",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "banana phone",
+        "freeword2": "spoon hat",
+        "sound": "paper crown",
+        "food": "carrot",
+        "place": "house"
+      },
+      "title": "Cole Sees the Moon",
+      "paragraphs": [
+        "Cole grabbed the monkey's paw. \"Ready?\" said Cole. The monkey nodded.",
+        "\"banana phone?\" said Cole. \"banana phone!\" said the monkey. Then the moon wiggled. Just a little. Everyone saw it.",
+        "\"banana phone!\" said Cole. The monkey said \"banana phone!\" back. Then the moon sneezed. The monkey said \"bless you\" to the moon. There was a small clapped moment that nobody quite witnessed in full. Somebody could have sworn the air went a little white.",
+        "Now Cole is sleepy. The monkey is sleepy too. Good night, monkey. Good night, Cole."
+      ],
+      "scores": {
+        "premise": 1,
+        "causality": 1,
+        "escalation": 3,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 13
+      }
+    },
+    {
+      "tier": "tot",
+      "age": 3,
+      "blueprint": "(v2 fallback)",
+      "flavor": "at_school",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "tiny piano",
+        "freeword2": "rubber duck",
+        "sound": "splat",
+        "food": "banana",
+        "place": "yard"
+      },
+      "title": "Cole Sees the Balloon",
+      "paragraphs": [
+        "Cole grabbed the puppy's paw. \"Ready?\" said Cole. The puppy nodded.",
+        "\"tiny piano?\" said Cole. \"tiny piano!\" said the puppy. Then the balloon wiggled. Just a little. Everyone saw it.",
+        "\"tiny piano!\" said Cole. The puppy said \"tiny piano!\" back. Then the balloon sneezed. The puppy said \"bless you\" to the balloon. Cole swayed one more time, just to make a point. A faint orange glow hung over the scene by then.",
+        "Cole picked up the puppy for a hug. \"Night, puppy,\" said Cole. Then Cole curled up."
+      ],
+      "scores": {
+        "premise": 1,
+        "causality": 1,
+        "escalation": 3,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 13
+      }
+    },
+    {
+      "tier": "tot",
+      "age": 2,
+      "blueprint": "(v2 fallback)",
+      "flavor": "food_place",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "plop",
+        "freeword2": "bonk",
+        "sound": "spoon hat",
+        "food": "pancakes",
+        "place": "house"
+      },
+      "title": "Cole and the Puppy",
+      "paragraphs": [
+        "Cole ran outside. The puppy was right there. \"Hi puppy!\" said Cole.",
+        "\"plop?\" said Cole. \"plop!\" said the puppy. Then the pancakes wiggled. Just a little. Everyone saw it.",
+        "\"plop!\" said Cole. The puppy said \"plop!\" back. Then the pancakes sneezed. The puppy said \"bless you\" to the pancakes. Cole bounced without thinking. It was a thing they did now. Somebody could have sworn the air went a little sunshine yellow.",
+        "Time for a hug. Cole hugged the puppy. Then Cole yawned. The puppy yawned too."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 1,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 12
+      }
+    },
+    {
+      "tier": "little",
+      "age": 5,
+      "blueprint": "(v2 fallback)",
+      "flavor": "somewhere_weird",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "plop",
+        "freeword2": "flumpy",
+        "sound": "jiggly blorp",
+        "food": "popcorn",
+        "place": "beach"
+      },
+      "title": "The Popcorn Day",
+      "paragraphs": [
+        "Cole opened a door and the baby goat tumbled in. \"Hi!\" said Cole. \"Hi back!\" said the baby goat — somehow.",
+        "\"plop!\" said Cole. The baby goat said it back. Then they said it together. The popcorn hummed along, kind of.",
+        "Cole tapped the popcorn like a button. \"plop!\" said Cole. \"plop!\" said the baby goat. The popcorn did exactly nothing, which was funny. There was a small galloped moment that nobody quite witnessed in full. A faint striped glow hung over the scene by then.",
+        "By the end of the day, Cole and the baby goat were happy and ready for whatever came next. They high-fived and headed home."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 1,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 11
+      }
+    },
+    {
+      "tier": "little",
+      "age": 5,
+      "blueprint": "(v2 fallback)",
+      "flavor": "on_the_go",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "gloop",
+        "freeword2": "plop",
+        "sound": "snorble-doo",
+        "food": "sandwich",
+        "place": "cave"
+      },
+      "title": "The Dramatic Cape Adventure",
+      "paragraphs": [
+        "Cole packed a tiny bag and called the foal. The foal came running. Cole led the way.",
+        "\"gloop,\" whispered Cole, like it was a spell. The dramatic cape flipped over by itself. The foal looked impressed.",
+        "\"gloop!\" said Cole. The foal said it back. Then they said it together. The dramatic cape hummed along, kind of. For exactly two seconds, Cole slid like it was a job. A faint purple glow hung over the scene by then.",
+        "Cole tucked the foal in first, then climbed in too. \"Same time tomorrow?\" said Cole. The foal was already half asleep."
+      ],
+      "scores": {
+        "premise": 1,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 2,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 11
+      }
+    },
+    {
+      "tier": "little",
+      "age": 5,
+      "blueprint": "(v2 fallback)",
+      "flavor": "outside",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "boing",
+        "freeword2": "wubba",
+        "sound": "plop",
+        "food": "mac and cheese",
+        "place": "kitchen"
+      },
+      "title": "Cole and the Mac and Cheese",
+      "paragraphs": [
+        "Cole spotted the bunny across the yard. \"Hey bunny!\" said Cole. The bunny was already smiling.",
+        "Cole tapped the mac and cheese like a button. \"boing!\" said Cole. \"boing!\" said the bunny. The mac and cheese did exactly nothing, which was funny.",
+        "\"boing!\" said Cole. The bunny said it back. Then they said it together. The mac and cheese hummed along, kind of. Cole zoomed without thinking. It was a thing they did now. The crimson thing was happening again, whatever it was.",
+        "Cole grabbed the bunny's paw. \"Onto the next thing,\" said Cole. They walked home together."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 0,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 10
+      }
+    },
+    {
+      "tier": "little",
+      "age": 5,
+      "blueprint": "(v2 fallback)",
+      "flavor": "somewhere_weird",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "Captain Noodle",
+        "freeword2": "honk",
+        "sound": "fwoosh",
+        "food": "soup",
+        "place": "meadow"
+      },
+      "title": "Cole and the Soup",
+      "paragraphs": [
+        "Cole told the turtle, \"Today is going to be a big one.\" The turtle agreed. They were ready.",
+        "Cole tapped the soup like a button. \"Captain Noodle!\" said Cole. \"Captain Noodle!\" said the turtle. The soup did exactly nothing, which was funny.",
+        "\"Captain Noodle!\" said Cole. The turtle said it back. Then they said it together. The soup hummed along, kind of. There was a small skipped moment that nobody quite witnessed in full. A faint sandy tan glow hung over the scene by then.",
+        "Cole pulled the turtle into a small pillow fort. \"We made it,\" said Cole. The turtle yawned."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 1,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 11
+      }
+    },
+    {
+      "tier": "little",
+      "age": 5,
+      "blueprint": "(v2 fallback)",
+      "flavor": "on_the_go",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "Captain Noodle",
+        "freeword2": "pickle crown",
+        "sound": "boing",
+        "food": "cupcakes",
+        "place": "mountain"
+      },
+      "title": "Cole and the Foam Finger",
+      "paragraphs": [
+        "Cole spotted the foal across the yard. \"Hey foal!\" said Cole. The foal was already smiling.",
+        "\"Captain Noodle,\" whispered Cole, like it was a spell. The foam finger flipped over by itself. The foal looked impressed.",
+        "Cole tapped the foam finger like a button. \"Captain Noodle!\" said Cole. \"Captain Noodle!\" said the foal. The foam finger did exactly nothing, which was funny. Cole wiggled one more time, just to make a point. Somebody could have sworn the air went a little lavender.",
+        "Cole pulled the foal into a small pillow fort. \"We made it,\" said Cole. The foal yawned."
+      ],
+      "scores": {
+        "premise": 1,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 2,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 11
+      }
+    },
+    {
+      "tier": "little",
+      "age": 5,
+      "blueprint": "(v2 fallback)",
+      "flavor": "at_school",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "grumblepoof",
+        "freeword2": "soggy sock",
+        "sound": "flumpy",
+        "food": "candy",
+        "place": "treehouse"
+      },
+      "title": "How Cole Found the Bus Ticket",
+      "paragraphs": [
+        "Cole told the seal, \"Today is going to be a big one.\" The seal agreed. They were ready.",
+        "Cole tapped the bus ticket like a button. \"grumblepoof!\" said Cole. \"grumblepoof!\" said the seal. The bus ticket did exactly nothing, which was funny.",
+        "\"grumblepoof,\" whispered Cole, like it was a spell. The bus ticket flipped over by itself. The seal looked impressed. Somewhere in there, Cole slid for emphasis. Everything in the room had picked up a faint sky blue tint.",
+        "By the end of the day, Cole and the seal were happy and ready for whatever came next. They high-fived and headed home."
+      ],
+      "scores": {
+        "premise": 1,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 2,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 11
+      }
+    },
+    {
+      "tier": "little",
+      "age": 5,
+      "blueprint": "(v2 fallback)",
+      "flavor": "animal_place",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "rubber duck",
+        "freeword2": "pickle crown",
+        "sound": "wubba",
+        "food": "sandwich",
+        "place": "classroom"
+      },
+      "title": "Cole and the Sandwich",
+      "paragraphs": [
+        "Cole packed a tiny bag and called the parrot. The parrot came running. Cole led the way.",
+        "\"rubber duck,\" whispered Cole, like it was a spell. The sandwich flipped over by itself. The parrot looked impressed.",
+        "\"rubber duck!\" said Cole. The parrot said it back. Then they said it together. The sandwich hummed along, kind of. Cole skipped one more time, just to make a point. Somebody could have sworn the air went a little leafy green.",
+        "By the end of the day, Cole and the parrot were happy and ready for whatever came next. They high-fived and headed home."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 2,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 12
+      }
+    },
+    {
+      "tier": "little",
+      "age": 5,
+      "blueprint": "(v2 fallback)",
+      "flavor": "outside",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "blorp",
+        "freeword2": "pickle crown",
+        "sound": "banana phone",
+        "food": "cookies",
+        "place": "backyard"
+      },
+      "title": "Cole and the Whistle",
+      "paragraphs": [
+        "Cole packed a tiny bag and called the squirrel. The squirrel came running. Cole led the way.",
+        "Cole tapped the whistle like a button. \"blorp!\" said Cole. \"blorp!\" said the squirrel. The whistle did exactly nothing, which was funny.",
+        "\"blorp!\" said Cole. The squirrel said it back. Then they said it together. The whistle hummed along, kind of. Cole skidded without thinking. It was a thing they did now. A faint cherry red glow hung over the scene by then.",
+        "Cole grabbed the squirrel's paw. \"Onto the next thing,\" said Cole. They walked home together."
+      ],
+      "scores": {
+        "premise": 1,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 1,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 10
+      }
+    },
+    {
+      "tier": "little",
+      "age": 4,
+      "blueprint": "(v2 fallback)",
+      "flavor": "on_the_go",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "boing",
+        "freeword2": "kabloom",
+        "sound": "gloop",
+        "food": "strawberries",
+        "place": "garden"
+      },
+      "title": "The Strawberries Day",
+      "paragraphs": [
+        "Cole packed a tiny bag and called the squirrel. The squirrel came running. Cole led the way.",
+        "\"boing,\" whispered Cole, like it was a spell. The strawberries flipped over by itself. The squirrel looked impressed.",
+        "\"boing!\" said Cole. The squirrel said it back. Then they said it together. The strawberries hummed along, kind of. Cole tumbled without thinking. It was a thing they did now. Everything in the room had picked up a faint green tint.",
+        "By the end of the day, Cole and the squirrel were tired and happy. They hugged. Then they went to bed."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 3,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 14
+      }
+    },
+    {
+      "tier": "little",
+      "age": 4,
+      "blueprint": "(v2 fallback)",
+      "flavor": "at_school",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "sock puppet",
+        "freeword2": "cheese hat",
+        "sound": "grumblepoof",
+        "food": "pizza",
+        "place": "grocery store"
+      },
+      "title": "The Pizza Day",
+      "paragraphs": [
+        "Cole told the lamb, \"Today is going to be a big one.\" The lamb agreed. They were ready.",
+        "\"sock puppet!\" said Cole. The lamb said it back. Then they said it together. The pizza hummed along, kind of.",
+        "Cole tapped the pizza like a button. \"sock puppet!\" said Cole. \"sock puppet!\" said the lamb. The pizza did exactly nothing, which was funny. Cole tumbled without thinking. It was a thing they did now. For a beat the whole place looked weirdly orange.",
+        "By the end of the day, Cole and the lamb were tired and happy. They hugged. Then they went to bed."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 2,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 12
+      }
+    },
+    {
+      "tier": "little",
+      "age": 4,
+      "blueprint": "(v2 fallback)",
+      "flavor": "at_home",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "tiny piano",
+        "freeword2": "rubber duck",
+        "sound": "wubba",
+        "food": "cupcakes",
+        "place": "village"
+      },
+      "title": "Cole and the Cupcakes",
+      "paragraphs": [
+        "It was a bright morning. Cole grabbed the pony and headed out. \"We have a plan,\" said Cole.",
+        "Cole tapped the cupcakes like a button. \"tiny piano!\" said Cole. \"tiny piano!\" said the pony. The cupcakes did exactly nothing, which was funny.",
+        "\"tiny piano,\" whispered Cole, like it was a spell. The cupcakes flipped over by itself. The pony looked impressed. Cole peeked one more time, just to make a point. The teal thing was happening again, whatever it was.",
+        "Cole tucked the pony in first, then climbed in too. \"Same time tomorrow?\" said Cole. The pony was already half asleep."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 2,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 12
+      }
+    },
+    {
+      "tier": "little",
+      "age": 5,
+      "blueprint": "(v2 fallback)",
+      "flavor": "at_school",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "Captain Noodle",
+        "freeword2": "gloop",
+        "sound": "burp bubble",
+        "food": "cereal",
+        "place": "mountain"
+      },
+      "title": "Cole and the Lamb",
+      "paragraphs": [
+        "Cole spotted the lamb across the yard. \"Hey lamb!\" said Cole. The lamb was already smiling.",
+        "\"Captain Noodle,\" whispered Cole, like it was a spell. The milkshake straw flipped over by itself. The lamb looked impressed.",
+        "Cole tapped the milkshake straw like a button. \"Captain Noodle!\" said Cole. \"Captain Noodle!\" said the lamb. The milkshake straw did exactly nothing, which was funny. Cole waved without thinking. It was a thing they did now. For a beat the whole place looked weirdly orange.",
+        "By the end of the day, Cole and the lamb were happy and ready for whatever came next. They high-fived and headed home."
+      ],
+      "scores": {
+        "premise": 1,
+        "causality": 1,
+        "escalation": 1,
+        "visual": 2,
+        "callback": 1,
+        "ageFit": 2,
+        "coherence": 1,
+        "total": 9
+      }
+    },
+    {
+      "tier": "little",
+      "age": 5,
+      "blueprint": "(v2 fallback)",
+      "flavor": "animal_place",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "pickle juice",
+        "freeword2": "banana phone",
+        "sound": "gloop",
+        "food": "pancakes",
+        "place": "volcano"
+      },
+      "title": "Cole and the Shopping Cart",
+      "paragraphs": [
+        "Cole told the lamb, \"Today is going to be a big one.\" The lamb agreed. They were ready.",
+        "Cole tapped the shopping cart like a button. \"pickle juice!\" said Cole. \"pickle juice!\" said the lamb. The shopping cart did exactly nothing, which was funny.",
+        "\"pickle juice,\" whispered Cole, like it was a spell. The shopping cart flipped over by itself. The lamb looked impressed. There was a small slid moment that nobody quite witnessed in full. Everything in the room had picked up a faint green tint.",
+        "Cole tucked the lamb in first, then climbed in too. \"Same time tomorrow?\" said Cole. The lamb was already half asleep."
+      ],
+      "scores": {
+        "premise": 1,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 2,
+        "callback": 1,
+        "ageFit": 2,
+        "coherence": 1,
+        "total": 10
+      }
+    },
+    {
+      "tier": "little",
+      "age": 4,
+      "blueprint": "(v2 fallback)",
+      "flavor": "food_place",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "tiny piano",
+        "freeword2": "splat",
+        "sound": "boing",
+        "food": "candy",
+        "place": "garden"
+      },
+      "title": "The Candy Day",
+      "paragraphs": [
+        "Cole packed a tiny bag and called the kitten. The kitten came running. Cole led the way.",
+        "\"tiny piano,\" whispered Cole, like it was a spell. The candy flipped over by itself. The kitten looked impressed.",
+        "\"tiny piano!\" said Cole. The kitten said it back. Then they said it together. The candy hummed along, kind of. There was a small bounced moment that nobody quite witnessed in full. Somebody could have sworn the air went a little green.",
+        "By the end of the day, Cole and the kitten were happy and ready for whatever came next. They high-fived and headed home."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 2,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 12
+      }
+    },
+    {
+      "tier": "little",
+      "age": 5,
+      "blueprint": "(v2 fallback)",
+      "flavor": "animal_place",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "boing",
+        "freeword2": "booger cloud",
+        "sound": "bonk",
+        "food": "toast",
+        "place": "grocery store"
+      },
+      "title": "Cole Shares the Toast",
+      "paragraphs": [
+        "Cole opened a door and the duckling tumbled in. \"Hi!\" said Cole. \"Hi back!\" said the duckling — somehow.",
+        "\"boing,\" whispered Cole, like it was a spell. The toast flipped over by itself. The duckling looked impressed.",
+        "\"boing!\" said Cole. The duckling said it back. Then they said it together. The toast hummed along, kind of. For exactly two seconds, Cole skidded like it was a job. Everything in the room had picked up a faint cherry red tint.",
+        "Cole grabbed the duckling's paw. \"Onto the next thing,\" said Cole. They walked home together."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 3,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 14
+      }
+    },
+    {
+      "tier": "little",
+      "age": 4,
+      "blueprint": "(v2 fallback)",
+      "flavor": "surprise",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "sneezy-pants",
+        "freeword2": "cheese hat",
+        "sound": "fluffypants",
+        "food": "blueberries",
+        "place": "playground"
+      },
+      "title": "Cole and the Blueberries",
+      "paragraphs": [
+        "It was a bright morning. Cole grabbed the puppy and headed out. \"We have a plan,\" said Cole.",
+        "\"sneezy-pants,\" whispered Cole, like it was a spell. The blueberries flipped over by itself. The puppy looked impressed.",
+        "\"sneezy-pants!\" said Cole. The puppy said it back. Then they said it together. The blueberries hummed along, kind of. There was a small skidded moment that nobody quite witnessed in full. Everything in the room had picked up a faint yellow tint.",
+        "By the end of the day, Cole and the puppy were happy and ready for whatever came next. They high-fived and headed home."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 2,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 12
+      }
+    },
+    {
+      "tier": "little",
+      "age": 4,
+      "blueprint": "(v2 fallback)",
+      "flavor": "food_place",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "snorble-doo",
+        "freeword2": "burp bubble",
+        "sound": "paper crown",
+        "food": "popcorn",
+        "place": "forest"
+      },
+      "title": "The Popcorn Day",
+      "paragraphs": [
+        "Cole packed a tiny bag and called the bunny. The bunny came running. Cole led the way.",
+        "Cole tapped the popcorn like a button. \"snorble-doo!\" said Cole. \"snorble-doo!\" said the bunny. The popcorn did exactly nothing, which was funny.",
+        "\"snorble-doo!\" said Cole. The bunny said it back. Then they said it together. The popcorn hummed along, kind of. Somewhere in there, Cole slid for emphasis. Somebody could have sworn the air went a little sandy tan.",
+        "Cole grabbed the bunny's paw. \"Onto the next thing,\" said Cole. They walked home together."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 1,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 11
+      }
+    },
+    {
+      "tier": "little",
+      "age": 4,
+      "blueprint": "(v2 fallback)",
+      "flavor": "surprise",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "sneezy sandwich",
+        "freeword2": "tiny piano",
+        "sound": "stinky bananas",
+        "food": "grapes",
+        "place": "playground"
+      },
+      "title": "Cole and the Tiny Trophy",
+      "paragraphs": [
+        "It was a bright morning. Cole grabbed the bunny and headed out. \"We have a plan,\" said Cole.",
+        "Cole tapped the tiny trophy like a button. \"sneezy sandwich!\" said Cole. \"sneezy sandwich!\" said the bunny. The tiny trophy did exactly nothing, which was funny.",
+        "\"sneezy sandwich!\" said Cole. The bunny said it back. Then they said it together. The tiny trophy hummed along, kind of. There was a small floated moment that nobody quite witnessed in full. Somebody could have sworn the air went a little crimson.",
+        "Cole tucked the bunny in first, then climbed in too. \"Same time tomorrow?\" said Cole. The bunny was already half asleep."
+      ],
+      "scores": {
+        "premise": 1,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 0,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 9
+      }
+    },
+    {
+      "tier": "little",
+      "age": 5,
+      "blueprint": "(v2 fallback)",
+      "flavor": "on_the_go",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "fluffypants",
+        "freeword2": "squonk",
+        "sound": "noodle scarf",
+        "food": "cupcakes",
+        "place": "classroom"
+      },
+      "title": "How Cole Found the Apology Balloon",
+      "paragraphs": [
+        "Cole told the hedgehog, \"Today is going to be a big one.\" The hedgehog agreed. They were ready.",
+        "\"fluffypants,\" whispered Cole, like it was a spell. The apology balloon flipped over by itself. The hedgehog looked impressed.",
+        "\"fluffypants!\" said Cole. The hedgehog said it back. Then they said it together. The apology balloon hummed along, kind of. For exactly two seconds, Cole twirled like it was a job. Somebody could have sworn the air went a little crimson.",
+        "By the end of the day, Cole and the hedgehog were happy and ready for whatever came next. They high-fived and headed home."
+      ],
+      "scores": {
+        "premise": 1,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 1,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 10
+      }
+    },
+    {
+      "tier": "little",
+      "age": 4,
+      "blueprint": "(v2 fallback)",
+      "flavor": "at_home",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "tiny piano",
+        "freeword2": "stinky bananas",
+        "sound": "Captain Noodle",
+        "food": "apple slices",
+        "place": "island"
+      },
+      "title": "The Apple Slices Day",
+      "paragraphs": [
+        "Cole opened a door and the pony tumbled in. \"Hi!\" said Cole. \"Hi back!\" said the pony — somehow.",
+        "\"tiny piano,\" whispered Cole, like it was a spell. The apple slices flipped over by itself. The pony looked impressed.",
+        "Cole tapped the apple slices like a button. \"tiny piano!\" said Cole. \"tiny piano!\" said the pony. The apple slices did exactly nothing, which was funny. Cole bounced one more time, just to make a point. The mint green thing was happening again, whatever it was.",
+        "Cole tucked the pony in first, then climbed in too. \"Same time tomorrow?\" said Cole. The pony was already half asleep."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 13
+      }
+    },
+    {
+      "tier": "kid",
+      "age": 7,
+      "blueprint": "(v2 fallback)",
+      "flavor": "at_home",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "stinky bananas",
+        "freeword2": "squonk",
+        "sound": "tiny piano",
+        "food": "ice cream",
+        "place": "bakery"
+      },
+      "title": "Cole and the Chameleon Try to Sing the Loudest Possible Song",
+      "paragraphs": [
+        "At the hallway, Cole told the chameleon the plan. The plan was simple: sing the loudest possible song. The chameleon nodded immediately. It was on.",
+        "The backpack troll stood between Cole and victory. Cole felt brave about it. The backpack troll did not look like it was going to move on its own.",
+        "Cole walked up to the backpack troll in full brave mode. Not asking permission. Not apologizing. Just brave. The backpack troll had not prepared for brave. The backpack troll took a small step back. Somebody could have sworn the air went a little scarlet.",
+        "\"stinky bananas!\" said Cole. The backpack troll heard it, made a small noise, and stepped aside in a way that looked rehearsed. Cole sang the loudest song. The chameleon applauded the backpack troll, because manners. Cole shuffled one more time, just to make a point. \"squonk,\" went somebody. Nobody asked who. Somebody had brought ice cream. Nobody knew when. Nobody minded.",
+        "On the way home, Cole replayed the moment everything turned around. The chameleon kept bouncing along, already ready for whatever was next. Win logged. Onward."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 1,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 10
+      }
+    },
+    {
+      "tier": "kid",
+      "age": 7,
+      "blueprint": "(v2 fallback)",
+      "flavor": "on_the_go",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "sock puppet",
+        "freeword2": "booger cloud",
+        "sound": "moon spoon",
+        "food": "donuts",
+        "place": "forest"
+      },
+      "title": "Cole and the Hamster Take the Stage",
+      "paragraphs": [
+        "There was going to be a show. Cole had been planning it for days. The stage was the elevator. The co-star was the hamster. The crucial prop was a wobbly telescope.",
+        "Right on cue, the wobbly telescope did the WRONG thing. It launched itself off the table, bounced once, and landed in the hamster's lap. The hamster looked at Cole like, \"Well now what?\"",
+        "Cole took a breath, leapt forward, and shouted whatever came to mind: \"sock puppet!\" The audience leaned in. Sometimes nonsense lands. Everything in the room had picked up a faint scarlet tint. Later someone would swear they heard \"booger cloud\" in the rafters.",
+        "\"sock puppet!\" yelled Cole, pointing at the broken wobbly telescope. The wobbly telescope twitched. Twitched again. Then it did exactly what it had refused to do five minutes ago. Pillows lost it. Cole kept feeling confused about the whole thing. Somebody had brought donuts. Nobody knew when. Nobody minded. Off to the side, the knight was processing all of this with visible difficulty.",
+        "Backstage, Cole high-fived the hamster. The show would never be performed exactly that way again. That was kind of the point."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 2,
+        "escalation": 2,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 2,
+        "total": 15
+      }
+    },
+    {
+      "tier": "kid",
+      "age": 7,
+      "blueprint": "(v2 fallback)",
+      "flavor": "at_home",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "pickle crown",
+        "freeword2": "mister floof",
+        "sound": "jiggly blorp",
+        "food": "spaghetti",
+        "place": "aquarium"
+      },
+      "title": "How Cole Outsmarted the Stone Giant",
+      "paragraphs": [
+        "It was a normal day at the living room. Cole and the tiger were minding their own business. The day was, technically, fine. So far.",
+        "The stone giant declared the spaghetti forbidden. Cole felt ridiculously cheerful about this development. Possibly more ridiculously cheerful than the stone giant had bargained for.",
+        "Cole zoomed sideways while holding the backpack zipper. This was a different move than the one the rule said no to. A different move! The rule said nothing back. The tomato red thing was happening again, whatever it was.",
+        "Cole held the spaghetti up like a trophy. The stone giant could only watch. \"mister floof!\" yelled Cole. Both things were now true at once. A distant \"pickle crown\" echoed from somewhere, possibly a memory.",
+        "The tiger watched the loophole work and looked impressed. The tiger was going to try this later. Cole had taught the tiger something brand new. Bedtime: earned."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 2,
+        "escalation": 2,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 10
+      }
+    },
+    {
+      "tier": "kid",
+      "age": 7,
+      "blueprint": "(v2 fallback)",
+      "flavor": "animal_place",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "sneezy-pants",
+        "freeword2": "magnet shoe",
+        "sound": "fluffypants",
+        "food": "cereal",
+        "place": "pizza shop"
+      },
+      "title": "Cole and the Duckling Try to Find the Best Possible Snack",
+      "paragraphs": [
+        "Cole woke up with a plan. Today, at the animal shelter, Cole was going to find the best possible snack. The duckling was in. The duckling was always in.",
+        "There was just one problem: a alien stood between Cole and the goal. \"Nope,\" said the alien. \"Not today. Not find the best possible snack. Not on my watch.\"",
+        "And then Cole did the most sunset orange thing imaginable: walked right past the alien while pretending to be a sunset orange traffic cone. The alien watched, confused. The plan was working. A \"magnet shoe\" hung in the air for a second longer than expected.",
+        "\"sneezy-pants!\" said Cole. The alien heard it, made a small noise, and stepped aside in a way that looked rehearsed. Cole found the best possible snack. The duckling applauded the alien, because manners. For exactly two seconds, Cole tiptoed like it was a job. Throughout, Cole stayed extra brave. Steadily extra brave. Somebody had brought cereal. Nobody knew when. Nobody minded.",
+        "On the way home, Cole replayed the moment everything turned around. The duckling kept bouncing along, already ready for whatever was next. Win logged. Onward."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 2,
+        "escalation": 2,
+        "visual": 1,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 2,
+        "total": 12
+      }
+    },
+    {
+      "tier": "kid",
+      "age": 6,
+      "blueprint": "(v2 fallback)",
+      "flavor": "at_school",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "Captain Noodle",
+        "freeword2": "burp bubble",
+        "sound": "sock puppet",
+        "food": "smoothie",
+        "place": "rooftop"
+      },
+      "title": "Cole vs the Rule",
+      "paragraphs": [
+        "It was a normal day at the art room. Cole and the chameleon were minding their own business. The day was, technically, fine. So far.",
+        "The sock monster declared the smoothie forbidden. Cole felt dramatic about this development. Possibly more dramatic than the sock monster had bargained for.",
+        "Cole spun sideways while holding the sticker sheet. This was a different move than the one the rule said no to. A different move! The rule said nothing back.",
+        "And just like that, Cole got the smoothie anyway. The sock monster sighed. \"Captain Noodle!\" yelled Cole. The rule was still a rule, but Cole had won this round. Somebody could have sworn the air went a little purple. \"burp bubble,\" went somebody. Nobody asked who.",
+        "Heading home, Cole explained the loophole to the chameleon one more time. The chameleon was nodding seriously, clearly planning to deploy it later. Knowledge: transferred."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 1,
+        "visual": 1,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 8
+      }
+    },
+    {
+      "tier": "kid",
+      "age": 7,
+      "blueprint": "(v2 fallback)",
+      "flavor": "outside",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "fwoosh",
+        "freeword2": "rubber duck",
+        "sound": "pickle wizard",
+        "food": "donuts",
+        "place": "arcade"
+      },
+      "title": "Cole and the Koala Try to Build the Perfect Hideout",
+      "paragraphs": [
+        "At the forest path, Cole told the koala the plan. The plan was simple: build the perfect hideout. The koala nodded immediately. It was on.",
+        "The knight stood between Cole and victory. Cole felt super happy about it. The knight did not look like it was going to move on its own.",
+        "And then Cole did the most silver thing imaginable: walked right past the knight while pretending to be a silver traffic cone. The knight watched, confused. The plan was working. A \"rubber duck\" hung in the air for a second longer than expected.",
+        "\"fwoosh!\" said Cole. The knight heard it, made a small noise, and stepped aside in a way that looked rehearsed. Cole built the perfect hideout. The koala applauded the knight, because manners. For exactly two seconds, Cole spun like it was a job. some donuts sat off to the side, mostly forgotten, definitely still part of the day.",
+        "On the way home, Cole replayed the moment everything turned around. The koala kept bouncing along, already ready for whatever was next. Win logged. Onward."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 2,
+        "escalation": 3,
+        "visual": 2,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 13
+      }
+    },
+    {
+      "tier": "kid",
+      "age": 6,
+      "blueprint": "(v2 fallback)",
+      "flavor": "somewhere_weird",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "blorp",
+        "freeword2": "grumblepoof",
+        "sound": "magnet shoe",
+        "food": "milkshake",
+        "place": "water park"
+      },
+      "title": "The Loophole at the Invisible Hotel",
+      "paragraphs": [
+        "Cole and the llama had arrived at the invisible hotel with a simple plan: have a regular afternoon. The llama was good at regular afternoons.",
+        "The talking horse declared the milkshake forbidden. Cole felt snacky about this development. Possibly more snacky than the talking horse had bargained for.",
+        "Cole belly-flopped sideways while holding the foam finger. This was a different move than the one the rule said no to. A different move! The rule said nothing back. And one of them, very quietly, said \"grumblepoof.\"",
+        "And just like that, Cole got the milkshake anyway. The talking horse sighed. \"blorp!\" yelled Cole. The rule was still a rule, but Cole had won this round. Somebody could have sworn the air went a little mint green.",
+        "Heading home, Cole explained the loophole to the llama one more time. The llama was nodding seriously, clearly planning to deploy it later. Knowledge: transferred."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 6
+      }
+    },
+    {
+      "tier": "kid",
+      "age": 7,
+      "blueprint": "(v2 fallback)",
+      "flavor": "food_place",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "grumblepoof",
+        "freeword2": "foot soup",
+        "sound": "honk",
+        "food": "sushi",
+        "place": "castle"
+      },
+      "title": "Cole and the Crow Take the Stage",
+      "paragraphs": [
+        "At the diner, Cole set everything up. The crow practiced its part. The shiny rock sat front and center. The whole show kind of depended on the shiny rock working.",
+        "Then everything went wrong. The shiny rock broke. Actually broke. In half. Cole froze. The crow froze. The pillows watched.",
+        "Cole took a breath, shuffled forward, and shouted whatever came to mind: \"grumblepoof!\" The audience leaned in. Sometimes nonsense lands. A faint neon glow hung over the scene by then. Throughout, Cole stayed worried. Steadily worried.",
+        "\"grumblepoof!\" yelled Cole, pointing at the broken shiny rock. The shiny rock twitched. Twitched again. Then it did exactly what it had refused to do five minutes ago. Pillows lost it. Just then a \"foot soup\" cracked the silence. Nobody admitted to it. Somebody had brought sushi. Nobody knew when. Nobody minded. A yeti watched the whole thing happen and offered no comment.",
+        "Backstage, Cole high-fived the crow. The show would never be performed exactly that way again. That was kind of the point."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 2,
+        "escalation": 3,
+        "visual": 2,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 14
+      }
+    },
+    {
+      "tier": "kid",
+      "age": 7,
+      "blueprint": "(v2 fallback)",
+      "flavor": "outside",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "wobble-flop",
+        "freeword2": "gloop",
+        "sound": "moon spoon",
+        "food": "dumplings",
+        "place": "castle"
+      },
+      "title": "Cole vs the Talking Sandwich",
+      "paragraphs": [
+        "Cole and the fennec fox were at the treehouse. Cole had been saving the dumplings all morning. The fennec fox was extra excited.",
+        "No dumplings anywhere. Cole went cozy like a tiny detective. The talking sandwich hummed a song nobody had asked for.",
+        "Right then the fennec fox hiccuped. Out came a tiny crumb of dumplings. Then another. Then a third. The fennec fox looked at the crumbs. The crumbs looked back. Everybody knew. Somewhere in there, Cole tiptoed for emphasis. \"gloop,\" went somebody. Nobody asked who.",
+        "\"wobble-flop!\" yelled Cole. The dumplings heard it. The dumplings reappeared on the table like nothing had happened. The fennec fox tried to look surprised. Everything in the room had picked up a faint neon tint.",
+        "That night, Cole curled up. The fennec fox, full of stolen crumbs, curled up too. Tomorrow: more snacks. Tonight: rest."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 2,
+        "escalation": 3,
+        "visual": 2,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 2,
+        "total": 14
+      }
+    },
+    {
+      "tier": "kid",
+      "age": 7,
+      "blueprint": "(v2 fallback)",
+      "flavor": "animal_place",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "boing",
+        "freeword2": "blorp",
+        "sound": "splat",
+        "food": "quesadilla",
+        "place": "shipwreck"
+      },
+      "title": "The Day Cole Tried to Cross the Wobbly Bridge",
+      "paragraphs": [
+        "It started at the animal shelter. Cole looked at the goldfish and made up their mind: today they would cross the wobbly bridge. No matter what.",
+        "The sock monster stood between Cole and victory. Cole felt goofy about it. The sock monster did not look like it was going to move on its own.",
+        "Cole suddenly pulled out a lemon yellow flag and waved it dramatically. The sock monster hesitated. The sock monster had not been briefed on the flag. The flag took the sock monster out of the moment for exactly long enough. Somewhere in there, Cole moonwalked for emphasis.",
+        "\"boing!\" said Cole. The sock monster heard it, made a small noise, and stepped aside in a way that looked rehearsed. Cole crossed the wobbly bridge. The goldfish applauded the sock monster, because manners. A \"blorp\" hung in the air for a second longer than expected. Somebody had brought quesadilla. Nobody knew when. Nobody minded.",
+        "Back home, Cole replayed it in their head: how the goldfish had been right there, how it had all worked out. The goldfish curled up. Tomorrow could be just as good."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 1,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 10
+      }
+    },
+    {
+      "tier": "kid",
+      "age": 7,
+      "blueprint": "(v2 fallback)",
+      "flavor": "somewhere_weird",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "sneezy-pants",
+        "freeword2": "zoinks",
+        "sound": "plop",
+        "food": "ice cream",
+        "place": "glacier"
+      },
+      "title": "The Cereal Box Broke But Cole Did Not",
+      "paragraphs": [
+        "At the tiny city, Cole set everything up. The dragon practiced its part. The cereal box sat front and center. The whole show kind of depended on the cereal box working.",
+        "The cereal box made a noise it should not have been able to make. Then it tipped sideways. Then it kept tipping. It was still tipping. The audience leaned in. Cole thought fast.",
+        "Cole took a breath, shimmied forward, and shouted whatever came to mind: \"sneezy-pants!\" The audience leaned in. Sometimes nonsense lands. For a beat the whole place looked weirdly silver. A \"zoinks\" hung in the air for a second longer than expected. Throughout, Cole stayed brave. Steadily brave.",
+        "\"sneezy-pants!\" yelled Cole, pointing at the broken cereal box. The cereal box twitched. Twitched again. Then it did exactly what it had refused to do five minutes ago. Pillows lost it. an ice cream sat off to the side, mostly forgotten, definitely still part of the day. Off to the side, the dinosaur was processing all of this with visible difficulty.",
+        "Backstage, Cole high-fived the dragon. The show was unrepeatable, which felt right. Time to pack up and find the next thing."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 2,
+        "escalation": 3,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 15
+      }
+    },
+    {
+      "tier": "kid",
+      "age": 6,
+      "blueprint": "(v2 fallback)",
+      "flavor": "outside",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "rubber duck",
+        "freeword2": "snorble-doo",
+        "sound": "wobble-flop",
+        "food": "hot dogs",
+        "place": "pizza shop"
+      },
+      "title": "The Loophole at the Soccer Field",
+      "paragraphs": [
+        "It was a normal day at the soccer field. Cole and the hedgehog were minding their own business. The day was, technically, fine. So far.",
+        "The fire bird declared the hot dogs forbidden. Cole felt curious about this development. Possibly more curious than the fire bird had bargained for.",
+        "Cole leapt sideways while holding the shiny rock. This was a different move than the one the rule said no to. A different move! The rule said nothing back. For a beat the whole place looked weirdly pitch black.",
+        "Cole held the hot dogs up like a trophy. The fire bird could only watch. \"snorble-doo!\" yelled Cole. Both things were now true at once. A \"rubber duck\" slipped out before Cole could stop it.",
+        "Heading home, Cole explained the loophole to the hedgehog one more time. The hedgehog was nodding seriously, clearly planning to deploy it later. Knowledge: transferred."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 6
+      }
+    },
+    {
+      "tier": "kid",
+      "age": 7,
+      "blueprint": "(v2 fallback)",
+      "flavor": "animal_place",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "noodle scarf",
+        "freeword2": "mystery jelly",
+        "sound": "rubber duck",
+        "food": "milkshake",
+        "place": "arcade"
+      },
+      "title": "Cole and the Dinosaur's Rule",
+      "paragraphs": [
+        "Cole and the tiger had arrived at the zoo with a simple plan: have a regular afternoon. The tiger was good at regular afternoons.",
+        "The dinosaur declared the milkshake forbidden. Cole felt sleepy about this development. Possibly more sleepy than the dinosaur had bargained for.",
+        "Cole crept sideways while holding the bus ticket. This was a different move than the one the rule said no to. A different move! The rule said nothing back. And one of them, very quietly, said \"mystery jelly.\"",
+        "\"noodle scarf!\" went Cole. The dinosaur heard a code word it apparently knew, mumbled \"ah, the noodle scarf clause,\" and waved Cole through with the milkshake. There was no noodle scarf clause. Somebody could have sworn the air went a little watermelon pink.",
+        "The tiger watched the loophole work and looked impressed. The tiger was going to try this later. Cole had taught the tiger something brand new. Bedtime: earned."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 1,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 7
+      }
+    },
+    {
+      "tier": "kid",
+      "age": 6,
+      "blueprint": "(v2 fallback)",
+      "flavor": "surprise",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "pickle juice",
+        "freeword2": "soggy sock",
+        "sound": "kabloom",
+        "food": "popcorn",
+        "place": "grocery store"
+      },
+      "title": "The Day Cole Saved the Show",
+      "paragraphs": [
+        "At the grocery store, Cole set everything up. The duckling practiced its part. The tiny clipboard sat front and center. The whole show kind of depended on the tiny clipboard working.",
+        "Then everything went wrong. The tiny clipboard broke. Actually broke. In half. Cole froze. The duckling froze. The pillows watched.",
+        "Cole took a breath, skated forward, and shouted whatever came to mind: \"pickle juice!\" The audience leaned in. Sometimes nonsense lands. For a beat the whole place looked weirdly mint green. And one of them, very quietly, said \"soggy sock.\" some popcorn sat off to the side, mostly forgotten, definitely still part of the day.",
+        "\"pickle juice!\" yelled Cole, pointing at the broken tiny clipboard. The tiny clipboard twitched. Twitched again. Then it did exactly what it had refused to do five minutes ago. Pillows lost it. Cole kept feeling suspicious about the whole thing. Off to the side, the witch was processing all of this with visible difficulty.",
+        "Backstage, Cole high-fived the duckling. The show was unrepeatable, which felt right. Time to pack up and find the next thing."
+      ],
+      "scores": {
+        "premise": 3,
+        "causality": 2,
+        "escalation": 3,
+        "visual": 2,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 15
+      }
+    },
+    {
+      "tier": "kid",
+      "age": 7,
+      "blueprint": "(v2 fallback)",
+      "flavor": "surprise",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "blorp",
+        "freeword2": "wubba",
+        "sound": "noodle scarf",
+        "food": "waffles",
+        "place": "shipwreck"
+      },
+      "title": "Cole and the Koala Try to Deliver a Secret Message",
+      "paragraphs": [
+        "It started at the shipwreck. Cole looked at the koala and made up their mind: today they would deliver a secret message. No matter what.",
+        "The talking horse stood between Cole and victory. Cole felt snacky about it. The talking horse did not look like it was going to move on its own.",
+        "And then Cole did the most mint green thing imaginable: walked right past the talking horse while pretending to be a mint green traffic cone. The talking horse watched, confused. The plan was working. Cole leapt without thinking. It was a thing they did now. Just then a \"wubba\" cracked the silence. Nobody admitted to it.",
+        "\"blorp!\" said Cole. The talking horse heard it, made a small noise, and stepped aside in a way that looked rehearsed. Cole delivered the secret message. The koala applauded the talking horse, because manners. some waffles sat off to the side, mostly forgotten, definitely still part of the day.",
+        "On the way home, Cole replayed the moment everything turned around. The koala kept bouncing along, already ready for whatever was next. Win logged. Onward."
+      ],
+      "scores": {
+        "premise": 3,
+        "causality": 2,
+        "escalation": 2,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 11
+      }
+    },
+    {
+      "tier": "kid",
+      "age": 6,
+      "blueprint": "(v2 fallback)",
+      "flavor": "at_school",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "paper crown",
+        "freeword2": "noodle-jumper",
+        "sound": "stinky bananas",
+        "food": "birthday cake",
+        "place": "cavern"
+      },
+      "title": "The Loophole at the School Bus Line",
+      "paragraphs": [
+        "Cole and the goose had arrived at the school bus line with a simple plan: have a regular afternoon. The goose was good at regular afternoons.",
+        "The knight declared the birthday cake forbidden. Cole felt mysterious about this development. Possibly more mysterious than the knight had bargained for.",
+        "Cole wobbled sideways while holding the glittery helmet. This was a different move than the one the rule said no to. A different move! The rule said nothing back. A faint moss green glow hung over the scene by then. \"noodle-jumper,\" went somebody. Nobody asked who.",
+        "And just like that, Cole got the birthday cake anyway. The knight sighed. \"paper crown!\" yelled Cole. The rule was still a rule, but Cole had won this round.",
+        "Heading home, Cole explained the loophole to the goose one more time. The goose was nodding seriously, clearly planning to deploy it later. Knowledge: transferred."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 6
+      }
+    },
+    {
+      "tier": "kid",
+      "age": 7,
+      "blueprint": "(v2 fallback)",
+      "flavor": "surprise",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "Captain Noodle",
+        "freeword2": "flumpy",
+        "sound": "boing",
+        "food": "spaghetti",
+        "place": "water park"
+      },
+      "title": "Who Took the Spaghetti?",
+      "paragraphs": [
+        "Cole and the penguin were at the water park. Cole had been saving the spaghetti all morning. The penguin was extra excited.",
+        "The spaghetti had vanished. Cole turned curious in a way the knight could feel from across the room. The knight coughed for no reason.",
+        "Then the penguin burped. A specific burp. The kind of burp that smells exactly like spaghetti. \"Oh,\" said Cole. The penguin tried to look surprised. It was not convincing. Cole shuffled one more time, just to make a point. A faint rose gold glow hung over the scene by then. Just then a \"flumpy\" cracked the silence. Nobody admitted to it.",
+        "\"Captain Noodle!\" yelled Cole. The penguin squawked back. Everyone agreed to share the next batch of spaghetti. The knight demanded a formal apology. Cole gave one.",
+        "That night, Cole curled up. The penguin, full of stolen crumbs, curled up too. Tomorrow: more snacks. Tonight: rest."
+      ],
+      "scores": {
+        "premise": 3,
+        "causality": 2,
+        "escalation": 3,
+        "visual": 1,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 3,
+        "total": 15
+      }
+    },
+    {
+      "tier": "kid",
+      "age": 7,
+      "blueprint": "(v2 fallback)",
+      "flavor": "food_place",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "crinkle-bonk",
+        "freeword2": "squonk",
+        "sound": "soggy sock",
+        "food": "burritos",
+        "place": "forest"
+      },
+      "title": "Cole and the Burritos Mystery",
+      "paragraphs": [
+        "Cole and the hamster were at the grocery aisle. Cole had been saving the burritos all morning. The hamster was extra excited.",
+        "No burritos anywhere. Cole went secretly proud like a tiny detective. The knight hummed a song nobody had asked for.",
+        "Right then the hamster hiccuped. Out came a tiny crumb of burritos. Then another. Then a third. The hamster looked at the crumbs. The crumbs looked back. Everybody knew.",
+        "The hamster hiccuped one more time and a tiny crumb of burritos popped out. Cole laughed so hard. \"squonk!\" yelled Cole. The hamster echoed back, mouth full. For exactly two seconds, Cole soared like it was a job. The lemon yellow thing was happening again, whatever it was. A distant \"crinkle-bonk\" echoed from somewhere, possibly a memory.",
+        "Back home, Cole high-fived the hamster over the case being officially closed. They both started planning the next caper. Justice, snacks, then more justice."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 2,
+        "escalation": 3,
+        "visual": 3,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 2,
+        "total": 15
+      }
+    },
+    {
+      "tier": "kid",
+      "age": 6,
+      "blueprint": "(v2 fallback)",
+      "flavor": "animal_place",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "pickle crown",
+        "freeword2": "wubba",
+        "sound": "sproing",
+        "food": "fried chicken",
+        "place": "meadow"
+      },
+      "title": "How Cole Outsmarted the Hallway Ghost",
+      "paragraphs": [
+        "Cole and the duckling had arrived at the pet store with a simple plan: have a regular afternoon. The duckling was good at regular afternoons.",
+        "The hallway ghost declared the fried chicken forbidden. Cole felt worried about this development. Possibly more worried than the hallway ghost had bargained for.",
+        "Cole skated sideways while holding the umbrella. This was a different move than the one the rule said no to. A different move! The rule said nothing back. For a beat the whole place looked weirdly tomato red. A \"pickle crown\" slipped out before Cole could stop it.",
+        "Cole held the fried chicken up like a trophy. The hallway ghost could only watch. \"wubba!\" yelled Cole. Both things were now true at once.",
+        "The duckling watched the loophole work and looked impressed. The duckling was going to try this later. Cole had taught the duckling something brand new. Bedtime: earned."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 6
+      }
+    },
+    {
+      "tier": "kid",
+      "age": 7,
+      "blueprint": "(v2 fallback)",
+      "flavor": "somewhere_weird",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "fluffypants",
+        "freeword2": "fwoosh",
+        "sound": "mystery jelly",
+        "food": "pickles",
+        "place": "cavern"
+      },
+      "title": "The Loophole at the Tiny City",
+      "paragraphs": [
+        "It was a normal day at the tiny city. Cole and the sloth were minding their own business. The day was, technically, fine. So far.",
+        "The ghost declared the pickles forbidden. Cole felt silly about this development. Possibly more silly than the ghost had bargained for.",
+        "Cole skated sideways while holding the wobbly telescope. This was a different move than the one the rule said no to. A different move! The rule said nothing back.",
+        "\"fluffypants!\" said Cole. The rule developed a small visible crack. Nobody could see it, but everyone agreed it was there. The ghost handed over the pickles without comment. A faint burnt orange glow hung over the scene by then. And one of them, very quietly, said \"fwoosh.\"",
+        "The sloth watched the loophole work and looked impressed. The sloth was going to try this later. Cole had taught the sloth something brand new. Bedtime: earned."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 6
+      }
+    },
+    {
+      "tier": "big",
+      "age": 10,
+      "blueprint": "(v2 fallback)",
+      "flavor": "outside",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "gloop",
+        "freeword2": "flumpy",
+        "sound": "Captain Noodle",
+        "food": "official pie",
+        "place": "roller rink"
+      },
+      "title": "How Cole Outsmarted the Bewildered Sphinx",
+      "paragraphs": [
+        "Cole and the retired dragon had arrived at the park with a simple plan: have a regular afternoon. The retired dragon was good at regular afternoons.",
+        "The bewildered sphinx declared the official pie forbidden. Cole felt suspiciously cheerful about this development. Possibly more suspiciously cheerful than the bewildered sphinx had bargained for.",
+        "Cole marched stubbornly sideways while holding the milkshake straw. This was a different move than the one the rule said no to. A different move! The rule said nothing back.",
+        "The bewildered sphinx tried to amend the rule on the fly. The bewildered sphinx said, \"Actually—\" Cole held the milkshake straw higher. The bewildered sphinx could not actually argue against that. The amendment was abandoned. A \"flumpy\" hung in the air for a second longer than expected.",
+        "\"gloop!\" went Cole. The bewildered sphinx heard a code word it apparently knew, mumbled \"ah, the gloop clause,\" and waved Cole through with the official pie. There was no gloop clause. Somebody could have sworn the air went a little obviously red.",
+        "Heading home, Cole explained the loophole to the retired dragon one more time. The retired dragon was nodding seriously, clearly planning to deploy it later. Knowledge: transferred."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 1,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 7
+      }
+    },
+    {
+      "tier": "big",
+      "age": 10,
+      "blueprint": "(v2 fallback)",
+      "flavor": "somewhere_weird",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "wobble-flop",
+        "freeword2": "noodle scarf",
+        "sound": "splat",
+        "food": "mysterious leftovers",
+        "place": "underground ballroom"
+      },
+      "title": "Cole and the Melodramatic Ghost's Rule",
+      "paragraphs": [
+        "Cole and the exasperated flamingo had arrived at the tiny city with a simple plan: have a regular afternoon. The exasperated flamingo was good at regular afternoons.",
+        "The melodramatic ghost declared the mysterious leftovers forbidden. Cole felt gloriously incorrect about this development. Possibly more gloriously incorrect than the melodramatic ghost had bargained for.",
+        "Cole moonwalked carefully sideways while holding the broken compass. This was a different move than the one the rule said no to. A different move! The rule said nothing back.",
+        "The melodramatic ghost tried to amend the rule on the fly. The melodramatic ghost said, \"Actually—\" Cole held the broken compass higher. The melodramatic ghost could not actually argue against that. The amendment was abandoned. A faint deep crimson glow hung over the scene by then.",
+        "\"wobble-flop!\" went Cole. The melodramatic ghost heard a code word it apparently knew, mumbled \"ah, the wobble-flop clause,\" and waved Cole through with the mysterious leftovers. There was no wobble-flop clause. A \"noodle scarf\" hung in the air for a second longer than expected.",
+        "Heading home, Cole explained the loophole to the exasperated flamingo one more time. The exasperated flamingo was nodding seriously, clearly planning to deploy it later. Knowledge: transferred."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 1,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 7
+      }
+    },
+    {
+      "tier": "big",
+      "age": 10,
+      "blueprint": "(v2 fallback)",
+      "flavor": "surprise",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "wibble-whap",
+        "freeword2": "spoon hat",
+        "sound": "noodle scarf",
+        "food": "suspicious casserole",
+        "place": "extremely long corridor"
+      },
+      "title": "Cole and the Deeply Committed Scarecrow's Rule",
+      "paragraphs": [
+        "It was a normal day at the extremely long corridor. Cole and the exasperated flamingo were minding their own business. The day was, technically, fine. So far.",
+        "The deeply committed scarecrow declared the suspicious casserole forbidden. Cole felt formally ridiculous about this development. Possibly more formally ridiculous than the deeply committed scarecrow had bargained for.",
+        "Cole fell upward somehow sideways while holding the sticker sheet. This was a different move than the one the rule said no to. A different move! The rule said nothing back.",
+        "The deeply committed scarecrow squinted at the sticker sheet. The deeply committed scarecrow could not technically object. Cole was technically still inside the rule. The deeply committed scarecrow muttered something and looked away. The lunchbox yellow thing was happening again, whatever it was. A distant \"wibble-whap\" echoed from somewhere, possibly a memory.",
+        "Cole held up the sticker sheet and said \"spoon hat.\" The sticker sheet did something briefly impressive that nobody could later describe. The suspicious casserole arrived in Cole's hand.",
+        "The exasperated flamingo watched the loophole work and looked impressed. The exasperated flamingo was going to try this later. Cole had taught the exasperated flamingo something brand new. Bedtime: earned."
+      ],
+      "scores": {
+        "premise": 3,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 10
+      }
+    },
+    {
+      "tier": "big",
+      "age": 10,
+      "blueprint": "(v2 fallback)",
+      "flavor": "outside",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "slime puddle",
+        "freeword2": "flumpy",
+        "sound": "noodle-jumper",
+        "food": "thunder pancakes",
+        "place": "spectacularly average hallway"
+      },
+      "title": "Cole vs the Rule",
+      "paragraphs": [
+        "Cole and the ancient tortoise had arrived at the soccer field with a simple plan: have a regular afternoon. The ancient tortoise was good at regular afternoons.",
+        "The overqualified fish declared the thunder pancakes forbidden. Cole felt surprisingly enthusiastic about this development. Possibly more surprisingly enthusiastic than the overqualified fish had bargained for.",
+        "Cole reversed unexpectedly sideways while holding the lost mitten. This was a different move than the one the rule said no to. A different move! The rule said nothing back. Somebody could have sworn the air went a little shimmering gold.",
+        "The overqualified fish squinted at the lost mitten. The overqualified fish could not technically object. Cole was technically still inside the rule. The overqualified fish muttered something and looked away. Out of nowhere, Cole said \"slime puddle\" like a small spell.",
+        "Cole held the thunder pancakes up like a trophy. The overqualified fish could only watch. \"flumpy!\" yelled Cole. Both things were now true at once.",
+        "Heading home, Cole explained the loophole to the ancient tortoise one more time. The ancient tortoise was nodding seriously, clearly planning to deploy it later. Knowledge: transferred."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 6
+      }
+    },
+    {
+      "tier": "big",
+      "age": 10,
+      "blueprint": "(v2 fallback)",
+      "flavor": "food_place",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "crusty pretzel",
+        "freeword2": "sprongulous",
+        "sound": "ear cheese",
+        "food": "enchanted pickles",
+        "place": "partially flooded tower"
+      },
+      "title": "Cole and the Courtroom Duck's Rule",
+      "paragraphs": [
+        "Cole and the suspicious seagull had arrived at the ice cream truck with a simple plan: have a regular afternoon. The suspicious seagull was good at regular afternoons.",
+        "The courtroom duck declared the enchanted pickles forbidden. Cole felt deeply snack-motivated about this development. Possibly more deeply snack-motivated than the courtroom duck had bargained for.",
+        "Cole fell upward somehow sideways while holding the clipboard. This was a different move than the one the rule said no to. A different move! The rule said nothing back. \"sprongulous,\" went somebody. Nobody asked who.",
+        "The courtroom duck squinted at the clipboard. The courtroom duck could not technically object. Cole was technically still inside the rule. The courtroom duck muttered something and looked away. The impossible green thing was happening again, whatever it was.",
+        "\"crusty pretzel!\" said Cole. The rule developed a small visible crack. Nobody could see it, but everyone agreed it was there. The courtroom duck handed over the enchanted pickles without comment.",
+        "Heading home, Cole explained the loophole to the suspicious seagull one more time. The suspicious seagull was nodding seriously, clearly planning to deploy it later. Knowledge: transferred."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 6
+      }
+    },
+    {
+      "tier": "big",
+      "age": 10,
+      "blueprint": "(v2 fallback)",
+      "flavor": "food_place",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "booger cloud",
+        "freeword2": "burp bubble",
+        "sound": "crinkle-bonk",
+        "food": "haunted macaroni",
+        "place": "museum basement"
+      },
+      "title": "Who Took the Haunted Macaroni?",
+      "paragraphs": [
+        "At the snack bar, Cole set the haunted macaroni down for one second. The theatrical moth watched. Cole turned to grab a napkin. Just one second.",
+        "The haunted macaroni had vanished. Cole got surprisingly enthusiastic about it. The philosophical crab tried a slow shrug. The shrug arrived late and crooked.",
+        "Cole put on their most surprisingly enthusiastic expression and walked very slowly toward the philosophical crab. The philosophical crab tried to back away. \"Tell me what you saw,\" said Cole, staying surprisingly enthusiastic. The philosophical crab cracked immediately. Cole moonwalked carefully without thinking. It was a thing they did now. The eerie periwinkle thing was happening again, whatever it was. A \"booger cloud\" slipped out before Cole could stop it.",
+        "Then the theatrical moth burped. A specific burp. The kind of burp that smells exactly like haunted macaroni. \"Oh,\" said Cole. The theatrical moth tried to look surprised. It was not convincing.",
+        "The theatrical moth hiccuped one more time and a tiny crumb of haunted macaroni popped out. Cole laughed so hard. \"burp bubble!\" yelled Cole. The theatrical moth echoed back, mouth full.",
+        "Back home, Cole high-fived the theatrical moth over the case being officially closed. They both started planning the next caper. Justice, snacks, then more justice."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 2,
+        "escalation": 3,
+        "visual": 3,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 2,
+        "total": 15
+      }
+    },
+    {
+      "tier": "big",
+      "age": 10,
+      "blueprint": "(v2 fallback)",
+      "flavor": "surprise",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "rubber duck",
+        "freeword2": "damp toast",
+        "sound": "fluffypants",
+        "food": "ancient snack bar",
+        "place": "cloud observatory"
+      },
+      "title": "Cole vs the Melodramatic Ghost",
+      "paragraphs": [
+        "It started at the cloud observatory. Cole looked at the dramatic lizard and made up their mind: today they would sneak past the watchful one. No matter what.",
+        "The melodramatic ghost stood between Cole and victory. Cole felt gravely unimpressed about it. The melodramatic ghost did not look like it was going to move on its own.",
+        "Cole walked up to the melodramatic ghost in full gravely unimpressed mode. Not asking permission. Not apologizing. Just gravely unimpressed. The melodramatic ghost had not prepared for gravely unimpressed. The melodramatic ghost took a small step back.",
+        "The melodramatic ghost was not done. It produced some ancient snack bar and waved that around like a tiny threat. \"Now what?\" Cole had not seen that coming. Cole kept going anyway. The shimmering gold thing was happening again, whatever it was. \"damp toast,\" went somebody. Nobody asked who.",
+        "\"rubber duck!\" said Cole. The melodramatic ghost heard it, made a small noise, and stepped aside in a way that looked rehearsed. Cole snuck past the watchful one. The dramatic lizard applauded the melodramatic ghost, because manners. For exactly two seconds, Cole fell upward somehow like it was a job.",
+        "On the way home, Cole replayed the moment everything turned around. The dramatic lizard kept bouncing along, already ready for whatever was next. Win logged. Onward."
+      ],
+      "scores": {
+        "premise": 3,
+        "causality": 2,
+        "escalation": 2,
+        "visual": 1,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 12
+      }
+    },
+    {
+      "tier": "big",
+      "age": 8,
+      "blueprint": "(v2 fallback)",
+      "flavor": "outside",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "foot soup",
+        "freeword2": "bonk",
+        "sound": "noodle scarf",
+        "food": "haunted macaroni",
+        "place": "bus depot"
+      },
+      "title": "The Loophole at the Forest Path",
+      "paragraphs": [
+        "It was a normal day at the forest path. Cole and the theatrical moth were minding their own business. The day was, technically, fine. So far.",
+        "The tiny judge declared the haunted macaroni forbidden. Cole felt extremely unconvinced about this development. Possibly more extremely unconvinced than the tiny judge had bargained for.",
+        "Cole slid heroically sideways while holding the invisible box. This was a different move than the one the rule said no to. A different move! The rule said nothing back. Somebody could have sworn the air went a little obviously red.",
+        "The tiny judge squinted at the invisible box. The tiny judge could not technically object. Cole was technically still inside the rule. The tiny judge muttered something and looked away. A \"foot soup\" slipped out before Cole could stop it.",
+        "Cole held the haunted macaroni up like a trophy. The tiny judge could only watch. \"bonk!\" yelled Cole. Both things were now true at once.",
+        "Heading home, Cole explained the loophole to the theatrical moth one more time. The theatrical moth was nodding seriously, clearly planning to deploy it later. Knowledge: transferred."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 1,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 7
+      }
+    },
+    {
+      "tier": "big",
+      "age": 9,
+      "blueprint": "(v2 fallback)",
+      "flavor": "surprise",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "banana phone",
+        "freeword2": "soggy genius",
+        "sound": "wubba",
+        "food": "bewildering cookies",
+        "place": "forgotten attic"
+      },
+      "title": "The Day Cole Tried to Share a Real Good Secret",
+      "paragraphs": [
+        "At the forgotten attic, Cole told the tiny alpaca the plan. The plan was simple: share a real good secret. The tiny alpaca nodded immediately. It was on.",
+        "There was just one problem: a concerned librarian stood between Cole and the goal. \"Nope,\" said the concerned librarian. \"Not today. Not share a real good secret. Not on my watch.\"",
+        "And then Cole did the most impossible orange thing imaginable: walked right past the concerned librarian while pretending to be a impossible orange traffic cone. The concerned librarian watched, confused. The plan was working. Somewhere in there, Cole skipped solemnly for emphasis.",
+        "The concerned librarian doubled down. \"bewildering cookies or nothing,\" it said, which barely made sense. Cole decided \"or nothing\" was not on the table.",
+        "\"banana phone!\" said Cole. The concerned librarian heard it, made a small noise, and stepped aside in a way that looked rehearsed. Cole shared the real good secret. The tiny alpaca applauded the concerned librarian, because manners. Later someone would swear they heard \"soggy genius\" in the rafters. Throughout, Cole stayed formally ridiculous. Steadily formally ridiculous.",
+        "On the way home, Cole replayed the moment everything turned around. The tiny alpaca kept bouncing along, already ready for whatever was next. Win logged. Onward."
+      ],
+      "scores": {
+        "premise": 3,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 2,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 12
+      }
+    },
+    {
+      "tier": "big",
+      "age": 9,
+      "blueprint": "(v2 fallback)",
+      "flavor": "animal_place",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "splat",
+        "freeword2": "stinky bananas",
+        "sound": "grumblepoof",
+        "food": "suspicious fruit salad",
+        "place": "indoor water park"
+      },
+      "title": "How Cole Outsmarted the Retired Wizard",
+      "paragraphs": [
+        "Cole and the suspicious duck had arrived at the pet store with a simple plan: have a regular afternoon. The suspicious duck was good at regular afternoons.",
+        "The retired wizard declared the suspicious fruit salad forbidden. Cole felt absolutely bonkers about this development. Possibly more absolutely bonkers than the retired wizard had bargained for.",
+        "Cole skipped solemnly sideways while holding the magic eight ball. This was a different move than the one the rule said no to. A different move! The rule said nothing back.",
+        "The retired wizard tried to amend the rule on the fly. The retired wizard said, \"Actually—\" Cole held the magic eight ball higher. The retired wizard could not actually argue against that. The amendment was abandoned. For a beat the whole place looked weirdly eerie periwinkle.",
+        "And just like that, Cole got the suspicious fruit salad anyway. The retired wizard sighed. \"splat!\" yelled Cole. The rule was still a rule, but Cole had won this round. Just then a \"stinky bananas\" cracked the silence. Nobody admitted to it.",
+        "Heading home, Cole explained the loophole to the suspicious duck one more time. The suspicious duck was nodding seriously, clearly planning to deploy it later. Knowledge: transferred."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 2,
+        "escalation": 2,
+        "visual": 1,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 11
+      }
+    },
+    {
+      "tier": "big",
+      "age": 9,
+      "blueprint": "(v2 fallback)",
+      "flavor": "surprise",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "jiggly blorp",
+        "freeword2": "underpants helmet",
+        "sound": "fluffypants",
+        "food": "enchanted pickles",
+        "place": "roller rink"
+      },
+      "title": "How Cole Outsmarted the Tiny Judge",
+      "paragraphs": [
+        "Cole and the glittering octopus had arrived at the roller rink with a simple plan: have a regular afternoon. The glittering octopus was good at regular afternoons.",
+        "The tiny judge declared the enchanted pickles forbidden. Cole felt accidentally important about this development. Possibly more accidentally important than the tiny judge had bargained for.",
+        "Cole stumbled dramatically sideways while holding the wind-up toy. This was a different move than the one the rule said no to. A different move! The rule said nothing back. And one of them, very quietly, said \"underpants helmet.\"",
+        "The tiny judge tried to amend the rule on the fly. The tiny judge said, \"Actually—\" Cole held the wind-up toy higher. The tiny judge could not actually argue against that. The amendment was abandoned. The impossible orange thing was happening again, whatever it was.",
+        "\"jiggly blorp!\" went Cole. The tiny judge heard a code word it apparently knew, mumbled \"ah, the jiggly blorp clause,\" and waved Cole through with the enchanted pickles. There was no jiggly blorp clause.",
+        "The glittering octopus watched the loophole work and looked impressed. The glittering octopus was going to try this later. Cole had taught the glittering octopus something brand new. Bedtime: earned."
+      ],
+      "scores": {
+        "premise": 3,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 1,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 8
+      }
+    },
+    {
+      "tier": "big",
+      "age": 9,
+      "blueprint": "(v2 fallback)",
+      "flavor": "surprise",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "spoon hat",
+        "freeword2": "damp toast",
+        "sound": "fluffypants",
+        "food": "legendary soup",
+        "place": "science museum"
+      },
+      "title": "The Day Cole Saved the Show",
+      "paragraphs": [
+        "At the science museum, Cole set everything up. The tiny alpaca practiced its part. The bent spoon sat front and center. The whole show kind of depended on the bent spoon working.",
+        "Then everything went wrong. The bent spoon broke. Actually broke. In half. Cole froze. The tiny alpaca froze. The pillows watched.",
+        "So Cole improvised. \"spoon hat!\" Cole yelled. Then hovered suspiciously. Then yelled \"spoon hat!\" again, louder. The pillows were INTO IT now.",
+        "A courtroom duck in the audience laughed too loudly. The tiny alpaca mistook it for applause and bowed. Cole decided to roll with it. The show was a different show now. A faint cafeteria green glow hung over the scene by then.",
+        "\"spoon hat!\" yelled Cole, pointing at the broken bent spoon. The bent spoon twitched. Twitched again. Then it did exactly what it had refused to do five minutes ago. Pillows lost it. Just then a \"damp toast\" cracked the silence. Nobody admitted to it. Throughout, Cole stayed professionally confused. Steadily professionally confused. Somebody had brought legendary soup. Nobody knew when. Nobody minded.",
+        "Backstage, Cole high-fived the tiny alpaca. The show would never be performed exactly that way again. That was kind of the point."
+      ],
+      "scores": {
+        "premise": 3,
+        "causality": 2,
+        "escalation": 3,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 2,
+        "total": 17
+      }
+    },
+    {
+      "tier": "big",
+      "age": 9,
+      "blueprint": "(v2 fallback)",
+      "flavor": "animal_place",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "mystery jelly",
+        "freeword2": "pickle wizard",
+        "sound": "bonk",
+        "food": "suspicious fruit salad",
+        "place": "cafeteria of mysteries"
+      },
+      "title": "The Day Cole Tried to Win the Silly Race",
+      "paragraphs": [
+        "Cole woke up with a plan. Today, at the farm, Cole was going to win the silly race. The nervous goose was in. The nervous goose was always in.",
+        "The partially trained wizard stood between Cole and victory. Cole felt mysteriously calm about it. The partially trained wizard did not look like it was going to move on its own.",
+        "Cole walked up to the partially trained wizard in full mysteriously calm mode. Not asking permission. Not apologizing. Just mysteriously calm. The partially trained wizard had not prepared for mysteriously calm. The partially trained wizard took a small step back.",
+        "The partially trained wizard was not done. It produced a bowl of suspicious fruit salad and waved that around like a tiny threat. \"Now what?\" Cole had not seen that coming. Cole kept going anyway. Cole posed dramatically one more time, just to make a point. Everything in the room had picked up a faint shimmering gold tint.",
+        "\"mystery jelly!\" said Cole. The partially trained wizard heard it, made a small noise, and stepped aside in a way that looked rehearsed. Cole won the silly race. The nervous goose applauded the partially trained wizard, because manners. Later someone would swear they heard \"pickle wizard\" in the rafters.",
+        "Back home, Cole replayed it in their head: how the nervous goose had been right there, how it had all worked out. The nervous goose curled up. Tomorrow could be just as good."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 1,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 2,
+        "total": 11
+      }
+    },
+    {
+      "tier": "big",
+      "age": 8,
+      "blueprint": "(v2 fallback)",
+      "flavor": "outside",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "mystery jelly",
+        "freeword2": "grumblepoof",
+        "sound": "sproing",
+        "food": "thunder pancakes",
+        "place": "mini golf course"
+      },
+      "title": "The Loophole at the Treehouse",
+      "paragraphs": [
+        "Cole and the retired dragon had arrived at the treehouse with a simple plan: have a regular afternoon. The retired dragon was good at regular afternoons.",
+        "The accidental prophet declared the thunder pancakes forbidden. Cole felt suspiciously cheerful about this development. Possibly more suspiciously cheerful than the accidental prophet had bargained for.",
+        "Cole flailed politely sideways while holding the hallway pass. This was a different move than the one the rule said no to. A different move! The rule said nothing back. Somebody could have sworn the air went a little suspiciously beige. Once, very quietly, Cole muttered \"mystery jelly\" under their breath.",
+        "The accidental prophet tried to amend the rule on the fly. The accidental prophet said, \"Actually—\" Cole held the hallway pass higher. The accidental prophet could not actually argue against that. The amendment was abandoned.",
+        "Cole held up the hallway pass and said \"grumblepoof.\" The hallway pass did something briefly impressive that nobody could later describe. The thunder pancakes arrived in Cole's hand.",
+        "The retired dragon watched the loophole work and looked impressed. The retired dragon was going to try this later. Cole had taught the retired dragon something brand new. Bedtime: earned."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 6
+      }
+    },
+    {
+      "tier": "big",
+      "age": 8,
+      "blueprint": "(v2 fallback)",
+      "flavor": "animal_place",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "ear cheese",
+        "freeword2": "gloop",
+        "sound": "squonk",
+        "food": "enchanted pickles",
+        "place": "sunken ballroom"
+      },
+      "title": "How Cole Outsmarted the Sparkly Squid",
+      "paragraphs": [
+        "Cole and the tiny alpaca had arrived at the dog park with a simple plan: have a regular afternoon. The tiny alpaca was good at regular afternoons.",
+        "The sparkly squid declared the enchanted pickles forbidden. Cole felt formally ridiculous about this development. Possibly more formally ridiculous than the sparkly squid had bargained for.",
+        "Cole skipped solemnly sideways while holding the lost mitten. This was a different move than the one the rule said no to. A different move! The rule said nothing back. Just then a \"gloop\" cracked the silence. Nobody admitted to it.",
+        "The sparkly squid squinted at the lost mitten. The sparkly squid could not technically object. Cole was technically still inside the rule. The sparkly squid muttered something and looked away. A faint strangely familiar gray glow hung over the scene by then.",
+        "\"ear cheese!\" went Cole. The sparkly squid heard a code word it apparently knew, mumbled \"ah, the ear cheese clause,\" and waved Cole through with the enchanted pickles. There was no ear cheese clause.",
+        "Heading home, Cole explained the loophole to the tiny alpaca one more time. The tiny alpaca was nodding seriously, clearly planning to deploy it later. Knowledge: transferred."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 1,
+        "visual": 2,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 10
+      }
+    },
+    {
+      "tier": "big",
+      "age": 9,
+      "blueprint": "(v2 fallback)",
+      "flavor": "outside",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "splat",
+        "freeword2": "moon spoon",
+        "sound": "flumpy",
+        "food": "overconfident pudding",
+        "place": "science museum"
+      },
+      "title": "How Cole Outsmarted the Overqualified Fish",
+      "paragraphs": [
+        "Cole and the glittering octopus had arrived at the forest path with a simple plan: have a regular afternoon. The glittering octopus was good at regular afternoons.",
+        "The overqualified fish declared the overconfident pudding forbidden. Cole felt surprisingly enthusiastic about this development. Possibly more surprisingly enthusiastic than the overqualified fish had bargained for.",
+        "Cole meandered thoughtfully sideways while holding the map covered in crumbs. This was a different move than the one the rule said no to. A different move! The rule said nothing back. \"moon spoon,\" went somebody. Nobody asked who.",
+        "The overqualified fish tried to amend the rule on the fly. The overqualified fish said, \"Actually—\" Cole held the map covered in crumbs higher. The overqualified fish could not actually argue against that. The amendment was abandoned.",
+        "And just like that, Cole got the overconfident pudding anyway. The overqualified fish sighed. \"splat!\" yelled Cole. The rule was still a rule, but Cole had won this round. A faint electric violet glow hung over the scene by then.",
+        "The glittering octopus watched the loophole work and looked impressed. The glittering octopus was going to try this later. Cole had taught the glittering octopus something brand new. Bedtime: earned."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 6
+      }
+    },
+    {
+      "tier": "big",
+      "age": 8,
+      "blueprint": "(v2 fallback)",
+      "flavor": "animal_place",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "fwoosh",
+        "freeword2": "wobble-flop",
+        "sound": "wibble-whap",
+        "food": "official pie",
+        "place": "underground ballroom"
+      },
+      "title": "Cole and the Confused Mascot's Rule",
+      "paragraphs": [
+        "It was a normal day at the butterfly house. Cole and the glittering octopus were minding their own business. The day was, technically, fine. So far.",
+        "The confused mascot declared the official pie forbidden. Cole felt deeply unimpressed about this development. Possibly more deeply unimpressed than the confused mascot had bargained for.",
+        "Cole sprinted incorrectly sideways while holding the cereal box. This was a different move than the one the rule said no to. A different move! The rule said nothing back. Once, very quietly, Cole muttered \"fwoosh\" under their breath.",
+        "The confused mascot tried to amend the rule on the fly. The confused mascot said, \"Actually—\" Cole held the cereal box higher. The confused mascot could not actually argue against that. The amendment was abandoned. Everything in the room had picked up a faint wildly pleasant blue tint.",
+        "Cole held up the cereal box and said \"wobble-flop.\" The cereal box did something briefly impressive that nobody could later describe. The official pie arrived in Cole's hand.",
+        "The glittering octopus watched the loophole work and looked impressed. The glittering octopus was going to try this later. Cole had taught the glittering octopus something brand new. Bedtime: earned."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 6
+      }
+    },
+    {
+      "tier": "big",
+      "age": 8,
+      "blueprint": "(v2 fallback)",
+      "flavor": "animal_place",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "banana phone",
+        "freeword2": "booger cloud",
+        "sound": "tiny piano",
+        "food": "legendary soup",
+        "place": "spectacularly average hallway"
+      },
+      "title": "Cole vs the Rule",
+      "paragraphs": [
+        "It was a normal day at the animal shelter. Cole and the bewildered penguin were minding their own business. The day was, technically, fine. So far.",
+        "The retired wizard declared the legendary soup forbidden. Cole felt gloriously incorrect about this development. Possibly more gloriously incorrect than the retired wizard had bargained for.",
+        "Cole tiptoed cautiously sideways while holding the map covered in crumbs. This was a different move than the one the rule said no to. A different move! The rule said nothing back. Somewhere down the hall a tiny \"banana phone\" happened.",
+        "The retired wizard squinted at the map covered in crumbs. The retired wizard could not technically object. Cole was technically still inside the rule. The retired wizard muttered something and looked away.",
+        "Cole held up the map covered in crumbs and said \"booger cloud.\" The map covered in crumbs did something briefly impressive that nobody could later describe. The legendary soup arrived in Cole's hand. The recess orange thing was happening again, whatever it was.",
+        "Heading home, Cole explained the loophole to the bewildered penguin one more time. The bewildered penguin was nodding seriously, clearly planning to deploy it later. Knowledge: transferred."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 1,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 7
+      }
+    },
+    {
+      "tier": "big",
+      "age": 10,
+      "blueprint": "(v2 fallback)",
+      "flavor": "on_the_go",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "cheese hat",
+        "freeword2": "blorp",
+        "sound": "squonk",
+        "food": "aggressively normal toast",
+        "place": "indoor water park"
+      },
+      "title": "Cole vs the Courtroom Duck",
+      "paragraphs": [
+        "It started at the ferry. Cole looked at the anxious hedgehog and made up their mind: today they would build the perfect hideout. No matter what.",
+        "The courtroom duck appeared out of nowhere. \"You? Today? Trying to build the perfect hideout?\" said the courtroom duck. \"Absolutely not.\" It folded its arms in a way that meant business.",
+        "And then Cole did the most cafeteria green thing imaginable: walked right past the courtroom duck while pretending to be a cafeteria green traffic cone. The courtroom duck watched, confused. The plan was working. Somewhere in there, Cole lurched heroically for emphasis.",
+        "The courtroom duck doubled down. \"aggressively normal toast or nothing,\" it said, which barely made sense. Cole decided \"or nothing\" was not on the table. Later someone would swear they heard \"blorp\" in the rafters.",
+        "\"cheese hat!\" said Cole. The courtroom duck heard it, made a small noise, and stepped aside in a way that looked rehearsed. Cole built the perfect hideout. The anxious hedgehog applauded the courtroom duck, because manners. Throughout, Cole stayed deeply snack-motivated. Steadily deeply snack-motivated.",
+        "On the way home, Cole replayed the moment everything turned around. The anxious hedgehog kept bouncing along, already ready for whatever was next. Win logged. Onward."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 2,
+        "escalation": 2,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 10
+      }
+    },
+    {
+      "tier": "big",
+      "age": 9,
+      "blueprint": "(v2 fallback)",
+      "flavor": "surprise",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "spoon hat",
+        "freeword2": "pickle crown",
+        "sound": "kabloom",
+        "food": "enchanted pickles",
+        "place": "sunken ballroom"
+      },
+      "title": "The Foam Finger Broke But Cole Did Not",
+      "paragraphs": [
+        "There was going to be a show. Cole had been planning it for days. The stage was the sunken ballroom. The co-star was the bewildered penguin. The crucial prop was a foam finger.",
+        "Right on cue, the foam finger did the WRONG thing. It launched itself off the table, bounced once, and landed in the bewildered penguin's lap. The bewildered penguin looked at Cole like, \"Well now what?\"",
+        "Cole took a breath, hovered suspiciously forward, and shouted whatever came to mind: \"spoon hat!\" The audience leaned in. Sometimes nonsense lands.",
+        "A confused mascot in the audience laughed too loudly. The bewildered penguin mistook it for applause and bowed. Cole decided to roll with it. The show was a different show now. some enchanted pickles sat off to the side, mostly forgotten, definitely still part of the day.",
+        "\"spoon hat!\" yelled Cole, pointing at the broken foam finger. The foam finger twitched. Twitched again. Then it did exactly what it had refused to do five minutes ago. Pillows lost it. The lunchbox yellow thing was happening again, whatever it was. And one of them, very quietly, said \"pickle crown.\" Throughout, Cole stayed accidentally heroic. Steadily accidentally heroic.",
+        "Backstage, Cole high-fived the bewildered penguin. The show was unrepeatable, which felt right. Time to pack up and find the next thing."
+      ],
+      "scores": {
+        "premise": 3,
+        "causality": 1,
+        "escalation": 3,
+        "visual": 3,
+        "callback": 1,
+        "ageFit": 3,
+        "coherence": 2,
+        "total": 16
+      }
+    },
+    {
+      "tier": "tween",
+      "age": 13,
+      "blueprint": "(v2 fallback)",
+      "flavor": "at_school",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "rubber duck",
+        "freeword2": "mystery jelly",
+        "sound": "blorp",
+        "food": "leftover birthday cake",
+        "place": "school cafeteria"
+      },
+      "title": "Cole and the Leftover Birthday Cake Mystery",
+      "paragraphs": [
+        "At the art room, Cole had committed to one thing: the leftover birthday cake. The tardigrade was technically the witness. The mission, technically, involved the leftover birthday cake.",
+        "The leftover birthday cake had vanished. Cole turned weirdly invested in a way the cryptid could feel from across the room. The cryptid coughed for no reason.",
+        "Cole casually yeeted everything past the cryptid in a way that read as deliberate. It was not deliberate. It happened to be exactly right.",
+        "The tardigrade was avoiding eye contact in a way that was, frankly, suspicious. Also there were leftover birthday cake crumbs on the floor in a perfect trail leading to the tardigrade. Cole connected the dots without saying a word. Somewhere down the hall a tiny \"rubber duck\" happened.",
+        "Everyone got a slice of leftover birthday cake in the end, even the tardigrade, which was technically the criminal. Justice was unevenly served. Everyone agreed the leftover birthday cake tasted great. The void black thing was happening again, whatever it was. Later someone would swear they heard \"mystery jelly\" in the rafters.",
+        "Cole went home thinking about it. The tardigrade followed, looking satisfied. Some mysteries solve themselves. This one had the tardigrade on its face the whole time."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 1,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 2,
+        "total": 8
+      }
+    },
+    {
+      "tier": "tween",
+      "age": 12,
+      "blueprint": "(v2 fallback)",
+      "flavor": "animal_place",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "wibble-whap",
+        "freeword2": "foot soup",
+        "sound": "mister floof",
+        "food": "cafeteria fries",
+        "place": "gym bleachers"
+      },
+      "title": "How Cole Tried to Find the Hidden Treasure",
+      "paragraphs": [
+        "At the pet store, Cole had decided. Today: find the hidden treasure. The judgmental duck was on board. Quietly. Without making it a thing.",
+        "The cafeteria cryptid stood between Cole and victory. Cole felt deeply over it about it. The cafeteria cryptid did not look like it was going to move on its own.",
+        "Cole casually yeeted everything in a way that read as professionally unhinged. The cafeteria cryptid had not budgeted for this. Cole did not break eye contact.",
+        "The cafeteria cryptid tried to introduce some cafeteria fries into the negotiation. It was a stretch. Cole did not negotiate. Cole kept moving. Somewhere down the hall a tiny \"wibble-whap\" happened. Later someone would swear they heard \"foot soup\" in the rafters.",
+        "Cole find the hidden treasure. The cafeteria cryptid said nothing. Win logged. No comment from the judgmental duck, because the judgmental duck was already moving on. The mall food court orange thing was happening again, whatever it was.",
+        "Walking home, Cole thought about how it had gone. The judgmental duck was a co-conspirator now. Quietly proud. Not posting about it. Some wins are just for you."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 6
+      }
+    },
+    {
+      "tier": "tween",
+      "age": 12,
+      "blueprint": "(v2 fallback)",
+      "flavor": "somewhere_weird",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "snorble-doo",
+        "freeword2": "grumblepoof",
+        "sound": "kabloom",
+        "food": "cafeteria fries",
+        "place": "school cafeteria"
+      },
+      "title": "Cole and the Judgy Cat Try to Invent a Brand New Dance",
+      "paragraphs": [
+        "Today's mission, agreed silently between Cole and the judgy cat at the giant's pocket: invent a brand new dance. Cole did not love announcing missions out loud, but this one felt different.",
+        "The expired mascot stood between Cole and victory. Cole felt suspiciously calm about it. The expired mascot did not look like it was going to move on its own.",
+        "Cole chaotically bolted in a way that read as professionally unhinged. The expired mascot had not budgeted for this. Cole did not break eye contact. Somewhere down the hall a tiny \"snorble-doo\" happened. Just then a \"grumblepoof\" cracked the silence. Nobody admitted to it.",
+        "The expired mascot tried something with the cafeteria fries. Cole mentally screenshotted it. Could be evidence later. Probably wouldn't be.",
+        "Cole invent a brand new dance. The expired mascot said nothing. Win logged. No comment from the judgy cat, because the judgy cat was already moving on. The void black thing was happening again, whatever it was.",
+        "In bed that night, Cole thought about how it had gone. The judgy cat was a co-conspirator now. Quietly proud. Not posting about it. Some wins are just for you."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 2,
+        "escalation": 2,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 10
+      }
+    },
+    {
+      "tier": "tween",
+      "age": 12,
+      "blueprint": "(v2 fallback)",
+      "flavor": "animal_place",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "mystery jelly",
+        "freeword2": "rubber duck",
+        "sound": "bonkledink",
+        "food": "instant noodles",
+        "place": "gym bleachers"
+      },
+      "title": "Cole and the Sleepy Croc Try to Fix the Broken Contraption",
+      "paragraphs": [
+        "At the aquarium, Cole had decided. Today: fix the broken contraption. The sleepy croc was on board. Quietly. Without making it a thing.",
+        "The discount vampire stood between Cole and victory. Cole felt socially exhausted about it. The discount vampire did not look like it was going to move on its own.",
+        "Cole existentially paused in a way that read as professionally unhinged. The discount vampire had not budgeted for this. Cole did not break eye contact.",
+        "The discount vampire tried something with the instant noodles. Cole mentally screenshotted it. Could be evidence later. Probably wouldn't be. Somewhere down the hall a tiny \"mystery jelly\" happened. \"rubber duck,\" went somebody. Nobody asked who.",
+        "Cole fix the broken contraption. The discount vampire said nothing. Win logged. No comment from the sleepy croc, because the sleepy croc was already moving on. Somebody could have sworn the air went a little void black.",
+        "In bed that night, Cole thought about how it had gone. The sleepy croc was a co-conspirator now. Quietly proud. Not posting about it. Some wins are just for you."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 6
+      }
+    },
+    {
+      "tier": "tween",
+      "age": 13,
+      "blueprint": "(v2 fallback)",
+      "flavor": "on_the_go",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "sneezy-pants",
+        "freeword2": "moon spoon",
+        "sound": "sproing",
+        "food": "sour candy",
+        "place": "the back of the bus"
+      },
+      "title": "The Shopping Cart Broke But Cole Did Not",
+      "paragraphs": [
+        "Cole had a whole bit planned at the sidewalk. The pigeon was on board, technically. The shopping cart was the centerpiece. Nobody had asked for any of this. Cole was doing it anyway.",
+        "The shopping cart did a thing nobody had rehearsed. Specifically, it fell over in slow motion, in front of everyone, with full audience eye contact. Cole had three seconds to commit to whatever happened next.",
+        "The shopping cart failed exactly on cue. Cole dramatically sighed across the stage like that had been the plan all along. The audience was, technically, into it. Mostly. Out of nowhere, Cole said \"sneezy-pants\" like a small spell. Cole kept feeling catastrophically fine about the whole thing.",
+        "A very confident rat in the audience filmed the whole thing on a phone. The pigeon noticed and started playing to the camera. Cole decided this was now content. It might even go viral. Somebody could have sworn the air went a little mall food court orange.",
+        "The bit ended. Cole took a bow that was 40% real, 60% ironic. The pigeon respected it. So did everybody else, secretly. The whole disaster was now content. \"moon spoon,\" went somebody. Nobody asked who. some sour candy sat off to the side, mostly forgotten, definitely still part of the day.",
+        "Walking out, Cole was already rewriting the encore in their head. The pigeon kept asking when the next show was. Soon. Definitely soon."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 6
+      }
+    },
+    {
+      "tier": "tween",
+      "age": 13,
+      "blueprint": "(v2 fallback)",
+      "flavor": "outside",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "splat",
+        "freeword2": "foot soup",
+        "sound": "sneezy sandwich",
+        "food": "instant noodles",
+        "place": "someone else's backyard"
+      },
+      "title": "How Cole Tried to Find a Loophole in the Rules",
+      "paragraphs": [
+        "At the puddle street, Cole had decided. Today: find a loophole in the rules. The judgmental duck was on board. Quietly. Without making it a thing.",
+        "The expired mascot stood between Cole and victory. Cole felt socially exhausted about it. The expired mascot did not look like it was going to move on its own.",
+        "Cole blinked dramatically in a way that read as professionally unhinged. The expired mascot had not budgeted for this. Cole did not break eye contact. A \"foot soup\" hung in the air for a second longer than expected.",
+        "The expired mascot tried to introduce some instant noodles into the negotiation. It was a stretch. Cole did not negotiate. Cole kept moving. Somebody could have sworn the air went a little bleached denim.",
+        "Cole find a loophole in the rules. The expired mascot said nothing. Win logged. No comment from the judgmental duck, because the judgmental duck was already moving on. A \"splat\" slipped out before Cole could stop it.",
+        "In bed that night, Cole thought about how it had gone. The judgmental duck was a co-conspirator now. Quietly proud. Not posting about it. Some wins are just for you."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 6
+      }
+    },
+    {
+      "tier": "tween",
+      "age": 11,
+      "blueprint": "(v2 fallback)",
+      "flavor": "animal_place",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "slime puddle",
+        "freeword2": "sneezy sandwich",
+        "sound": "pickle crown",
+        "food": "everything bagel",
+        "place": "library at closing time"
+      },
+      "title": "Who Took the Everything Bagel?",
+      "paragraphs": [
+        "At the animal shelter, Cole had committed to one thing: the everything bagel. The panda was technically the witness. The mission, technically, involved the everything bagel.",
+        "The everything bagel had vanished. Cole got quietly panicking about it. The cryptid tried a slow shrug. The shrug arrived late and crooked.",
+        "Cole took a mental screenshot of the room. Three angles. Multiple suspects. The panda looked away too quickly. Filed for later.",
+        "The panda was avoiding eye contact in a way that was, frankly, suspicious. Also there were everything bagel crumbs on the floor in a perfect trail leading to the panda. Cole connected the dots without saying a word. Just then a \"sneezy sandwich\" cracked the silence. Nobody admitted to it.",
+        "Mystery solved without a single accusation. Cole filed it under: ally-related incidents, low priority. Crumbs were everywhere. So was the panda. Cole speed-walked nowhere without thinking. It was a thing they did now. The acid yellow thing was happening again, whatever it was. A \"slime puddle\" slipped out before Cole could stop it.",
+        "Walking home, Cole mentally workshopped how to retell this. The panda, still chewing, deserved to be in the story. As a hero. Definitely as a hero."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 2,
+        "total": 10
+      }
+    },
+    {
+      "tier": "tween",
+      "age": 11,
+      "blueprint": "(v2 fallback)",
+      "flavor": "at_school",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "grumblepoof",
+        "freeword2": "fluffypants",
+        "sound": "kabloom",
+        "food": "vending machine pretzels",
+        "place": "late bus"
+      },
+      "title": "The Day Cole Tried to Find a Loophole in the Rules",
+      "paragraphs": [
+        "At the nurse's office, Cole had decided. Today: find a loophole in the rules. The koala was on board. Quietly. Without making it a thing.",
+        "The mysterious substitute teacher stood between Cole and victory. Cole felt emotionally buffering about it. The mysterious substitute teacher did not look like it was going to move on its own.",
+        "Cole took a long sip and stared in a way that read as professionally unhinged. The mysterious substitute teacher had not budgeted for this. Cole did not break eye contact. Later someone would swear they heard \"fluffypants\" in the rafters.",
+        "The mysterious substitute teacher tried to introduce some vending machine pretzels into the negotiation. It was a stretch. Cole did not negotiate. Cole kept moving.",
+        "Cole find a loophole in the rules. The mysterious substitute teacher said nothing. Win logged. No comment from the koala, because the koala was already moving on. Somebody could have sworn the air went a little neon green. Somewhere down the hall a tiny \"grumblepoof\" happened.",
+        "In bed that night, Cole thought about how it had gone. The koala was a co-conspirator now. Quietly proud. Not posting about it. Some wins are just for you."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 6
+      }
+    },
+    {
+      "tier": "tween",
+      "age": 12,
+      "blueprint": "(v2 fallback)",
+      "flavor": "food_place",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "stinky bananas",
+        "freeword2": "mystery jelly",
+        "sound": "sproing",
+        "food": "third coffee",
+        "place": "school cafeteria"
+      },
+      "title": "Cole vs the Mysterious Substitute Teacher",
+      "paragraphs": [
+        "At the diner, Cole had committed to one thing: the third coffee. The chaotic goose was technically the witness. The mission, technically, involved the third coffee.",
+        "The third coffee had vanished. Cole turned aggressively normal in a way the mysterious substitute teacher could feel from across the room. The mysterious substitute teacher coughed for no reason.",
+        "Cole took a mental screenshot of the room. Three angles. Multiple suspects. The chaotic goose looked away too quickly. Filed for later. Cole chaotically bolted one more time, just to make a point.",
+        "The real culprit, obviously, was the chaotic goose. Cole should have known. The chaotic goose had crumbs of third coffee on its face and zero regret in its eyes. The highlighter pink thing was happening again, whatever it was.",
+        "Mystery solved without a single accusation. Cole filed it under: ally-related incidents, low priority. Crumbs were everywhere. So was the chaotic goose. A \"stinky bananas\" slipped out before Cole could stop it. Just then a \"mystery jelly\" cracked the silence. Nobody admitted to it.",
+        "Walking back, Cole replayed the whole thing. The chaotic goose kept pretending nothing happened. Both knew. Neither said. Vibe correct."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 2,
+        "escalation": 2,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 2,
+        "total": 11
+      }
+    },
+    {
+      "tier": "tween",
+      "age": 12,
+      "blueprint": "(v2 fallback)",
+      "flavor": "somewhere_weird",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "plop",
+        "freeword2": "noodle-jumper",
+        "sound": "bonkledink",
+        "food": "suspicious smoothie",
+        "place": "convenience store"
+      },
+      "title": "The Day Cole Tried to Catch the Runaway Thing",
+      "paragraphs": [
+        "At the cloud castle, Cole had decided. Today: catch the runaway thing. The dramatic goldfish was on board. Quietly. Without making it a thing.",
+        "The discount vampire stood between Cole and victory. Cole felt NPC behavior about it. The discount vampire did not look like it was going to move on its own.",
+        "Cole passive-aggressively waved in a way that read as professionally unhinged. The discount vampire had not budgeted for this. Cole did not break eye contact. Just then a \"noodle-jumper\" cracked the silence. Nobody admitted to it.",
+        "The discount vampire tried to introduce a suspicious smoothie into the negotiation. It was a stretch. Cole did not negotiate. Cole kept moving. Somebody could have sworn the air went a little highlighter pink. A distant \"plop\" echoed from somewhere, possibly a memory.",
+        "Cole catch the runaway thing. The discount vampire said nothing. Win logged. No comment from the dramatic goldfish, because the dramatic goldfish was already moving on.",
+        "In bed that night, Cole thought about how it had gone. The dramatic goldfish was a co-conspirator now. Quietly proud. Not posting about it. Some wins are just for you."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 2,
+        "escalation": 2,
+        "visual": 1,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 11
+      }
+    },
+    {
+      "tier": "tween",
+      "age": 11,
+      "blueprint": "(v2 fallback)",
+      "flavor": "outside",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "pickle crown",
+        "freeword2": "soggy sock",
+        "sound": "crinkle-bonk",
+        "food": "boba tea",
+        "place": "bus stop"
+      },
+      "title": "The Day the Boba Tea Vanished",
+      "paragraphs": [
+        "At the garden, Cole had committed to one thing: the boba tea. The koala was technically the witness. The mission, technically, involved the boba tea.",
+        "No boba tea anywhere. Cole went NPC behavior like a tiny detective. The substitute coach hummed a song nobody had asked for.",
+        "Cole existentially paused past the substitute coach in a way that read as deliberate. It was not deliberate. It happened to be exactly right. Out of nowhere, Cole said \"pickle crown\" like a small spell.",
+        "The koala was avoiding eye contact in a way that was, frankly, suspicious. Also there were boba tea crumbs on the floor in a perfect trail leading to the koala. Cole connected the dots without saying a word. Later someone would swear they heard \"soggy sock\" in the rafters.",
+        "Everyone got a boba tea in the end, even the koala, which was technically the criminal. Justice was unevenly served. Everyone agreed the boba tea tasted great. A faint burnt orange glow hung over the scene by then.",
+        "Cole went home thinking about it. The koala followed, looking satisfied. Some mysteries solve themselves. This one had the koala on its face the whole time."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 1,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 2,
+        "total": 8
+      }
+    },
+    {
+      "tier": "tween",
+      "age": 13,
+      "blueprint": "(v2 fallback)",
+      "flavor": "on_the_go",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "bonkledink",
+        "freeword2": "noodle-jumper",
+        "sound": "flumpy",
+        "food": "gas station taquitos",
+        "place": "convenience store"
+      },
+      "title": "How Cole Tried to Sing the Loudest Possible Song",
+      "paragraphs": [
+        "Today's mission, agreed silently between Cole and the capybara at the airplane: sing the loudest possible song. Cole did not love announcing missions out loud, but this one felt different.",
+        "The unreasonably tall goose stood between Cole and victory. Cole felt minorly iconic about it. The unreasonably tall goose did not look like it was going to move on its own.",
+        "Cole aggressively scrolled in a way that read as professionally unhinged. The unreasonably tall goose had not budgeted for this. Cole did not break eye contact. \"noodle-jumper,\" went somebody. Nobody asked who.",
+        "The unreasonably tall goose tried something with the gas station taquitos. Cole mentally screenshotted it. Could be evidence later. Probably wouldn't be.",
+        "Cole sing the loudest possible song. The unreasonably tall goose said nothing. Win logged. No comment from the capybara, because the capybara was already moving on. A faint moss green glow hung over the scene by then. A distant \"bonkledink\" echoed from somewhere, possibly a memory.",
+        "In bed that night, Cole thought about how it had gone. The capybara was a co-conspirator now. Quietly proud. Not posting about it. Some wins are just for you."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 9
+      }
+    },
+    {
+      "tier": "tween",
+      "age": 11,
+      "blueprint": "(v2 fallback)",
+      "flavor": "at_school",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "burp bubble",
+        "freeword2": "boing",
+        "sound": "banana phone",
+        "food": "cereal at midnight",
+        "place": "bus stop"
+      },
+      "title": "Cole and the Cereal at Midnight Mystery",
+      "paragraphs": [
+        "At the nurse's office, Cole had committed to one thing: the cereal at midnight. The koala was technically the witness. The mission, technically, involved the cereal at midnight.",
+        "The cereal at midnight had vanished. Cole felt deeply over it about it, in a way that meant business. The feral librarian noticed and tried to act normal. It was not working.",
+        "Cole took a mental screenshot of the room. Three angles. Multiple suspects. The koala looked away too quickly. Filed for later.",
+        "The koala was avoiding eye contact in a way that was, frankly, suspicious. Also there were cereal at midnight crumbs on the floor in a perfect trail leading to the koala. Cole connected the dots without saying a word. A faint late bus yellow glow hung over the scene by then. Just then a \"boing\" cracked the silence. Nobody admitted to it.",
+        "Everyone got some cereal at midnight in the end, even the koala, which was technically the criminal. Justice was unevenly served. Everyone agreed the cereal at midnight tasted great. Somewhere in there, Cole speed-walked nowhere for emphasis. A distant \"burp bubble\" echoed from somewhere, possibly a memory.",
+        "Cole went home thinking about it. The koala followed, looking satisfied. Some mysteries solve themselves. This one had the koala on its face the whole time."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 2,
+        "escalation": 3,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 2,
+        "total": 12
+      }
+    },
+    {
+      "tier": "tween",
+      "age": 11,
+      "blueprint": "(v2 fallback)",
+      "flavor": "surprise",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "ear cheese",
+        "freeword2": "gloop",
+        "sound": "rubber duck",
+        "food": "cereal at midnight",
+        "place": "the back of the bus"
+      },
+      "title": "Cole and the Crow Try to Invent a Brand New Dance",
+      "paragraphs": [
+        "At the the back of the bus, Cole had one objective: invent a brand new dance. The crow knew it. Cole knew it. Everybody else would find out shortly.",
+        "The gremlin stood between Cole and victory. Cole felt chronically online about it. The gremlin did not look like it was going to move on its own.",
+        "Cole aggressively scrolled in a way that read as professionally unhinged. The gremlin had not budgeted for this. Cole did not break eye contact. A faint moss green glow hung over the scene by then. Somewhere down the hall a tiny \"ear cheese\" happened.",
+        "The gremlin tried to introduce some cereal at midnight into the negotiation. It was a stretch. Cole did not negotiate. Cole kept moving. \"gloop,\" went somebody. Nobody asked who.",
+        "Cole invent a brand new dance. The gremlin said nothing. Win logged. No comment from the crow, because the crow was already moving on.",
+        "Walking home, Cole thought about how it had gone. The crow was a co-conspirator now. Quietly proud. Not posting about it. Some wins are just for you."
+      ],
+      "scores": {
+        "premise": 3,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 2,
+        "total": 8
+      }
+    },
+    {
+      "tier": "tween",
+      "age": 13,
+      "blueprint": "(v2 fallback)",
+      "flavor": "animal_place",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "ear cheese",
+        "freeword2": "flumpy",
+        "sound": "mister floof",
+        "food": "instant noodles",
+        "place": "drama hallway"
+      },
+      "title": "The Loophole at the Pet Store",
+      "paragraphs": [
+        "Cole was at the pet store, doing nothing in particular. The chaotic goose was nearby, also doing nothing. Things were going fine. They would not stay fine.",
+        "The feral librarian declared the instant noodles forbidden. Cole felt menacingly chill about this development. Possibly more menacingly chill than the feral librarian had bargained for.",
+        "Cole located the loophole. It involved the bus ticket and a very specific reading of the rule. Cole did not point this out. Pointing it out is rookie behavior. Out of nowhere, Cole said \"ear cheese\" like a small spell. Later someone would swear they heard \"flumpy\" in the rafters.",
+        "The feral librarian watched Cole hold the bus ticket and felt outmaneuvered by precisely one inch of vocabulary. Bureaucracy is just words. Cole had the right ones. For exactly two seconds, Cole existentially paused like it was a job. Everything in the room had picked up a faint burnt orange tint.",
+        "It worked. Cole won. The rule was still there. The instant noodles had also, somehow, ended up in Cole's hands. The feral librarian retired for the day.",
+        "On the walk home, Cole mentally filed the loophole for future use. The chaotic goose was definitely going to use it on Cole eventually. That was fair."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 3,
+        "total": 8
+      }
+    },
+    {
+      "tier": "tween",
+      "age": 12,
+      "blueprint": "(v2 fallback)",
+      "flavor": "at_school",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "grumblepoof",
+        "freeword2": "foot soup",
+        "sound": "banana phone",
+        "food": "leftover pasta",
+        "place": "drama hallway"
+      },
+      "title": "Cole vs the Vending Machine Oracle",
+      "paragraphs": [
+        "At the nurse's office, Cole had committed to one thing: the leftover pasta. The sleepy croc was technically the witness. The mission, technically, involved the leftover pasta.",
+        "The leftover pasta had vanished. Cole turned minorly iconic in a way the vending machine oracle could feel from across the room. The vending machine oracle coughed for no reason.",
+        "Cole took a mental screenshot of the room. Three angles. Multiple suspects. The sleepy croc looked away too quickly. Filed for later. Somewhere in there, Cole rage-walked for emphasis.",
+        "The real culprit, obviously, was the sleepy croc. Cole should have known. The sleepy croc had crumbs of leftover pasta on its face and zero regret in its eyes. A \"grumblepoof\" slipped out before Cole could stop it.",
+        "Mystery solved without a single accusation. Cole filed it under: ally-related incidents, low priority. Crumbs were everywhere. So was the sleepy croc. A faint mall food court orange glow hung over the scene by then. Later someone would swear they heard \"foot soup\" in the rafters.",
+        "Walking home, Cole mentally workshopped how to retell this. The sleepy croc, still chewing, deserved to be in the story. As a hero. Definitely as a hero."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 1,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 2,
+        "total": 8
+      }
+    },
+    {
+      "tier": "tween",
+      "age": 11,
+      "blueprint": "(v2 fallback)",
+      "flavor": "at_school",
+      "storyMode": "anytime",
+      "picks": {
+        "freeword": "magnet shoe",
+        "freeword2": "sock puppet",
+        "sound": "crinkle-bonk",
+        "food": "leftover pasta",
+        "place": "slightly wrong neighborhood"
+      },
+      "title": "Cole and the Algorithm Ghost's Rule",
+      "paragraphs": [
+        "Cole was at the art room, doing nothing in particular. The rat was nearby, also doing nothing. Things were going fine. They would not stay fine.",
+        "The algorithm ghost declared the leftover pasta forbidden. Cole felt weirdly invested about this development. Possibly more weirdly invested than the algorithm ghost had bargained for.",
+        "Cole located the loophole within seconds. It involved the map covered in crumbs and a generous interpretation. Pointing it out would be amateur. Cole simply executed. \"sock puppet,\" went somebody. Nobody asked who.",
+        "The algorithm ghost watched Cole hold the map covered in crumbs and felt outmaneuvered by precisely one inch of vocabulary. Bureaucracy is just words. Cole had the right ones. Cole mysteriously vanished one more time, just to make a point. A faint washed out gray glow hung over the scene by then. Somewhere down the hall a tiny \"magnet shoe\" happened.",
+        "It worked. Cole won. The rule was still there. The leftover pasta had also, somehow, ended up in Cole's hands. The algorithm ghost retired for the day.",
+        "On the walk home, Cole mentally filed the loophole for future use. The rat was definitely going to use it on Cole eventually. That was fair."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 2,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 3,
+        "total": 10
+      }
+    },
+    {
+      "tier": "tween",
+      "age": 11,
+      "blueprint": "(v2 fallback)",
+      "flavor": "somewhere_weird",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "damp toast",
+        "freeword2": "underpants helmet",
+        "sound": "sneezy-pants",
+        "food": "sad granola bar",
+        "place": "parking garage"
+      },
+      "title": "Cole vs the Wifi Ghost",
+      "paragraphs": [
+        "At the giant's pocket, Cole had committed to one thing: the sad granola bar. The capybara was technically the witness. The mission, technically, involved the sad granola bar.",
+        "No sad granola bar anywhere. Cole went deeply over it like a tiny detective. The wifi ghost hummed a song nobody had asked for.",
+        "Cole stared into the middle distance past the wifi ghost in a way that read as deliberate. It was not deliberate. It happened to be exactly right.",
+        "The capybara was avoiding eye contact in a way that was, frankly, suspicious. Also there were sad granola bar crumbs on the floor in a perfect trail leading to the capybara. Cole connected the dots without saying a word. A distant \"damp toast\" echoed from somewhere, possibly a memory.",
+        "In the end the sad granola bar got shared. Sort of. The capybara got the biggest piece, which felt correct, given the circumstances. Cole did not press charges. For a beat the whole place looked weirdly iridescent. \"underpants helmet,\" went somebody. Nobody asked who.",
+        "Cole went home thinking about it. The capybara followed, looking satisfied. Some mysteries solve themselves. This one had the capybara on its face the whole time."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 2,
+        "total": 10
+      }
+    },
+    {
+      "tier": "tween",
+      "age": 11,
+      "blueprint": "(v2 fallback)",
+      "flavor": "animal_place",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "jiggly blorp",
+        "freeword2": "rubber duck",
+        "sound": "underpants helmet",
+        "food": "cold pizza",
+        "place": "school cafeteria"
+      },
+      "title": "How Cole Tried to Find the Best Possible Snack",
+      "paragraphs": [
+        "At the dog park, Cole had decided. Today: find the best possible snack. The rat was on board. Quietly. Without making it a thing.",
+        "The discount vampire stood between Cole and victory. Cole felt minorly iconic about it. The discount vampire did not look like it was going to move on its own.",
+        "Cole panicked quietly in a way that read as professionally unhinged. The discount vampire had not budgeted for this. Cole did not break eye contact. Somebody could have sworn the air went a little deep purple. \"rubber duck,\" went somebody. Nobody asked who.",
+        "The discount vampire tried to introduce a slice of cold pizza into the negotiation. It was a stretch. Cole did not negotiate. Cole kept moving.",
+        "Cole find the best possible snack. The discount vampire said nothing. Win logged. No comment from the rat, because the rat was already moving on. A distant \"jiggly blorp\" echoed from somewhere, possibly a memory.",
+        "In bed that night, Cole thought about how it had gone. The rat was a co-conspirator now. Quietly proud. Not posting about it. Some wins are just for you."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 1,
+        "escalation": 2,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 9
+      }
+    },
+    {
+      "tier": "tween",
+      "age": 11,
+      "blueprint": "(v2 fallback)",
+      "flavor": "on_the_go",
+      "storyMode": "bedtime",
+      "picks": {
+        "freeword": "plop",
+        "freeword2": "bonk",
+        "sound": "boing",
+        "food": "cafeteria fries",
+        "place": "empty school hallway"
+      },
+      "title": "The Whistle Broke But Cole Did Not",
+      "paragraphs": [
+        "Cole had a whole bit planned at the airplane. The overthinking ferret was on board, technically. The whistle was the centerpiece. Nobody had asked for any of this. Cole was doing it anyway.",
+        "The whistle did a thing nobody had rehearsed. Specifically, it fell over in slow motion, in front of everyone, with full audience eye contact. Cole had three seconds to commit to whatever happened next.",
+        "The whistle failed exactly on cue. Cole chaotically bolted across the stage like that had been the plan all along. The audience was, technically, into it. Mostly. Somewhere down the hall a tiny \"plop\" happened.",
+        "The expired mascot critiqued the show out loud. The overthinking ferret glared. Cole absorbed the feedback in real time and kept going. The bit improved. A \"bonk\" hung in the air for a second longer than expected. some cafeteria fries sat off to the side, mostly forgotten, definitely still part of the day.",
+        "It worked. Somehow. Cole took a bow that was 30% real and 70% ironic. The overthinking ferret respected it. So did Cole, secretly. Somebody could have sworn the air went a little rust orange. Cole kept feeling emotionally buffering about the whole thing.",
+        "Later, Cole replayed the whole disaster in their head. The overthinking ferret was already asleep. The story would get better every time Cole told it. That was definitely allowed."
+      ],
+      "scores": {
+        "premise": 2,
+        "causality": 0,
+        "escalation": 0,
+        "visual": 0,
+        "callback": 0,
+        "ageFit": 3,
+        "coherence": 1,
+        "total": 6
+      }
+    }
+  ]
+}

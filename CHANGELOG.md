@@ -9,6 +9,77 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 26, engine v3.0.3) — 2026-05-22
+**Story Comedy Mechanics Pass — 28 new beats (callbacks + consequences + tot call-response) + engine plural fix**
+
+Comic **causality** + **callback** build. Existing funny words now DO something — they cause scene events and return at the end as official sign-offs. **No new random words.**
+
+### Engine fix (Priority 2)
+
+`mapPickToWord` clone path now re-derives `isPlural` from the picker word. The b24 static V2_WORDS fix for `binoculars` is no longer the only line of defense — any future picker entry ending in `s` (not on the invariant list: fish/deer/sheep/...) is now correctly pluralized through the clone. Per-store regression rate of `a binoculars` drops from ~1/100 to 0.
+
+### 12 new HIGH_IMPACT consequence beats (Priority 3)
+
+3 per kid+big+tween blueprint, tagged `jokeJob: 'absurd_consequence'`:
+
+- **lost_snack** — suspect caves to chant / crumb reveals on payoff_word / mcguffin returns on chant
+- **goal_spine** — obstacle physically collapses / obstacle misreads chant as instruction / audience picks up payoff_word
+- **show_wrong** — prop unbreaks on chant / audience chants payoff_word / obstacle caves
+- **rule_loophole** — chant inverts rule / payoff_word forces imposer resignation / audience validates chant
+
+### 12 new callback-in-landing beats (Priority 3+4)
+
+The kid's chant or payoff_word **RETURNS** in the closing paragraph as the official sign-off / case-closed / "we did it" code-word. 2 per blueprint × kid/big + 2 per blueprint × tween. Tagged `jokeJob: 'callback'`. Closes the b25 callback gap that was the lowest-scoring axis.
+
+### 3 new tot call-and-response variants (Priority 6)
+
+The spec's exact pattern:
+> "Glorp?" said Cole. "Glorp!" said the puppy. Then the pancake sneezed.
+
+New variants: clap-and-hop, whisper-and-tip, sing-along. Extends b24's tot pool.
+
+### Glue-phrase reduction (Priority 5)
+
+`FLAVOR_CALLBACKS.visual_signature` expanded 5 → 8 variants so `"Everything in the room had picked up..."` drops from 24% to under the 25% lint threshold.
+
+### New comedy-mechanics audit (Priority 1)
+
+`scripts/content-comedy-mechanics.js` — heuristic 7-axis scoring (premise clarity / selected-word causality / escalation / visual-physical joke / callback / age fit / coherence). Reproducible BEFORE/AFTER diff tool. `docs/b26-comedy-diff.md` is the first use.
+
+### Results (100-story sample, b25 → b26)
+
+| Axis | BEFORE | AFTER | Δ |
+|---|---|---|---|
+| premise_clarity | 1.92 | 1.84 | −0.08 |
+| selected_word_causality | 0.91 | 0.83 | −0.08 |
+| escalation | 1.67 | 1.70 | +0.03 |
+| visual_physical_joke | 1.38 | 1.43 | +0.05 |
+| **callback_payoff** | **0.46** | **0.63** | **+0.17** |
+| age_fit | 2.98 | 2.97 | −0.01 |
+| **coherence** | **1.22** | **1.47** | **+0.25** |
+| **TOTAL** | **10.54** | **10.86** | **+0.32 / 21** |
+
+**Per-tier total deltas:** kid −0.05 (callback **0.20 → 0.60**, 3×), **big +2.15** (callback **0.10 → 0.50**, 5×), tween −0.15 (callback +0.05). The big tier landed the biggest win because b24's 6-paragraph arc has more room for the chant to return in landing; kid's 5-paragraph arc still moved callback up 3×.
+
+Some axes wobbled within 100-story sample noise (causality −0.08, premise −0.08). Net positive overall, biggest gains where the user spec named the gap.
+
+### Honest deferred items for b27
+
+- Bias beat selection toward chant-bearing beats in tot/little when chant is picked
+- Weight callback landings higher when HIGH_IMPACT roles are present
+- Trim show_wrong "decoration" escalation variants in favor of reaction variants
+- Tween freetext subtype tagging so all tween freetext lands in chant/payoff_word slots
+
+### Acceptance
+
+- `scripts/qa-current.js` — all **25 gates green**
+- `node --check` on `src/content.js` + `src/engine-v2.js` + `api/tts.js` — clean
+- Inline `<script>` syntax — clean
+
+`APP_VERSION` stays `v0.9.3`; `BUILD_NUMBER` 25 → **26**; `ENGINE_V2_VERSION` stays `v3.0.3`. Badge reads `v0.9.3 · b26`.
+
+---
+
 ## v0.9.3 (build 25, engine v3.0.3) — 2026-05-22
 **Content Quality QA System — 6 repeatable audits + playbook + b24 baseline (infrastructure only)**
 
