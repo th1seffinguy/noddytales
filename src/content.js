@@ -17,7 +17,7 @@
    labeling: product is in late beta (v0.9.x), engine is still v3 internally. The
    historical v3.0.0-v3.0.3 CHANGELOG entries stay as-is for traceability. */
 const APP_VERSION  = 'v0.9.3';
-const BUILD_NUMBER = 31;
+const BUILD_NUMBER = 32;
 
 /* v0.9.3 · b8 — Narrator Voice Selector MVP.
    v0.9.3 · b16 — lineup refresh.
@@ -642,7 +642,11 @@ const WORD_BANK = {
     /* v0.9.3 · b15 — image-word polish + replay variety:
        falcon → eagle (the 🦅 emoji is literally an eagle);
        capybara 🦫 → beaver 🦫 (beaver emoji semantically matches);
-       axolotl 🐠 → goldfish 🐠 (tropical-fish emoji is a goldfish, not an axolotl);
+       axolotl 🐠 → goldfish (the b15 swap dropped axolotl correctly but the
+         b15 comment was wrong: 🐠 is the tropical-fish emoji, not a goldfish.
+         v0.9.3 · b32 corrects goldfish emoji 🐠 → 🐟 (generic fish — the only
+         remaining fish option in Unicode, renders orange on Apple platforms,
+         matches the word better than a striped angelfish);
        added raccoon 🦝 + goose 🪿 (clean emoji matches, fill replay variety).
        Pool 23 → 25. */
     { cat: 'pet',     label: 'Pick your sidekick',   options: [{w:'dragon',    e:'🐲'}, {w:'panda',     e:'🐼'}, {w:'parrot',    e:'🦜'}, {w:'tiger',     e:'🐯'}, {w:'penguin',   e:'🐧'}, {w:'eagle',     e:'🦅'}, {w:'wolf',      e:'🐺'}, {w:'otter',     e:'🦦'}, {w:'lynx',      e:'🐱'}, {w:'fennec fox',e:'🦊'}, {w:'unicorn',   e:'🦄'}, {w:'beaver',    e:'🦫'}, {w:'octopus',   e:'🐙'}, {w:'hedgehog',  e:'🦔'}, {w:'goldfish',  e:'🐠'}, {w:'llama',     e:'🦙'}, {w:'sloth',     e:'🦥'}, {w:'koala',     e:'🐨'}, {w:'chameleon', e:'🦎'}, {w:'crow',      e:'🐦‍⬛'}, {w:'hamster',   e:'🐹'}, {w:'duckling',  e:'🐥'}, {w:'turtle',    e:'🐢'}, {w:'raccoon',   e:'🦝'}, {w:'goose',     e:'🪿'}] },
