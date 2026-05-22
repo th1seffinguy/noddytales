@@ -9,6 +9,47 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 33, engine v3.0.3) — 2026-05-22
+**Smell-pool tier split — "gym bag fog" was too old for age 6**
+
+User reported the b31 smell callback "Gym bag fog moved through the scene like it had business there" was firing for kid-tier (age 6-7) stories. A 6-year-old doesn't have a sensory reference for what a gym bag smells like; the joke needs life experience to land. The b31 smell pool was a single safe pool mixing age-appropriate smells (stinky socks, dragon breath) with adult-leaning ones (gym bag fog, pickle burps, mystery cheese).
+
+### Fix — tier-split smell pool
+
+Replaced `SMELL_CALLBACKS_SAFE` with two pools selected by tier:
+
+**`SMELL_CALLBACKS_KID`** (ages 2–7: tot / little / kid) — 10 smells a young kid has a direct sensory reference for:
+- old bananas / stinky socks / wet sneakers / dragon breath / wet dog
+- broccoli farts / yesterday's lunchbox / skunk / laundry hamper / burnt toast
+
+**`SMELL_CALLBACKS_OLDER`** (ages 8–13: big / tween) — kept the b31 drier register that requires more life experience:
+- old bananas / stinky socks / wet sneakers / mystery cheese / dragon breath / pickle burps / gym bag fog
+
+Old bananas / stinky socks / wet sneakers / dragon breath appear in both pools as universal anchors.
+
+`SMELL_CALLBACKS_POTTY` unchanged — still gated behind `pottyMode` regardless of tier.
+
+### Engine change
+
+`generateStoryV3` smell callback picker now:
+1. If `pottyMode=true` → potty pool
+2. Else if `tier === 'big' || tier === 'tween'` → older pool
+3. Else (tot/little/kid) → kid pool
+
+### New QA gate (Section 19)
+
+Added: "older-tier smells (gym bag fog / pickle burps / mystery cheese) never appear for ages 2-7" — 100 stories sampled across ages 2-7, 0 leaks.
+
+### Acceptance
+
+- `scripts/qa-current.js` — all gates green (4 sub-gates in Section 19 now)
+- `node --check` on src/content.js + src/engine-v2.js — clean
+- BUILD_NUMBER 32 → 33; APP_VERSION stays v0.9.3; ENGINE_V2_VERSION stays v3.0.3
+
+`APP_VERSION` stays `v0.9.3`; `BUILD_NUMBER` 32 → **33**; `ENGINE_V2_VERSION` stays `v3.0.3`. Badge reads `v0.9.3 · b33`.
+
+---
+
 ## v0.9.3 (build 32, engine v3.0.3) — 2026-05-22
 **Picker Emoji Hotfix — goldfish 🐠 → 🐟**
 
