@@ -5214,34 +5214,75 @@ function generateStoryV3(name, picks, age) {
       '[name:{protagonist.name}] [c:{signature_action.text}] briefly, then pretended that had not happened.',
       'A short burst of [c:{signature_action.text}] happened. Witnesses disagreed about the details.',
     ],
+    /* v0.9.3 · b31 — Sensory-callback polish.
+       Variant entries are now either strings (legacy uniform-random eligible
+       for all tiers) OR objects of shape { text, tiers? }. When `tiers` is set,
+       the variant is only eligible when generateStoryV3's `tier` matches.
+       Selection still uniform-random across eligible variants per call.
+
+       The kid-facing rewrites:
+       - "air went a little [color]" was firing as an atmospheric callback
+         that read as abstract/decorative for the kid tier; replaced by
+         four concrete physical visual events.
+       - "echoed from somewhere, possibly a memory" was firing as a stale
+         atmospheric chant callback; replaced by four physical sound events.
+       Tot/little retain gentle softer phrasing; big/tween keep the drier
+       options. */
     visual_signature: [
-      // v0.9.3 · b26 — pool expanded 5 → 8. b24 baseline showed
-      // "Everything in the room had picked up..." still at 24%/50 stories.
-      // Three more variants drop each variant's selection probability from
-      // 20% to ~12.5%, which puts the worst-offender phrase below the
-      // grammar-lint glue-phrase warning threshold (25%).
+      // Gentle / atmospheric — all tiers (kept for tot/little softness).
       'A faint [c:{visual_signature.text}] glow hung over the scene by then.',
-      'Everything in the room had picked up a faint [c:{visual_signature.text}] tint.',
-      'For a beat the whole place looked weirdly [c:{visual_signature.text}].',
-      'Somebody could have sworn the air went a little [c:{visual_signature.text}].',
-      'The [c:{visual_signature.text}] thing was happening again, whatever it was.',
       'There was a [c:{visual_signature.text}] feeling to the moment that nobody really named.',
       'The light shifted briefly toward [c:{visual_signature.text}] and then thought better of it.',
-      '[name:{protagonist.name}] noticed a streak of [c:{visual_signature.text}] across the wall. Or did they.',
+      // v0.9.3 · b31 — concrete physical visual events. Kid+big read these as
+      // actual things happening; tween gets them with a drier register via the
+      // wall/sleeves variants that don't tip into absurd.
+      { text: 'The ceiling flashed [c:{visual_signature.text}] for exactly two seconds.', tiers:['kid','big','tween'] },
+      { text: 'A [c:{visual_signature.text}] stripe appeared on the floor and pointed the wrong way.', tiers:['kid','big','tween'] },
+      { text: '[name:{protagonist.name}]\'s sleeves turned [c:{visual_signature.text}]. Nobody explained this.', tiers:['kid','big','tween'] },
+      { text: 'The wall blinked [c:{visual_signature.text}], then pretended it had not.', tiers:['kid','big','tween'] },
+      // v0.9.3 · b31 — short concrete tot/little variant (gentle, no startle).
+      { text: 'A small [c:{visual_signature.text}] light went on, then off.', tiers:['tot','little'] },
+      // Existing big/tween-friendly atmospheric lines retained but tier-gated
+      // so they no longer fire at kid (where the abstraction reads as cold).
+      { text: 'Everything in the room had picked up a faint [c:{visual_signature.text}] tint.', tiers:['big','tween'] },
+      { text: 'For a beat the whole place looked weirdly [c:{visual_signature.text}].', tiers:['big','tween'] },
+      { text: 'The [c:{visual_signature.text}] thing was happening again, whatever it was.', tiers:['big','tween'] },
+      { text: '[name:{protagonist.name}] noticed a streak of [c:{visual_signature.text}] across the wall. Or did they.', tiers:['big','tween'] },
+      // Removed in b31 (was firing for kid as abstract):
+      //   'Somebody could have sworn the air went a little [c:{visual_signature.text}].'
     ],
     chant: [
+      // Gentle / vocal — all tiers.
       'Once, very quietly, [name:{protagonist.name}] muttered "[y:{chant.text}]" under their breath.',
-      'A distant "[y:{chant.text}]" echoed from somewhere, possibly a memory.',
-      'Somewhere down the hall a tiny "[y:{chant.text}]" happened.',
       'Out of nowhere, [name:{protagonist.name}] said "[y:{chant.text}]" like a small spell.',
       'A "[y:{chant.text}]" slipped out before [name:{protagonist.name}] could stop it.',
+      // v0.9.3 · b31 — physical funny sound callbacks (replace "echoed from
+      // somewhere, possibly a memory"). Each names a SPECIFIC place the sound
+      // came from with a physical reaction the kid can picture.
+      { text: 'Something under the table went "[y:{chant.text}]" and immediately regretted it.', tiers:['kid','big','tween'] },
+      { text: 'The backpack said "[y:{chant.text}]." [name:{protagonist.name}] did not open it.', tiers:['kid','big','tween'] },
+      { text: '"[y:{chant.text}]!" said the hallway. Nobody liked that.', tiers:['kid','big','tween'] },
+      { text: 'A tiny "[y:{chant.text}]" bounced off the ceiling and landed near [name:{protagonist.name}]\'s shoe.', tiers:['kid','big','tween'] },
+      // Tot/little gentle physical variant.
+      { text: 'Somewhere close by a small "[y:{chant.text}]" happened.', tiers:['tot','little'] },
+      // Removed in b31:
+      //   'A distant "[y:{chant.text}]" echoed from somewhere, possibly a memory.'
+      //   'Somewhere down the hall a tiny "[y:{chant.text}]" happened.'  (too vague)
     ],
     payoff_word: [
+      // Gentle / vocal — all tiers.
       'And one of them, very quietly, said "[y:{payoff_word.text}]."',
-      'Later someone would swear they heard "[y:{payoff_word.text}]" in the rafters.',
-      'Just then a "[y:{payoff_word.text}]" cracked the silence. Nobody admitted to it.',
-      'A "[y:{payoff_word.text}]" hung in the air for a second longer than expected.',
       '"[y:{payoff_word.text}]," went somebody. Nobody asked who.',
+      // v0.9.3 · b31 — physical sound callbacks for payoff_word, mirror the
+      // chant changes. Specific place + physical reaction.
+      { text: 'The radiator said "[y:{payoff_word.text}]," which radiators do not usually do.', tiers:['kid','big','tween'] },
+      { text: 'A "[y:{payoff_word.text}]" came out of the closet. The closet stayed closed.', tiers:['kid','big','tween'] },
+      { text: 'Somewhere upstairs, somebody said "[y:{payoff_word.text}]" too loudly.', tiers:['kid','big','tween'] },
+      // Big/tween retain the drier "in the rafters" / "cracked the silence"
+      // shapes; these stay tier-gated so they don't run at kid.
+      { text: 'Later someone would swear they heard "[y:{payoff_word.text}]" in the rafters.', tiers:['big','tween'] },
+      { text: 'Just then a "[y:{payoff_word.text}]" cracked the silence. Nobody admitted to it.', tiers:['big','tween'] },
+      { text: 'A "[y:{payoff_word.text}]" hung in the air for a second longer than expected.', tiers:['big','tween'] },
     ],
     /* v2.6.0 — mood + mcguffin added to flavor pool so chosen mood/food always surface
        even when the blueprint shape doesn't naturally call for them (e.g. show_wrong_v3
@@ -5274,6 +5315,44 @@ function generateStoryV3(name, picks, age) {
       'Off to the side, the [c:{obstacle.text}] was processing all of this with visible difficulty.',
     ],
   };
+  /* v0.9.3 · b31 — Sensory-callback polish.
+     - Variant entries may be strings (legacy uniform-random across all tiers)
+       OR objects { text, tiers? }. When `tiers` is set, only eligible if
+       current `tier` is in the list.
+     - SMELL_CALLBACKS is a NEW non-role-bound callback that fires with low
+       probability per story (1-in-4 by default). It does not depend on a
+       picker word; it just adds a short atmosphere sentence. The potty pool
+       is gated behind picks.pottyMode so gross-out smells only surface when
+       the parent toggle is on.
+     - Token highlighting is preserved: any [c:...] / [y:...] / [name:...]
+       tokens in callback text are processed by renderV3Line() as before. */
+  const SMELL_CALLBACKS_SAFE = [
+    'A faint waft of old bananas drifted past. Nobody owned up to it.',
+    'It smelled briefly like stinky socks. [name:{protagonist.name}] did not investigate.',
+    'A wet sneakers smell rolled through the room and rolled back out.',
+    'Mystery cheese, somewhere. Just for a second. Then gone.',
+    'A puff of dragon breath happened. Nobody had a dragon.',
+    'A pickle burps moment hit the air. [name:{protagonist.name}] said nothing.',
+    'Gym bag fog moved through the scene like it had business there.',
+  ];
+  const SMELL_CALLBACKS_POTTY = [
+    'Poopy butts entered the chat (smell-wise only).',
+    'A toilet burps wafted by. Whose was it. Unclear.',
+    'Brief swamp underpants energy. [name:{protagonist.name}] did not acknowledge.',
+    'Booger soup, distantly. Maybe imagined. Maybe not.',
+  ];
+  function pickFlavorVariant(role, tier) {
+    const variants = FLAVOR_CALLBACKS[role];
+    if (!variants || !variants.length) return null;
+    const eligible = variants.filter(v => {
+      if (typeof v === 'string') return true;        // legacy entries — all tiers
+      if (!v.tiers || !v.tiers.length) return true;
+      return v.tiers.includes(tier);
+    });
+    if (!eligible.length) return null;
+    const pick = eligible[Math.floor(Math.random() * eligible.length)];
+    return typeof pick === 'string' ? pick : pick.text;
+  }
   const FLAVOR_KEYS = ['signature_action', 'visual_signature', 'chant', 'payoff_word', 'mood_throughline', 'mcguffin', 'obstacle'];
   for (const role of FLAVOR_KEYS) {
     const slot = roles[role];
@@ -5281,9 +5360,17 @@ function generateStoryV3(name, picks, age) {
     const needle = slot.text || slot.name;
     if (!needle) continue;
     if (bodyHasHighlight(needle)) continue;    // v2.7.0 — require highlight TOKEN, not bare text
-    const variants = FLAVOR_CALLBACKS[role];
-    const line = variants[Math.floor(Math.random() * variants.length)];
+    const line = pickFlavorVariant(role, tier);
+    if (!line) continue;
     appendToMiddle(renderV3Line(line));
+  }
+  // v0.9.3 · b31 — smell callback. Fires ~25% of stories. Picks from the
+  // potty pool only when picks.pottyMode === true. Safe pool otherwise.
+  const v3PottyMode = !!(picks && picks.pottyMode);
+  if (Math.random() < 0.25) {
+    const smellPool = v3PottyMode ? SMELL_CALLBACKS_POTTY : SMELL_CALLBACKS_SAFE;
+    const smellLine = smellPool[Math.floor(Math.random() * smellPool.length)];
+    appendToMiddle(renderV3Line(smellLine));
   }
 
   const titleLine = blueprint.titlePatterns[Math.floor(Math.random() * blueprint.titlePatterns.length)];

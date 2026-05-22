@@ -9,6 +9,83 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 31, engine v3.0.3) — 2026-05-22
+**Sensory-Callback Polish**
+
+User-reported: age-6 stories were repeatedly generating abstract callback lines like *"Somebody could have sworn the air went a little lemon yellow. A distant 'TOOT!' echoed from somewhere, possibly a memory."* These read as too abstract for kid tier and didn't physically/comedically land. Focused polish on the FLAVOR_CALLBACKS pools that fire as background sensory texture.
+
+### What changed
+
+**Killed**
+- `Somebody could have sworn the air went a little [color]` — atmospheric metaphor for kid; deleted.
+- `A distant '[sound]' echoed from somewhere, possibly a memory` — stale; deleted.
+- `Somewhere down the hall a tiny '[sound]' happened` — too vague; deleted.
+
+**Replaced with concrete visual events (kid/big/tween)**
+- `The ceiling flashed [color] for exactly two seconds.`
+- `A [color] stripe appeared on the floor and pointed the wrong way.`
+- `Cole's sleeves turned [color]. Nobody explained this.`
+- `The wall blinked [color], then pretended it had not.`
+
+Plus a short tot/little-only variant: `A small [color] light went on, then off.`
+
+**Replaced with physical funny sound events (kid/big/tween)**
+- `Something under the table went "[sound]" and immediately regretted it.`
+- `The backpack said "[sound]." Cole did not open it.`
+- `"[sound]!" said the hallway. Nobody liked that.`
+- `A tiny "[sound]" bounced off the ceiling and landed near Cole's shoe.`
+- `The radiator said "[payword]," which radiators do not usually do.`
+- `A "[payword]" came out of the closet. The closet stayed closed.`
+- `Somewhere upstairs, somebody said "[payword]" too loudly.`
+
+Plus a tot/little-only: `Somewhere close by a small "[sound]" happened.`
+
+**NEW: smell callback pool (potty-mode gated)**
+
+Fires in ~25% of stories regardless of picker selection. Safe pool fires for everyone:
+- old bananas / stinky socks / wet sneakers / mystery cheese / dragon breath / pickle burps / gym bag fog
+
+Potty pool fires ONLY when pottyMode is enabled:
+- poopy butts / toilet burps / swamp underpants / booger soup
+
+`buildStory()` in index.html now passes `state.pottyMode` through to `generateStoryV3` via `picks.pottyMode`; engine reads it to choose pool. With pottyMode=false, gross smells are mathematically impossible to surface.
+
+**Age-aware variant filtering**
+
+`FLAVOR_CALLBACKS` variant entries now support an optional `{ text, tiers }` shape. Strings remain valid (all-tier eligibility) for backward compatibility. The kid-tier concrete events are tagged `tiers:['kid','big','tween']`; existing drier atmospheric lines stay tier-gated to `['big','tween']` so they no longer fire at kid. New `pickFlavorVariant(role, tier)` helper does the filter+pick.
+
+### New QA gates (Section 19)
+
+Three new hard gates in `scripts/qa-current.js`:
+- (a) No generated story contains the substring `air went a little` (100/100 stories — 0 hits)
+- (b) No generated story contains `possibly a memory` (100/100 — 0 hits)
+- (c) Potty-pool smell phrases never appear when `pottyMode=false` (100/100 — 0 leaks)
+
+Plus an informational sanity check: with `pottyMode=true`, ~11/30 stories surface a potty smell (confirms gating is live, not just absent).
+
+### Acceptance
+
+- `scripts/qa-current.js` — **25 gates green** (24 prior + Section 19's 3 new sub-gates count as 1 reported gate trio)
+- `node --check` on src/content.js + src/engine-v2.js + api/tts.js — clean
+- `node scripts/content-repetition-report.js` — 12 phrases above 20%, same shape as b30; no NEW b31 phrases above threshold
+- `node scripts/content-grammar-lint.js` — 0 lowercase / 0 sky-class / 0 duplicate articles
+- `node scripts/content-random-50.js` — 0 nulls; new callbacks rendering correctly across all tiers
+- BUILD_NUMBER 30 → 31; APP_VERSION stays v0.9.3; ENGINE_V2_VERSION stays v3.0.3
+
+### Token highlighting preserved
+
+All concrete callbacks still use `[c:{visual_signature.text}]`, `[y:{chant.text}]`, `[y:{payoff_word.text}]`, `[name:{protagonist.name}]` tokens where appropriate, so the renderer's highlight pass continues to work. Smell callbacks contain no picker tokens (smells aren't picker words) so they intentionally render as plain prose.
+
+### Deferred (b32+)
+
+1. Smell callback firing rate (25%) may need tuning after parent feedback.
+2. `there was a <color>` showed up at 21% in the repetition report — separate from the b31 rewrites; pre-existing pattern in beat lines worth a future pass.
+3. Smell-callback variants could be expanded with tier-aware versions (gentler for tot/little) if the gym-bag-fog register reads as too old for the youngest tier.
+
+`APP_VERSION` stays `v0.9.3`; `BUILD_NUMBER` 30 → **31**; `ENGINE_V2_VERSION` stays `v3.0.3`. Badge reads `v0.9.3 · b31`.
+
+---
+
 ## v0.9.3 (build 30, engine v3.0.3) — 2026-05-22
 **Human-Golden Story Quality Pass** (+ b29 fire bird drift cleanup)
 
