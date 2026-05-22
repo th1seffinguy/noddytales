@@ -9,6 +9,67 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 28, engine v3.0.3) — 2026-05-22
+**Blueprint Depth Pass**
+
+Focused blueprint depth pass on five Codex-identified gaps after b27. **No new UI features.** Engine + content fixes only.
+
+### Headline (BEFORE = b27 main, AFTER = b28 working tree)
+
+| Metric | BEFORE | AFTER | Δ |
+|---|---|---|---|
+| Comedy total (heuristic) | 11.00 / 21 | **10.55 mean** | −0.45 (heuristic side-effect of trim) |
+| Causality (axis) | 0.78 | 0.78 | 0.00 |
+| Callback (axis) | 0.62 | 0.64 | +0.02 |
+| **Punchline `changes_scene`** | **43.7%** | **~48% mean (45-55% range)** | **+4–11pp** |
+| Punchline `quoted_only` | 7.2% | ~12% | +4.8pp (within <40% healthy) |
+| **Repetition >20% n-grams** | **91** | **13** | **−78 (−86%)** |
+| **show_wrong_v3 median sentences** | **27** | **22** | **−5 (−19%)** |
+| Grammar lint hits | 0 | **0** | hold |
+| Tot / little median sentences | 16 / 15 | 16 / 15 | hold |
+
+The targeted numbers all moved: show_wrong shortened materially, repetition collapsed, `changes_scene` cleared the 45% bar. The 0.45-point dip on the comedy heuristic is a known side-effect of the trim (the scorer rewards descriptive density, which the task spec explicitly said to remove).
+
+### What changed
+
+**P1 — show_wrong_v3 mini-arc rewrite + trim.** Setup beats trimmed 5→3 sentences with 3-4 distinct openings (declaration / location / plan-statement / aside) instead of the generic "show was planned" template. Problem beats trimmed 4-6→2-3 sentences with three mini-arcs (prop snaps / refuses / launches). Attempt got a chant-bearing 3rd variant. Escalation got an obstacle-tries-to-leave variant. Payoff/landing beats trimmed throughout. Median 27 → 22 sentences.
+
+**P2 — Selected-word causality.** `pickStageBeat` weighting stack expanded: kept b27 global 2x for `absurd_consequence`, added landing-stage additional 2x for `callback` (3x total in landing), added tot/little 2x for any beat whose lines contain a `[y:{chant.*}]` token. Combined with b27's tween-widening of absurd_consequence beats, big `changes_scene` 25%→37.5%, tween 25%→41.5%, kid 44%→50%, overall 43.7%→48% mean.
+
+**P3 — Callback landing weighting.** Same `pickStageBeat` block: when `chant` or `payoff_word` is in roles AND `stage.name === 'landing'`, callback beats get +2x on top of the b27 +2x global — total 3x weight. Callback axis essentially flat (0.62→0.64) within run variance; mechanism in place for b29 callback authoring to land harder.
+
+**P4 — Repetition rewrites.** Codex post-b27 flagged 91 phrases above 20%. Five specific patterns attacked by rewriting beat STRUCTURES (not adding variants):
+- `v3_gs_payoff_chant_obstacle_caves` carried three top-20% n-grams in one beat ("applauded the X because manners", "heard it made a small noise and stepped aside", "in a way that looked rehearsed"). Rewrote with two structurally distinct variants (freeze-and-slide / suddenly-remembered-somewhere-else).
+- `v3_rl_problem_mood` cascade — single beat fired in 20% of stories and caused 12 separate top-20% n-gram hits ("declared the food forbidden + felt mood about this development + possibly more mood + than the X had bargained for..."). Rewrote with three structurally distinct mood-flavored variants. Documented a coding rule in-place: never lead a sentence with `[c:{mcguffin...}]` (plural agreement bug — "the nachos was") or `[c:{mood_throughline...}]` (lowercase-start lint).
+- "in a way that" template stripped from 6 beats and replaced with concrete imagery.
+- "At the X" opening reordered in 5 setup beats so other content leads.
+- `v3_ls_setup_1` (lost_snack) pool expanded 2→4 with structurally varied openings.
+
+Result: 91 → 13 n-grams above threshold.
+
+**P5 — Tot/little chant-bearing beat bias.** When tier is tot/little AND chant role is picked, beats whose lines contain a `[y:{chant.*}]` token get 2x weight. Cheap inline regex check inside `pickStageBeat`. Preserves b27 tot/little length gains (median 15-16 sentences held).
+
+### Acceptance
+
+- `scripts/qa-current.js` — **25 gates green**
+- `node --check src/content.js + src/engine-v2.js + api/tts.js` — clean
+- All 5 content audits run cleanly (comedy-mechanics, punchline, repetition, grammar, blueprint-health)
+- BUILD_NUMBER 27 → 28; APP_VERSION stays v0.9.3; ENGINE_V2_VERSION stays v3.0.3
+
+### Deferred (b29+)
+
+1. Comedy heuristic vs trim trade-off — add 2-3 high-density payoff beats for show_wrong that preserve the trim, OR teach `content-comedy-mechanics.js` to discount sentence-count from premise/visual axes.
+2. Callback axis still flat at 0.64 — the 3x landing weighting is live but tier-eligible callback beats are concentrated in kid+big. Author 2-3 tween-specific callback beats for goal_spine and lost_snack.
+3. `quoted_only` crept 7.2% → 12% — within healthy (<40%) range but worth watching. Add beats where chant causes something visible vs decoration.
+4. show_wrong_v3 still 22 sentences median — target was "20ish". One more pass on setup beats can close the gap.
+5. 13 phrases still above 20% repetition — long-tail tot/little call-response intentional repetition; acceptable.
+
+`APP_VERSION` stays `v0.9.3`; `BUILD_NUMBER` 27 → **28**; `ENGINE_V2_VERSION` stays `v3.0.3`. Badge reads `v0.9.3 · b28`.
+
+Full diff report: `docs/b28-blueprint-depth-diff.md`. Before/after audit outputs: `docs/b28-before/` + `docs/b28-after/`.
+
+---
+
 ## v0.9.3 (build 27, engine v3.0.3) — 2026-05-22
 **Story Quality Stabilization Pass**
 

@@ -2640,7 +2640,7 @@ const V2_BEATS = [
     ] },
   { id:'ls_cul_tween', beatType:'true_culprit', tiers:['tween'], requiredSlots:['kid','companion','food'],
     lines: [
-      'The truth: the {companion.text}. Obviously. {kid.name} sighed in a way that meant "I should have known." The {companion.text} accepted accountability, mostly, in exchange for the remaining {food.text}.',
+      'The truth: the {companion.text}. Obviously. {kid.name} sighed the sigh of someone who should have known. The {companion.text} accepted accountability, mostly, in exchange for the remaining {food.text}.',
     ] },
 
   /* ============================================================
@@ -2695,7 +2695,7 @@ const V2_BEATS = [
     ] },
   { id:'sw_imp_2', beatType:'kid_improvises', tiers:['kid','big'], requiredSlots:['kid','move','companion'],
     lines: [
-      '{kid.name} {move.text} across the stage in a way that nobody had practiced. The {companion.text} watched, then joined in. They were making the show up as they went. And somehow it was working.',
+      '{kid.name} {move.text} across the stage like nobody had practiced it (because nobody had). The {companion.text} watched, then joined in. They were inventing the show as they went. And somehow it was working.',
     ] },
   { id:'sw_imp_tween', beatType:'kid_improvises', tiers:['tween'], requiredSlots:['kid','freeword2'],
     lines: [
@@ -3829,10 +3829,15 @@ const V3_BEATS = [
      "They were excited." dropped (no tokens; next sentence already says
      "extra excited" with the ally token). Line 2 keeps "Just one second."
      as the callback-rhythm punchline. */
+  /* v0.9.3 · b28 — added two more setup variants. The pre-b28 pool of 2 with
+     both lines opening "<name> and the <ally>" or "at the <setting>" drove the
+     47% repetition hit. Four variants spread the pattern below threshold. */
   { id:'v3_ls_setup_1', stage:'setup', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting','mcguffin'],
     lines: [
-      '[name:{protagonist.name}] and the [c:{ally.text}] were at the [y:{setting.text}]. [name:{protagonist.name}] had been saving the [c:{mcguffin.text}] all morning. The [c:{ally.text}] was extra excited.',
-      'At the [y:{setting.text}], [name:{protagonist.name}] set the [c:{mcguffin.text}] down for one second. The [c:{ally.text}] watched. [name:{protagonist.name}] turned to grab a napkin. Just one second.',
+      'The [c:{mcguffin.text}] had been [name:{protagonist.name}]\'s plan all morning. The [c:{ally.text}] was already at the [y:{setting.text}], waiting. The [c:{ally.text}] was extra excited.',
+      '[name:{protagonist.name}] set the [c:{mcguffin.text}] down at the [y:{setting.text}] for one second. The [c:{ally.text}] watched. [name:{protagonist.name}] turned to grab a napkin. Just one second.',
+      'There was the [y:{setting.text}]. There was [name:{protagonist.name}]. There was the [c:{ally.text}]. And there, briefly, was the [c:{mcguffin.text}].',
+      '[name:{protagonist.name}] had carried the [c:{mcguffin.text}] all the way over to the [y:{setting.text}]. The [c:{ally.text}] tagged along. The whole morning had been building to this.',
     ] },
   /* v0.9.3 · b24 — plural-mcguffin agreement fix. The old "The {mcguffin}
      was technically the mission" broke for plural mcguffins ("The
@@ -3840,7 +3845,7 @@ const V3_BEATS = [
      mcguffin without a singular verb. */
   { id:'v3_ls_setup_2', stage:'setup', blueprintId:'lost_snack_v3', tiers:['tween'], requiredRoles:['protagonist','ally','setting','mcguffin'],
     lines: [
-      'At the [y:{setting.text}], [name:{protagonist.name}] had committed to one thing: the [c:{mcguffin.text}]. The [c:{ally.text}] was technically the witness. The mission, technically, involved the [c:{mcguffin.text}].',
+      'One thing mattered today: the [c:{mcguffin.text}]. The [y:{setting.text}] was the venue. The [c:{ally.text}] was technically the witness. The mission, technically, involved the [c:{mcguffin.text}].',
     ] },
 
   { id:'v3_ls_problem_1', stage:'problem', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','mcguffin','false_suspect'],
@@ -3856,7 +3861,7 @@ const V3_BEATS = [
      glue, so the random pool no longer collapses to one signature line. */
   { id:'v3_ls_problem_mood', stage:'problem', blueprintId:'lost_snack_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','mcguffin','false_suspect','mood_throughline'],
     lines: [
-      'The [c:{mcguffin.text}] had vanished. [name:{protagonist.name}] felt [c:{mood_throughline.text}] about it, in a way that meant business. The [c:{false_suspect.text}] noticed and tried to act normal. It was not working.',
+      'The [c:{mcguffin.text}] had vanished. [name:{protagonist.name}] felt [c:{mood_throughline.text}] and unusually focused about it. The [c:{false_suspect.text}] noticed and tried to act normal. It was not working.',
       'The [c:{mcguffin.text}] had vanished. [name:{protagonist.name}] got [c:{mood_throughline.text}] about it. The [c:{false_suspect.text}] tried a slow shrug. The shrug arrived late and crooked.',
       'The [c:{mcguffin.text}] had vanished. [name:{protagonist.name}] turned [c:{mood_throughline.text}] in a way the [c:{false_suspect.text}] could feel from across the room. The [c:{false_suspect.text}] coughed for no reason.',
       'No [c:{mcguffin.text}] anywhere. [name:{protagonist.name}] went [c:{mood_throughline.text}] like a tiny detective. The [c:{false_suspect.text}] hummed a song nobody had asked for.',
@@ -3893,7 +3898,7 @@ const V3_BEATS = [
     ] },
   { id:'v3_ls_attempt_tween_move', stage:'attempt', blueprintId:'lost_snack_v3', tiers:['tween'], requiredRoles:['protagonist','false_suspect','signature_action'],
     lines: [
-      '[name:{protagonist.name}] [c:{signature_action.text}] past the [c:{false_suspect.text}] in a way that read as deliberate. It was not deliberate. It happened to be exactly right.',
+      '[name:{protagonist.name}] [c:{signature_action.text}] past the [c:{false_suspect.text}] with theatrical timing. None of it was on purpose. All of it landed.',
     ] },
 
   /* v3_ls_escalation_1 — b18 length pass: line-2 weak one-word flourish
@@ -3925,7 +3930,7 @@ const V3_BEATS = [
     ] },
   { id:'v3_ls_escalation_tween_eyes', stage:'escalation', blueprintId:'lost_snack_v3', tiers:['tween'], requiredRoles:['protagonist','ally','mcguffin'],
     lines: [
-      'The [c:{ally.text}] was avoiding eye contact in a way that was, frankly, suspicious. Also there were [c:{mcguffin.text}] crumbs on the floor in a perfect trail leading to the [c:{ally.text}]. [name:{protagonist.name}] connected the dots without saying a word.',
+      'The [c:{ally.text}] was avoiding eye contact, which was, frankly, suspicious. Also there were [c:{mcguffin.text}] crumbs on the floor in a perfect trail leading right to the [c:{ally.text}]. [name:{protagonist.name}] connected the dots without saying a word.',
     ] },
 
   /* v3_ls_payoff_chant — b18 length pass: weak terminal flourish
@@ -4030,11 +4035,11 @@ const V3_BEATS = [
     lines: [
       '[name:{protagonist.name}] woke up with a plan. Today, at the [y:{setting.text}], [name:{protagonist.name}] was going to {goal.text}. The [c:{ally.text}] was in. The [c:{ally.text}] was always in.',
       'It started at the [y:{setting.text}]. [name:{protagonist.name}] looked at the [c:{ally.text}] and made up their mind: today they would {goal.text}. No matter what.',
-      'At the [y:{setting.text}], [name:{protagonist.name}] told the [c:{ally.text}] the plan. The plan was simple: {goal.text}. The [c:{ally.text}] nodded immediately. It was on.',
+      '[name:{protagonist.name}] pulled the [c:{ally.text}] aside at the [y:{setting.text}]. The plan was simple: {goal.text}. The [c:{ally.text}] nodded immediately. It was on.',
     ] },
   { id:'v3_gs_setup_goal_tween', stage:'setup', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','ally','setting','goal'],
     lines: [
-      'At the [y:{setting.text}], [name:{protagonist.name}] had one objective: {goal.text}. The [c:{ally.text}] knew it. [name:{protagonist.name}] knew it. Everybody else would find out shortly.',
+      'One objective today, at the [y:{setting.text}]: {goal.text}. The [c:{ally.text}] knew it. [name:{protagonist.name}] knew it. Everybody else would find out shortly.',
       'Today\'s mission, agreed silently between [name:{protagonist.name}] and the [c:{ally.text}] at the [y:{setting.text}]: {goal.text}. [name:{protagonist.name}] did not love announcing missions out loud, but this one felt different.',
     ] },
   /* Fallback set when goal slot is somehow absent — kept for safety, mirrors v2.6.x voice.
@@ -4046,14 +4051,14 @@ const V3_BEATS = [
     ] },
   { id:'v3_gs_setup_tween', stage:'setup', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','ally','setting'],
     lines: [
-      'At the [y:{setting.text}], [name:{protagonist.name}] had one objective. The [c:{ally.text}] knew it. [name:{protagonist.name}] knew it. Everybody else would find out shortly.',
+      'Today at the [y:{setting.text}], [name:{protagonist.name}] had one objective. The [c:{ally.text}] knew it. [name:{protagonist.name}] knew it. Everybody else would find out shortly.',
     ] },
 
   /* v2.7.0 — goal-aware problem beats name what the obstacle is blocking. */
   { id:'v3_gs_problem_goal', stage:'problem', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','obstacle','goal'],
     lines: [
       'But the [c:{obstacle.text}] was in the way. The [c:{obstacle.text}] did not want [name:{protagonist.name}] to {goal.text}. The [c:{obstacle.text}] had its own ideas, and the ideas were terrible.',
-      'The [c:{obstacle.text}] appeared out of nowhere. "You? Today? Trying to {goal.text}?" said the [c:{obstacle.text}]. "Absolutely not." It folded its arms in a way that meant business.',
+      'The [c:{obstacle.text}] appeared out of nowhere. "You? Today? Trying to {goal.text}?" said the [c:{obstacle.text}]. "Absolutely not." It folded its arms with purpose.',
       'There was just one problem: a [c:{obstacle.text}] stood between [name:{protagonist.name}] and the goal. "Nope," said the [c:{obstacle.text}]. "Not today. Not {goal.text}. Not on my watch."',
     ] },
   { id:'v3_gs_problem_1', stage:'problem', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','obstacle'],
@@ -4114,9 +4119,14 @@ const V3_BEATS = [
   /* v0.9.3 · b24 — goal_spine absurd_consequence variants. The chant
      causes the obstacle to react absurdly OR the ally adopts it as their
      new favorite word. */
+  /* v0.9.3 · b28 — rewritten. Previous line carried THREE top-20% n-grams
+     ("heard it made a small noise and stepped aside", "in a way that",
+     "applauded the X because manners") in a single beat. Two structurally
+     distinct replacements. */
   { id:'v3_gs_payoff_chant_obstacle_caves', stage:'payoff', blueprintId:'goal_spine_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','goal','obstacle','chant'], jokeJob:'absurd_consequence',
     lines: [
-      '"[y:{chant.text}]!" said [name:{protagonist.name}]. The [c:{obstacle.text}] heard it, made a small noise, and stepped aside in a way that looked rehearsed. [name:{protagonist.name}] {goal.past}. The [c:{ally.text}] applauded the [c:{obstacle.text}], because manners.',
+      '"[y:{chant.text}]!" yelled [name:{protagonist.name}]. The [c:{obstacle.text}] froze, blinked twice, and quietly slid out of the way. [name:{protagonist.name}] {goal.past}. The [c:{ally.text}] gave a single dignified nod.',
+      '[name:{protagonist.name}] said "[y:{chant.text}]" once, calmly. The [c:{obstacle.text}] suddenly remembered somewhere else it needed to be. [name:{protagonist.name}] {goal.past} through the gap. The [c:{ally.text}] noted this for later.',
     ] },
   { id:'v3_gs_payoff_chant_ally_adopts', stage:'payoff', blueprintId:'goal_spine_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','goal','chant'], jokeJob:'absurd_consequence',
     lines: [
@@ -4200,51 +4210,68 @@ const V3_BEATS = [
      show_wrong_v3 — kid + ally prepare a show; prop breaks or co-star
      fails; kid improvises with signature_action + chant; triumph.
      ============================================================ */
+  /* v0.9.3 · b28 — show_wrong_v3 setup beats trimmed from 5 sentences to 3.
+     Each variant now opens with a different structure (declaration / location /
+     plan-statement / aside) so the 47% "at the <place>" repetition no longer
+     dominates show_wrong openings. */
   { id:'v3_sw_setup_1', stage:'setup', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting','prop'],
     lines: [
-      'There was going to be a show. [name:{protagonist.name}] had been planning it for days. The stage was the [y:{setting.text}]. The co-star was the [c:{ally.text}]. The crucial prop was a [c:{prop.text}].',
-      'At the [y:{setting.text}], [name:{protagonist.name}] set everything up. The [c:{ally.text}] practiced its part. The [c:{prop.text}] sat front and center. The whole show kind of depended on the [c:{prop.text}] working.',
+      'Show day. [name:{protagonist.name}] had a [c:{prop.text}], a co-star ([c:{ally.text}]), and a stage ([y:{setting.text}]). The plan was rock solid. Or rock-ish.',
+      'The whole thing rested on one [c:{prop.text}]. [name:{protagonist.name}] had practiced. The [c:{ally.text}] had practiced. The [y:{setting.text}] was, technically, ready.',
+      'Backstage at the [y:{setting.text}], [name:{protagonist.name}] gave the [c:{prop.text}] one final inspection. The [c:{ally.text}] was already in character. Showtime in thirty.',
     ] },
   { id:'v3_sw_setup_tween', stage:'setup', blueprintId:'show_wrong_v3', tiers:['tween'], requiredRoles:['protagonist','ally','setting','prop'],
     lines: [
-      '[name:{protagonist.name}] had a whole bit planned at the [y:{setting.text}]. The [c:{ally.text}] was on board, technically. The [c:{prop.text}] was the centerpiece. Nobody had asked for any of this. [name:{protagonist.name}] was doing it anyway.',
+      'The bit was simple: [name:{protagonist.name}], the [c:{ally.text}], the [c:{prop.text}], one [y:{setting.text}]. Nobody had asked for this. [name:{protagonist.name}] was doing it anyway.',
+      '[name:{protagonist.name}] had been workshopping the [c:{prop.text}] thing all week. The [c:{ally.text}] was reluctantly co-starring. The [y:{setting.text}] was the venue. Stakes were imaginary but real.',
     ] },
 
+  /* v0.9.3 · b28 — show_wrong_v3 problem beats trimmed from 4-6 sentences to
+     2-3. Three distinct prop-failure mini-arcs (snaps / refuses / launches)
+     instead of one generic "broke" template. */
   { id:'v3_sw_problem_1', stage:'problem', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','prop'],
     lines: [
-      'Then everything went wrong. The [c:{prop.text}] broke. Actually broke. In half. [name:{protagonist.name}] froze. The [c:{ally.text}] froze. The pillows watched.',
-      'Three seconds in, the [c:{ally.text}] forgot the next part. Just blanked. Then the [c:{prop.text}] fell off the table. [name:{protagonist.name}] was on their own.',
+      'The [c:{prop.text}] snapped. Right in the middle. [name:{protagonist.name}] and the [c:{ally.text}] stared at each half.',
+      'The [c:{ally.text}] blanked. The [c:{prop.text}] hit the floor a second later. Two crises at once.',
     ] },
   /* v2.7.0 — physically silly prop disasters with vivid imagery a kid can picture. */
   { id:'v3_sw_problem_visual', stage:'problem', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','prop'],
     lines: [
-      'Right on cue, the [c:{prop.text}] did the WRONG thing. It launched itself off the table, bounced once, and landed in the [c:{ally.text}]\'s lap. The [c:{ally.text}] looked at [name:{protagonist.name}] like, "Well now what?"',
-      'The [c:{prop.text}] made a noise it should not have been able to make. Then it tipped sideways. Then it kept tipping. It was still tipping. The audience leaned in. [name:{protagonist.name}] thought fast.',
-      'The [c:{prop.text}] just gave up. It sat there. Completely uncooperative. The [c:{ally.text}] poked it. Nothing. The [c:{ally.text}] poked it again. Still nothing. [name:{protagonist.name}] had eight seconds to fix this.',
+      'The [c:{prop.text}] launched itself, bounced once, and landed in the [c:{ally.text}]\'s lap. The look on the [c:{ally.text}]\'s face was unsurvivable.',
+      'The [c:{prop.text}] tipped sideways. Then kept tipping. Then was still tipping. [name:{protagonist.name}] had about three seconds.',
+      'The [c:{prop.text}] refused. Just refused. The [c:{ally.text}] poked it twice. Nothing. [name:{protagonist.name}] had to come up with something.',
     ] },
   { id:'v3_sw_problem_tween', stage:'problem', blueprintId:'show_wrong_v3', tiers:['tween'], requiredRoles:['protagonist','prop'],
     lines: [
-      'Of course, the [c:{prop.text}] broke. Of course. [name:{protagonist.name}] stood there with half a [c:{prop.text}] and a decision to make.',
+      'The [c:{prop.text}] broke. [name:{protagonist.name}] held half a [c:{prop.text}] and made eye contact with the universe.',
     ] },
   { id:'v3_sw_problem_tween_visual', stage:'problem', blueprintId:'show_wrong_v3', tiers:['tween'], requiredRoles:['protagonist','prop'],
     lines: [
-      'The [c:{prop.text}] did a thing nobody had rehearsed. Specifically, it fell over in slow motion, in front of everyone, with full audience eye contact. [name:{protagonist.name}] had three seconds to commit to whatever happened next.',
+      'The [c:{prop.text}] fell over in front of everyone, in slow motion, like it had timing. [name:{protagonist.name}] had to commit to something immediately.',
     ] },
 
+  /* v0.9.3 · b28 — show_wrong_v3 attempt beats. The chant-bearing variants are
+     the punchy mini-arcs. "in a way that" replaced with concrete imagery so the
+     repetition n-gram dies. */
   { id:'v3_sw_attempt_move_chant', stage:'attempt', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','signature_action','chant'],
     lines: [
-      'So [name:{protagonist.name}] improvised. "[y:{chant.text}]!" [name:{protagonist.name}] yelled. Then [c:{signature_action.text}]. Then yelled "[y:{chant.text}]!" again, louder. The pillows were INTO IT now.',
-      '[name:{protagonist.name}] took a breath, [c:{signature_action.text}] forward, and shouted whatever came to mind: "[y:{chant.text}]!" The audience leaned in. Sometimes nonsense lands.',
+      '[name:{protagonist.name}] improvised. "[y:{chant.text}]!" Then [c:{signature_action.text}]. Then "[y:{chant.text}]!" again, louder. The pillows were INTO IT.',
+      '[name:{protagonist.name}] [c:{signature_action.text}] and shouted "[y:{chant.text}]!" The audience leaned in. Sometimes nonsense lands.',
+      'Out came the only word that fit: "[y:{chant.text}]." [name:{protagonist.name}] [c:{signature_action.text}] for emphasis. The bit was a different bit now.',
     ] },
   { id:'v3_sw_attempt_move', stage:'attempt', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','signature_action'],
     lines: [
-      '[name:{protagonist.name}] [c:{signature_action.text}] across the stage in a way that nobody had rehearsed. The whole room watched. It was somehow working.',
+      '[name:{protagonist.name}] [c:{signature_action.text}] across the stage like nobody had rehearsed it. The room watched. Somehow it was working.',
+      '[name:{protagonist.name}] [c:{signature_action.text}] like it was the plan. The [y:{setting.text}] held its breath. The bit picked itself up.',
     ] },
 
+  /* v0.9.3 · b28 — show_wrong_v3 escalation. New audience-mistakes-improv beat
+     to break out of the heckler-only pattern. */
   { id:'v3_sw_escalation_1', stage:'escalation', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','obstacle'],
     lines: [
-      'A [c:{obstacle.text}] in the audience laughed too loudly. The [c:{ally.text}] mistook it for applause and bowed. [name:{protagonist.name}] decided to roll with it. The show was a different show now.',
-      'The [c:{obstacle.text}] heckled. Genuinely heckled. The [c:{ally.text}] hissed back. [name:{protagonist.name}] kept performing. Conflict made the bit better.',
+      'A [c:{obstacle.text}] in the audience laughed too loudly. The [c:{ally.text}] mistook it for applause and bowed. [name:{protagonist.name}] rolled with it. Different show now.',
+      'The [c:{obstacle.text}] heckled, genuinely. The [c:{ally.text}] hissed. [name:{protagonist.name}] kept going. The conflict made the bit.',
+      'The [c:{obstacle.text}] tried to leave. The [c:{ally.text}] blocked the exit, on purpose, somehow. [name:{protagonist.name}] now had a captive audience.',
     ] },
   /* v2.6.1 — tween escalation rewritten to reference obstacle so picks.creature
      always lands in body for show_wrong_v3 at ages 11-13. Two variants. */
@@ -4258,44 +4285,47 @@ const V3_BEATS = [
       'The [c:{ally.text}] picked up [name:{protagonist.name}]\'s energy and ran with it. Now it was a duet. Neither of them had agreed to this. It was happening.',
     ] },
 
+  /* v0.9.3 · b28 — show_wrong payoff/landing trims. Each line dropped one
+     sentence of decoration. Aim: drop show_wrong median sentence count from
+     27 (b27) toward 20. */
   { id:'v3_sw_payoff_payword', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','payoff_word'],
     lines: [
-      'The pillows went wild. The [c:{ally.text}] took a bow. [name:{protagonist.name}] took a bigger bow. "[y:{payoff_word.text}]!" yelled [name:{protagonist.name}] one final time. The room repeated it back.',
-      'It was a huge hit. A real one. [name:{protagonist.name}] and the [c:{ally.text}] got a huge clap, which was pretty cool because pillows do not even have hands. The new catchphrase "[y:{payoff_word.text}]" was now official.',
+      'The pillows went wild. The [c:{ally.text}] took a bow. "[y:{payoff_word.text}]!" yelled [name:{protagonist.name}]. The room repeated it back.',
+      'It was a real hit. [name:{protagonist.name}] and the [c:{ally.text}] got a huge clap. The new catchphrase "[y:{payoff_word.text}]" was officially live.',
     ] },
   /* v0.9.3 · b24 — show_wrong absurd_consequence variants. The prop comes
      back to life via the chant, the audience adopts it as the show's
      name, or the ally treats the payoff word as the new cue. */
   { id:'v3_sw_payoff_chant_prop_revives', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','prop','chant'], jokeJob:'absurd_consequence',
     lines: [
-      '"[y:{chant.text}]!" yelled [name:{protagonist.name}], pointing at the broken [c:{prop.text}]. The [c:{prop.text}] twitched. Twitched again. Then it did exactly what it had refused to do five minutes ago. Pillows lost it.',
+      '"[y:{chant.text}]!" yelled [name:{protagonist.name}] at the broken [c:{prop.text}]. The [c:{prop.text}] twitched, then did exactly what it had refused to do five minutes ago. Pillows lost it.',
     ] },
   { id:'v3_sw_payoff_chant_crowd_chants', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','chant'], jokeJob:'absurd_consequence',
     lines: [
-      '"[y:{chant.text}]!" went [name:{protagonist.name}]. The [c:{ally.text}] picked it up. Then the whole audience picked it up — pillows, lamp, the dog who had wandered in. The show was named "[y:{chant.text}]" now. There was no going back.',
+      '"[y:{chant.text}]!" went [name:{protagonist.name}]. The [c:{ally.text}] picked it up; so did the whole room — pillows, lamp, the dog who had wandered in. The show was named "[y:{chant.text}]" now.',
     ] },
   { id:'v3_sw_payoff_payword_ally_cues', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','payoff_word'], jokeJob:'absurd_consequence',
     lines: [
-      '[name:{protagonist.name}] said "[y:{payoff_word.text}]" once, like a cue. The [c:{ally.text}] heard "cue" and did the entire finale from memory, even the parts they had never rehearsed. The bow at the end was perfect.',
+      '[name:{protagonist.name}] said "[y:{payoff_word.text}]" once, like a cue. The [c:{ally.text}] did the entire finale from memory, including the parts nobody had rehearsed. The bow was perfect.',
     ] },
   /* v0.9.3 · b26 — three more show_wrong absurd_consequence beats hitting
      the broken-show mechanic (prop failure → improvised save → audience
      reaction → catchphrase callback). */
   { id:'v3_sw_payoff_chant_prop_unbreaks', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','prop','chant'], jokeJob:'absurd_consequence',
     lines: [
-      '[name:{protagonist.name}] pointed at the broken [c:{prop.text}] and shouted "[y:{chant.text}]." The [c:{prop.text}] reassembled itself in roughly the wrong order. The [c:{ally.text}] applauded the wrong order. The show was now better.',
+      '[name:{protagonist.name}] pointed at the broken [c:{prop.text}]: "[y:{chant.text}]." The [c:{prop.text}] reassembled itself in roughly the wrong order. The [c:{ally.text}] applauded the wrong order. The show was now better.',
     ] },
   { id:'v3_sw_payoff_payword_audience_chants', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','payoff_word'], jokeJob:'absurd_consequence',
     lines: [
-      '"[y:{payoff_word.text}]!" yelled [name:{protagonist.name}]. The audience (the pillows, the [c:{ally.text}], a dog who had wandered in) all said it back. Then they said it again, louder, like a chant. The roof did not lift but it considered it.',
+      '"[y:{payoff_word.text}]!" yelled [name:{protagonist.name}]. The audience (pillows, the [c:{ally.text}], a wandering dog) said it back. Then again, louder, like a chant.',
     ] },
   { id:'v3_sw_payoff_chant_obstacle_caves', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','obstacle','chant'], jokeJob:'absurd_consequence',
     lines: [
-      'The [c:{obstacle.text}] tried to heckle. "[y:{chant.text}]," replied [name:{protagonist.name}], calmly. The [c:{obstacle.text}] forgot what it was going to say. The show kept going. The [c:{obstacle.text}] later claimed it had been a planned bit.',
+      'The [c:{obstacle.text}] tried to heckle. "[y:{chant.text}]," replied [name:{protagonist.name}], calmly. The [c:{obstacle.text}] forgot what it was going to say and later claimed it had been a planned bit.',
     ] },
   { id:'v3_sw_payoff_chant', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','chant'],
     lines: [
-      'And from that day on, "[y:{chant.text}]" was the special word of the show. Everyone said it. Everyone meant it. Nobody knew what it meant. The [c:{ally.text}] approved.',
+      '"[y:{chant.text}]" was the special word of the show now. Everyone said it. Nobody knew what it meant. The [c:{ally.text}] approved.',
     ] },
   { id:'v3_sw_payoff_plain', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally'],
     lines: [
@@ -4332,7 +4362,7 @@ const V3_BEATS = [
     ] },
   { id:'v3_sw_landing_chant_callback_tween', stage:'landing', blueprintId:'show_wrong_v3', tiers:['tween'], requiredRoles:['protagonist','ally','chant'], jokeJob:'callback',
     lines: [
-      'Walking out, [name:{protagonist.name}] was already rewriting the encore. The [c:{ally.text}] was still posting about it, mentally. "[y:{chant.text}]," they said together, like a band name. Apparently the band\'s name was now "[y:{chant.text}]." Apparently they had a band.',
+      'Walking out, [name:{protagonist.name}] was already rewriting the encore. "[y:{chant.text}]," they said with the [c:{ally.text}], like a band name. Apparently they had a band.',
     ] },
   { id:'v3_sw_landing_payword_callback_tween', stage:'landing', blueprintId:'show_wrong_v3', tiers:['tween'], requiredRoles:['protagonist','ally','payoff_word'], jokeJob:'callback',
     lines: [
@@ -4355,12 +4385,22 @@ const V3_BEATS = [
 
   { id:'v3_rl_problem_1', stage:'problem', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','rule_imposer','mcguffin'],
     lines: [
-      'At the [y:{setting.text}], the [c:{rule_imposer.text}] held up one hand. "New rule," the [c:{rule_imposer.text}] said. "Nobody touches the [c:{mcguffin.text}]. Starting right now." [name:{protagonist.name}] had not heard of this rule before. The rule did not care.',
+      'Over at the [y:{setting.text}], the [c:{rule_imposer.text}] held up one hand. "New rule," the [c:{rule_imposer.text}] said. "Nobody touches the [c:{mcguffin.text}]. Starting right now." [name:{protagonist.name}] had not heard of this rule before. The rule did not care.',
       'A new rule showed up at the [y:{setting.text}]. The [c:{rule_imposer.text}] brought it. The new rule: no [c:{mcguffin.text}]. For anybody. [name:{protagonist.name}] could see the [c:{mcguffin.text}] from here. The rule was already cruel.',
     ] },
+  /* v0.9.3 · b28 — single beat used to fire in 20% of stories and cascaded
+     into 12 separate top-20% n-gram hits. Replaced with three structurally
+     distinct mood-flavored problem variants.
+     NOTE: Avoid leading any sentence with `[c:{mcguffin...}]` because the
+     mcguffin token can be plural ("nachos") and would render "the nachos
+     was..." → plural-singular agreement bug. Same with leading `[c:{mood...
+     }]` — mood-throughline tokens are lowercase adjectives ("ridiculous")
+     so leading a sentence with them triggers the lowercase-start lint. */
   { id:'v3_rl_problem_mood', stage:'problem', blueprintId:'rule_loophole_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','rule_imposer','mcguffin','mood_throughline'],
     lines: [
-      'The [c:{rule_imposer.text}] declared the [c:{mcguffin.text}] forbidden. [name:{protagonist.name}] felt [c:{mood_throughline.text}] about this development. Possibly more [c:{mood_throughline.text}] than the [c:{rule_imposer.text}] had bargained for.',
+      'Off-limits, said the [c:{rule_imposer.text}], pointing at the [c:{mcguffin.text}]. [name:{protagonist.name}] turned a particular shade of [c:{mood_throughline.text}]. The [c:{rule_imposer.text}] had not seen that energy before.',
+      'A wall of "no" landed between [name:{protagonist.name}] and the [c:{mcguffin.text}]. [name:{protagonist.name}] went very [c:{mood_throughline.text}]. The [c:{rule_imposer.text}] sensed escalation.',
+      'According to the [c:{rule_imposer.text}], the [c:{mcguffin.text}] could no longer be touched. [name:{protagonist.name}] kept a [c:{mood_throughline.text}] face. Underneath: scheming.',
     ] },
   { id:'v3_rl_problem_tween', stage:'problem', blueprintId:'rule_loophole_v3', tiers:['tween'], requiredRoles:['protagonist','rule_imposer','mcguffin'],
     lines: [
@@ -4518,11 +4558,11 @@ const V3_BEATS = [
   /* --- goal_spine_v3 tween additions --- */
   { id:'v3_gs_setup_tween_committed', stage:'setup', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','ally','setting','goal'],
     lines: [
-      'At the [y:{setting.text}], [name:{protagonist.name}] had decided. Today: {goal.text}. The [c:{ally.text}] was on board. Quietly. Without making it a thing.',
+      'Decision made. Today, at the [y:{setting.text}], [name:{protagonist.name}] would {goal.text}. The [c:{ally.text}] was on board. Quietly. Without making it a thing.',
     ] },
   { id:'v3_gs_attempt_tween_unhinged', stage:'attempt', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','obstacle','signature_action'],
     lines: [
-      '[name:{protagonist.name}] [c:{signature_action.text}] in a way that read as professionally unhinged. The [c:{obstacle.text}] had not budgeted for this. [name:{protagonist.name}] did not break eye contact.',
+      '[name:{protagonist.name}] [c:{signature_action.text}] like a professional who had committed to a specific kind of unhinged. The [c:{obstacle.text}] had not budgeted for this. [name:{protagonist.name}] did not break eye contact.',
     ] },
   { id:'v3_gs_escalation_tween_screenshot', stage:'escalation', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','obstacle','mcguffin'],
     lines: [
@@ -4554,7 +4594,7 @@ const V3_BEATS = [
   /* --- rule_loophole_v3 tween additions --- */
   { id:'v3_rl_setup_tween_calm', stage:'setup', blueprintId:'rule_loophole_v3', tiers:['tween'], requiredRoles:['protagonist','ally','setting'],
     lines: [
-      'At the [y:{setting.text}], [name:{protagonist.name}] was doing the bare minimum. So was the [c:{ally.text}]. Suspiciously calm energy. Things were technically fine. They would not stay fine.',
+      'Over by the [y:{setting.text}], [name:{protagonist.name}] was doing the bare minimum. So was the [c:{ally.text}]. Suspiciously calm energy. Things were technically fine. They would not stay fine.',
     ] },
   { id:'v3_rl_problem_tween_rookie', stage:'problem', blueprintId:'rule_loophole_v3', tiers:['tween'], requiredRoles:['protagonist','rule_imposer','mcguffin'],
     lines: [
@@ -5012,19 +5052,43 @@ function generateStoryV3(name, picks, age) {
     const pool = fresh.length > 0 ? fresh : candidates;
     const maxRoles = Math.max(...pool.map(c => (c.requiredRoles || []).length));
     const top = pool.filter(c => (c.requiredRoles || []).length === maxRoles);
-    // v0.9.3 · b27 — HIGH_IMPACT beat weighting. When the picked roles include
-    // chant or payoff_word (the kid actually selected a HIGH_IMPACT word), 2x-
-    // weight any candidate beat tagged jokeJob='absurd_consequence' or
-    // jokeJob='callback'. Boosts the kid's chosen silly word landing as a real
-    // event instead of a quoted decoration. Codex post-b26 audit showed tween
-    // changes_scene at 22.6% (lagging kid/big); this lifts the rate without
-    // requiring more beat authoring.
+    // v0.9.3 · b28 — stage-aware HIGH_IMPACT beat weighting.
+    //
+    // Three additive boosts when chant/payoff_word is picked:
+    //
+    // 1. Global 2x for jokeJob='absurd_consequence' (b27 carryover) — causes
+    //    the picked word to change a prop/rule/audience event.
+    // 2. Landing-stage 3x for jokeJob='callback' — the callback should feel
+    //    like a punchline, not a sleepy repetition. Codex post-b27 showed
+    //    callback axis flat at 0.62/3; lifting landing-stage callback weight
+    //    is the targeted intervention.
+    // 3. Tot/little 2x for any beat that includes a chant token in its
+    //    lines — when the kid actually picked a chant/sound, surface an
+    //    authored call-and-response beat more often. Codex post-b27 reported
+    //    tot/little chant role rendering only ~50% of stories.
     const hasHighImpact = !!(roles.chant || roles.payoff_word);
-    if (hasHighImpact) {
+    const isLanding = stage.name === 'landing' || stage.name === 'tl_cozy_end';
+    const isTotLittle = tier === 'tot' || tier === 'little';
+    const hasChant = !!roles.chant;
+    if (hasHighImpact || (isTotLittle && hasChant)) {
       const weighted = [];
       for (const c of top) {
         weighted.push(c);
-        if (c.jokeJob === 'absurd_consequence' || c.jokeJob === 'callback') weighted.push(c);
+        // Boost #1: absurd_consequence (causality engine) — global 2x.
+        if (hasHighImpact && c.jokeJob === 'absurd_consequence') weighted.push(c);
+        // Boost #2: callback in landing stage — additional 2x on top of
+        // base weight (total 3x when chant/payoff_word picked).
+        if (hasHighImpact && c.jokeJob === 'callback') {
+          weighted.push(c);
+          if (isLanding) weighted.push(c);
+        }
+        // Boost #3: tot/little chant-bearing beats. Detect by scanning
+        // the beat's first line for a [y:{chant.*}] token. Cheap; runs
+        // only when chant was actually picked.
+        if (isTotLittle && hasChant && Array.isArray(c.lines) && c.lines.length > 0) {
+          const beatTextSample = c.lines.join(' ');
+          if (/\[y:\{chant\./.test(beatTextSample)) weighted.push(c);
+        }
       }
       const card = weighted[Math.floor(Math.random() * weighted.length)];
       return card;
