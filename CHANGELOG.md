@@ -9,6 +9,27 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 32, engine v3.0.3) — 2026-05-22
+**Picker Emoji Hotfix — goldfish 🐠 → 🐟**
+
+User reported: the kid-tier "Pick your sidekick" picker entry for `goldfish` was using 🐠 — which is the Unicode `TROPICAL FISH` emoji (U+1F420) and renders as a blue-and-yellow striped angelfish on every modern platform, not a goldfish.
+
+Root cause: the b15 picker rename swapped axolotl → goldfish but inherited the 🐠 emoji on a mistaken assumption that 🐠 was a goldfish. The stale comment in `src/content.js` explicitly claimed "tropical-fish emoji is a goldfish" — it isn't.
+
+Fix: kid pet picker `goldfish 🐠 → 🐟` (generic `FISH` emoji, U+1F41F). On Apple platforms 🐟 renders orange-gold which matches the word; on other platforms it renders as a clearly-recognizable fish (not an angelfish). Same emoji as the tween-pool `dramatic goldfish` entry, but no collision (uniqueness check is within picker rounds, not across them).
+
+Updated the b15 comment block in `src/content.js` to correct the historical mistake.
+
+### Acceptance
+
+- `scripts/qa-current.js` — **all gates green** (Section 11 emoji-uniqueness within picker rounds: 0 collisions)
+- `node --check` on src/content.js — clean
+- BUILD_NUMBER 31 → 32; APP_VERSION stays v0.9.3; ENGINE_V2_VERSION stays v3.0.3
+
+`APP_VERSION` stays `v0.9.3`; `BUILD_NUMBER` 31 → **32**; `ENGINE_V2_VERSION` stays `v3.0.3`. Badge reads `v0.9.3 · b32`.
+
+---
+
 ## v0.9.3 (build 31, engine v3.0.3) — 2026-05-22
 **Sensory-Callback Polish**
 
