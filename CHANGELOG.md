@@ -9,6 +9,67 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 27, engine v3.0.3) — 2026-05-22
+**Story Quality Stabilization Pass**
+
+Focused stabilization on six gaps Codex flagged after b26. **No new app features.** Engine + content fixes only.
+
+### Headline (100-story comedy audit, BEFORE = b26 main, AFTER = b27)
+
+| Metric | BEFORE | AFTER | Δ |
+|---|---|---|---|
+| Comedy total | 10.65 / 21 | **11.25** | **+0.60** |
+| Causality | 0.84 | 0.99 | **+0.15** |
+| Visual joke | 1.41 | 1.69 | **+0.28** |
+| Punchline `quoted_only` | 19.2% | 13.5% | −5.7pp |
+| Punchline `changes_scene` | 34.7% | 38.0% | +3.3pp |
+| Grammar lint hits | 18 | **0** | **−18** |
+| Tot sentence median | 19 | **15** | **−21%** |
+| **Tween total** | **8.80** | **10.45** | **+1.65** |
+
+The biggest win is **tween**: total +1.65, causality 0.65 → 0.85. Codex's "tween changes_scene 22.6% lagging" gap directly addressed.
+
+### Six priorities shipped
+
+**P1 — Audit diagnostic accuracy.** `generateStoryV3` now returns `__blueprint`, `__tier`, `__stages` non-rendered metadata. Audit scripts report the real blueprint instead of `"(v2 fallback)"`. `renderStory()` in index.html is unaffected.
+
+**P2 — `the the` duplicate article.** Root cause: tween picker entry `{w:'the back of the bus'}` literally included "the". Beats render `'At the [y:{setting.text}]'` + `'the back of the bus'` → `'At the the back of the bus'`. Renamed picker entry to `'back of the bus'`. Grep confirms it's the only offender across all pools.
+
+**P3 — Lowercase sentence-start (real cases).** 16 hits in BEFORE; 2 real bug patterns:
+- `FLAVOR_CALLBACKS.mcguffin` started with `[c:{mcguffin.articleText}]` rendering `some donuts sat off…` lowercase. Reworded: `Off to the side, [c:{mcguffin.articleText}] sat there,…`. Added a 3rd variant.
+- `The [prop] just... gave up.` ellipsis pattern. Removed ellipsis.
+
+AFTER lint: **0/100 lowercase hits**.
+
+**P4 — Repeated structural phrases.** Two FLAVOR_CALLBACKS pools expanded targeting Codex's top n-grams:
+- `mood_throughline` 2 → 6 variants (was 36% repeat on "Cole felt <mood> about")
+- `signature_action` 5 → 8 variants (was 22% repeat)
+
+**P5 — Causality + tween.** Two engine-level fixes:
+- `pickStageBeat` now 2× weights candidates tagged `jokeJob: 'absurd_consequence'` or `'callback'` when HIGH_IMPACT roles (chant / payoff_word) are present.
+- All 24 `absurd_consequence` beats widened from `tiers:['kid','big']` to `tiers:['kid','big','tween']`. Tween causality 0.65 → 0.85.
+
+**P6 — Tot/little length trim.** 6 b24/b26 chant call-response beats had trailing flourishes ("Everyone sang.", "Then giggled.", "Cole laughed."). Trimmed token-free closers. **Tot median 19 → 15 (−21%).** Little stable at 15. 4-paragraph structure preserved.
+
+### Acceptance
+
+- `scripts/qa-current.js` — all **25 gates green**
+- `node --check` on `src/content.js` + `src/engine-v2.js` + `api/tts.js` — clean
+- All 4 content audits run cleanly
+- `docs/b27-before/` + `docs/b27-after/` + `docs/b27-stabilization-diff.md` committed
+
+`APP_VERSION` stays `v0.9.3`; `BUILD_NUMBER` 26 → **27**; `ENGINE_V2_VERSION` stays `v3.0.3`. Badge reads `v0.9.3 · b27`.
+
+### Deferred for b28+
+
+- show_wrong_v3 sentence-count trim (longest blueprint, b25 baseline median 29)
+- 14 remaining repetition n-grams above 20% — mostly structurally hard story-opening patterns
+- tot/little chant render rate still ~50% (selection bias when chant present queued)
+- Callback axis essentially flat in b27 (−0.01); 2× weight boosts both consequence and callback equally and consequence dominated. b28 could weight callback higher specifically in landing stage.
+- Some `lost_snack` escalation beats don't surface `false_suspect`
+
+---
+
 ## v0.9.3 (build 26, engine v3.0.3) — 2026-05-22
 **Story Comedy Mechanics Pass — 28 new beats (callbacks + consequences + tot call-response) + engine plural fix**
 
