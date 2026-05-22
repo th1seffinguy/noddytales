@@ -1349,6 +1349,100 @@ for (const c of hiCases) {
 gate(`HIGH_IMPACT slot audit (${hiCases.length} cases)`, h_fail === 0, h_fail + ' failed');
 console.log(`    ${hiCases.length - h_fail}/${hiCases.length} cases passed`);
 
+/* === 18. STORY HUMOR PASS audit (added v0.9.3 · b24) ===
+ *
+ * Notion Build Idea: "Story Humor Pass (v0.9.3 · b24)"
+ * (36813aa1-d4db-811f-b256-febdf3f4015b).
+ *
+ * Codex flagged 4 grammar/polish bug classes + 6 glue-phrase repeats from a
+ * pre-b24 50-story sample. This section is the STATIC audit that fails the
+ * build if any class regresses. The runtime 50-story creativity report
+ * (scripts/creativity-sample.js) is the soft / advisory companion.
+ */
+console.log('\n=== 18. Story Humor Pass audit — polish + consequence-beat contract (v0.9.3 · b24) ===');
+const humorCases = [];
+function huAssert(label, cond, detail) { humorCases.push({ label, ok: !!cond, detail }); }
+
+// (a) No V3 title pattern uses a bare third-person-singular verb after protagonist.
+{
+  const src = fs.readFileSync(path.join(ROOT, 'src/engine-v2.js'), 'utf8');
+  const titlePatternRx = /'((?:\[name:\{protagonist\.name\}\][^']*?))'/g;
+  const offenders = [];
+  const BARE_VERB_RX = /\[name:\{protagonist\.name\}\] (Tell|Share|Find|Sing|Build|Make|Invent|Run|Eat|Catch|Save|Win|Open|Lose|Drop|Pick|Sneak|Get)\b(?!ed|ing|s|ies)/;
+  let m;
+  while ((m = titlePatternRx.exec(src)) !== null) {
+    if (BARE_VERB_RX.test(m[1])) offenders.push(m[1]);
+  }
+  huAssert('no title pattern uses a bare third-person-singular verb after protagonist subject',
+    offenders.length === 0, offenders.slice(0,3).join(' | '));
+}
+
+// (b) No V3 beat uses "{mcguffin.text} was/is unaccounted for" (plural-mcguffin trap).
+{
+  const offenders = [];
+  for (const beat of ctx.V3_BEATS) {
+    for (const line of beat.lines || []) {
+      if (/\{mcguffin\.text\}\] (was|is) unaccounted for/.test(line)) {
+        offenders.push(`${beat.id}: "${line.slice(0,80)}..."`);
+      }
+    }
+  }
+  huAssert('no V3 beat uses singular "was/is unaccounted for" after {mcguffin.text}',
+    offenders.length === 0, offenders.slice(0,3).join(' | '));
+}
+
+// (c) binoculars has isPlural:true set.
+{
+  const src = fs.readFileSync(path.join(ROOT, 'src/engine-v2.js'), 'utf8');
+  const binocRx = /id:'binoculars',[^}]*isPlural:\s*true/;
+  huAssert('binoculars entry in V2_WORDS.objects has isPlural: true',
+    binocRx.test(src), 'binoculars missing isPlural — articleText returns "a binoculars"');
+}
+
+// (d) ≥ 12 absurd_consequence beats spread across all 4 kid/big/tween blueprints.
+{
+  const consequenceBeats = ctx.V3_BEATS.filter(b => b.jokeJob === 'absurd_consequence');
+  huAssert('b24 ships ≥ 12 jokeJob:\'absurd_consequence\' beats (Priority 3 target)',
+    consequenceBeats.length >= 12, `got ${consequenceBeats.length}`);
+  const byBp = {};
+  for (const b of consequenceBeats) byBp[b.blueprintId || 'wildcard'] = (byBp[b.blueprintId || 'wildcard'] || 0) + 1;
+  const expected = ['lost_snack_v3','goal_spine_v3','show_wrong_v3','rule_loophole_v3'];
+  const missingBp = expected.filter(bp => !byBp[bp]);
+  huAssert('absurd_consequence beats present in all 4 kid+big+tween blueprints',
+    missingBp.length === 0, `missing: ${missingBp.join(',')}`);
+}
+
+// (e) tot/little blueprints declare chant: 'sound' role; ≥ 2 tot/little beats render [y:{chant.*}].
+{
+  const src = fs.readFileSync(path.join(ROOT, 'src/engine-v2.js'), 'utf8');
+  const tlBlueprints = ['tot_wonder_v3','tot_sky_v3','little_quest_v3','little_food_v3'];
+  const missingChant = [];
+  for (const bp of tlBlueprints) {
+    const rx = new RegExp(bp + ':[\\s\\S]{0,1500}?roleMap:[\\s\\S]*?\\},', 'm');
+    const m = src.match(rx);
+    if (!m) { missingChant.push(`${bp}: blueprint not found in src`); continue; }
+    if (!/chant:\s*'sound'/.test(m[0])) missingChant.push(bp);
+  }
+  huAssert('tot/little v3 blueprints declare chant: \'sound\' role (Priority 5)',
+    missingChant.length === 0, `missing: ${missingChant.join(',')}`);
+
+  const tlChantBeats = ctx.V3_BEATS.filter(b =>
+    (b.tiers && (b.tiers.includes('tot') || b.tiers.includes('little'))) &&
+    (b.lines || []).some(l => /\[y:\{chant\.[a-z]+\}\]/i.test(l))
+  );
+  huAssert('≥ 2 tot/little V3 beats render a [y:{chant.*}] punchline token',
+    tlChantBeats.length >= 2, `got ${tlChantBeats.length}`);
+}
+
+let hu_fail = 0;
+for (const c of humorCases) {
+  if (c.ok) continue;
+  hu_fail++;
+  console.log(`    ✗ ${c.label}${c.detail ? ' — ' + c.detail : ''}`);
+}
+gate(`Story Humor Pass audit (${humorCases.length} cases)`, hu_fail === 0, hu_fail + ' failed');
+console.log(`    ${humorCases.length - hu_fail}/${humorCases.length} cases passed`);
+
 /* === 9. BLOCKED-WORD SCAN (added v2.10.2) ===
  *
  * Critical defect from 2026-05-21: the freetext prompt examples for "Invent a battle
