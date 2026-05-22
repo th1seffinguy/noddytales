@@ -17,7 +17,7 @@
    labeling: product is in late beta (v0.9.x), engine is still v3 internally. The
    historical v3.0.0-v3.0.3 CHANGELOG entries stay as-is for traceability. */
 const APP_VERSION  = 'v0.9.3';
-const BUILD_NUMBER = 22;
+const BUILD_NUMBER = 23;
 
 /* v0.9.3 · b8 — Narrator Voice Selector MVP.
    v0.9.3 · b16 — lineup refresh.
@@ -47,14 +47,21 @@ const VOICE_PRESETS = [
     previewText: "Hi, I'm Storybook. I'll read this like a cozy tale." },
   { key: 'adventure', label: 'Adventure', tagline: 'Bold, energetic, exciting',
     previewText: "Hi, I'm Adventure. Let's make this story sound big." },
-  // b20 — label simplified to "Silly". Two stock-voice attempts have now
-  // failed (Gigi b17 too calm-American; Mimi b18 foreign-accented). The
-  // hardcoded backstop in api/tts.js stays as Mimi to keep the app working,
-  // but operators are strongly recommended to override ELEVENLABS_VOICE_SILLY
-  // in Vercel with a custom high-pitched cartoon voice (ElevenLabs Voice
-  // Library find or cloned voice). See api/tts.js header + README.
-  { key: 'silly',     label: 'Silly',     tagline: 'High-pitched, goofy, extra expressive',
-    previewText: "Hi, I'm Silly. I make stories sound extra goofy!" },
+  // b20 — label simplified to "Silly". Two stock-voice attempts (Gigi b17
+  // too calm-American; Mimi b18 foreign-accented) had failed against the
+  // "high-pitched cartoon" target.
+  // b23 — rebrand: "Silly" → "Cheerful". User reframe — the previous brief
+  // ("high-pitched, goofy, cartoon") was the wrong target for Mimi, whose
+  // actual voice quality is bright + warm rather than cartoony. Renaming
+  // the preset around the voice we have, instead of the voice we wanted,
+  // lands honestly. Preset key stays `silly` so saved nt_voice_preset
+  // values + IndexedDB cache (preview:v2:silly + v2:silly|<sha>) survive
+  // across the rename. The api/tts.js silly defaultId stays Mimi — she's
+  // now the intended voice, not a documented backstop. Operator override
+  // via ELEVENLABS_VOICE_SILLY remains available for parents who want a
+  // different cheerful voice.
+  { key: 'silly',     label: 'Cheerful',  tagline: 'Bright, warm, lifts the mood',
+    previewText: "Hi, I'm Cheerful. I'm here to lighten the mood." },
 ];
 const VOICE_PRESET_DEFAULT = 'sunny';
 const VOICE_PRESET_KEYS    = VOICE_PRESETS.map(p => p.key); // for validation
@@ -438,6 +445,141 @@ const RULES = [
    Section 11 gate that scans BODY_HOT_OPTS for within-pool emoji uniqueness caught
    the pre-existing duplicate; booger moves to 🤧 (sneeze face), nostril hair keeps 👃.
    v0.9.3 · b15 — "snot rocket 💦" → 🚀 (rocket emoji makes the "rocket" half land). */
+/* v0.9.3 · b23 — ABSURD WORD BANK
+   ================================
+   Notion Build Idea: "High-impact word slots: force funnier, more absurd
+   choices" (36813aa1-d4db-8147-84a8-eb888c5c6900).
+
+   Certain story-template moments are structurally punchlines: the kid's
+   selected word is shouted, announced, or revealed as the comedic pivot.
+   These slots are marked HIGH_IMPACT — they MUST pull from this bank,
+   never from the general vocabulary pool.
+
+   In the v3 engine these correspond to the `chant` and `payoff_word`
+   roles (rendered with [y:...] yellow punchline tokens). Picker rounds
+   that feed those roles (`sound` / `freeword` / `freeword2`) are tagged
+   `highImpact: true` and source their hints/options from this bank.
+
+   Categories (per Notion Build Idea spec):
+     - sillySounds:     short onomatopoeia / pure absurd phonemes
+     - grossButSafe:    bathroom/body without crossing the safe-for-app line
+     - randomObjects:   wearable-on-head / pet-from-the-fridge tier objects
+     - nonsenseCompound:invented compounds with -pants, -flop, -bunch suffixes
+
+   Per-entry `tiers` is the eligibility list. Simpler/shorter words ship
+   for `tot` (ages 2-3) because they shout in single-syllable patterns.
+   Compound silliness and gross-but-safe entries open up at little+.
+
+   Minimum count contract (Section 17 QA gate):
+     - 50+ total entries
+     - 4 categories present
+     - tot has ≥ 12 entries available
+     - little/kid/big/tween each have ≥ 30 entries available
+
+   Authoring rules:
+     - Age-appropriate. NO actual profanity. NO bathroom shock value past
+       "stinky / booger / burp" tier. NO licensed characters / celebrity
+       names (the QA Section 14 blocklist applies here too).
+     - Each entry must be one or two words / a short compound. Avoid full
+       sentences — these are PUNCHLINE words, not phrases.
+     - Prefer phonemes that read well aloud through ElevenLabs TTS.
+       Avoid letter combos the narrator garbles (e.g. avoid "xz", "qq"). */
+const ABSURD_WORD_BANK = {
+  sillySounds: [
+    { w:'glorp',     tiers:['tot','little','kid','big','tween'] },
+    { w:'blorp',     tiers:['tot','little','kid','big','tween'] },
+    { w:'splat',     tiers:['tot','little','kid','big','tween'] },
+    { w:'boing',     tiers:['tot','little','kid','big','tween'] },
+    { w:'honk',      tiers:['tot','little','kid','big','tween'] },
+    { w:'squonk',    tiers:['little','kid','big','tween'] },
+    { w:'plop',      tiers:['tot','little','kid','big','tween'] },
+    { w:'fwoosh',    tiers:['little','kid','big','tween'] },
+    { w:'kabloom',   tiers:['little','kid','big','tween'] },
+    { w:'sproing',   tiers:['little','kid','big','tween'] },
+    { w:'zoinks',    tiers:['kid','big','tween'] },
+    { w:'bonk',      tiers:['tot','little','kid','big','tween'] },
+    { w:'thwip',     tiers:['little','kid','big','tween'] },
+    { w:'gloop',     tiers:['tot','little','kid','big','tween'] },
+    { w:'wubba',     tiers:['little','kid','big','tween'] },
+  ],
+  grossButSafe: [
+    // Tot is intentionally excluded from this category per design (kids
+    // 2-3 don't need bathroom humor primed for them, even safe variants).
+    { w:'stinky bananas',     tiers:['little','kid','big','tween'] },
+    { w:'soggy sock',         tiers:['little','kid','big','tween'] },
+    { w:'booger cloud',       tiers:['little','kid','big','tween'] },
+    { w:'burp bubble',        tiers:['little','kid','big','tween'] },
+    { w:'slime puddle',       tiers:['little','kid','big','tween'] },
+    { w:'damp toast',         tiers:['kid','big','tween'] },
+    { w:'mystery jelly',      tiers:['kid','big','tween'] },
+    { w:'pickle juice',       tiers:['little','kid','big','tween'] },
+    { w:'sneezy sandwich',    tiers:['little','kid','big','tween'] },
+    { w:'crusty pretzel',     tiers:['kid','big','tween'] },
+    { w:'ear cheese',         tiers:['big','tween'] },
+    { w:'foot soup',          tiers:['kid','big','tween'] },
+  ],
+  randomObjects: [
+    { w:'cheese hat',         tiers:['tot','little','kid','big','tween'] },
+    { w:'rubber duck',        tiers:['tot','little','kid','big','tween'] },
+    { w:'underpants helmet',  tiers:['little','kid','big','tween'] },
+    { w:'Captain Noodle',     tiers:['little','kid','big','tween'] },
+    { w:'tiny piano',         tiers:['tot','little','kid','big','tween'] },
+    { w:'spoon hat',          tiers:['tot','little','kid','big','tween'] },
+    { w:'sock puppet',        tiers:['little','kid','big','tween'] },
+    { w:'moon spoon',         tiers:['kid','big','tween'] },
+    { w:'pickle crown',       tiers:['little','kid','big','tween'] },
+    { w:'banana phone',       tiers:['tot','little','kid','big','tween'] },
+    { w:'paper crown',        tiers:['tot','little','kid','big','tween'] },
+    { w:'magnet shoe',        tiers:['kid','big','tween'] },
+    { w:'noodle scarf',       tiers:['little','kid','big','tween'] },
+    { w:'bubble wand',        tiers:['tot','little','kid','big','tween'] },
+  ],
+  nonsenseCompound: [
+    // Tot is excluded — compound silliness is harder for ages 2-3 to grok.
+    { w:'wobble-flop',        tiers:['kid','big','tween'] },
+    { w:'sneezy-pants',       tiers:['little','kid','big','tween'] },
+    { w:'jiggly blorp',       tiers:['little','kid','big','tween'] },
+    { w:'flumpy',             tiers:['little','kid','big','tween'] },
+    { w:'snorble-doo',        tiers:['little','kid','big','tween'] },
+    { w:'crinkle-bonk',       tiers:['kid','big','tween'] },
+    { w:'wibble-whap',        tiers:['kid','big','tween'] },
+    { w:'noodle-jumper',      tiers:['kid','big','tween'] },
+    { w:'mister floof',       tiers:['little','kid','big','tween'] },
+    { w:'pickle wizard',      tiers:['kid','big','tween'] },
+    { w:'soggy genius',       tiers:['big','tween'] },
+    { w:'fluffypants',        tiers:['little','kid','big','tween'] },
+    { w:'bonkledink',         tiers:['kid','big','tween'] },
+    { w:'sprongulous',        tiers:['big','tween'] },
+    { w:'grumblepoof',        tiers:['little','kid','big','tween'] },
+  ],
+};
+
+/* Returns up to `n` random absurd-bank entries eligible for the given tier.
+   Used by buildRounds() in index.html to populate the `examples` array of
+   highImpact freetext rounds so kids see absurd-flavored hints instead of
+   generic ones. Pure function, no I/O. */
+function absurdWordsForTier(tier, n) {
+  const pool = [];
+  for (const cat of Object.keys(ABSURD_WORD_BANK)) {
+    for (const entry of ABSURD_WORD_BANK[cat]) {
+      if (entry.tiers.includes(tier)) pool.push(entry.w);
+    }
+  }
+  // Fisher-Yates shuffle, take first n.
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, Math.min(n, pool.length));
+}
+
+/* Convenience: 3 absurd hint strings tier-appropriate. The default n=3
+   matches the existing freetext `examples.length` so the hint-chip
+   render in index.html doesn't need to change shape. */
+function absurdHintsForTier(tier) {
+  return absurdWordsForTier(tier, 3);
+}
+
 const BODY_HOT_OPTS = [
   {w:'fart',          e:'💨'}, {w:'poop',          e:'💩'}, {w:'butt',         e:'🍑'},
   {w:'pee',           e:'💧'}, {w:'booger',        e:'🤧'}, {w:'underpants',   e:'🩲'},

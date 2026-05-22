@@ -3458,6 +3458,35 @@ function generateStoryV2(name, picks, age) {
 
 const V3_VERSION = 'v3.0.0-experimental';
 
+/* v0.9.3 · b23 — HIGH_IMPACT_ROLES (declarative)
+   ===============================================
+   Engine roles whose rendered value lands in a structural punchline
+   position — shouted, announced, or revealed as the comedic pivot.
+   Their beat-line tokens use the yellow [y:...] highlight treatment
+   (versus the orange [c:...] used for general picks).
+
+   Picker-side: rounds that feed these roles are tagged
+   `highImpact: true` in buildRounds() and their options/examples MUST
+   come from the Absurd Word Bank (or its binary-tap counterpart,
+   SOUND_HOT_OPTS). QA Section 17 enforces both halves of this contract.
+
+   Notion Build Idea: "High-impact word slots: force funnier, more absurd
+   choices" — 36813aa1-d4db-8147-84a8-eb888c5c6900.
+
+   Adding a role here is a CONTRACT change — every existing beat line
+   that uses [c:{<role>.text}] must be reviewed and converted to
+   [y:{<role>.text}] (or removed), and the picker-source for that role
+   must be added to the highImpact-eligible pools. */
+const HIGH_IMPACT_ROLES = ['chant', 'payoff_word'];
+
+/* Reverse map: which picker categories feed HIGH_IMPACT roles.
+   v3 role map (in V3_BLUEPRINTS below) defines:
+     chant       → 'sound'
+     payoff_word → 'freeword2'
+   The v2 fallback engine also reads `picks.freeword` for chant-like
+   moments, so `freeword` is also in the high-impact pool. */
+const HIGH_IMPACT_PICKER_CATEGORIES = ['sound', 'freeword', 'freeword2'];
+
 const V3_BLUEPRINTS = {
   /* SHARED ROLE NOTES
      Beats can be tagged with `blueprintId` to scope them to a specific blueprint.
