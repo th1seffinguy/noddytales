@@ -5326,7 +5326,32 @@ function generateStoryV3(name, picks, age) {
        the parent toggle is on.
      - Token highlighting is preserved: any [c:...] / [y:...] / [name:...]
        tokens in callback text are processed by renderV3Line() as before. */
-  const SMELL_CALLBACKS_SAFE = [
+  /* v0.9.3 · b33 — smell pool is now tier-aware. User reported that
+     "gym bag fog" was too old for a 6-year-old — they don't know what a
+     gym bag smells like. The b31 single pool mixed adult-leaning smells
+     (gym bag fog / pickle burps / mystery cheese) with kid-friendly ones
+     (stinky socks / dragon breath). Split into two pools by age:
+     - SMELL_CALLBACKS_KID fires for tot/little/kid (ages 2-7) — smells
+       a young kid has a sensory reference for: stinky socks, wet dog,
+       dragon breath, old bananas, broccoli farts, yesterday's lunchbox,
+       skunk, dirty laundry.
+     - SMELL_CALLBACKS_OLDER fires for big/tween (ages 8-13) — the drier
+       gym-bag / pickle-burps register that requires more life experience
+       to land. Keeps mystery cheese / dragon breath as shared anchors.
+     Potty pool stays gated by pottyMode regardless of tier. */
+  const SMELL_CALLBACKS_KID = [
+    'A faint waft of old bananas drifted past. Nobody owned up to it.',
+    'It smelled briefly like stinky socks. [name:{protagonist.name}] did not investigate.',
+    'A wet sneakers smell rolled through the room and rolled back out.',
+    'A puff of dragon breath happened. Nobody had a dragon.',
+    'A whiff of wet dog moved through. There was no dog.',
+    'Broccoli farts entered the room. Nobody admitted to eating broccoli.',
+    'Something smelled like yesterday\'s lunchbox. Probably WAS yesterday\'s lunchbox.',
+    'A skunk smell, briefly. No skunk in sight.',
+    'It smelled like the laundry hamper for one second. Then not.',
+    'A burnt toast smell drifted in. Nobody was making toast.',
+  ];
+  const SMELL_CALLBACKS_OLDER = [
     'A faint waft of old bananas drifted past. Nobody owned up to it.',
     'It smelled briefly like stinky socks. [name:{protagonist.name}] did not investigate.',
     'A wet sneakers smell rolled through the room and rolled back out.',
@@ -5364,11 +5389,21 @@ function generateStoryV3(name, picks, age) {
     if (!line) continue;
     appendToMiddle(renderV3Line(line));
   }
-  // v0.9.3 · b31 — smell callback. Fires ~25% of stories. Picks from the
-  // potty pool only when picks.pottyMode === true. Safe pool otherwise.
+  // v0.9.3 · b31 — smell callback. Fires ~25% of stories.
+  // v0.9.3 · b33 — tier-aware pool selection. potty pool overrides tier when
+  // pottyMode is on. Otherwise: tot/little/kid get the kid-friendly pool
+  // (smells a young kid has a sensory reference for); big/tween get the
+  // drier OLDER pool (gym bag fog / pickle burps / mystery cheese).
   const v3PottyMode = !!(picks && picks.pottyMode);
   if (Math.random() < 0.25) {
-    const smellPool = v3PottyMode ? SMELL_CALLBACKS_POTTY : SMELL_CALLBACKS_SAFE;
+    let smellPool;
+    if (v3PottyMode) {
+      smellPool = SMELL_CALLBACKS_POTTY;
+    } else if (tier === 'big' || tier === 'tween') {
+      smellPool = SMELL_CALLBACKS_OLDER;
+    } else {
+      smellPool = SMELL_CALLBACKS_KID;
+    }
     const smellLine = smellPool[Math.floor(Math.random() * smellPool.length)];
     appendToMiddle(renderV3Line(smellLine));
   }

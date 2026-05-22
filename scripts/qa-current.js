@@ -1519,6 +1519,28 @@ console.log('\n=== 19. Sensory-callback polish audit (v0.9.3 · b31) ===');
   // Not a hard gate — informational. We just confirm potty pool CAN fire.
   console.log('  ℹ pottyMode=true sanity: ' + pottyOnPottyHits + '/' + N_POTTY + ' stories surfaced a potty smell (expected: nonzero)');
   if (sensoryDetail.length) sensoryDetail.forEach(d => console.log('    ' + d));
+
+  // v0.9.3 · b33 — kid-tier smell gating. User reported "gym bag fog" was too
+  // old for a 6-year-old. Smell pool is now split by tier; only big/tween
+  // (ages 8-13) get the older-register smells. Ages 2-7 get only the
+  // kid-friendly pool.
+  const OLDER_ONLY_RX = /gym bag fog|pickle burps|mystery cheese/i;
+  let kidOlderLeaks = 0;
+  const kidLeakDetail = [];
+  const youngerAges = [2, 3, 4, 5, 6, 7];
+  const N_YOUNG = 100;
+  for (let i = 0; i < N_YOUNG; i++) {
+    const age = youngerAges[i % youngerAges.length];
+    const text = gen(age, false);
+    if (OLDER_ONLY_RX.test(text)) {
+      kidOlderLeaks++;
+      if (kidLeakDetail.length < 3) {
+        kidLeakDetail.push('age ' + age + ': older-tier smell leaked into younger tier');
+      }
+    }
+  }
+  gate('older-tier smells (gym bag fog / pickle burps / mystery cheese) never appear for ages 2-7', kidOlderLeaks === 0, kidOlderLeaks + '/' + N_YOUNG + ' leaks');
+  if (kidLeakDetail.length) kidLeakDetail.forEach(d => console.log('    ' + d));
 }
 
 /* === 9. BLOCKED-WORD SCAN (added v2.10.2) ===
