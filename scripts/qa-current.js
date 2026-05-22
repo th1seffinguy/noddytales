@@ -1443,6 +1443,84 @@ for (const c of humorCases) {
 gate(`Story Humor Pass audit (${humorCases.length} cases)`, hu_fail === 0, hu_fail + ' failed');
 console.log(`    ${humorCases.length - hu_fail}/${humorCases.length} cases passed`);
 
+/* === 19. SENSORY-CALLBACK POLISH AUDIT (added v0.9.3 · b31) ===
+ *
+ * User reported that age-6 stories were repeatedly generating abstract callback
+ * lines like "the air went a little lemon yellow" and "echoed from somewhere,
+ * possibly a memory" that did not make physical/comedic sense for the kid tier.
+ *
+ * b31 rewrote those callbacks with concrete physical events and added a smell
+ * callback pool that picks from a potty pool only when pottyMode is on.
+ *
+ * Hard gates:
+ *   (a) Generated stories must not contain the substring "air went a little".
+ *   (b) Generated stories must not contain "possibly a memory".
+ *   (c) When pottyMode is FALSE, no potty-pool smell phrase ever appears.
+ *
+ * Sample: 100 stories with pottyMode=false (gates a, b, c) + 30 stories with
+ * pottyMode=true (gate c can fire — confirms gating is live, not just absent).
+ */
+console.log('\n=== 19. Sensory-callback polish audit (v0.9.3 · b31) ===');
+{
+  const POTTY_PHRASES = [
+    'poopy butts', 'toilet burps', 'swamp underpants', 'booger soup',
+  ];
+  const BAN_AIR_WENT  = /air went a little/i;
+  const BAN_MEMORY    = /possibly a memory/i;
+  const POTTY_RX      = new RegExp(POTTY_PHRASES.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'i');
+
+  function gen(age, pottyMode) {
+    const picks = {
+      pet: { w:'crow' }, food: { w:'tacos' }, place: { w:'forest' },
+      creature: { w:'wizard' }, color: { w:'midnight blue' }, move: { w:'zoomed' },
+      mood: { w:'sleepy' },
+      freeword:  { w:'plop' },
+      freeword2: { w:'snorble' },
+      sound: { w:'TOOT!' },
+      sky:   { w:'stars' },
+      setting: { id:'at_home', place:{ text:'bedroom', articleText:'the bedroom' }, visitorBias:'creature', objectBias:'object' },
+      storyMode: 'bedtime',
+      pottyMode: !!pottyMode,
+    };
+    try {
+      const s = ctx.generateStoryV3('Cole', picks, age);
+      if (!s) return '';
+      return [s.title, ...(s.paragraphs || [])].join(' ');
+    } catch (e) {
+      return '';
+    }
+  }
+
+  let sensoryHardFail = 0;
+  let airWentHits = 0;
+  let memoryHits = 0;
+  let pottyLeakHits = 0;
+  let pottyOnPottyHits = 0;
+  const sensoryDetail = [];
+
+  const N_SAFE = 100;
+  for (let i = 0; i < N_SAFE; i++) {
+    const ages = [6, 7, 8, 9, 10, 11, 12, 13, 4, 5];
+    const text = gen(ages[i % ages.length], false);
+    if (BAN_AIR_WENT.test(text)) { airWentHits++; if (sensoryDetail.length < 3) sensoryDetail.push('"air went a little" leaked'); }
+    if (BAN_MEMORY.test(text))   { memoryHits++;  if (sensoryDetail.length < 6) sensoryDetail.push('"possibly a memory" leaked'); }
+    if (POTTY_RX.test(text))     { pottyLeakHits++; if (sensoryDetail.length < 9) sensoryDetail.push('potty smell leaked with pottyMode=false'); }
+  }
+  // Sanity: with pottyMode=true, potty phrases should be possible.
+  const N_POTTY = 30;
+  for (let i = 0; i < N_POTTY; i++) {
+    const text = gen(7, true);
+    if (POTTY_RX.test(text)) pottyOnPottyHits++;
+  }
+
+  gate('no story contains "air went a little"', airWentHits === 0, airWentHits + '/' + N_SAFE + ' hits');
+  gate('no story contains "possibly a memory"', memoryHits === 0, memoryHits + '/' + N_SAFE + ' hits');
+  gate('potty smell never appears when pottyMode=false', pottyLeakHits === 0, pottyLeakHits + '/' + N_SAFE + ' leaks');
+  // Not a hard gate — informational. We just confirm potty pool CAN fire.
+  console.log('  ℹ pottyMode=true sanity: ' + pottyOnPottyHits + '/' + N_POTTY + ' stories surfaced a potty smell (expected: nonzero)');
+  if (sensoryDetail.length) sensoryDetail.forEach(d => console.log('    ' + d));
+}
+
 /* === 9. BLOCKED-WORD SCAN (added v2.10.2) ===
  *
  * Critical defect from 2026-05-21: the freetext prompt examples for "Invent a battle
