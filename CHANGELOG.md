@@ -9,6 +9,17 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 34, engine v3.0.3) — 2026-05-23
+**DEF-002: Tween goal_spine_v3 resolution beat — {goal.text} → {goal.past}**
+
+Beat `v3_gs_payoff_tween_logged` (engine-v2.js) was using `{goal.text}` (infinitive) in the payoff/resolution paragraph, producing ungrammatical sentences like "Maisie open the door that won't open." and "Maisie invent a brand new dance." The engine contract explicitly reserves `{goal.past}` for resolution beats; all kid/big tier payoff beats already used `{goal.past}` correctly — this tween-specific beat was the sole exception.
+
+**Fix:** single-token change on the beat line — `{goal.text}` → `{goal.past}`. Produces correct past-tense: "Maisie opened the door." / "Maisie invented a brand new dance." etc.
+
+**QA:** `node scripts/qa-current.js` — all 25 gates green. APP_VERSION stays v0.9.3; BUILD_NUMBER 33 → 34; ENGINE_V2_VERSION stays v3.0.3.
+
+---
+
 ## v0.9.3 (build 33, engine v3.0.3) — 2026-05-22
 **Smell-pool tier split — "gym bag fog" was too old for age 6**
 

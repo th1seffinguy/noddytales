@@ -4634,7 +4634,7 @@ const V3_BEATS = [
     ] },
   { id:'v3_gs_payoff_tween_logged', stage:'payoff', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','goal','obstacle','ally'],
     lines: [
-      '[name:{protagonist.name}] {goal.text}. The [c:{obstacle.text}] said nothing. Win logged. No comment from the [c:{ally.text}], because the [c:{ally.text}] was already moving on.',
+      '[name:{protagonist.name}] {goal.past}. The [c:{obstacle.text}] said nothing. Win logged. No comment from the [c:{ally.text}], because the [c:{ally.text}] was already moving on.',
     ] },
 
   /* --- show_wrong_v3 tween additions --- */
