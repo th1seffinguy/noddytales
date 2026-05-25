@@ -3852,13 +3852,13 @@ const V3_BEATS = [
      mcguffin without a singular verb. */
   { id:'v3_ls_setup_2', stage:'setup', blueprintId:'lost_snack_v3', tiers:['tween'], requiredRoles:['protagonist','ally','setting','mcguffin'],
     lines: [
-      'One thing mattered today: the [c:{mcguffin.text}]. The [y:{setting.text}] was the venue. The [c:{ally.text}] was technically the witness. The mission, technically, involved the [c:{mcguffin.text}].',
+      'One thing mattered today: the [c:{mcguffin.text}] at the [y:{setting.text}]. The [c:{ally.text}] was the witness.',
     ] },
 
   { id:'v3_ls_problem_1', stage:'problem', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','mcguffin','false_suspect'],
     lines: [
-      'When [name:{protagonist.name}] turned back, the [c:{mcguffin.text}] had VANISHED. Just gone. A [c:{false_suspect.text}] stood nearby, looking very innocent. WAY too innocent.',
-      'The [c:{mcguffin.text}] had vanished. [name:{protagonist.name}] looked around. The [c:{false_suspect.text}] was right there, suspiciously casual. "It was you, wasn\'t it," said [name:{protagonist.name}].',
+      'When [name:{protagonist.name}] turned back, the [c:{mcguffin.text}] had VANISHED. A [c:{false_suspect.text}] stood nearby looking WAY too innocent.',
+      'The [c:{mcguffin.text}] had vanished. The [c:{false_suspect.text}] was right there, suspiciously casual.',
     ] },
   /* v0.9.3 · b24 — variant expansion. Pre-b24 this beat had one line and
      surfaced in 30% of 50 stories per Codex sample, dragging the "in a
@@ -3880,8 +3880,8 @@ const V3_BEATS = [
 
   { id:'v3_ls_attempt_move', stage:'attempt', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','false_suspect','signature_action'],
     lines: [
-      '[name:{protagonist.name}] [c:{signature_action.text}] over to the [c:{false_suspect.text}] and squinted. "Where is it?" The [c:{false_suspect.text}] said nothing. [name:{protagonist.name}] [c:{signature_action.text}] around the room again, looking for crumbs.',
-      'So [name:{protagonist.name}] [c:{signature_action.text}] across the scene. The [c:{false_suspect.text}] watched the whole thing. The trail of crumbs did NOT lead to the [c:{false_suspect.text}]. Interesting.',
+      '[name:{protagonist.name}] [c:{signature_action.text}] over to the [c:{false_suspect.text}] and squinted. "Where is it?"',
+      'So [name:{protagonist.name}] [c:{signature_action.text}] across the scene. The trail of crumbs did NOT lead to the [c:{false_suspect.text}].',
     ] },
   { id:'v3_ls_attempt_color', stage:'attempt', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','false_suspect','visual_signature'],
     lines: [
@@ -3897,7 +3897,7 @@ const V3_BEATS = [
   /* mood-as-approach: kid acts ON the mood, doesn\'t just feel it. */
   { id:'v3_ls_attempt_mood_action', stage:'attempt', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','false_suspect','mood_throughline'],
     lines: [
-      '[name:{protagonist.name}] put on their most [c:{mood_throughline.text}] expression and walked very slowly toward the [c:{false_suspect.text}]. The [c:{false_suspect.text}] tried to back away. "Tell me what you saw," said [name:{protagonist.name}], staying [c:{mood_throughline.text}]. The [c:{false_suspect.text}] cracked immediately.',
+      '[name:{protagonist.name}] went full [c:{mood_throughline.text}] and walked toward the [c:{false_suspect.text}]. "Tell me what you saw." The [c:{false_suspect.text}] cracked immediately.',
     ] },
   { id:'v3_ls_attempt_plain', stage:'attempt', blueprintId:'lost_snack_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','false_suspect'],
     lines: [
@@ -3919,8 +3919,8 @@ const V3_BEATS = [
      burp gives them away, can\'t make eye contact, pretends to be asleep, ear pinned. */
   { id:'v3_ls_escalation_burp', stage:'escalation', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','mcguffin'],
     lines: [
-      'Then the [c:{ally.text}] burped. A specific burp. The kind of burp that smells exactly like [c:{mcguffin.text}]. "Oh," said [name:{protagonist.name}]. The [c:{ally.text}] tried to look surprised. It was not convincing.',
-      'Right then the [c:{ally.text}] hiccuped. Out came a tiny crumb of [c:{mcguffin.text}]. Then another. Then a third. The [c:{ally.text}] looked at the crumbs. The crumbs looked back. Everybody knew.',
+      'The [c:{ally.text}] burped — the exact kind of burp that smells like [c:{mcguffin.text}]. "Oh," said [name:{protagonist.name}].',
+      'The [c:{ally.text}] hiccuped and out came a trail of [c:{mcguffin.text}] crumbs. Everybody knew.',
     ] },
   /* v0.9.3 · b24 — plural-mcguffin agreement fix. Line 1 used to say
      "The [c:{mcguffin.text}] was unaccounted for" — broke for plural
@@ -3928,8 +3928,8 @@ const V3_BEATS = [
      "had vanished" which is plural-neutral past-tense. */
   { id:'v3_ls_escalation_eyes', stage:'escalation', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','mcguffin'],
     lines: [
-      'The [c:{ally.text}] suddenly found something fascinating on the ceiling. "Hey," said [name:{protagonist.name}]. The [c:{ally.text}] would not look down. The [c:{mcguffin.text}] had vanished. So had the [c:{ally.text}]\'s alibi. Connected.',
-      '[name:{protagonist.name}] turned slowly to the [c:{ally.text}]. The [c:{ally.text}] pretended to be very interested in a leaf. The [c:{ally.text}] had been holding that leaf the whole time. It was a fake leaf. "Caught," said [name:{protagonist.name}].',
+      'The [c:{ally.text}] suddenly found the ceiling fascinating. The [c:{mcguffin.text}] had vanished. So had the [c:{ally.text}]\'s alibi.',
+      '[name:{protagonist.name}] turned to the [c:{ally.text}], who was staring at a fake leaf it had been holding this whole time. "Caught," said [name:{protagonist.name}].',
     ] },
   { id:'v3_ls_escalation_tween', stage:'escalation', blueprintId:'lost_snack_v3', tiers:['tween'], requiredRoles:['protagonist','ally','mcguffin'],
     lines: [
@@ -4061,9 +4061,9 @@ const V3_BEATS = [
      so the reader knows in P1 what the story is about. */
   { id:'v3_gs_setup_goal_1', stage:'setup', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting','goal'],
     lines: [
-      '[name:{protagonist.name}] woke up with a plan. Today, at the [y:{setting.text}], [name:{protagonist.name}] was going to {goal.text}. The [c:{ally.text}] was in. The [c:{ally.text}] was always in.',
-      'It started at the [y:{setting.text}]. [name:{protagonist.name}] looked at the [c:{ally.text}] and made up their mind: today they would {goal.text}. No matter what.',
-      '[name:{protagonist.name}] pulled the [c:{ally.text}] aside at the [y:{setting.text}]. The plan was simple: {goal.text}. The [c:{ally.text}] nodded immediately. It was on.',
+      '[name:{protagonist.name}] woke up with one plan: {goal.text}, today at the [y:{setting.text}]. The [c:{ally.text}] was already in.',
+      'At the [y:{setting.text}], [name:{protagonist.name}] told the [c:{ally.text}] the plan — {goal.text}. No matter what.',
+      '[name:{protagonist.name}] pulled the [c:{ally.text}] aside at the [y:{setting.text}]: the plan was {goal.text}. The [c:{ally.text}] nodded immediately.',
     ] },
   { id:'v3_gs_setup_goal_tween', stage:'setup', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','ally','setting','goal'],
     lines: [
@@ -4085,14 +4085,14 @@ const V3_BEATS = [
   /* v2.7.0 — goal-aware problem beats name what the obstacle is blocking. */
   { id:'v3_gs_problem_goal', stage:'problem', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','obstacle','goal'],
     lines: [
-      'But the [c:{obstacle.text}] was in the way. The [c:{obstacle.text}] did not want [name:{protagonist.name}] to {goal.text}. The [c:{obstacle.text}] had its own ideas, and the ideas were terrible.',
-      'The [c:{obstacle.text}] appeared out of nowhere. "You? Today? Trying to {goal.text}?" said the [c:{obstacle.text}]. "Absolutely not." It folded its arms with purpose.',
-      'There was just one problem: a [c:{obstacle.text}] stood between [name:{protagonist.name}] and the goal. "Nope," said the [c:{obstacle.text}]. "Not today. Not {goal.text}. Not on my watch."',
+      'The [c:{obstacle.text}] blocked [name:{protagonist.name}]\'s plan to {goal.text}. Bad ideas everywhere.',
+      '"You? Trying to {goal.text}?" said the [c:{obstacle.text}]. "Absolutely not." Arms folded.',
+      '"Not {goal.text}. Not on my watch," said the [c:{obstacle.text}] to [name:{protagonist.name}].',
     ] },
   { id:'v3_gs_problem_1', stage:'problem', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','obstacle'],
     lines: [
-      'The [c:{obstacle.text}] appeared out of nowhere. "Absolutely not," said the [c:{obstacle.text}]. The folded arms meant business.',
-      'But the [c:{obstacle.text}] was in the way. The [c:{obstacle.text}] had its own ideas, and the ideas were terrible.',
+      '"Absolutely not," said the [c:{obstacle.text}], appearing out of nowhere with folded arms.',
+      'The [c:{obstacle.text}] was in the way, with terrible ideas of its own.',
     ] },
   { id:'v3_gs_problem_mood', stage:'problem', blueprintId:'goal_spine_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','obstacle','mood_throughline'],
     lines: [
@@ -4105,8 +4105,8 @@ const V3_BEATS = [
 
   { id:'v3_gs_attempt_move', stage:'attempt', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','signature_action'],
     lines: [
-      'So [name:{protagonist.name}] [c:{signature_action.text}]. Just like that. Right past everything. The [c:{ally.text}] followed. Everybody else stopped to watch.',
-      '[name:{protagonist.name}] took one big breath, then [c:{signature_action.text}] forward fast — faster than anyone expected. Even [name:{protagonist.name}] was a little surprised.',
+      'So [name:{protagonist.name}] [c:{signature_action.text}], right past everything. The [c:{ally.text}] followed.',
+      '[name:{protagonist.name}] [c:{signature_action.text}] forward fast — faster than anyone expected.',
     ] },
   { id:'v3_gs_attempt_tween_move', stage:'attempt', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','signature_action'],
     lines: [
@@ -4119,19 +4119,19 @@ const V3_BEATS = [
   /* v2.7.0 — color as a costume / signal flag the kid uses to push through. */
   { id:'v3_gs_attempt_color_signal', stage:'attempt', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','obstacle','visual_signature'],
     lines: [
-      '[name:{protagonist.name}] suddenly pulled out a [c:{visual_signature.text}] flag and waved it dramatically. The [c:{obstacle.text}] hesitated. The [c:{obstacle.text}] had not been briefed on the flag. The flag took the [c:{obstacle.text}] out of the moment for exactly long enough.',
-      'And then [name:{protagonist.name}] did the most [c:{visual_signature.text}] thing imaginable: walked right past the [c:{obstacle.text}] while pretending to be a [c:{visual_signature.text}] traffic cone. The [c:{obstacle.text}] watched, confused. The plan was working.',
+      '[name:{protagonist.name}] waved a [c:{visual_signature.text}] flag at the [c:{obstacle.text}], who had not been briefed on any flag and froze just long enough.',
+      '[name:{protagonist.name}] walked right past the [c:{obstacle.text}] while pretending to be a [c:{visual_signature.text}] traffic cone. The [c:{obstacle.text}] watched, confused.',
     ] },
   /* mood-as-approach: kid faces the obstacle in the chosen mood */
   { id:'v3_gs_attempt_mood', stage:'attempt', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','obstacle','mood_throughline'],
     lines: [
-      '[name:{protagonist.name}] walked up to the [c:{obstacle.text}] in full [c:{mood_throughline.text}] mode. Not asking permission. Not apologizing. Just [c:{mood_throughline.text}]. The [c:{obstacle.text}] had not prepared for [c:{mood_throughline.text}]. The [c:{obstacle.text}] took a small step back.',
+      '[name:{protagonist.name}] walked up to the [c:{obstacle.text}] in full [c:{mood_throughline.text}] mode — no apologies, just [c:{mood_throughline.text}]. The [c:{obstacle.text}] took a small step back.',
     ] },
 
   { id:'v3_gs_escalation_1', stage:'escalation', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','obstacle','mcguffin'],
     lines: [
-      'The [c:{obstacle.text}] was not done. It produced [c:{mcguffin.articleText}] and waved that around like a tiny threat. "Now what?" [name:{protagonist.name}] had not seen that coming. [name:{protagonist.name}] kept going anyway.',
-      'The [c:{obstacle.text}] doubled down. "[c:{mcguffin.text}] or nothing," it said, which barely made sense. [name:{protagonist.name}] decided "or nothing" was not on the table.',
+      'The [c:{obstacle.text}] produced [c:{mcguffin.articleText}] as a last-ditch move. [name:{protagonist.name}] kept going anyway.',
+      'The [c:{obstacle.text}] doubled down: "[c:{mcguffin.text}] or nothing." [name:{protagonist.name}] decided "or nothing" was not on the table.',
     ] },
   { id:'v3_gs_escalation_tween', stage:'escalation', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','obstacle','mcguffin'],
     lines: [
@@ -4159,9 +4159,9 @@ const V3_BEATS = [
      a different consequence each time. */
   { id:'v3_gs_payoff_chant_obstacle_caves', stage:'payoff', blueprintId:'goal_spine_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','goal','obstacle','chant'], jokeJob:'absurd_consequence',
     lines: [
-      '"[y:{chant.text}]!" yelled [name:{protagonist.name}]. The [c:{obstacle.text}] froze, blinked twice, and quietly slid out of the way. [name:{protagonist.name}] {goal.past}. The [c:{ally.text}] gave a single dignified nod.',
-      '[name:{protagonist.name}] said "[y:{chant.text}]" once, calmly. The [c:{obstacle.text}] suddenly remembered somewhere else it needed to be. [name:{protagonist.name}] {goal.past} through the gap. The [c:{ally.text}] noted this for later.',
-      '"[y:{chant.text}]," whispered [name:{protagonist.name}], like a password. The [c:{obstacle.text}] sneezed so hard it lost its balance and pivoted ninety degrees. [name:{protagonist.name}] {goal.past} around it. The [c:{ally.text}] applauded with one paw.',
+      '"[y:{chant.text}]!" yelled [name:{protagonist.name}]. The [c:{obstacle.text}] slid aside and [name:{protagonist.name}] {goal.past} — the [c:{ally.text}] gave one dignified nod.',
+      '[name:{protagonist.name}] said "[y:{chant.text}]" once. The [c:{obstacle.text}] found somewhere else to be and [name:{protagonist.name}] {goal.past} through the gap with the [c:{ally.text}].',
+      '"[y:{chant.text}]," whispered [name:{protagonist.name}]. The [c:{obstacle.text}] sneezed, pivoted, and [name:{protagonist.name}] {goal.past} around it while the [c:{ally.text}] applauded.',
     ] },
   { id:'v3_gs_payoff_chant_ally_adopts', stage:'payoff', blueprintId:'goal_spine_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','goal','chant'], jokeJob:'absurd_consequence',
     lines: [
@@ -4268,8 +4268,8 @@ const V3_BEATS = [
     ] },
   { id:'v3_sw_setup_tween', stage:'setup', blueprintId:'show_wrong_v3', tiers:['tween'], requiredRoles:['protagonist','ally','setting','prop'],
     lines: [
-      'The bit was simple: [name:{protagonist.name}], the [c:{ally.text}], the [c:{prop.text}], one [y:{setting.text}]. Nobody had asked for this. [name:{protagonist.name}] was doing it anyway.',
-      '[name:{protagonist.name}] had been workshopping the [c:{prop.text}] thing all week. The [c:{ally.text}] was reluctantly co-starring. The [y:{setting.text}] was the venue. Stakes were imaginary but real.',
+      'The bit: [name:{protagonist.name}], the [c:{ally.text}], the [c:{prop.text}], one [y:{setting.text}]. Nobody had asked. [name:{protagonist.name}] was doing it anyway.',
+      '[name:{protagonist.name}] had been workshopping the [c:{prop.text}] thing all week — the [c:{ally.text}] was reluctantly co-starring at the [y:{setting.text}].',
     ] },
 
   /* v0.9.3 · b28 — show_wrong_v3 problem beats trimmed from 4-6 sentences to
@@ -4431,8 +4431,8 @@ const V3_BEATS = [
 
   { id:'v3_rl_problem_1', stage:'problem', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','rule_imposer','mcguffin'],
     lines: [
-      'Over at the [y:{setting.text}], the [c:{rule_imposer.text}] held up one hand. "New rule," the [c:{rule_imposer.text}] said. "Nobody touches the [c:{mcguffin.text}]. Starting right now." [name:{protagonist.name}] had not heard of this rule before. The rule did not care.',
-      'A new rule showed up at the [y:{setting.text}]. The [c:{rule_imposer.text}] brought it. The new rule: no [c:{mcguffin.text}]. For anybody. [name:{protagonist.name}] could see the [c:{mcguffin.text}] from here. The rule was already cruel.',
+      '"New rule," announced the [c:{rule_imposer.text}] at the [y:{setting.text}]: nobody touches the [c:{mcguffin.text}]. [name:{protagonist.name}] had not agreed to this.',
+      'The [c:{rule_imposer.text}] brought a new rule to the [y:{setting.text}]: no [c:{mcguffin.text}], for anybody. The [c:{mcguffin.text}] was right there.',
     ] },
   /* v0.9.3 · b28 — single beat used to fire in 20% of stories and cascaded
      into 12 separate top-20% n-gram hits. Replaced with three structurally
@@ -4456,9 +4456,9 @@ const V3_BEATS = [
      that a kid can picture the workaround. */
   { id:'v3_rl_problem_absurd', stage:'problem', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','rule_imposer','mcguffin'],
     lines: [
-      'The [c:{rule_imposer.text}] held up an official-looking finger. "New rule," it announced. "[c:{mcguffin.text}] can only be touched on Tuesdays." It was not Tuesday. [name:{protagonist.name}] looked at the [c:{mcguffin.text}]. The [c:{mcguffin.text}] looked back. Tragic.',
-      'A new rule appeared. The [c:{rule_imposer.text}] read it aloud: "Nobody is allowed to eat [c:{mcguffin.text}] while standing." [name:{protagonist.name}] checked. [name:{protagonist.name}] was, indeed, standing. The rule, somehow, was working.',
-      '"By order of me," declared the [c:{rule_imposer.text}], "[c:{mcguffin.text}] must remain at least three feet from any [protagonist]." The rule was nonsense. It was also, technically, in effect. [name:{protagonist.name}] sized up the three feet.',
+      '"[c:{mcguffin.text}] can only be touched on Tuesdays," announced the [c:{rule_imposer.text}]. It was not Tuesday. Tragic.',
+      '"Nobody is allowed to eat [c:{mcguffin.text}] while standing," read the [c:{rule_imposer.text}]. [name:{protagonist.name}] checked — they were standing.',
+      '"By order of me," declared the [c:{rule_imposer.text}]: "[c:{mcguffin.text}] must stay three feet from [name:{protagonist.name}]." Nonsense, but somehow in effect.',
     ] },
   { id:'v3_rl_problem_tween_absurd', stage:'problem', blueprintId:'rule_loophole_v3', tiers:['tween'], requiredRoles:['protagonist','rule_imposer','mcguffin'],
     lines: [
@@ -4551,7 +4551,7 @@ const V3_BEATS = [
 
   { id:'v3_rl_landing_1', stage:'landing', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally'],
     lines: [
-      'The [c:{ally.text}] watched the loophole work and looked impressed. The [c:{ally.text}] was going to try this later. [name:{protagonist.name}] had taught the [c:{ally.text}] something brand new. Bedtime: earned.',
+      'The [c:{ally.text}] watched the loophole work and looked impressed — definitely trying that later. Bedtime: earned.',
     ] },
   { id:'v3_rl_landing_tween', stage:'landing', blueprintId:'rule_loophole_v3', tiers:['tween'], requiredRoles:['protagonist','ally'],
     lines: [

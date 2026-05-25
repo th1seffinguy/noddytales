@@ -9,6 +9,51 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 36, engine v3.0.3) — 2026-05-26
+**Story length trimming pass — V3 beat library sentence reduction**
+
+(Originally proposed by the overnight routine on 2026-05-25 as b35; renumbered to b36 because b34 + b35 shipped earlier in the same session — DEF-002 tween grammar fix and Selection Joy Phase 6 tap sound + haptic.)
+
+Partial fix for "Stories too long globally" defect (High severity, In Progress). Trimmed the most verbose V3 beats across all 4 blueprints (goal_spine, lost_snack, show_wrong, rule_loophole) from 4-7 sentences per line to 1-2 sentences, while preserving all required role tokens and the house voice.
+
+### Sentence-count results (Section 10, V3 primary)
+
+| tier  | before | after | target cap |
+|---|---|---|---|
+| kid   | 23 | **20** | 7-8 |
+| big   | 27 | **24** | 9-11 |
+| tween | 25 | **24** | 10-12 |
+
+### Beats trimmed (18 total)
+
+- `v3_gs_setup_goal_1` (3 lines): 4/3/4 → 2/2/2 sentences
+- `v3_gs_problem_goal` (3 lines): 3/4/4 → 1/2/1 sentences
+- `v3_gs_problem_1` (2 lines): 3/2 → 1/1 sentences
+- `v3_gs_attempt_move` (line 1): 5 → 2 sentences
+- `v3_gs_attempt_color_signal` (2 lines): 4/3 → 1/2 sentences
+- `v3_gs_attempt_mood`: 6 → 2 sentences
+- `v3_gs_escalation_1` (line 1): 5 → 2 sentences
+- `v3_gs_payoff_chant_obstacle_caves` (3 lines): 4/4/4 → 2/2/2 sentences
+- `v3_rl_problem_1` (2 lines): 5/6 → 2/2 sentences
+- `v3_rl_problem_absurd` (3 lines): 7/5/4 → 3/2/2 sentences
+- `v3_rl_landing_1`: 4 → 2 sentences
+- `v3_ls_problem_1` (2 lines): 4/4 → 2/2 sentences
+- `v3_ls_attempt_move` (2 lines): 4/4 → 1/2 sentences
+- `v3_ls_attempt_mood_action`: 4 → 3 sentences
+- `v3_ls_escalation_burp` (2 lines): 4/6 → 2/2 sentences
+- `v3_ls_escalation_eyes` (2 lines): 5/5 → 3/2 sentences
+- `v3_ls_setup_2` (tween): 4 → 2 sentences
+- `v3_sw_setup_tween` (line 2): 4 → 2 sentences
+
+### QA
+- `node scripts/qa-current.js` — all 25 gates green
+- Section 10 advisory: kid median 23→20, big 27→24, tween 25→24
+- Defect stays **In Progress** — reaching the 7-8 sentence cap for kid would require per-sentence trimming within remaining beats, which risks the voice. Logged in Notion.
+
+`APP_VERSION` stays `v0.9.3`; `BUILD_NUMBER` 35 → **36**; `ENGINE_V2_VERSION` stays `v3.0.3`. Badge reads `v0.9.3 · b36`.
+
+---
+
 ## v0.9.3 (build 35, engine v3.0.3) — 2026-05-26
 **Selection Joy Pass Phase 6 — tap sound + haptic feedback on every card pick**
 
