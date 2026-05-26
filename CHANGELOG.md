@@ -9,6 +9,36 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 35, engine v3.0.3) — 2026-05-26
+**Selection Joy Pass Phase 6 — tap sound + haptic feedback on every card pick**
+
+(Originally proposed by the overnight routine as b34; renumbered to b35 because the actual b34 was DEF-002 tween grammar fix, shipped earlier in the same session.)
+
+Every word-card tap now plays a soft 520 Hz sine-wave ping via the Web Audio API and fires a 5 ms vibration pulse via `navigator.vibrate`. Both degrade silently when not supported.
+
+### What changed
+
+**New `playTapPing()` function (`index.html`)**
+- `navigator.vibrate(5)` — 5 ms vibration pulse. Works on Android and desktop Chrome; iOS PWA does not expose this API, fails silently.
+- Web Audio: lazy `AudioContext` singleton (`_tapCtx`). On first tap: creates the context. On subsequent taps: reuses it (or resumes from `suspended` state if the browser auto-suspended it). Oscillator: `sine`, 520 Hz. Gain envelope: 0.14 → 0.001 over 120 ms (exponential ramp). Total sound duration: 120 ms.
+- Full try/catch wrapper — `SecurityError`, `NotAllowedError`, and any other browser rejection all degrade silently.
+
+**Called from `pickWord()`** — immediately after the rapid-tap guard check, before animation and burst-spark logic.
+
+### What was already in place (prior Phase 6 items)
+- Emoji at 72 px (`word-emoji` CSS) — already done before this build
+- `is-picked` / `is-faded` CSS states — already done
+- `pickedPop` / `rerollFade` CSS animations — already done
+
+Phase 6 is now complete.
+
+### QA
+- `scripts/qa-current.js` — all gates green (no engine or picker logic touched)
+- Inline `<script>` syntax check — clean
+- `APP_VERSION` stays `v0.9.3`; `BUILD_NUMBER` 34 → 35; `ENGINE_V2_VERSION` stays `v3.0.3`
+
+---
+
 ## v0.9.3 (build 34, engine v3.0.3) — 2026-05-23
 **DEF-002: Tween goal_spine_v3 resolution beat — {goal.text} → {goal.past}**
 
