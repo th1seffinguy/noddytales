@@ -9,6 +9,35 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 37, engine v3.0.3) — 2026-05-26
+**Selection Joy Pass Phase 2 — Setting-specific picker bias**
+
+(Originally proposed by the overnight routine on 2026-05-26 as b36; renumbered to b37 because b34, b35, and b36 shipped earlier in the same session — DEF-002 tween grammar fix, Selection Joy Phase 6 tap sound + haptic, and the V3 beat trim pass.)
+
+When a non-surprise setting is locked (At Home, At School, Outside, Food Place, Animal Place, On the Go, Somewhere Weird), the picker now biases each tap round 70/30 toward setting-themed options. 70% of sessions: one card is guaranteed to be thematically on-theme for the chosen setting. 30%: pure random draw (keeps variety). Setting is locked via the parent flavor menu; 'Surprise Me' (default) continues pure random as before.
+
+### Changes
+
+**`src/content.js`** — Added `s: ['flavor_key', ...]` tag to ~57 kid-tier options across 5 categories:
+- **pet**: 22 options tagged (animal_place → panda/parrot/tiger/penguin/otter/octopus/goldfish/etc.; outside → eagle/wolf/crow/raccoon/beaver/goose/etc.; somewhere_weird → dragon/unicorn; on_the_go → crow/raccoon; at_home → goldfish/hamster)
+- **food**: 22 options tagged (food_place → pizza/tacos/ramen/ice cream/french fries/etc.; at_home → waffles/grilled cheese/pancakes/cupcakes/cereal; outside → ice cream/popcorn/hot dogs; on_the_go → pretzels/hot dogs)
+- **place**: 24 options tagged (outside → jungle/forest/meadow/canyon/volcano/glacier/desert/treehouse/carnival/water park; food_place → bakery/grocery store/diner/pizza shop; at_school → school cafeteria/playground; animal_place → aquarium/jungle/forest; somewhere_weird → castle/maze/tower/planetarium; on_the_go → rooftop/mall/bus stop/arcade/movie theater)
+- **creature**: 21 options tagged (somewhere_weird → robot/mermaid/wizard/alien/witch/stone giant/tiny king/tiny wizard/fire bird/yeti/grumpy cloud; outside → goblin/troll/fairy/dinosaur/talking horse/fire bird/yeti/grumpy cloud; at_school → substitute teacher/hallway ghost/backpack troll/lunch wizard; food_place → talking sandwich/lunch wizard; at_home → sock monster)
+- **mood**: 6 options tagged (at_home → cozy/sleepy; at_school → determined/puzzled/curious/worried; food_place+outside → snacky; at_school+animal_place → curious)
+
+**`index.html`** — `buildRounds()` updated:
+- New `settingBiasedSample(options, flavorKey)` helper: picks 1 tagged + 1 from rest at 70% probability when a non-surprise setting is locked and tagged options exist; falls back to pure random otherwise.
+- `binaryRounds` map now calls `settingBiasedSample` instead of pure shuffle.
+
+**`scripts/qa-current.js`** — New Section 20 (2 gates):
+- Gate (a): every non-surprise flavor has ≥3 tagged options in kid food+place+creature+pet combined.
+- Gate (b): simulated bias delivers ≥1 themed option in ≥65% of 200 sessions per flavor (food+creature+pet — place round is dropped when locked per v2.10.1).
+
+### QA
+`scripts/qa-current.js` all 27 gates green. `APP_VERSION` stays `v0.9.3`; `BUILD_NUMBER` 36 → **37**; `ENGINE_V2_VERSION` stays `v3.0.3`. Badge reads `v0.9.3 · b37`.
+
+---
+
 ## v0.9.3 (build 36, engine v3.0.3) — 2026-05-26
 **Story length trimming pass — V3 beat library sentence reduction**
 
