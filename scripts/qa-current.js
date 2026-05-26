@@ -1543,6 +1543,87 @@ console.log('\n=== 19. Sensory-callback polish audit (v0.9.3 · b31) ===');
   if (kidLeakDetail.length) kidLeakDetail.forEach(d => console.log('    ' + d));
 }
 
+/* === 20. SETTING-BIAS COVERAGE GATE (added v0.9.3 · b36) ===
+ *
+ * Phase 2 of Selection Joy Pass: WORD_BANK kid options carry an optional `s: ['flavor']`
+ * tag. buildRounds() uses settingBiasedSample() to bias card draws 70/30 toward themed
+ * options when a non-surprise setting is locked.
+ *
+ * Gate (a): every non-surprise flavor has ≥3 tagged options in kid food+place+creature+pet
+ *           combined, so the bias function always has something to work with.
+ * Gate (b): simulated bias achieves ≥1 themed option in ≥65% of sessions across kid
+ *           food+creature+pet rounds (place round is skipped when setting is locked per
+ *           v2.10.1 logic, so only non-place rounds count).
+ */
+console.log('\n=== 20. Setting-bias coverage gate (v0.9.3 · b36) ===');
+
+function settingBiasedSampleQA(options, flavorKey) {
+  if (!flavorKey || flavorKey === 'surprise') {
+    return [...options].sort(() => Math.random() - 0.5).slice(0, 2);
+  }
+  const tagged = options.filter(o => o.s && o.s.includes(flavorKey));
+  if (tagged.length >= 1 && Math.random() < 0.7) {
+    const t    = tagged[Math.floor(Math.random() * tagged.length)];
+    const rest = options.filter(o => o !== t);
+    const u    = rest[Math.floor(Math.random() * rest.length)];
+    return [t, u];
+  }
+  return [...options].sort(() => Math.random() - 0.5).slice(0, 2);
+}
+
+const NON_SURPRISE_FLAVORS = ctx.SETTING_FLAVOR_KEYS.filter(k => k !== 'surprise');
+const kidWordBank = ctx.WORD_BANK.kid || [];
+
+// (a) Min tagged options across food + place + creature + pet per flavor
+const MIN_TAGGED = 3;
+let coverageMisses = 0;
+const coverageDetail = [];
+for (const flavor of NON_SURPRISE_FLAVORS) {
+  let count = 0;
+  for (const cat of ['food', 'place', 'creature', 'pet']) {
+    const round = kidWordBank.find(r => r.cat === cat);
+    if (round) count += round.options.filter(o => o.s && o.s.includes(flavor)).length;
+  }
+  if (count < MIN_TAGGED) {
+    coverageMisses++;
+    coverageDetail.push(`${flavor}: ${count} tagged (need ≥${MIN_TAGGED})`);
+  }
+}
+gate(`every non-surprise flavor has ≥${MIN_TAGGED} tagged options in kid food+place+creature+pet`,
+  coverageMisses === 0,
+  coverageMisses ? `${coverageMisses} flavors under threshold` : `${NON_SURPRISE_FLAVORS.length} flavors OK`);
+if (coverageDetail.length) coverageDetail.forEach(d => console.log('    ' + d));
+
+// (b) Bias hit rate: ≥65% of 200 sessions show ≥1 themed option in food+creature+pet
+//     (place round is dropped when settingLocked per v2.10.1, so excluded from simulation)
+const BIAS_SESSIONS = 200;
+const BIAS_MIN_RATE = 0.65;
+const biasCats = ['food', 'creature', 'pet'];
+let biasMisses = 0;
+const biasDetail = [];
+for (const flavor of NON_SURPRISE_FLAVORS) {
+  let hits = 0;
+  for (let i = 0; i < BIAS_SESSIONS; i++) {
+    let sessionHit = false;
+    for (const cat of biasCats) {
+      const round = kidWordBank.find(r => r.cat === cat);
+      if (!round) continue;
+      const picked = settingBiasedSampleQA(round.options, flavor);
+      if (picked.some(o => o.s && o.s.includes(flavor))) { sessionHit = true; break; }
+    }
+    if (sessionHit) hits++;
+  }
+  const rate = hits / BIAS_SESSIONS;
+  if (rate < BIAS_MIN_RATE) {
+    biasMisses++;
+    biasDetail.push(`${flavor}: ${(rate * 100).toFixed(0)}% (need ≥${(BIAS_MIN_RATE * 100).toFixed(0)}%)`);
+  }
+}
+gate(`setting bias delivers ≥1 themed option in ≥${(BIAS_MIN_RATE * 100).toFixed(0)}% of sessions (kid food+creature+pet)`,
+  biasMisses === 0,
+  biasMisses ? `${biasMisses} flavors below threshold` : `${NON_SURPRISE_FLAVORS.length} flavors × ${BIAS_SESSIONS} sessions`);
+if (biasDetail.length) biasDetail.forEach(d => console.log('    ' + d));
+
 /* === 9. BLOCKED-WORD SCAN (added v2.10.2) ===
  *
  * Critical defect from 2026-05-21: the freetext prompt examples for "Invent a battle
