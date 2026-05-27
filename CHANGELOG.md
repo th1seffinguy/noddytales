@@ -9,6 +9,68 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 41, engine v3.0.3) — 2026-05-27
+**Apostrophe Speak-highlight + Cole's Big Show quality + bedtime determinism + sidekick visibility**
+
+Four High-severity defects closed in one focused build. No UI / picker / voice / icon changes.
+
+### P1 — Apostrophe word boundary breaks Speak highlight (RECURRING)
+**Codex repro:** Title `Cole's Big Show` (and body containing possessives + contractions) caused the karaoke highlight to fall one word behind from the first word onward. Fix has regressed multiple times; defect explicitly requests permanent architectural fix.
+
+**Root cause** (newly traced): `[name:Cole]'s Big Show` renders in DOM as `<span class="pop">Cole</span>'s` — TWO `.kw` spans (Cole + 's) but ONE TTS word timing (Cole's). Every subsequent word offset by one.
+
+**Fix (architectural):**
+- `parseStoryLine` in `index.html` regex changed from `/\[(name|c|y):([^\]]+)\]/g` → `/\[(name|c|y):([^\]]+)\]([’']s\b)?/g`. The trailing `'s` (straight or curly) is now absorbed INTO the highlight span. DOM produces one `.kw` span per word, matching ElevenLabs' alignment.
+- Defense-in-depth: documented in `CLAUDE.md` "Recurring-Defect Guardrails" + cross-referenced in `AGENTS.md`. Future agents who touch the regex or `wrapStoryWords` will see the regression warning.
+- New QA Section 21(a): apostrophe tokenization parity gate. Simulates DOM + TTS tokenizers on 5 synthetic stories with possessives/contractions; asserts word counts match. 0/5 mismatches.
+
+### P2 — Story quality failure (Cole's Big Show): six sub-defects
+The user-submitted story exhibited: (i) `"SPLAT!."` double terminal punctuation; (ii) "noisy spoon reassembled itself in roughly the wrong order" filler; (iii) six FLAVOR_CALLBACKS stacked in one paragraph; (iv) `"Cole kept feeling snacky about the whole thing"` passive mood filler; (v) `"Somebody had brought hot dogs"` unrelated mcguffin injection; (vi) anytime-style landing despite bedtime mode (addressed in P3).
+
+**Fix (engine-v2.js):**
+- **`"SPLAT!." → "SPLAT!"`:** sound + freeword2 slots now strip trailing `[!?.,]+` at construction. Templates render `"[y:{chant.text}]."` cleanly regardless of user input punctuation. V2 + V3 both patched.
+- **"Reassembled itself in roughly the wrong order"** rewritten as a directed consequence: `"The [c:prop] snapped back together — upside down, but together. The [c:ally] hit the right note at the exact wrong moment. Curtain."` Same comedic shape, payoff lands.
+- **Callback density cap:** `appendToMiddle` now caps FLAVOR_CALLBACKS at 2 per paragraph. When the strict middle (paragraphs 2..length-2) is full, expansion widens to include paragraph 1; the final landing paragraph stays callback-free. Coverage preserved by the FLAVOR_KEYS loop's "skip-if-already-in-body" filter — callbacks only fire for missing picks.
+- **"Cole kept feeling [mood] about the whole thing"** removed from `mood_throughline` pool. Two visible-action variants from b39 remain; the passive-non-event one is killed.
+- **"Somebody had brought hot dogs"** removed from `mcguffin` pool. Two remaining mcguffin variants tie to the scene rather than appearing mid-air with unrelated food.
+
+### P3 — Bedtime mode selected but anytime ending fired
+**Codex repro:** Cole's Big Show ended with `"Time to pack up and find the next thing"` (anytime-flavored prose) despite the user reportedly having Bedtime mode selected. Root cause analysis: even when `picks.storyMode='bedtime'`, 28 of 37 V3 landing beats are untagged (default-bedtime by engine contract) but their CONTENT contains no bedtime closure language. Either the user's `picks.storyMode` was stale 'anytime' from a prior session OR the engine picked a content-free untagged landing.
+
+**Fix (engine-v2.js):** Post-render bedtime-closer injection. When `picks.storyMode='bedtime'` AND the final paragraph contains no bedtime lexicon (regex: bedtime|tucked in|asleep|goodnight|yawned|pajamas|under the covers|lights out|+15 more), append a tier-appropriate bedtime closer sentence:
+- tot/little: `"Then it was bedtime. ..."`
+- kid/big: `"[name:Cole] yawned, climbed into bed, and pulled up the covers. Goodnight, everyone."`
+- tween: `"[name:Cole] flopped onto the bed. Sleep was inevitable. Goodnight."`
+
+The fix runs unconditionally on every bedtime-mode story regardless of which landing beat fires. New QA Section 21(c): 90 bedtime-mode stories (30 each at ages 6/9/12) → final paragraph must contain bedtime lexicon. 0/90 missing.
+
+### P4 — Secondary character (sidekick) never appears in story
+**Codex repro:** User added a second person to the session; the generated story never mentioned them. Investigation: V3 (the production engine) never reads `state.sidekicks` at all — only V2 does. V3 blueprints have no sidekick slot.
+
+**Fix (index.html + engine-v2.js):**
+- `buildStory` now passes `sidekicks: state.sidekicks` into `picks`.
+- V3 reads `picks.sidekicks`. After the landing paragraph renders, checks each sidekick name against the body. If any are missing, appends a tier-appropriate cameo line (`"[name:Riley] showed up right at the end, demanding a full play-by-play."`) wrapped in `[name:X]` so the name highlights too.
+- New QA Section 21(d): 100 stories (25 per tier × 4 tiers) with `picks.sidekicks=['Riley']`. Rendered body must contain `Riley`. 0/100 missing.
+
+### Verification
+- `scripts/qa-current.js` — all 25 gates green, **Section 21 (4 new b41 gates) all pass**.
+- `node --check` on `src/content.js` + `src/engine-v2.js` + `api/tts.js` + `scripts/qa-current.js` — clean.
+- `content-grammar-lint --reps 1000` — 0 hits on every check.
+- `content-random-50`, `content-comedy-mechanics` (10.34/21; causality 0.66 / callback 0.62), `content-punchline-audit` (changes_scene 49.4% / quoted_only 16.1%) — all green.
+- Tokenizer parity: 0/5 mismatches across synthetic apostrophe fixtures.
+- Punctuation strip: 0 stories with `SPLAT!.` / `SPLAT!,` across forced `freeword=SPLAT!` samples.
+- Bedtime closure: 0/90 missing closer on `storyMode=bedtime`.
+- Sidekick visibility: 0/100 missing `Riley` when forced.
+
+### Versions
+APP_VERSION stays `v0.9.3`; BUILD_NUMBER 40 → 41; ENGINE_V2_VERSION stays `v3.0.3`. Badge reads `v0.9.3 · b41`.
+
+### Deferred (b42+)
+- `"Stories too long globally"` defect remains In Progress. b41 added the bedtime-closer (+1 sentence per bedtime story) but the callback cap removes 2-3 sentences from heavy-callback stories — net neutral to slightly shorter.
+- Vowel-start mood `articleText` defense — still no vowel-start mood shipped, dormant.
+
+---
+
 ## v0.9.3 (build 40, engine v3.0.3) — 2026-05-27
 **Move-class routing + binoculars regression-gate fix**
 

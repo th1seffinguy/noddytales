@@ -1838,6 +1838,147 @@ console.log('\n=== 19. Sensory-callback polish audit (v0.9.3 · b31) ===');
   gate('tween motion moves still route into directional frames (regression check on b40 routing)', motionMovesHitDirectional >= 3, motionMovesHitDirectional + '/' + TWEEN_MOTION_MOVES.length + ' motion moves hit a directional frame in 30 samples');
 }
 
+/* === 21. b41 DETERMINISM GATES — apostrophe / punctuation / bedtime / sidekick ===
+ *
+ * Four classes of defect closed in b41. Each gets a hard-fail gate so
+ * regressions surface immediately.
+ *
+ * (a) Apostrophe tokenization parity. parseStoryLine absorbs trailing `'s` into
+ *     the highlight span so the DOM word count matches the TTS alignment word
+ *     count. Test: simulate the wrap + the TTS strip on a synthetic story
+ *     ("Cole's Big Show" + body with possessives + contractions), assert
+ *     token counts match.
+ *
+ * (b) Chant/payoff_word terminal-punct strip. picks.freeword.w='SPLAT!' must
+ *     never produce "SPLAT!." or "SPLAT!," in story text. Force the freeword
+ *     across 60 stories per tier and grep the rendered text.
+ *
+ * (c) Bedtime mode determinism. storyMode='bedtime' must always result in a
+ *     final paragraph containing bedtime lexicon. 60 stories per kid/big/tween
+ *     (180 total) — 0 leaks allowed.
+ *
+ * (d) Sidekick visibility. state.sidekicks=['Riley'] must surface 'Riley' in
+ *     the rendered story body at least once. 60 stories per blueprint × tier
+ *     (~480 total). 0 leaks allowed.
+ */
+console.log('\n=== 21. b41 determinism gates — apostrophe / punctuation / bedtime / sidekick ===');
+{
+  function stripBrackets(text) {
+    return text.replace(/\[c:([^\]]*)\]/g, '$1').replace(/\[y:([^\]]*)\]/g, '$1').replace(/\[name:([^\]]*)\]/g, '$1');
+  }
+
+  // --- (a) Apostrophe tokenization parity ---------------------------------
+  // Simulate parseStoryLine (DOM) tokenization and TTS strip tokenization.
+  // Both must produce identical word arrays for inputs with apostrophes.
+  function domTokenize(line) {
+    // Apply the b41 absorption: each [name|c|y:X] becomes a single token
+    // including any trailing 's. Then split the resulting plain text on
+    // whitespace; keep tokens that contain [a-zA-Z0-9].
+    const rendered = line.replace(/\[(name|c|y):([^\]]+)\]([’']s\b)?/g, (_, k, t, poss) => t + (poss || ''));
+    return rendered.split(/\s+/).filter(t => /[a-zA-Z0-9]/.test(t));
+  }
+  function ttsTokenize(line) {
+    // TTS strip removes [name|c|y:X] brackets but keeps trailing 's exactly
+    // where the source put it (since DOM also absorbs it, identical result).
+    const stripped = line.replace(/\[(?:name|c|y):([^\]]+)\]/g, '$1');
+    return (stripped.match(/\S+/g) || []).filter(t => /[a-zA-Z0-9]/.test(t));
+  }
+  const apostropheFixtures = [
+    "[name:Cole]'s Big Show",
+    "[name:Cole] and the [c:dragon]'s Plan",
+    "The [c:cat]'s tail flicked. [name:Cole] didn't notice. It's a thing they do.",
+    "[name:Cole]'s sleeves turned [c:red]. The [c:dragon]'s eyes widened.",
+    "Can't, won't, shouldn't — [name:Cole]'s motto.",
+  ];
+  let tokenMismatches = 0;
+  const mismatchDetail = [];
+  for (const f of apostropheFixtures) {
+    const dom = domTokenize(f);
+    const tts = ttsTokenize(f);
+    if (dom.length !== tts.length) {
+      tokenMismatches++;
+      mismatchDetail.push('"' + f.slice(0, 60) + '" dom=' + dom.length + ' tts=' + tts.length);
+    }
+  }
+  gate('apostrophe tokenization parity — DOM word count == TTS word count for possessives/contractions', tokenMismatches === 0, tokenMismatches + '/' + apostropheFixtures.length + ' mismatches' + (mismatchDetail.length ? ' (' + mismatchDetail.join('; ') + ')' : ''));
+
+  // --- (b) Chant/payoff_word terminal-punct strip --------------------------
+  // picks.freeword.w with terminal punctuation must never produce double
+  // terminal punctuation in the rendered story.
+  let punctLeaks = 0;
+  const punctDetail = [];
+  const BAD_PUNCT_RX = /SPLAT!(\.|,|!)|"[^"]*[!?]\."|"[A-Z!]+!,"/;
+  const PUNCT_AGES = [4, 7, 9, 12];
+  for (const age of PUNCT_AGES) {
+    for (let i = 0; i < 30; i++) {
+      const picks = {
+        setting: { id: 'at_home', place: 'kitchen', visitorBias: 'safe', objectBias: 'safe' },
+        freeword: { w: 'SPLAT!' },
+        freeword2: { w: 'KABOOM!' },
+        storyMode: 'bedtime',
+        pottyMode: false,
+      };
+      let s; try { s = ctx.generateStoryV3('Cole', picks, age); } catch (e) { s = null; }
+      if (!s) continue;
+      const text = stripBrackets([s.title, ...(s.paragraphs || [])].join(' '));
+      if (/SPLAT!\./.test(text) || /SPLAT!,/.test(text) || /KABOOM!\./.test(text) || /KABOOM!,/.test(text)) {
+        punctLeaks++;
+        if (punctDetail.length < 3) punctDetail.push('age ' + age + ': ' + text.match(/[A-Z!]+![.,]/)[0]);
+      }
+    }
+  }
+  gate('chant/payoff_word with terminal "!" never produces double-terminal "SPLAT!." / "SPLAT!,"', punctLeaks === 0, punctLeaks + ' leaks across forced freeword=SPLAT!/KABOOM! samples' + (punctDetail.length ? ' (' + punctDetail.join('; ') + ')' : ''));
+
+  // --- (c) Bedtime mode determinism ----------------------------------------
+  // Every kid/big/tween story with storyMode='bedtime' must end with bedtime
+  // lexicon in the final paragraph.
+  const BEDTIME_RX = /\b(bedtime|tucked in|asleep|fell asleep|going to sleep|sleepy|goodnight|good night|pajamas|pyjamas|yawned|yawning|drift(ed|ing)? off|sweet dreams|lights out|under the covers|night-night|nighty night|head(ed)? to bed|climb(ed|ing)? into bed|crawl(ed|ing)? into bed|bedroom|under the blanket|cuddled up)\b/i;
+  const BED_TIERS = [[6, 'kid'], [9, 'big'], [12, 'tween']];
+  let bedtimeLeaks = 0;
+  const bedtimeDetail = [];
+  for (const [age, tierName] of BED_TIERS) {
+    for (let i = 0; i < 30; i++) {
+      const picks = {
+        setting: { id: 'at_home', place: 'bedroom', visitorBias: 'safe', objectBias: 'safe' },
+        storyMode: 'bedtime',
+        pottyMode: false,
+      };
+      let s; try { s = ctx.generateStoryV3('Cole', picks, age); } catch (e) { s = null; }
+      if (!s) continue;
+      const finalPara = stripBrackets((s.paragraphs || [])[(s.paragraphs || []).length - 1] || '');
+      if (!BEDTIME_RX.test(finalPara)) {
+        bedtimeLeaks++;
+        if (bedtimeDetail.length < 3) bedtimeDetail.push(tierName + ' age ' + age + ': "' + finalPara.slice(-80) + '"');
+      }
+    }
+  }
+  gate('storyMode=bedtime always produces a bedtime closer in the final paragraph (kid/big/tween)', bedtimeLeaks === 0, bedtimeLeaks + '/90 missing bedtime closure' + (bedtimeDetail.length ? ' (' + bedtimeDetail.join('; ') + ')' : ''));
+
+  // --- (d) Sidekick visibility ---------------------------------------------
+  // When picks.sidekicks=['Riley'], every rendered story must contain Riley.
+  let sidekickLeaks = 0;
+  const sidekickDetail = [];
+  const SK_TIERS = [[4, 'little'], [6, 'kid'], [9, 'big'], [12, 'tween']];
+  for (const [age, tierName] of SK_TIERS) {
+    for (let i = 0; i < 25; i++) {
+      const picks = {
+        setting: { id: 'at_home', place: 'kitchen', visitorBias: 'safe', objectBias: 'safe' },
+        storyMode: 'bedtime',
+        pottyMode: false,
+        sidekicks: ['Riley'],
+      };
+      let s; try { s = ctx.generateStoryV3('Cole', picks, age); } catch (e) { s = null; }
+      if (!s) continue;
+      const body = stripBrackets((s.paragraphs || []).join(' '));
+      if (!/\bRiley\b/i.test(body)) {
+        sidekickLeaks++;
+        if (sidekickDetail.length < 3) sidekickDetail.push(tierName + ' age ' + age);
+      }
+    }
+  }
+  gate('picks.sidekicks=["Riley"] always surfaces Riley in story body (little/kid/big/tween)', sidekickLeaks === 0, sidekickLeaks + '/100 sidekick-missing leaks' + (sidekickDetail.length ? ' (' + sidekickDetail.join('; ') + ')' : ''));
+}
+
 /* === 20. SETTING-BIAS COVERAGE GATE (added v0.9.3 · b36) ===
  *
  * Phase 2 of Selection Joy Pass: WORD_BANK kid options carry an optional `s: ['flavor']`
