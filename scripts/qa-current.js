@@ -1541,6 +1541,83 @@ console.log('\n=== 19. Sensory-callback polish audit (v0.9.3 · b31) ===');
   }
   gate('older-tier smells (gym bag fog / pickle burps / mystery cheese) never appear for ages 2-7', kidOlderLeaks === 0, kidOlderLeaks + '/' + N_YOUNG + ' leaks');
   if (kidLeakDetail.length) kidLeakDetail.forEach(d => console.log('    ' + d));
+
+  // v0.9.3 · b38 — DEFECT FIX: abstract color callbacks.
+  //
+  // Codex reproduced "There was a apple red feeling to the moment that nobody
+  // really named." Three issues:
+  //   (i)   abstract / telling-not-showing color callbacks ("feeling to the
+  //         moment", "thing was happening again", "light shifted toward",
+  //         "faint glow", "tint", "looked weirdly").
+  //   (ii)  article mismatch when color starts with a vowel ("a apple red",
+  //         "a electric blue", "a orange", etc.) — should be "an X".
+  //   (iii) regression risk if a future beat re-introduces either pattern.
+  //
+  // Force-cycle every story tier × every vowel-starting color and assert the
+  // bad surfaces never render. After the b38 rewrite, both gates expect 0
+  // hits across 100+ forced samples.
+  const ABSTRACT_COLOR_RX = /(feeling to the moment that nobody really named|thing was happening again, whatever it was|light shifted briefly toward|picked up a faint .* tint|looked weirdly [a-z]|faint .* glow hung over the scene)/i;
+  // After [c:...] tokens are stripped by renderStory(), the literal text reaching
+  // the reader is "a apple red ..." etc. We strip the [c:...] wrapper in this
+  // gate so the regex sees the same surface the user (or TTS) does.
+  function stripHighlights(text) {
+    return text.replace(/\[c:([^\]]*)\]/g, '$1').replace(/\[y:([^\]]*)\]/g, '$1').replace(/\[name:([^\]]*)\]/g, '$1');
+  }
+  const ARTICLE_MISMATCH_RX = /\ba (apple red|electric blue|orange|ice|acid yellow|emerald|amber|opal|umber|onyx|indigo|aqua|olive|electric yellow|acid green)\b/i;
+  const VOWEL_COLORS = ['apple red','electric blue','orange','ice','acid yellow'];
+  let abstractLeaks = 0;
+  let articleLeaks = 0;
+  const abstractDetail = [];
+  const articleDetail = [];
+  const youngerAges2 = [2, 3, 4, 5, 6, 7];
+  const N_VS = 100;
+  for (let i = 0; i < N_VS; i++) {
+    const age = youngerAges2[i % youngerAges2.length];
+    const color = VOWEL_COLORS[i % VOWEL_COLORS.length];
+    const picks = {
+      pet:{w:'cat'}, food:{w:'pizza'}, place:{w:'forest'},
+      creature:{w:'dragon'}, color:{w:color}, move:{w:'zoomed'},
+      mood:{w:'sleepy'}, freeword:{w:'plop'}, freeword2:{w:'glorp'}, sound:{w:'TOOT'}, sky:{w:'stars'},
+      setting:{id:'at_home', place:{text:'bedroom', articleText:'the bedroom'}, visitorBias:'creature', objectBias:'object'},
+      storyMode:'bedtime', pottyMode:false,
+    };
+    let text;
+    try { const s = ctx.generateStoryV3('Cole', picks, age); text = s ? stripHighlights([s.title, ...(s.paragraphs || [])].join(' ')) : ''; }
+    catch (e) { text = ''; }
+    if (ABSTRACT_COLOR_RX.test(text)) {
+      abstractLeaks++;
+      if (abstractDetail.length < 3) abstractDetail.push('age ' + age + ' color=' + color + ': ' + (text.match(ABSTRACT_COLOR_RX) || [''])[0]);
+    }
+    if (ARTICLE_MISMATCH_RX.test(text)) {
+      articleLeaks++;
+      if (articleDetail.length < 3) articleDetail.push('age ' + age + ' color=' + color + ': ' + (text.match(ARTICLE_MISMATCH_RX) || [''])[0]);
+    }
+  }
+  // Also check big/tween at colors they're more likely to receive (since b38
+  // gated some lines to big/tween only). Force one cycle each.
+  const olderAges = [8, 9, 10, 11, 12, 13];
+  const N_OLDER = 60;
+  let olderAbstractLeaks = 0;
+  for (let i = 0; i < N_OLDER; i++) {
+    const age = olderAges[i % olderAges.length];
+    const color = VOWEL_COLORS[i % VOWEL_COLORS.length];
+    const picks = {
+      pet:{w:'cat'}, food:{w:'pizza'}, place:{w:'forest'},
+      creature:{w:'dragon'}, color:{w:color}, move:{w:'zoomed'},
+      mood:{w:'sleepy'}, freeword:{w:'plop'}, freeword2:{w:'glorp'}, sound:{w:'TOOT'}, sky:{w:'stars'},
+      setting:{id:'at_home', place:{text:'bedroom', articleText:'the bedroom'}, visitorBias:'creature', objectBias:'object'},
+      storyMode:'bedtime', pottyMode:false,
+    };
+    let text;
+    try { const s = ctx.generateStoryV3('Cole', picks, age); text = s ? stripHighlights([s.title, ...(s.paragraphs || [])].join(' ')) : ''; }
+    catch (e) { text = ''; }
+    if (ABSTRACT_COLOR_RX.test(text)) olderAbstractLeaks++;
+  }
+  gate('no story contains abstract color callback ("feeling to the moment" / "thing happening again" / etc.) across ages 2-7', abstractLeaks === 0, abstractLeaks + '/' + N_VS + ' leaks');
+  if (abstractDetail.length) abstractDetail.forEach(d => console.log('    ' + d));
+  gate('no story contains "a [vowel-color]" article mismatch ("a apple red" / "a electric blue" / etc.) across ages 2-7', articleLeaks === 0, articleLeaks + '/' + N_VS + ' leaks');
+  if (articleDetail.length) articleDetail.forEach(d => console.log('    ' + d));
+  gate('no story contains abstract color callback for ages 8-13 either', olderAbstractLeaks === 0, olderAbstractLeaks + '/' + N_OLDER + ' leaks');
 }
 
 /* === 20. SETTING-BIAS COVERAGE GATE (added v0.9.3 · b36) ===

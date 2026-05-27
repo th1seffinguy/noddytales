@@ -1,0 +1,5 @@
+BEFORE (b37) — total stories: 288
+abstract callback hits: 0 (0.0%)
+article mismatch hits: 0 (0.0%)
+
+SAMPLE FAILURES:

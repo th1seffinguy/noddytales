@@ -9,6 +9,101 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 38, engine v3.0.3) — 2026-05-27
+**Defect fix — abstract color callback + "a apple red" article mismatch**
+
+User-reported / Codex-reproduced (High severity): the kid-facing visual callback was generating *"There was a apple red feeling to the moment that nobody really named."* Two bugs in one beat pool.
+
+### Root cause
+
+`FLAVOR_CALLBACKS.visual_signature` still carried 6 abstract / telling-not-showing variants from before the b31 sensory pass:
+
+- `'A faint [color] glow hung over the scene by then.'`
+- `'There was a [color] feeling to the moment that nobody really named.'`
+- `'The light shifted briefly toward [color] and then thought better of it.'`
+- `'Everything in the room had picked up a faint [color] tint.'` (big/tween)
+- `'For a beat the whole place looked weirdly [color].'` (big/tween)
+- `'The [color] thing was happening again, whatever it was.'` (big/tween)
+
+The b31 polish tier-gated the bottom 3 but left the top 3 as all-tier strings, so kid still saw them. Worse, the `'There was a [color] feeling...'` line hardcodes "a " before the color token — when the color starts with a vowel sound (apple red, electric blue, orange, ice, acid yellow), the rendered text reads "a apple red", "a ice", etc. Article mismatch + abstract content + survives b31 = full repro: 161 / 288 forced samples (55.9%) hit the abstract pattern in the BEFORE state.
+
+Three other beats outside `FLAVOR_CALLBACKS` had the same `a [c:{visual_signature.text}] X` pattern:
+
+- `v3_ls_attempt_color_clue` line 1 (`"There was a [color] smudge"`)
+- `v3_gs_attempt_color` (`"held up a [color] thing"`)
+- `v3_gs_attempt_color_signal` lines 1-2 (`"waved a [color] flag"` / `"pretending to be a [color] traffic cone"`)
+
+### Fix
+
+**`src/engine-v2.js`**
+
+1. **Color slot gains `articleText`** — future-proof for any beat that needs `[c:{visual_signature.articleText}]` to render "an apple red". Current b38 beats avoid this surface entirely, but the property is now available.
+2. **`FLAVOR_CALLBACKS.visual_signature` pool replaced**:
+   - All 6 abstract variants deleted.
+   - 7 new kid/big/tween concrete variants (ceiling flashes, stripe on floor, sleeves turn color, wall blinks, lamp glows, shoes briefly turn, tiny spot on hand).
+   - 3 new big/tween-only drier variants (streak across wall, mirror briefly went, shadow on wall briefly turned).
+   - 3 new tot/little gentle variants (small light went, window went for one second, socks looked color for a blink).
+   - No beat leads with "a [color]" syntactically — all use "the X went [color]" / "X turned [color]" / "stripe of [color]" patterns. Grammar is safe regardless of which color the kid picked.
+3. **Four other beats rewritten** to remove `a [c:{visual_signature.text}] X` patterns: smudge / thing / flag / traffic cone. Em-dashes or post-modifiers carry the color now ("a flag — bright [color]", "a traffic cone painted [color]").
+
+**`scripts/qa-current.js` — Section 19 extended**
+
+Three new hard gates with `[c:...]` highlight stripping so the lint sees the same surface the reader does:
+
+- **(d)** No story contains abstract color callback ("feeling to the moment" / "thing happening again" / "light shifted toward" / "picked up a faint tint" / "looked weirdly" / "faint glow") across ages 2-7. (100 forced samples, 0 leaks expected.)
+- **(e)** No story contains `a [vowel-color]` article mismatch (apple red / electric blue / orange / ice / acid yellow / etc.) across ages 2-7. (100 samples, 0 leaks.)
+- **(f)** Same abstract regex against ages 8-13. (60 samples, 0 leaks.)
+
+### Verification
+
+| Check | Result |
+|---|---|
+| 288-sample force-cycle (tot/little/kid/big/tween × 8 colors) | **abstract 0 (was 161 / 55.9%) · article 0 (was 0 — never fired in BEFORE because the rendered token had `[c:...]` wrapper, but the human-visible surface contained "a apple red")** |
+| `node scripts/qa-current.js` | ✓ all gates green (Section 19 now 7 sub-gates) |
+| `node --check` src/content.js + src/engine-v2.js + api/tts.js | clean |
+| `node scripts/content-comedy-mechanics.js` | total 10.9 / 21 |
+| `node scripts/content-punchline-audit.js` | changes_scene 50.0%, quoted_only 13.2% |
+| `node scripts/content-grammar-lint.js` | 0 lowercase, 0 plural-singular, 0 sky-class, 0 dup articles |
+| `node scripts/content-repetition-report.js` | 0 endings above threshold |
+
+### Manual review — 5 kid + 5 tween stories
+
+All 10 stories include the picked color via a **concrete physical event** (ceiling/sleeves/wall/lamp/mirror/shadow/shoes/light/window/socks/stripe/spot). 0 abstract callbacks, 0 article mismatches.
+
+Sample before/after (color = apple red, kid age 6, show_wrong_v3):
+
+- **Before:** *"There was a apple red feeling to the moment that nobody really named."*
+- **After:** *"The ceiling flashed apple red for exactly two seconds."*
+
+Color = electric blue, kid age 7, rule_loophole_v3:
+
+- **Before:** *"For a beat the whole place looked weirdly electric blue."*
+- **After:** *"Cole's sleeves turned electric blue. Nobody explained this."*
+
+Full samples + 90-line transcript in `docs/b38-after/manual-review-samples.txt`.
+
+### Remaining story-quality risks (deferred, not in b38 scope)
+
+1. `signature_action` callback `"There was a small [move] moment that nobody quite witnessed in full."` — same telling-not-showing register as the killed abstract color lines. Candidate for b39.
+2. `mood_throughline` callback `"The whole day had a [mood] energy to it. Nobody could explain why."` — same register.
+3. `mood_throughline` `"Cole turned a particular shade of [mood]"` — same article-mismatch class if mood ever starts with a vowel. The current mood pool has no vowel-start values, but the architectural risk is identical and worth a defensive pass.
+4. "Stories too long globally" defect remains In Progress (kid 20 / big 24 / tween 24 sentence medians; targets 7-8 / 9-11 / 10-12).
+5. Long-tail repetition at story-opening level ("Over by the X, Cole was doing the bare minimum"; "Things were technically fine. They would not stay fine.") — known b28 patterns, acceptable for now.
+
+### Files changed
+
+- `src/engine-v2.js` — color slot articleText, FLAVOR_CALLBACKS.visual_signature pool rewrite, 4 outside-pool beats rewritten
+- `scripts/qa-current.js` — Section 19 extended with 3 new hard gates + highlight-stripping helper
+- `src/content.js` — BUILD_NUMBER 37 → 38
+- `index.html` — b38 RELEASE_NOTES entry
+- `CHANGELOG.md` — this entry
+- `docs/b38-color-callback-fix.md` — full diff report (new)
+- `docs/b38-before/` + `docs/b38-after/` — repro scripts + audit snapshots
+
+`APP_VERSION` stays `v0.9.3`; `BUILD_NUMBER` 37 → **38**; `ENGINE_V2_VERSION` stays `v3.0.3`. Badge reads `v0.9.3 · b38`.
+
+---
+
 ## v0.9.3 (build 37, engine v3.0.3) — 2026-05-26
 **Selection Joy Pass Phase 2 — Setting-specific picker bias**
 

@@ -1,0 +1,15 @@
+BEFORE (b37) — total stories: 288
+abstract callback hits: 161 (55.9%)
+article mismatch hits: 0 (0.0%)
+
+SAMPLE FAILURES:
+  [tot age 2 color="apple red" abstract]  There was a [c:apple red] feeling to the moment that nobody really named.
+  [tot age 2 color="apple red" abstract]  A faint [c:apple red] glow hung over the scene by then.
+  [tot age 2 color="apple red" abstract]  A faint [c:apple red] glow hung over the scene by then.
+  [tot age 2 color="electric blue" abstract]  A faint [c:electric blue] glow hung over the scene by then.
+  [tot age 2 color="electric blue" abstract]  A faint [c:electric blue] glow hung over the scene by then.
+  [tot age 2 color="electric blue" abstract]  The light shifted briefly toward [c:electric blue] and then thought better of it.
+  [tot age 2 color="orange" abstract]  The light shifted briefly toward [c:orange] and then thought better of it.
+  [tot age 2 color="orange" abstract]  There was a [c:orange] feeling to the moment that nobody really named.
+  [tot age 2 color="ice" abstract]  There was a [c:ice] feeling to the moment that nobody really named.
+  [tot age 2 color="acid yellow" abstract]  The light shifted briefly toward [c:acid yellow] and then thought better of it.
