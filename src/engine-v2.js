@@ -3891,7 +3891,7 @@ const V3_BEATS = [
      instead of an ambient "scene had a tint" decoration. */
   { id:'v3_ls_attempt_color_clue', stage:'attempt', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','visual_signature'],
     lines: [
-      '[name:{protagonist.name}] knelt down. There was a [c:{visual_signature.text}] smudge on the floor. Just one. Right where the [c:{ally.text}] had been sitting. Hmm.',
+      '[name:{protagonist.name}] knelt down. There was a smudge on the floor — [c:{visual_signature.text}], specifically. Just one. Right where the [c:{ally.text}] had been sitting. Hmm.',
       'Something [c:{visual_signature.text}] caught [name:{protagonist.name}]\'s eye. A tiny smear. On the rug. In the EXACT shape of a paw print. The [c:{ally.text}] looked at the ceiling.',
     ] },
   /* mood-as-approach: kid acts ON the mood, doesn\'t just feel it. */
@@ -4114,13 +4114,13 @@ const V3_BEATS = [
     ] },
   { id:'v3_gs_attempt_color', stage:'attempt', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','visual_signature'],
     lines: [
-      '[name:{protagonist.name}] held up a [c:{visual_signature.text}] thing. Nobody knew exactly what it was, including [name:{protagonist.name}], but it bought a moment. A moment was enough.',
+      '[name:{protagonist.name}] held up something [c:{visual_signature.text}]. Nobody knew exactly what it was, including [name:{protagonist.name}], but it bought a moment. A moment was enough.',
     ] },
   /* v2.7.0 — color as a costume / signal flag the kid uses to push through. */
   { id:'v3_gs_attempt_color_signal', stage:'attempt', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','obstacle','visual_signature'],
     lines: [
-      '[name:{protagonist.name}] waved a [c:{visual_signature.text}] flag at the [c:{obstacle.text}], who had not been briefed on any flag and froze just long enough.',
-      '[name:{protagonist.name}] walked right past the [c:{obstacle.text}] while pretending to be a [c:{visual_signature.text}] traffic cone. The [c:{obstacle.text}] watched, confused.',
+      '[name:{protagonist.name}] waved a flag — bright [c:{visual_signature.text}] — at the [c:{obstacle.text}], who had not been briefed on any flag and froze just long enough.',
+      '[name:{protagonist.name}] walked right past the [c:{obstacle.text}] while pretending to be a traffic cone painted [c:{visual_signature.text}]. The [c:{obstacle.text}] watched, confused.',
     ] },
   /* mood-as-approach: kid faces the obstacle in the chosen mood */
   { id:'v3_gs_attempt_mood', stage:'attempt', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','obstacle','mood_throughline'],
@@ -5008,7 +5008,12 @@ function generateStoryV3(name, picks, age) {
      Random pick from V2_WORDS.objects since the picker has no `object` round. */
   const object    = rawPick(V2_WORDS.objects);
   const sound     = picks.freeword?.w ? { text: picks.freeword.w } : rawPick(V2_WORDS.sounds);
-  const color     = picks.color?.w ? { text: picks.color.w } : null;
+  // v0.9.3 · b38 — color slot gains articleText so beats can render correct
+  // a/an grammar when leading with the color ("an apple red dot" not "a apple
+  // red dot"). Existing beats that lead with bare [c:{visual_signature.text}]
+  // were rewritten in b38 to avoid this surface, but articleText is exposed
+  // for future-proofing.
+  const color     = picks.color?.w ? { text: picks.color.w, articleText: V2Grammar.articleText({ text: picks.color.w }) } : null;
   const move      = picks.move?.w  ? { text: picks.move.w }  : null;
   const mood      = picks.mood?.w  ? { text: picks.mood.w }  : null;
   const weather   = picks.weather?.w ? { text: picks.weather.w } : null;
@@ -5228,28 +5233,45 @@ function generateStoryV3(name, picks, age) {
          atmospheric chant callback; replaced by four physical sound events.
        Tot/little retain gentle softer phrasing; big/tween keep the drier
        options. */
+    /* v0.9.3 · b38 — DEFECT FIX: abstract color callbacks removed.
+       Codex reproduced "There was a apple red feeling to the moment that nobody
+       really named" — both abstract content AND article mismatch ("a apple red"
+       should be "an apple red"). Three categories of bug all rooted here:
+         1. Abstract "feeling / thing happening / light shifted / faint glow /
+            picked up a tint / looked weirdly" — all telling, not showing.
+         2. "There was a [color]" — hardcoded "a " breaks for vowel-start colors
+            (apple red, electric blue, orange, ice, acid yellow, etc.).
+         3. Survived b31 because tier-gating to big/tween wasn't enough — kid
+            also got the all-tier strings at the top.
+       FIX: kill every abstract variant, replace with concrete physical events
+       that are imaginable for a young kid AND don't lead with "a [color]" (use
+       "the X went [color]" / "X turned [color]" / "stripe of [color]" patterns
+       to keep grammar safe regardless of which color the kid picked). */
     visual_signature: [
-      // Gentle / atmospheric — all tiers (kept for tot/little softness).
-      'A faint [c:{visual_signature.text}] glow hung over the scene by then.',
-      'There was a [c:{visual_signature.text}] feeling to the moment that nobody really named.',
-      'The light shifted briefly toward [c:{visual_signature.text}] and then thought better of it.',
-      // v0.9.3 · b31 — concrete physical visual events. Kid+big read these as
-      // actual things happening; tween gets them with a drier register via the
-      // wall/sleeves variants that don't tip into absurd.
+      // --- kid/big/tween — concrete physical events, no "a [color]" hazards ---
       { text: 'The ceiling flashed [c:{visual_signature.text}] for exactly two seconds.', tiers:['kid','big','tween'] },
-      { text: 'A [c:{visual_signature.text}] stripe appeared on the floor and pointed the wrong way.', tiers:['kid','big','tween'] },
+      { text: 'A stripe of [c:{visual_signature.text}] appeared on the floor and pointed the wrong way.', tiers:['kid','big','tween'] },
       { text: '[name:{protagonist.name}]\'s sleeves turned [c:{visual_signature.text}]. Nobody explained this.', tiers:['kid','big','tween'] },
       { text: 'The wall blinked [c:{visual_signature.text}], then pretended it had not.', tiers:['kid','big','tween'] },
-      // v0.9.3 · b31 — short concrete tot/little variant (gentle, no startle).
-      { text: 'A small [c:{visual_signature.text}] light went on, then off.', tiers:['tot','little'] },
-      // Existing big/tween-friendly atmospheric lines retained but tier-gated
-      // so they no longer fire at kid (where the abstraction reads as cold).
-      { text: 'Everything in the room had picked up a faint [c:{visual_signature.text}] tint.', tiers:['big','tween'] },
-      { text: 'For a beat the whole place looked weirdly [c:{visual_signature.text}].', tiers:['big','tween'] },
-      { text: 'The [c:{visual_signature.text}] thing was happening again, whatever it was.', tiers:['big','tween'] },
+      { text: 'For two seconds the lamp glowed [c:{visual_signature.text}]. Then back to normal.', tiers:['kid','big','tween'] },
+      { text: '[name:{protagonist.name}]\'s shoes briefly turned [c:{visual_signature.text}]. Briefly.', tiers:['kid','big','tween'] },
+      { text: 'A tiny spot of [c:{visual_signature.text}] appeared on the back of [name:{protagonist.name}]\'s hand. Blinked once. Gone.', tiers:['kid','big','tween'] },
+      // --- big/tween only — drier register, still concrete ---
       { text: '[name:{protagonist.name}] noticed a streak of [c:{visual_signature.text}] across the wall. Or did they.', tiers:['big','tween'] },
-      // Removed in b31 (was firing for kid as abstract):
-      //   'Somebody could have sworn the air went a little [c:{visual_signature.text}].'
+      { text: 'The mirror went [c:{visual_signature.text}] for a beat. Mirrors are not supposed to do that.', tiers:['big','tween'] },
+      { text: '[name:{protagonist.name}]\'s shadow on the wall briefly turned [c:{visual_signature.text}]. Both [name:{protagonist.name}] and the shadow chose not to comment.', tiers:['big','tween'] },
+      // --- tot/little — short, gentle, concrete ---
+      { text: 'A small light went [c:{visual_signature.text}], then off.', tiers:['tot','little'] },
+      { text: 'The window went [c:{visual_signature.text}] for one second. Then plain again.', tiers:['tot','little'] },
+      { text: '[name:{protagonist.name}]\'s socks looked [c:{visual_signature.text}] for a blink. Then normal.', tiers:['tot','little'] },
+      // REMOVED in b38 — abstract variants that produced "There was a apple red
+      // feeling..." and similar telling-not-showing renders:
+      //   'A faint [c:{visual_signature.text}] glow hung over the scene by then.'
+      //   'There was a [c:{visual_signature.text}] feeling to the moment that nobody really named.'
+      //   'The light shifted briefly toward [c:{visual_signature.text}] and then thought better of it.'
+      //   'Everything in the room had picked up a faint [c:{visual_signature.text}] tint.'
+      //   'For a beat the whole place looked weirdly [c:{visual_signature.text}].'
+      //   'The [c:{visual_signature.text}] thing was happening again, whatever it was.'
     ],
     chant: [
       // Gentle / vocal — all tiers.
