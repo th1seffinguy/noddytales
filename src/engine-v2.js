@@ -3827,6 +3827,71 @@ const V3_BLUEPRINTS = {
    Add `jokeJob: '<job>'` to a beat to participate. Lack of a jokeJob is
    not an error — Section 17 only audits HIGH_IMPACT contracts; this
    metadata is descriptive, not gated. */
+
+/* ================================================================
+   v0.9.3 · b40 — MOVE SEMANTIC COMPATIBILITY
+   ================================================================
+   Each picker `move` option is classified for downstream beat routing:
+     - 'motion'  — directional locomotion verbs that compose naturally with
+                   frames like "across the stage", "over to the X", "past
+                   the Y", "sideways", "toward". Default for unknown moves.
+     - 'gesture' — stillness / state / reaction / vanish / gaze phrases that
+                   read as nonsensical with directional frames. Routed only
+                   into class-agnostic beats and explicit gesture-friendly
+                   frames.
+
+   Why two classes (not finer-grained): the defect surfaces when a
+   state/reaction phrase ("dramatically sighed", "existentially paused",
+   "stared into the middle distance") is glued to a locomotion-shaped
+   frame. Two classes is the smallest split that prevents the bug. With
+   two classes, an unknown move defaults to 'motion' — safe because the
+   kid pool is 100% motion verbs.
+
+   When adding new picker moves, classify them here. An unknown move falls
+   back to 'motion'; only add an entry here if the move is a
+   state/gesture/reaction that should be filtered out of directional
+   frames. */
+const MOVE_CLASS = {
+  // === tot picker (line ~622 in src/content.js) ===
+  hopped: 'motion', spun: 'motion', ran: 'motion', marched: 'motion',
+  jumped: 'motion', crawled: 'motion', splashed: 'motion', rolled: 'motion',
+  swayed: 'motion', stomped: 'motion', wiggled: 'motion', danced: 'motion',
+  slid: 'motion', tiptoed: 'motion', bounced: 'motion',
+  clapped: 'gesture', peeked: 'gesture', hugged: 'gesture',
+  // === little picker (line ~633) — adds these on top ===
+  galloped: 'motion', twirled: 'motion', zoomed: 'motion', skidded: 'motion',
+  flopped: 'motion', skipped: 'motion', tumbled: 'motion', floated: 'motion',
+  waved: 'gesture',
+  // === kid picker (line ~673) — all locomotion ===
+  leapt: 'motion', glided: 'motion', charged: 'motion', crept: 'motion',
+  soared: 'motion', skated: 'motion', shimmied: 'motion', wobbled: 'motion',
+  sprinted: 'motion', cartwheeled: 'motion', zigzagged: 'motion',
+  moonwalked: 'motion', 'belly-flopped': 'motion', shuffled: 'motion',
+  // === big picker (line ~704) — mostly adverb+motion, a few gestures ===
+  'tiptoed cautiously': 'motion', 'stumbled dramatically': 'motion',
+  'waltzed accidentally': 'motion', 'skipped solemnly': 'motion',
+  'meandered thoughtfully': 'motion', 'tripped magnificently': 'motion',
+  'spun ceremoniously': 'motion', 'reversed unexpectedly': 'motion',
+  'shuffled importantly': 'motion', 'scuttled with purpose': 'motion',
+  'moonwalked carefully': 'motion', 'lurched heroically': 'motion',
+  'marched stubbornly': 'motion', 'sprinted incorrectly': 'motion',
+  'slid heroically': 'motion',
+  'fell upward somehow': 'gesture', 'flailed politely': 'gesture',
+  'hovered suspiciously': 'gesture', 'posed dramatically': 'gesture',
+  'stared bravely': 'gesture',
+  // === tween picker (line ~737) — 5 motion / 13 gesture ===
+  'speed-ran': 'motion', 'chaotically bolted': 'motion',
+  'gracefully bailed': 'motion', 'rage-walked': 'motion',
+  'speed-walked nowhere': 'motion',
+  'dramatically sighed': 'gesture', 'casually yeeted everything': 'gesture',
+  'existentially paused': 'gesture', 'mysteriously vanished': 'gesture',
+  'aggressively scrolled': 'gesture', 'passive-aggressively waved': 'gesture',
+  'reluctantly arrived': 'gesture', 'took a long sip and stared': 'gesture',
+  'nodded knowingly': 'gesture', 'awkwardly hovered': 'gesture',
+  'blinked dramatically': 'gesture', 'panicked quietly': 'gesture',
+  'stared into the middle distance': 'gesture',
+};
+
 const V3_BEATS = [
   /* ============================================================
      lost_snack_v3 — kid + ally lose food, false_suspect framed,
@@ -3878,7 +3943,10 @@ const V3_BEATS = [
       'The [c:{mcguffin.text}]: gone. The [c:{false_suspect.text}]: present, suspiciously well-rehearsed. [name:{protagonist.name}] did not love this development.',
     ] },
 
-  { id:'v3_ls_attempt_move', stage:'attempt', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','false_suspect','signature_action'],
+  /* v0.9.3 · b40 — requiresMoveClass:'motion' tags directional beats so
+     gesture/state moves ("dramatically sighed", "existentially paused")
+     are routed away from "over to" / "across the scene" frames. */
+  { id:'v3_ls_attempt_move', stage:'attempt', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','false_suspect','signature_action'], requiresMoveClass:'motion',
     lines: [
       '[name:{protagonist.name}] [c:{signature_action.text}] over to the [c:{false_suspect.text}] and squinted. "Where is it?"',
       'So [name:{protagonist.name}] [c:{signature_action.text}] across the scene. The trail of crumbs did NOT lead to the [c:{false_suspect.text}].',
@@ -3903,9 +3971,17 @@ const V3_BEATS = [
     lines: [
       '[name:{protagonist.name}] did some detective work. Looked at the floor. Looked at the [c:{false_suspect.text}]. Followed a faint trail. The trail led somewhere else entirely.',
     ] },
-  { id:'v3_ls_attempt_tween_move', stage:'attempt', blueprintId:'lost_snack_v3', tiers:['tween'], requiredRoles:['protagonist','false_suspect','signature_action'],
+  { id:'v3_ls_attempt_tween_move', stage:'attempt', blueprintId:'lost_snack_v3', tiers:['tween'], requiredRoles:['protagonist','false_suspect','signature_action'], requiresMoveClass:'motion',
     lines: [
       '[name:{protagonist.name}] [c:{signature_action.text}] past the [c:{false_suspect.text}] with theatrical timing. None of it was on purpose. All of it landed.',
+    ] },
+  /* v0.9.3 · b40 — gesture-class companion for tween lost_snack attempt.
+     Fires when the picked move is a gesture/state phrase ("nodded knowingly",
+     "took a long sip and stared") so the suspect-confrontation reads
+     naturally instead of "Cole nodded knowingly past the suspect." */
+  { id:'v3_ls_attempt_tween_gesture', stage:'attempt', blueprintId:'lost_snack_v3', tiers:['tween'], requiredRoles:['protagonist','false_suspect','signature_action'], requiresMoveClass:'gesture',
+    lines: [
+      '[name:{protagonist.name}] [c:{signature_action.text}] at the [c:{false_suspect.text}]. The [c:{false_suspect.text}] did not love being [c:{signature_action.text}] at. Whatever this was, it was working.',
     ] },
 
   /* v3_ls_escalation_1 — b18 length pass: line-2 weak one-word flourish
@@ -4103,12 +4179,12 @@ const V3_BEATS = [
       'The [c:{obstacle.text}] arrived. Of course it did. The [c:{obstacle.text}] had opinions, and the opinions ran directly counter to [name:{protagonist.name}]\'s plan. The vibes were bad.',
     ] },
 
-  { id:'v3_gs_attempt_move', stage:'attempt', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','signature_action'],
+  { id:'v3_gs_attempt_move', stage:'attempt', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','signature_action'], requiresMoveClass:'motion',
     lines: [
       'So [name:{protagonist.name}] [c:{signature_action.text}], right past everything. The [c:{ally.text}] followed.',
       '[name:{protagonist.name}] [c:{signature_action.text}] forward fast — faster than anyone expected.',
     ] },
-  { id:'v3_gs_attempt_tween_move', stage:'attempt', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','signature_action'],
+  { id:'v3_gs_attempt_tween_move', stage:'attempt', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','signature_action'], requiresMoveClass:'motion',
     lines: [
       '[name:{protagonist.name}] [c:{signature_action.text}] right through the scene. The motion alone was a kind of argument. Nobody knew how to counter it.',
     ] },
@@ -4318,9 +4394,15 @@ const V3_BEATS = [
       '[name:{protagonist.name}] [c:{signature_action.text}] and shouted "[y:{chant.text}]!" The pillows leaned forward. One actually fell over from leaning. The bit was working.',
       'Out came the only word that fit: "[y:{chant.text}]." [name:{protagonist.name}] [c:{signature_action.text}] for emphasis. The bit was a different bit now.',
     ] },
-  { id:'v3_sw_attempt_move', stage:'attempt', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','signature_action'],
+  /* v0.9.3 · b40 — split: motion-tagged stage-crossing line stays here;
+     class-agnostic "like it was the plan" line moves to its own beat so
+     gesture moves still have a show_wrong attempt option. */
+  { id:'v3_sw_attempt_move', stage:'attempt', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','signature_action'], requiresMoveClass:'motion',
     lines: [
       '[name:{protagonist.name}] [c:{signature_action.text}] across the stage like nobody had rehearsed it. The room watched. Somehow it was working.',
+    ] },
+  { id:'v3_sw_attempt_move_plan', stage:'attempt', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','signature_action'],
+    lines: [
       '[name:{protagonist.name}] [c:{signature_action.text}] like it was the plan. The [y:{setting.text}] held its breath. The bit picked itself up.',
     ] },
 
@@ -4484,7 +4566,7 @@ const V3_BEATS = [
       'Then [name:{protagonist.name}] smiled. [name:{protagonist.name}] held up the [c:{loophole_tool.text}]. "The rule does not say anything about [c:{loophole_tool.text}]," said [name:{protagonist.name}]. The rule held its tongue.',
       '"Wait." [name:{protagonist.name}] held the [c:{loophole_tool.text}] up. "Rule number seven says I can use the [c:{loophole_tool.text}], right?" It did not. But nobody wanted to look like they had forgotten the rules.',
     ] },
-  { id:'v3_rl_attempt_tool_move', stage:'attempt', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','loophole_tool','signature_action'],
+  { id:'v3_rl_attempt_tool_move', stage:'attempt', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','loophole_tool','signature_action'], requiresMoveClass:'motion',
     lines: [
       '[name:{protagonist.name}] [c:{signature_action.text}] sideways while holding the [c:{loophole_tool.text}]. This was a different move than the one the rule said no to. A different move! The rule said nothing back.',
     ] },
@@ -4655,9 +4737,13 @@ const V3_BEATS = [
     lines: [
       '[name:{protagonist.name}] had a bit planned at the [y:{setting.text}]. Nobody had asked. [name:{protagonist.name}] was doing it anyway. The [c:{ally.text}] was either co-star or hostage. To be determined.',
     ] },
+  /* v0.9.3 · b40 — line rewritten class-agnostic. "across the stage" dropped
+     so gesture moves render cleanly: "Cole dramatically sighed like that had
+     been the plan all along" instead of "Cole dramatically sighed across the
+     stage". Audience reaction kept. */
   { id:'v3_sw_attempt_tween_unhinged', stage:'attempt', blueprintId:'show_wrong_v3', tiers:['tween'], requiredRoles:['protagonist','prop','signature_action'],
     lines: [
-      'The [c:{prop.text}] failed exactly on cue. [name:{protagonist.name}] [c:{signature_action.text}] across the stage like that had been the plan all along. The audience was, technically, into it. Mostly.',
+      'The [c:{prop.text}] failed exactly on cue. [name:{protagonist.name}] [c:{signature_action.text}] like that had been the plan all along. The audience was, technically, into it. Mostly.',
     ] },
   { id:'v3_sw_escalation_tween_filmed', stage:'escalation', blueprintId:'show_wrong_v3', tiers:['tween'], requiredRoles:['protagonist','ally'],
     lines: [
@@ -5018,8 +5104,18 @@ function generateStoryV3(name, picks, age) {
   const food      = mapPickToWord(picks.food?.w, V2_WORDS.foods);
   /* v2.6.0 — `object` joined the v3 slot pool so show_wrong_v3 (prop=object) and
      rule_loophole_v3 (loophole_tool=object) have something concrete to render.
-     Random pick from V2_WORDS.objects since the picker has no `object` round. */
-  const object    = rawPick(V2_WORDS.objects);
+     Random pick from V2_WORDS.objects since the picker has no `object` round.
+     v0.9.3 · b40 — `picks.__forceProp` opt-in for deterministic regression
+     tests (Section 19 plural-prop gate). NOT for production use — the picker
+     never sets this. Resolves the named object out of V2_WORDS.objects so
+     `isPlural`/`article` metadata flows through correctly. */
+  let object;
+  if (picks && picks.__forceProp) {
+    const forced = V2_WORDS.objects.find(o => o.id === picks.__forceProp || o.text === picks.__forceProp);
+    object = forced || rawPick(V2_WORDS.objects);
+  } else {
+    object = rawPick(V2_WORDS.objects);
+  }
   const sound     = picks.freeword?.w ? { text: picks.freeword.w } : rawPick(V2_WORDS.sounds);
   // v0.9.3 · b38 — color slot gains articleText so beats can render correct
   // a/an grammar when leading with the color ("an apple red dot" not "a apple
@@ -5027,7 +5123,21 @@ function generateStoryV3(name, picks, age) {
   // were rewritten in b38 to avoid this surface, but articleText is exposed
   // for future-proofing.
   const color     = picks.color?.w ? { text: picks.color.w, articleText: V2Grammar.articleText({ text: picks.color.w }) } : null;
-  const move      = picks.move?.w  ? { text: picks.move.w }  : null;
+  /* v0.9.3 · b40 — DEFECT FIX: move semantic compatibility.
+     Codex repro: "Cole reluctantly arrived across the stage like that had been
+     the plan all along." / "Cole mysteriously vanished without thinking. It
+     was a thing they did now."
+     Root cause: tween (and a few big) move options are gesture/state/reaction
+     phrases ("dramatically sighed", "existentially paused", "stared into the
+     middle distance") that do not compose with directional locomotion frames
+     ("across the stage", "toward the X", "sideways"). Solution: every picker
+     move is classified `motion` (directional locomotion-compatible) or
+     `gesture` (stillness/state/reaction). Beats and FLAVOR_CALLBACKS that
+     require directional motion are tagged `requiresMoveClass: 'motion'` and
+     filtered out for gesture moves. Beats with no tag are class-agnostic
+     (work for both). Default for unknown moves is 'motion' (kid pool is all
+     locomotion, so the kid path is unchanged). */
+  const move      = picks.move?.w  ? { text: picks.move.w, class: (MOVE_CLASS[picks.move.w] || 'motion') } : null;
   const mood      = picks.mood?.w  ? { text: picks.mood.w }  : null;
   const weather   = picks.weather?.w ? { text: picks.weather.w } : null;
   /* v2.10.0 — sky slot wired into v3 so tot_sky_v3 (wonder_object = sky) can resolve.
@@ -5114,6 +5224,12 @@ function generateStoryV3(name, picks, age) {
      dedup the same beat could render in both P2 and P3). */
   const usedInStory = new Set();
   function pickStageBeat(stage) {
+    // v0.9.3 · b40 — move-class filter. Beats tagged
+    // `requiresMoveClass:'motion'` are eligible only when the picked
+    // signature_action is a motion-class move (or unclassified, which
+    // defaults to 'motion'). Beats with no `requiresMoveClass` tag are
+    // class-agnostic. See MOVE_CLASS for the picker classification.
+    const moveClass = roles.signature_action ? (roles.signature_action.class || 'motion') : null;
     const candidates = V3_BEATS.filter(b => {
       if (b.stage !== stage.name) return false;
       if (b.blueprintId && b.blueprintId !== blueprint.id) return false;
@@ -5125,6 +5241,9 @@ function generateStoryV3(name, picks, age) {
         const beatMode = b.mode || 'bedtime';
         if (beatMode !== v3StoryMode) return false;
       }
+      // v0.9.3 · b40 — directional-only beats are filtered out when the
+      // picked move is a gesture/state phrase.
+      if (b.requiresMoveClass && moveClass && b.requiresMoveClass !== moveClass) return false;
       return true;
     });
     if (!candidates.length) return null;
@@ -5234,29 +5353,36 @@ function generateStoryV3(name, picks, age) {
        CONCRETE action, no "moment"/"burst" nominalization. Tier-aware:
        tot/little get short call-and-response style; kid/big/tween get
        slightly drier action register. */
+    /* v0.9.3 · b40 — added `requiresMoveClass` filter on directional
+       variants. Gesture/state moves ("dramatically sighed", "stared into
+       the middle distance", "reluctantly arrived") were composing
+       nonsensically with "sideways" / "across the room" / "toward the
+       [ally]" / "past the [ally]" / "without thinking". The flavor-pool
+       pickFlavorVariant() now respects requiresMoveClass for this role
+       only. Class-agnostic variants (no tag) work for both. */
     signature_action: [
-      // All tiers — keep the survivors from b27 that already used the move
-      // as an active verb. These ones don't have the filler problem.
+      // Class-agnostic survivors from b27/b39 — move-as-active-verb that
+      // reads naturally regardless of motion vs gesture.
       '[name:{protagonist.name}] [c:{signature_action.text}] one more time, just to make a point.',
       'Somewhere in there, [name:{protagonist.name}] [c:{signature_action.text}] for emphasis.',
-      '[name:{protagonist.name}] [c:{signature_action.text}] without thinking. It was a thing they did now.',
       '[name:{protagonist.name}] [c:{signature_action.text}] briefly, then pretended that had not happened.',
-      // v0.9.3 · b39 — tot/little concrete motion: short call-response
-      // shapes that turn the move into a visible exchange instead of filler.
-      { text: '[name:{protagonist.name}] [c:{signature_action.text}] once. The [c:{ally.text}] [c:{signature_action.text}] back.', tiers:['tot','little'] },
-      { text: '[name:{protagonist.name}] [c:{signature_action.text}] past the [c:{ally.text}]. The [c:{ally.text}] [c:{signature_action.text}] too.', tiers:['tot','little'] },
-      // v0.9.3 · b39 — kid/big/tween concrete action variants (the move
-      // does something visible, no passive "moment" or "burst" wrappers).
-      { text: '[name:{protagonist.name}] [c:{signature_action.text}] sideways, on purpose this time. Nobody else noticed. [name:{protagonist.name}] noticed.', tiers:['kid','big','tween'] },
-      { text: '[name:{protagonist.name}] [c:{signature_action.text}] across the room and stopped exactly where they started. The point landed.', tiers:['kid','big','tween'] },
       { text: 'For two full seconds, [name:{protagonist.name}] [c:{signature_action.text}] like the room owed them money. It did not.', tiers:['kid','big','tween'] },
-      { text: '[name:{protagonist.name}] [c:{signature_action.text}] toward the [c:{ally.text}] and then away again, faster.', tiers:['kid','big','tween'] },
-      // REMOVED in b39 — passive nominalization filler that doesn't create
-      // an event:
-      //   'There was a small [c:{signature_action.text}] moment that nobody quite witnessed in full.'
-      //   'For exactly two seconds, [name:{protagonist.name}] [c:{signature_action.text}] like it was a job.'  (drier, retained-feeling — kept moved to no-tag pool below)
-      //   'Halfway through, [name:{protagonist.name}] [c:{signature_action.text}] for absolutely no reason.'
-      //   'A short burst of [c:{signature_action.text}] happened. Witnesses disagreed about the details.'
+      // v0.9.3 · b40 — "without thinking" tagged motion only ("Cole
+      // mysteriously vanished without thinking" was a Codex repro).
+      { text: '[name:{protagonist.name}] [c:{signature_action.text}] without thinking. It was a thing they did now.', requiresMoveClass:'motion' },
+      // tot/little — first variant is class-agnostic (call-response works
+      // for "Cole clapped once. The duck clapped back."), second is
+      // directional and tagged motion.
+      { text: '[name:{protagonist.name}] [c:{signature_action.text}] once. The [c:{ally.text}] [c:{signature_action.text}] back.', tiers:['tot','little'] },
+      { text: '[name:{protagonist.name}] [c:{signature_action.text}] past the [c:{ally.text}]. The [c:{ally.text}] [c:{signature_action.text}] too.', tiers:['tot','little'], requiresMoveClass:'motion' },
+      // kid/big/tween directional variants — all tagged motion-only.
+      { text: '[name:{protagonist.name}] [c:{signature_action.text}] sideways, on purpose this time. Nobody else noticed. [name:{protagonist.name}] noticed.', tiers:['kid','big','tween'], requiresMoveClass:'motion' },
+      { text: '[name:{protagonist.name}] [c:{signature_action.text}] across the room and stopped exactly where they started. The point landed.', tiers:['kid','big','tween'], requiresMoveClass:'motion' },
+      { text: '[name:{protagonist.name}] [c:{signature_action.text}] toward the [c:{ally.text}] and then away again, faster.', tiers:['kid','big','tween'], requiresMoveClass:'motion' },
+      // v0.9.3 · b40 — NEW gesture-friendly kid/big/tween variants so
+      // gesture/state moves still get visible flavor callbacks.
+      { text: 'Without warning, [name:{protagonist.name}] [c:{signature_action.text}]. The room noticed. [name:{protagonist.name}] did not explain.', tiers:['kid','big','tween'] },
+      { text: '[name:{protagonist.name}] [c:{signature_action.text}], deliberately, where the [c:{ally.text}] could see. The [c:{ally.text}] filed it away.', tiers:['kid','big','tween'] },
     ],
     /* v0.9.3 · b31 — Sensory-callback polish.
        Variant entries are now either strings (legacy uniform-random eligible
@@ -5455,10 +5581,17 @@ function generateStoryV3(name, picks, age) {
   function pickFlavorVariant(role, tier) {
     const variants = FLAVOR_CALLBACKS[role];
     if (!variants || !variants.length) return null;
+    // v0.9.3 · b40 — for signature_action specifically, also filter variants
+    // tagged `requiresMoveClass:'motion'` when the picked move is a gesture.
+    // Other roles ignore moveClass.
+    const moveClass = (role === 'signature_action' && roles.signature_action)
+      ? (roles.signature_action.class || 'motion')
+      : null;
     const eligible = variants.filter(v => {
-      if (typeof v === 'string') return true;        // legacy entries — all tiers
-      if (!v.tiers || !v.tiers.length) return true;
-      return v.tiers.includes(tier);
+      if (typeof v === 'string') return true;        // legacy entries — all tiers, class-agnostic
+      if (v.tiers && v.tiers.length && !v.tiers.includes(tier)) return false;
+      if (v.requiresMoveClass && moveClass && v.requiresMoveClass !== moveClass) return false;
+      return true;
     });
     if (!eligible.length) return null;
     const pick = eligible[Math.floor(Math.random() * eligible.length)];

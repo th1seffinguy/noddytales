@@ -1627,19 +1627,36 @@ console.log('\n=== 19. Sensory-callback polish audit (v0.9.3 · b31) ===');
   // (h,i) signature_action + mood_throughline filler nominalizations.
   //       Force ages 2-13 with a known-leaky move/mood pick and assert the
   //       killed surfaces never render.
+  // v0.9.3 · b40 — DEFECT FIX: the b39 binoculars gate previously set
+  // `setting.objectBias='binoculars'`, but V3 picks the object slot
+  // randomly from V2_WORDS.objects without consulting objectBias. The
+  // gate fired 0 binoculars renders in 200+ samples (verified via
+  // /tmp/b40-before.js). b40 adds a deterministic test-only opt-in
+  // `picks.__forceProp` that injects the named object into the prop
+  // slot. The gate now exercises BOTH a plural prop (binoculars) and
+  // a singular prop (wobbly telescope) to cover both surfaces. If
+  // __forceProp ever drifts, the gate also asserts the prop name
+  // actually appears in the story (sanity check that the override is
+  // effective).
   const showWrongPluralRX = /\b(had a binoculars|held half a binoculars|half a binoculars|one binoculars\b|rested on one binoculars|a binoculars\b)/i;
+  const showWrongSingularRX = /\b(had wobbly telescope\b|half a wobbly telescope|some wobbly telescope\b)/i;
   let p39PluralLeaks = 0;
+  let p40PropRenderMisses = 0;
+  let p40SingularLeaks = 0;
   const p39PluralDetail = [];
   const showWrongAges = [6, 7, 8, 9, 10, 11, 12, 13];
   const N_SW = 80;
   for (let i = 0; i < N_SW; i++) {
     const age = showWrongAges[i % showWrongAges.length];
+    // alternate plural prop vs singular prop across the sample
+    const forcedProp = (i % 2 === 0) ? 'binoculars' : 'wobbly_telescope';
     const picks = {
       pet:{w:'crow'}, food:{w:'pizza'}, place:{w:'mall'},
       creature:{w:'eagle'}, color:{w:'red'}, move:{w:'zoomed'}, mood:{w:'silly'},
       freeword:{w:'plop'}, freeword2:{w:'glorp'}, sound:{w:'TOOT'}, sky:{w:'stars'},
-      setting:{id:'somewhere_weird', place:{text:'mall', articleText:'the mall'}, visitorBias:'creature', objectBias:'binoculars'},
+      setting:{id:'somewhere_weird', place:{text:'mall', articleText:'the mall'}, visitorBias:'creature', objectBias:'object'},
       storyMode:'bedtime', pottyMode:false,
+      __forceProp: forcedProp,
     };
     // Force show_wrong_v3 by retrying generation
     let s = null;
@@ -1649,15 +1666,30 @@ console.log('\n=== 19. Sensory-callback polish audit (v0.9.3 · b31) ===');
     }
     if (!s || s.__blueprint !== 'show_wrong_v3') continue;
     const text = stripHighlights([s.title, ...(s.paragraphs || [])].join(' '));
-    if (showWrongPluralRX.test(text)) {
+    // Sanity: the forced prop must actually appear in the rendered story.
+    const propText = forcedProp === 'wobbly_telescope' ? 'wobbly telescope' : forcedProp;
+    if (!text.toLowerCase().includes(propText)) {
+      p40PropRenderMisses++;
+      if (p39PluralDetail.length < 3) p39PluralDetail.push('age ' + age + ' forcedProp=' + forcedProp + ': prop never rendered');
+    }
+    if (forcedProp === 'binoculars' && showWrongPluralRX.test(text)) {
       p39PluralLeaks++;
-      if (p39PluralDetail.length < 3) {
+      if (p39PluralDetail.length < 6) {
         const m = text.match(showWrongPluralRX) || [''];
-        p39PluralDetail.push('age ' + age + ': ' + m[0]);
+        p39PluralDetail.push('age ' + age + ' binoculars: ' + m[0]);
+      }
+    }
+    if (forcedProp === 'wobbly_telescope' && showWrongSingularRX.test(text)) {
+      p40SingularLeaks++;
+      if (p39PluralDetail.length < 9) {
+        const m = text.match(showWrongSingularRX) || [''];
+        p39PluralDetail.push('age ' + age + ' wobbly_telescope: ' + m[0]);
       }
     }
   }
-  gate('show_wrong_v3 with prop=binoculars never renders "a binoculars" / "half a binoculars" / "one binoculars" (kid/big/tween)', p39PluralLeaks === 0, p39PluralLeaks + ' leaks across forced show_wrong samples');
+  gate('show_wrong_v3 with __forceProp actually renders the forced prop (deterministic test infrastructure)', p40PropRenderMisses === 0, p40PropRenderMisses + ' samples failed to render the forced prop');
+  gate('show_wrong_v3 with prop=binoculars never renders "a binoculars" / "half a binoculars" / "one binoculars" (kid/big/tween)', p39PluralLeaks === 0, p39PluralLeaks + ' leaks across forced plural-prop samples');
+  gate('show_wrong_v3 with prop=wobbly telescope never renders broken singular grammar', p40SingularLeaks === 0, p40SingularLeaks + ' leaks across forced singular-prop samples');
   if (p39PluralDetail.length) p39PluralDetail.forEach(d => console.log('    ' + d));
 
   // signature_action filler — force the leaky moves Codex flagged.
@@ -1720,6 +1752,90 @@ console.log('\n=== 19. Sensory-callback polish audit (v0.9.3 · b31) ===');
   }
   gate('no story contains mood_throughline filler ("[mood] energy to it" / "[mood] quality to the air" / "turned a particular shade of [mood]")', moodFillerLeaks === 0, moodFillerLeaks + '/' + N_MOOD + ' leaks');
   if (moodFillerDetail.length) moodFillerDetail.forEach(d => console.log('    ' + d));
+
+  // v0.9.3 · b40 — DEFECT FIX gate.
+  //
+  // Tween move options include gesture/state phrases ("dramatically sighed",
+  // "existentially paused", "stared into the middle distance",
+  // "mysteriously vanished", "reluctantly arrived") that compose
+  // nonsensically with directional frames ("across the stage", "toward the
+  // ally", "past the suspect", "sideways", "right past", "without
+  // thinking"). b40 introduces MOVE_CLASS routing: motion-class moves
+  // (locomotion) → directional frames; gesture-class moves (state /
+  // reaction / stillness) → class-agnostic frames only. This gate forces
+  // EVERY tween picker move through 50 generation cycles and asserts the
+  // killed composite never renders.
+  const TWEEN_GESTURE_MOVES = [
+    'dramatically sighed','casually yeeted everything','existentially paused',
+    'mysteriously vanished','aggressively scrolled','passive-aggressively waved',
+    'reluctantly arrived','took a long sip and stared','nodded knowingly',
+    'awkwardly hovered','blinked dramatically','panicked quietly',
+    'stared into the middle distance',
+  ];
+  const TWEEN_MOTION_MOVES = [
+    'speed-ran','chaotically bolted','gracefully bailed','rage-walked','speed-walked nowhere',
+  ];
+  let p40MoveCompositeLeaks = 0;
+  const p40MoveDetail = [];
+  for (const move of TWEEN_GESTURE_MOVES) {
+    const moveEsc = move.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Composite: "Cole <gesture> <directional-tail>" — should never appear
+    // after b40. Directional tails enumerated to match the frames that were
+    // tagged requiresMoveClass:'motion' in the engine.
+    const compositeRX = new RegExp(
+      'Cole ' + moveEsc + ' (across|over to|past the|toward|sideways|right past|right through|forward fast|without thinking)',
+      'i'
+    );
+    for (let i = 0; i < 50; i++) {
+      const age = 11 + (i % 3);
+      const picks = {
+        pet:{w:'duck'}, food:{w:'pizza'}, place:{w:'forest'},
+        creature:{w:'dragon'}, color:{w:'red'}, move:{w:move}, mood:{w:'sleepy'},
+        freeword:{w:'plop'}, freeword2:{w:'glorp'}, sound:{w:'TOOT'}, sky:{w:'stars'},
+        setting:{id:'at_home', place:{text:'bedroom', articleText:'the bedroom'}, visitorBias:'creature', objectBias:'object'},
+        storyMode:'bedtime', pottyMode:false,
+      };
+      let text;
+      try { const s = ctx.generateStoryV3('Cole', picks, age); text = s ? stripHighlights([s.title, ...(s.paragraphs || [])].join(' ')) : ''; }
+      catch (e) { text = ''; }
+      if (compositeRX.test(text)) {
+        p40MoveCompositeLeaks++;
+        if (p40MoveDetail.length < 5) {
+          const m = text.match(new RegExp('[^.!?]*' + compositeRX.source + '[^.!?]*[.!?]', 'i'));
+          p40MoveDetail.push('age ' + age + ' move="' + move + '": ' + (m ? m[0].slice(0, 160) : ''));
+        }
+      }
+    }
+  }
+  gate('tween gesture moves never compose into directional frames ("Cole dramatically sighed across the stage" / "Cole mysteriously vanished without thinking")', p40MoveCompositeLeaks === 0, p40MoveCompositeLeaks + ' leaks across 13 gestures × 50 samples (650 total)');
+  if (p40MoveDetail.length) p40MoveDetail.forEach(d => console.log('    ' + d));
+
+  // Counter-check: motion-class tween moves SHOULD still hit directional
+  // frames (otherwise the routing would have orphaned them).
+  let motionMovesHitDirectional = 0;
+  for (const move of TWEEN_MOTION_MOVES) {
+    const moveEsc = move.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const directionalRX = new RegExp(
+      'Cole ' + moveEsc + ' (across|over to|past|toward|sideways|right past|right through|forward fast)',
+      'i'
+    );
+    let hit = false;
+    for (let i = 0; i < 30 && !hit; i++) {
+      const picks = {
+        pet:{w:'duck'}, food:{w:'pizza'}, place:{w:'forest'},
+        creature:{w:'dragon'}, color:{w:'red'}, move:{w:move}, mood:{w:'sleepy'},
+        freeword:{w:'plop'}, freeword2:{w:'glorp'}, sound:{w:'TOOT'}, sky:{w:'stars'},
+        setting:{id:'at_home', place:{text:'bedroom', articleText:'the bedroom'}, visitorBias:'creature', objectBias:'object'},
+        storyMode:'bedtime', pottyMode:false,
+      };
+      let text;
+      try { const s = ctx.generateStoryV3('Cole', picks, 12); text = s ? stripHighlights([s.title, ...(s.paragraphs || [])].join(' ')) : ''; }
+      catch (e) { text = ''; }
+      if (directionalRX.test(text)) hit = true;
+    }
+    if (hit) motionMovesHitDirectional++;
+  }
+  gate('tween motion moves still route into directional frames (regression check on b40 routing)', motionMovesHitDirectional >= 3, motionMovesHitDirectional + '/' + TWEEN_MOTION_MOVES.length + ' motion moves hit a directional frame in 30 samples');
 }
 
 /* === 20. SETTING-BIAS COVERAGE GATE (added v0.9.3 · b36) ===
