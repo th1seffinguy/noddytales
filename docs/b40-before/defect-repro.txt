@@ -1,0 +1,18 @@
+=== P1: tween gesture composed with directional frame ===
+  total samples: 390
+  composite failures: 225 (57.7%)
+  age 11 move="dramatically sighed":  Cole dramatically sighed across the stage like that had been the plan all along.
+  age 11 move="dramatically sighed":  Cole dramatically sighed across the stage like that had been the plan all along.
+  age 11 move="dramatically sighed":  Cole dramatically sighed across the stage like that had been the plan all along.
+  age 11 move="dramatically sighed":  Cole dramatically sighed across the room and stopped exactly where they started.
+  age 11 move="dramatically sighed":  Cole dramatically sighed past the dragon with theatrical timing.
+  age 11 move="dramatically sighed":  Cole dramatically sighed past the dragon with theatrical timing.
+  age 11 move="dramatically sighed":  Cole dramatically sighed without thinking.
+  age 11 move="dramatically sighed":  Cole dramatically sighed across the stage like that had been the plan all along.
+  age 11 move="dramatically sighed":  Cole dramatically sighed sideways, on purpose this time.
+  age 11 move="casually yeeted everything":  Cole casually yeeted everything across the room and stopped exactly where they started.
+
+=== P2: Section 19 binoculars gate effectiveness ===
+  show_wrong samples (setting.objectBias=binoculars): 200
+  samples that ACTUALLY render binoculars: 0 (0.0%)
+  → setting.objectBias is NOT honored by V3; gate is ineffective.

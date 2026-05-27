@@ -9,6 +9,117 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 40, engine v3.0.3) — 2026-05-27
+**Move-class routing + binoculars regression-gate fix**
+
+Two High defects fixed in one focused build. No UI / picker / voice / icon changes.
+
+### P1 — Tween gesture moves compose nonsensically with directional frames
+
+Codex repro at b39:
+- *"Cole reluctantly arrived across the stage like that had been the plan all along."*
+- *"Cole mysteriously vanished without thinking. It was a thing they did now."*
+- *"Cole stared into the middle distance without thinking. It was a thing they did now."*
+
+Root cause: 13 of 18 tween `move` picker options are gesture/state/reaction phrases that do not compose with directional locomotion frames ("across the stage", "toward", "past the", "sideways", "without thinking"). The engine had no compatibility check — any picked move was substituted into any signature_action frame. Force-cycle BEFORE: **225 / 390 = 57.7% composite failures**.
+
+Fix — semantic compatibility routing:
+- New module-scope `MOVE_CLASS` table classifies every picker move (tot/little/kid/big/tween, ~80 options) as `motion` (locomotion-compatible) or `gesture` (stillness/state/reaction). Default for unknown moves is `motion` (safe — kid pool is 100% motion).
+- Move slot construction attaches `class` to the slot.
+- `pickStageBeat` and `pickFlavorVariant` filter out beats/variants tagged `requiresMoveClass:'motion'` when the picked move is a gesture. Untagged beats are class-agnostic and remain eligible for both.
+- 7 V3 beats tagged motion-only (split `v3_sw_attempt_move` into 2 beats: motion-only "across the stage" + class-agnostic "like it was the plan"; rewrote `v3_sw_attempt_tween_unhinged` to drop "across the stage" entirely).
+- NEW gesture-friendly beat: `v3_ls_attempt_tween_gesture` — *"Cole [signature_action] at the [false_suspect]. The [false_suspect] did not love being [signature_action] at."*
+- FLAVOR_CALLBACKS.signature_action: 5 variants tagged `requiresMoveClass:'motion'` (the directional ones including "without thinking"). 2 NEW class-agnostic gesture-friendly variants added: *"Without warning, [name] [move]. The room noticed. [name] did not explain."* and *"[name] [move], deliberately, where the [ally] could see. The [ally] filed it away."*
+
+### P2 — b39 binoculars regression gate did not actually force prop
+
+Codex repro at b39: the b39 Section 19 plural-prop gate set `setting.objectBias='binoculars'`, but V3 picks the prop slot via `rawPick(V2_WORDS.objects)` without consulting objectBias. **0 / 200 samples actually rendered binoculars** — the gate was a no-op and any plural-prop regression would have shipped silently.
+
+Fix — test-only deterministic injection:
+- Added `picks.__forceProp` opt-in to `generateStoryV3`. When set, the engine resolves the named object out of `V2_WORDS.objects` (preserving `isPlural`/`article` metadata) and uses it for the prop slot. Picker never sets this; only QA gates use it.
+- Section 19 binoculars gate rewritten to alternate `__forceProp` between `binoculars` (plural) and `wobbly_telescope` (singular) across 80 forced samples.
+- New first-line sanity sub-gate: fails if the forced prop name doesn't actually appear in the story body (catches any future routing change that breaks the override).
+
+### New QA gates (Section 19 — now 14 sub-gates total)
+
+| # | Gate | Result |
+|---|---|---|
+| (j) | `__forceProp` actually renders the forced prop | 0 misses / 80 samples |
+| (k) | show_wrong + plural prop never renders broken plural grammar | 0 leaks / 40 plural samples |
+| (l) | show_wrong + singular prop never renders broken singular grammar | 0 leaks / 40 singular samples |
+| (m) | tween gesture moves never compose into directional frames | 0 leaks / 13 gestures × 50 = 650 samples |
+| (n) | tween motion moves still route into directional frames (regression check) | 5 / 5 motion moves hit a directional frame |
+
+All 4 new gates use the `stripHighlights()` helper from b38 so the lint sees the same surface the reader and TTS do.
+
+### Verification
+
+| Check | Result |
+|---|---|
+| 390-sample tween force-cycle (P1) | composite failures **225 → 0** |
+| 40-sample `__forceProp:'binoculars'` | binoculars rendered **0 → 40 / 40 (100%)** |
+| `scripts/qa-current.js` | ✓ all gates green (Section 19 now 14 sub-gates) |
+| `node --check` on src/content.js + src/engine-v2.js + api/tts.js | clean |
+| `content-grammar-lint --reps 1000` | 0 hits on every check |
+| `content-random-50` | 0 nulls |
+| `content-comedy-mechanics` | 11.14 / 21 |
+| `content-punchline-audit` | changes_scene 47.0%, quoted_only 15.7% |
+| `content-repetition-report` | 14 phrases above 20%, 0 endings above threshold |
+| `content-blueprint-health` | 0 nulls across all 8 blueprints |
+
+### Sentence-count medians vs b39
+
+| Tier | b39 | b40 | Δ |
+|---|---|---|---|
+| tot | 16 | 16 | 0 |
+| little | 17 | 17 | 0 |
+| kid | 21 | 20 | −1 |
+| big | 24 | 24 | 0 |
+| tween | 25 | 26 | **+1** |
+
+Tween +1 reflects the new gesture-friendly callbacks landing reliably (where previously the engine produced silent directional-frame nonsense at gesture moves). Net narrative quality up; "Stories too long globally" defect remains `In Progress`.
+
+### Manual review — 5 stories per tier × 5 tiers (25 total)
+
+Full transcript: `docs/b40-after/manual-review-samples.txt`. Picks deliberately exercised both motion and gesture moves at every tier. **Every selected move composes naturally**:
+
+| Tier · move | Sample (b40) |
+|---|---|
+| tween 11 `dramatically sighed` | *"Without warning, Cole dramatically sighed. The room noticed. Cole did not explain."* |
+| tween 12 `mysteriously vanished` | *"Without warning, Cole mysteriously vanished. The room noticed. Cole did not explain."* |
+| tween 13 `stared into the middle distance` | *"Cole stared into the middle distance one more time, just to make a point."* |
+| tween 11 `reluctantly arrived` | *"Cole reluctantly arrived, deliberately, where the duck could see. The duck filed it away."* |
+| tween 12 `speed-walked nowhere` (motion) | *"Cole speed-walked nowhere like a professional who had committed to a specific kind of unhinged."* |
+| big 8 `posed dramatically` | *"Somewhere in there, Cole posed dramatically for emphasis."* |
+| big 8 `flailed politely` | *"Cole flailed politely one more time, just to make a point."* |
+| big 8 `stared bravely` | *"For two full seconds, Cole stared bravely like the room owed them money. It did not."* |
+| big 8 `sprinted incorrectly` (motion) | *"Cole sprinted incorrectly sideways while holding the lunch tray."* |
+| big 8 `tiptoed cautiously` (motion) | *"Cole tiptoed cautiously across the scene."* |
+
+Zero stories show a gesture move glued to a directional frame. Both motion and gesture routing paths produce visible, compatible events.
+
+### Remaining story-quality risks (deferred, not in b40 scope)
+
+1. **Vowel-start mood architectural risk** (b39 carryover) — defensive `articleText` for mood slot when first vowel-start mood ships.
+2. **"Stories too long globally"** — still `In Progress`. Tween +1 sentence median; net narrative quality up.
+3. **Big-tier gesture companions** — `posed dramatically`, `flailed politely`, etc. land into class-agnostic frames cleanly, but big tier has no `requiresMoveClass:'gesture'` companion beats. Class-agnostic survivors carry the load. Worth 1-2 explicit big-tier gesture variants if rendering feels thin.
+4. **Move-class on free-text** — picker is the only path consulting `MOVE_CLASS`. If a future feature lets parents type custom move text, unknown moves default to 'motion' (safe for verbs; risky for typed gestures). Defensive plan: `looksLikeMotion()` heuristic at input time when free-text moves ship.
+5. **`v3_ls_attempt_tween_gesture` is single-variant** — could repeat across replays for tween gesture × lost_snack. Worth 2-3 variants in b41 if repetition-report surfaces it.
+
+### Files changed
+
+- `src/engine-v2.js` — `MOVE_CLASS` table (module scope, ~80 entries); move slot class field; `pickStageBeat` filter; `pickFlavorVariant` filter; 6 beat tags + 1 new gesture beat + 1 split + 1 rewrite; `picks.__forceProp` injection
+- `scripts/qa-current.js` — Section 19 extended: rewrote binoculars gate to use `__forceProp` and exercise both plural and singular props; new tween-move × frame exhaustive sweep with motion-side regression check
+- `src/content.js` — BUILD_NUMBER 39 → 40
+- `index.html` — b40 RELEASE_NOTES entry
+- `CHANGELOG.md` — this entry
+- `docs/b40-move-class-routing.md` — full diff report (new)
+- `docs/b40-before/` + `docs/b40-after/` — repro scripts + audit snapshots + 25-story manual review
+
+`APP_VERSION` stays `v0.9.3`; `BUILD_NUMBER` 39 → **40**; `ENGINE_V2_VERSION` stays `v3.0.3`. Badge reads `v0.9.3 · b40`.
+
+---
+
 ## v0.9.3 (build 39, engine v3.0.3) — 2026-05-27
 **Story-language integrity repair — show_wrong plural prop + signature_action/mood filler**
 
