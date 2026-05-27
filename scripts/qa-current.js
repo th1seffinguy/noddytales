@@ -1618,6 +1618,108 @@ console.log('\n=== 19. Sensory-callback polish audit (v0.9.3 · b31) ===');
   gate('no story contains "a [vowel-color]" article mismatch ("a apple red" / "a electric blue" / etc.) across ages 2-7', articleLeaks === 0, articleLeaks + '/' + N_VS + ' leaks');
   if (articleDetail.length) articleDetail.forEach(d => console.log('    ' + d));
   gate('no story contains abstract color callback for ages 8-13 either', olderAbstractLeaks === 0, olderAbstractLeaks + '/' + N_OLDER + ' leaks');
+
+  // v0.9.3 · b39 — DEFECT FIX gates.
+  //
+  // (g) show_wrong_v3 plural-prop grammar. Force prop=binoculars (plural,
+  //     isPlural:true) across kid/big/tween. Fail on "a binoculars",
+  //     "half a binoculars", "one binoculars".
+  // (h,i) signature_action + mood_throughline filler nominalizations.
+  //       Force ages 2-13 with a known-leaky move/mood pick and assert the
+  //       killed surfaces never render.
+  const showWrongPluralRX = /\b(had a binoculars|held half a binoculars|half a binoculars|one binoculars\b|rested on one binoculars|a binoculars\b)/i;
+  let p39PluralLeaks = 0;
+  const p39PluralDetail = [];
+  const showWrongAges = [6, 7, 8, 9, 10, 11, 12, 13];
+  const N_SW = 80;
+  for (let i = 0; i < N_SW; i++) {
+    const age = showWrongAges[i % showWrongAges.length];
+    const picks = {
+      pet:{w:'crow'}, food:{w:'pizza'}, place:{w:'mall'},
+      creature:{w:'eagle'}, color:{w:'red'}, move:{w:'zoomed'}, mood:{w:'silly'},
+      freeword:{w:'plop'}, freeword2:{w:'glorp'}, sound:{w:'TOOT'}, sky:{w:'stars'},
+      setting:{id:'somewhere_weird', place:{text:'mall', articleText:'the mall'}, visitorBias:'creature', objectBias:'binoculars'},
+      storyMode:'bedtime', pottyMode:false,
+    };
+    // Force show_wrong_v3 by retrying generation
+    let s = null;
+    for (let t = 0; t < 50; t++) {
+      try { s = ctx.generateStoryV3('Cole', picks, age); } catch (e) { s = null; }
+      if (s && s.__blueprint === 'show_wrong_v3') break;
+    }
+    if (!s || s.__blueprint !== 'show_wrong_v3') continue;
+    const text = stripHighlights([s.title, ...(s.paragraphs || [])].join(' '));
+    if (showWrongPluralRX.test(text)) {
+      p39PluralLeaks++;
+      if (p39PluralDetail.length < 3) {
+        const m = text.match(showWrongPluralRX) || [''];
+        p39PluralDetail.push('age ' + age + ': ' + m[0]);
+      }
+    }
+  }
+  gate('show_wrong_v3 with prop=binoculars never renders "a binoculars" / "half a binoculars" / "one binoculars" (kid/big/tween)', p39PluralLeaks === 0, p39PluralLeaks + ' leaks across forced show_wrong samples');
+  if (p39PluralDetail.length) p39PluralDetail.forEach(d => console.log('    ' + d));
+
+  // signature_action filler — force the leaky moves Codex flagged.
+  const saFillerRX = /(There was a small \S+ moment that nobody quite witnessed in full|A short burst of \S+ happened\. Witnesses disagreed)/i;
+  let saFillerLeaks = 0;
+  const saFillerDetail = [];
+  const LEAKY_MOVES = ['splashed', 'swayed', 'crawled', 'zoomed', 'bounced'];
+  const sfAges = [2, 4, 6, 8, 12];
+  const N_SA = 100;
+  for (let i = 0; i < N_SA; i++) {
+    const age = sfAges[i % sfAges.length];
+    const move = LEAKY_MOVES[i % LEAKY_MOVES.length];
+    const picks = {
+      pet:{w:'duck'}, food:{w:'pizza'}, place:{w:'forest'},
+      creature:{w:'dragon'}, color:{w:'red'}, move:{w:move}, mood:{w:'silly'},
+      freeword:{w:'plop'}, freeword2:{w:'glorp'}, sound:{w:'TOOT'}, sky:{w:'stars'},
+      setting:{id:'at_home', place:{text:'bedroom', articleText:'the bedroom'}, visitorBias:'creature', objectBias:'object'},
+      storyMode:'bedtime', pottyMode:false,
+    };
+    let text;
+    try { const s = ctx.generateStoryV3('Cole', picks, age); text = s ? stripHighlights([s.title, ...(s.paragraphs || [])].join(' ')) : ''; }
+    catch (e) { text = ''; }
+    if (saFillerRX.test(text)) {
+      saFillerLeaks++;
+      if (saFillerDetail.length < 3) {
+        const m = text.match(saFillerRX) || [''];
+        saFillerDetail.push('age ' + age + ' move=' + move + ': ' + m[0]);
+      }
+    }
+  }
+  gate('no story contains signature_action filler ("a small [move] moment" / "A short burst of [move] happened")', saFillerLeaks === 0, saFillerLeaks + '/' + N_SA + ' leaks');
+  if (saFillerDetail.length) saFillerDetail.forEach(d => console.log('    ' + d));
+
+  // mood_throughline filler — force the leaky moods Codex flagged.
+  const moodFillerRX = /(\S+ energy to it\. Nobody could explain why|\S+ quality to the air, if anyone noticed|turned a particular shade of \S+)/i;
+  let moodFillerLeaks = 0;
+  const moodFillerDetail = [];
+  const LEAKY_MOODS = ['snack-motivated', 'heroically mediocre', 'minorly iconic', 'weirdly invested'];
+  const N_MOOD = 100;
+  for (let i = 0; i < N_MOOD; i++) {
+    const age = sfAges[i % sfAges.length];
+    const mood = LEAKY_MOODS[i % LEAKY_MOODS.length];
+    const picks = {
+      pet:{w:'duck'}, food:{w:'pizza'}, place:{w:'forest'},
+      creature:{w:'dragon'}, color:{w:'red'}, move:{w:'zoomed'}, mood:{w:mood},
+      freeword:{w:'plop'}, freeword2:{w:'glorp'}, sound:{w:'TOOT'}, sky:{w:'stars'},
+      setting:{id:'at_home', place:{text:'bedroom', articleText:'the bedroom'}, visitorBias:'creature', objectBias:'object'},
+      storyMode:'bedtime', pottyMode:false,
+    };
+    let text;
+    try { const s = ctx.generateStoryV3('Cole', picks, age); text = s ? stripHighlights([s.title, ...(s.paragraphs || [])].join(' ')) : ''; }
+    catch (e) { text = ''; }
+    if (moodFillerRX.test(text)) {
+      moodFillerLeaks++;
+      if (moodFillerDetail.length < 3) {
+        const m = text.match(moodFillerRX) || [''];
+        moodFillerDetail.push('age ' + age + ' mood="' + mood + '": ' + m[0]);
+      }
+    }
+  }
+  gate('no story contains mood_throughline filler ("[mood] energy to it" / "[mood] quality to the air" / "turned a particular shade of [mood]")', moodFillerLeaks === 0, moodFillerLeaks + '/' + N_MOOD + ' leaks');
+  if (moodFillerDetail.length) moodFillerDetail.forEach(d => console.log('    ' + d));
 }
 
 /* === 20. SETTING-BIAS COVERAGE GATE (added v0.9.3 · b36) ===

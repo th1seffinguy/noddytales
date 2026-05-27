@@ -1,0 +1,220 @@
+
+========================================
+AGE 2 — 5 samples
+========================================
+
+--- age 2 #1 (tot_sky_v3, move=splashed, mood="sleepy") ---
+Title: Cole Sees the Stars
+ Cole spotted the duck from across the room. Cole waved. The duck waved back.
+ "plop?" whispered Cole. "plop?" whispered the duck. The stars tipped over by itself.
+ Cole sang "plop." The duck sang it too. The stars joined in. Cole splashed once. The duck splashed back. A small light went red, then off.
+ Cole picked up the duck for a hug. "Night, duck," said Cole. Then Cole curled up.
+
+--- age 2 #2 (tot_sky_v3, move=swayed, mood="snack-motivated") ---
+Title: Hi, Stars!
+ Cole spotted the duck from across the room. Cole waved. The duck waved back.
+ "snorble!" said Cole. "snorble!" said the duck. Then the stars sneezed.
+ "snorble?" whispered Cole. "snorble?" whispered the duck. The stars tipped over by itself. Cole swayed past the duck. The duck swayed too. A small light went midnight blue, then off.
+ Time for a hug. Cole hugged the duck. Then Cole yawned. The duck yawned too.
+
+--- age 2 #3 (tot_wonder_v3, move=crawled, mood="heroically mediocre") ---
+Title: Cole and the Duck
+ "Come on, duck!" said Cole. The duck came. Cole led the way.
+ "wubba?" whispered Cole. "wubba?" whispered the duck. The pizza tipped over by itself.
+ "wubba!" said Cole. "wubba!" said the duck. The pizza hopped. Once. Cole crawled past the duck. The duck crawled too. Cole's socks looked apple red for a blink. Then normal.
+ Time for a hug. Cole hugged the duck. Then Cole yawned. The duck yawned too.
+
+--- age 2 #4 (tot_wonder_v3, move=zoomed, mood="minorly iconic") ---
+Title: Cole and the Duck
+ Cole grabbed the duck's paw. "Ready?" said Cole. The duck nodded.
+ "bonk?" said Cole. "bonk!" said the duck. Then the pizza wiggled.
+ "bonk!" said Cole. "bonk!" said the duck. The pizza hopped. Once. Cole zoomed once. The duck zoomed back. The window went electric blue for one second. Then plain again.
+ Now Cole is sleepy. The duck is sleepy too. Good night, duck. Good night, Cole.
+
+--- age 2 #5 (tot_sky_v3, move=bounced, mood="weirdly invested") ---
+Title: Cole Sees the Stars
+ Cole ran outside. The duck was right there. "Hi duck!" said Cole.
+ "flumpy?" said Cole. "flumpy!" said the duck. Then the stars wiggled.
+ "flumpy?" whispered Cole. "flumpy?" whispered the duck. The stars tipped over by itself. Cole bounced one more time, just to make a point. A small light went rainbow, then off. A wet sneakers smell rolled through the room and rolled back out.
+ Now Cole is sleepy. The duck is sleepy too. Good night, duck. Good night, Cole.
+
+========================================
+AGE 4 — 5 samples
+========================================
+
+--- age 4 #1 (little_quest_v3, move=splashed, mood="sleepy") ---
+Title: Cole and the Suspicious Envelope
+ Cole spotted the duck across the yard. "Hey duck!" said Cole. The duck was already smiling.
+ "plop," whispered Cole, like it was a spell. The suspicious envelope flipped over by itself. The duck looked impressed.
+ Cole tapped the suspicious envelope like a button. "plop!" said Cole. "plop!" said the duck. The suspicious envelope did exactly nothing, which was funny. Cole splashed once. The duck splashed back. A small light went red, then off.
+ By the end of the day, Cole and the duck were tired and happy. They hugged. Then they went to bed.
+
+--- age 4 #2 (little_quest_v3, move=swayed, mood="snack-motivated") ---
+Title: How Cole Found the Dramatic Cape
+ It was a bright morning. Cole grabbed the duck and headed out. "We have a plan," said Cole.
+ Cole tapped the dramatic cape like a button. "snorble!" said Cole. "snorble!" said the duck. The dramatic cape did exactly nothing, which was funny.
+ "snorble," whispered Cole, like it was a spell. The dramatic cape flipped over by itself. The duck looked impressed. Cole swayed briefly, then pretended that had not happened. The window went midnight blue for one second. Then plain again.
+ Cole pulled the duck into a small pillow fort. "We made it," said Cole. The duck yawned.
+
+--- age 4 #3 (little_food_v3, move=crawled, mood="heroically mediocre") ---
+Title: Cole and the Pizza
+ Cole spotted the duck across the yard. "Hey duck!" said Cole. The duck was already smiling.
+ "wubba," whispered Cole, like it was a spell. The pizza flipped over by itself. The duck looked impressed.
+ "wubba!" said Cole. The duck said it back. Then they said it together. The pizza hummed along, kind of. Cole crawled briefly, then pretended that had not happened. A small light went apple red, then off.
+ Cole pulled the duck into a small pillow fort. "We made it," said Cole. The duck yawned.
+
+--- age 4 #4 (little_quest_v3, move=zoomed, mood="minorly iconic") ---
+Title: Cole and the Duck
+ Cole opened a door and the duck tumbled in. "Hi!" said Cole. "Hi back!" said the duck — somehow.
+ "bonk!" said Cole. The duck said it back. Then they said it together. The whistle hummed along, kind of.
+ Cole tapped the whistle like a button. "bonk!" said Cole. "bonk!" said the duck. The whistle did exactly nothing, which was funny. Cole zoomed one more time, just to make a point. Cole's socks looked electric blue for a blink. Then normal. A whiff of wet dog moved through. There was no dog.
+ By the end of the day, Cole and the duck were tired and happy. They hugged. Then they went to bed.
+
+--- age 4 #5 (little_food_v3, move=bounced, mood="weirdly invested") ---
+Title: Cole Shares the Pizza
+ Cole spotted the duck across the yard. "Hey duck!" said Cole. The duck was already smiling.
+ "flumpy," whispered Cole, like it was a spell. The pizza flipped over by itself. The duck looked impressed.
+ "flumpy!" said Cole. The duck said it back. Then they said it together. The pizza hummed along, kind of. Cole bounced briefly, then pretended that had not happened. The window went rainbow for one second. Then plain again.
+ By the end of the day, Cole and the duck were tired and happy. They hugged. Then they went to bed.
+
+========================================
+AGE 6 — 5 samples
+========================================
+
+--- age 6 #1 (show_wrong_v3, move=splashed, mood="sleepy") ---
+Title: Cole's Big Show
+ The whole thing rested on the shopping cart. Cole had practiced. The duck had practiced. The bedroom was, technically, ready.
+ The shopping cart launched itself, bounced once, and landed in the duck's lap. The look on the duck's face was unsurvivable.
+ Cole splashed and shouted "plop!" The pillows leaned forward. One actually fell over from leaning. The bit was working. The radiator said "glorp," which radiators do not usually do. Underneath everything, Cole was running on pure sleepy. A dragon watched the whole thing happen and offered no comment.
+ Cole pointed at the broken shopping cart: "plop." The shopping cart reassembled itself in roughly the wrong order. The duck applauded the wrong order. The show was now better. A stripe of red appeared on the floor and pointed the wrong way. Meanwhile, a pizza waited patiently for its moment.
+ Backstage, Cole and the duck looked at each other and at the exact same moment said "plop." That was the show's name now, apparently. Forever.
+
+--- age 6 #2 (rule_loophole_v3, move=swayed, mood="snack-motivated") ---
+Title: How Cole Outsmarted the Dragon
+ Cole and the duck had arrived at the bedroom with a simple plan: have a regular afternoon. The duck was good at regular afternoons.
+ A wall of "no" landed between Cole and the pizza. Cole went very snack-motivated. The dragon sensed escalation.
+ Cole swayed sideways while holding the sticker sheet. This was a different move than the one the rule said no to. A different move! The rule said nothing back. A tiny spot of midnight blue appeared on the back of Cole's hand. Blinked once. Gone.
+ "snorble," said Cole. The rule, which had said "no pizza," now apparently said "yes pizza." The dragon checked the paperwork. The paperwork agreed. "glorp," went somebody. Nobody asked who.
+ In bed, Cole thought about the loophole and quietly said "snorble" one more time, just to seal it. The duck said "snorble" too, like a co-signature. Bedtime: earned.
+
+--- age 6 #3 (goal_spine_v3, move=crawled, mood="heroically mediocre") ---
+Title: Cole and the Duck Try to Hide So Well That Nobody Finds Them
+ Cole woke up with one plan: hide so well that nobody finds them, today at the bedroom. The duck was already in.
+ The dragon blocked Cole's plan to hide so well that nobody finds them. Bad ideas everywhere.
+ Cole walked right past the dragon while pretending to be a traffic cone painted apple red. The dragon watched, confused. For three whole seconds, Cole was visibly heroically mediocre. Then back to baseline.
+ Cole said "wubba" once. The dragon found somewhere else to be and Cole hid so well that nobody could find them through the gap with the duck. Cole crawled without thinking. It was a thing they did now. "glorp," went somebody. Nobody asked who. Meanwhile, a pizza waited patiently for its moment. A puff of dragon breath happened. Nobody had a dragon.
+ After dinner, Cole's dad asked how the day went. "It was a wubba kind of day," said Cole. Dad nodded like he understood. He did not understand. He filed it anyway.
+
+--- age 6 #4 (show_wrong_v3, move=zoomed, mood="minorly iconic") ---
+Title: The Day Cole Saved the Show
+ Backstage at the bedroom, Cole gave the hallway pass one final inspection. The duck was already in character. Showtime in thirty.
+ The hallway pass snapped. Right in the middle. Cole and the duck stared at each half.
+ Cole improvised. "bonk!" Then zoomed. Then "bonk!" again, louder. The pillows were INTO IT. Meanwhile, a pizza waited patiently for its moment.
+ Cole pointed at the broken hallway pass: "bonk." The hallway pass reassembled itself in roughly the wrong order. The duck applauded the wrong order. The show was now better. For two seconds the lamp glowed electric blue. Then back to normal. And one of them, very quietly, said "glorp." Cole glanced at the duck in a way that was minorly iconic, specifically. The duck caught it. A dragon watched the whole thing happen and offered no comment.
+ Backstage, Cole and the duck looked at each other and at the exact same moment said "bonk." That was the show's name now, apparently. Forever.
+
+--- age 6 #5 (goal_spine_v3, move=bounced, mood="weirdly invested") ---
+Title: The Day Cole Tried to Plan a Surprise Party
+ Cole pulled the duck aside at the bedroom: the plan was plan a surprise party. The duck nodded immediately.
+ The dragon stood between Cole and victory. Cole felt weirdly invested about it. The dragon did not look like it was going to move on its own.
+ Cole walked up to the dragon in full weirdly invested mode — no apologies, just weirdly invested. The dragon took a small step back. Somewhere in there, Cole bounced for emphasis.
+ Cole said "flumpy" once. The dragon found somewhere else to be and Cole planned the surprise party through the gap with the duck. Cole's sleeves turned rainbow. Nobody explained this. Somebody had brought pizza. Nobody knew when. Nobody minded.
+ Cole climbed into bed. The duck climbed in too. The day got its closing line: "glorp," whispered Cole. The duck sneezed in approval.
+
+========================================
+AGE 8 — 5 samples
+========================================
+
+--- age 8 #1 (lost_snack_v3, move=splashed, mood="sleepy") ---
+Title: Who Took the Pizza?
+ There was the bedroom. There was Cole. There was the duck. And there, briefly, was the pizza.
+ No pizza anywhere. Cole went sleepy like a tiny detective. The dragon hummed a song nobody had asked for.
+ Cole spotted it: a tiny red crumb on the floor. Then another. Then another. The crumbs were leading somewhere. They were not leading to the dragon.
+ The duck burped — the exact kind of burp that smells like pizza. "Oh," said Cole. Cole splashed sideways, on purpose this time. Nobody else noticed. Cole noticed.
+ Cole looked straight at the dragon and said one word: "plop." The dragon confessed immediately. To a different crime. Cole noted it for later. A faint waft of old bananas drifted past. Nobody owned up to it.
+ Bedtime came. Cole yawned. The duck yawned too. Just before sleep, the duck mumbled "glorp" into the pillow, like it was the official sign-off now.
+
+--- age 8 #2 (goal_spine_v3, move=swayed, mood="snack-motivated") ---
+Title: The Day Cole Tried to Find the Hidden Treasure
+ Cole pulled the duck aside at the bedroom: the plan was find the hidden treasure. The duck nodded immediately.
+ The dragon stood between Cole and victory. Cole felt snack-motivated about it. The dragon did not look like it was going to move on its own.
+ Cole waved a flag — bright midnight blue — at the dragon, who had not been briefed on any flag and froze just long enough.
+ The dragon doubled down: "pizza or nothing." Cole decided "or nothing" was not on the table. A "glorp" came out of the closet. The closet stayed closed.
+ Cole said "snorble" once. The dragon found somewhere else to be and Cole found the hidden treasure through the gap with the duck. Somewhere in there, Cole swayed for emphasis.
+ After dinner, Cole's dad asked how the day went. "It was a snorble kind of day," said Cole. Dad nodded like he understood. He did not understand. He filed it anyway.
+
+--- age 8 #3 (lost_snack_v3, move=crawled, mood="heroically mediocre") ---
+Title: The Day the Pizza Vanished
+ The pizza had been Cole's plan all morning. The duck was already at the bedroom, waiting. The duck was extra excited.
+ The pizza had vanished. Cole felt heroically mediocre and unusually focused about it. The dragon noticed and tried to act normal. It was not working.
+ Cole went full heroically mediocre and walked toward the dragon. "Tell me what you saw." The dragon cracked immediately.
+ Cole turned to the duck, who was staring at a fake leaf it had been holding this whole time. "Caught," said Cole. For two full seconds, Cole crawled like the room owed them money. It did not.
+ "wubba!" said Cole. The dragon froze mid-bite and the pizza dropped out of its mouth, landing perfectly on Cole's plate. Case closed by gravity. The mirror went apple red for a beat. Mirrors are not supposed to do that.
+ Bedtime came. Cole yawned. The duck yawned too. Just before sleep, the duck mumbled "glorp" into the pillow, like it was the official sign-off now.
+
+--- age 8 #4 (lost_snack_v3, move=zoomed, mood="minorly iconic") ---
+Title: Cole and the Pizza Mystery
+ There was the bedroom. There was Cole. There was the duck. And there, briefly, was the pizza.
+ The pizza had vanished. Cole turned minorly iconic in a way the dragon could feel from across the room. The dragon coughed for no reason.
+ Something electric blue caught Cole's eye. A tiny smear. On the rug. In the EXACT shape of a paw print. The duck looked at the ceiling.
+ The duck suddenly found the ceiling fascinating. The pizza had vanished. So had the duck's alibi. Just then a "glorp" cracked the silence. Nobody admitted to it.
+ "bonk!" said Cole. The dragon froze mid-bite and the pizza dropped out of its mouth, landing perfectly on Cole's plate. Case closed by gravity. Cole zoomed briefly, then pretended that had not happened.
+ The next morning at breakfast, Cole's mom asked what was for snack. "bonk crackers," said Cole, totally normal. Mom nodded. The duck approved. It was just a word that meant something now.
+
+--- age 8 #5 (goal_spine_v3, move=bounced, mood="weirdly invested") ---
+Title: Cole vs the Dragon
+ Cole pulled the duck aside at the bedroom: the plan was deliver a secret message. The duck nodded immediately.
+ The dragon stood between Cole and victory. Cole felt weirdly invested about it. The dragon did not look like it was going to move on its own.
+ Cole walked up to the dragon in full weirdly invested mode — no apologies, just weirdly invested. The dragon took a small step back.
+ The dragon doubled down: "pizza or nothing." Cole decided "or nothing" was not on the table.
+ Cole said "flumpy" once. The dragon found somewhere else to be and Cole delivered the secret message through the gap with the duck. For two full seconds, Cole bounced like the room owed them money. It did not. Cole's sleeves turned rainbow. Nobody explained this. A "glorp" came out of the closet. The closet stayed closed.
+ After dinner, Cole's dad asked how the day went. "It was a flumpy kind of day," said Cole. Dad nodded like he understood. He did not understand. He filed it anyway.
+
+========================================
+AGE 12 — 5 samples
+========================================
+
+--- age 12 #1 (show_wrong_v3, move=splashed, mood="sleepy") ---
+Title: The Shopping List Broke But Cole Did Not
+ The bit: Cole, the duck, the shopping list, one bedroom. Nobody had asked. Cole was doing it anyway.
+ The shopping list broke. Cole held what was left of the shopping list and made eye contact with the universe.
+ The shopping list failed exactly on cue. Cole splashed across the stage like that had been the plan all along. The audience was, technically, into it. Mostly. A stripe of red appeared on the floor and pointed the wrong way.
+ A dragon in the audience filmed the whole thing on a phone. The duck noticed and started playing to the camera. Cole decided this was now content. It might even go viral. Underneath everything, Cole was running on pure sleepy.
+ Cole pointed at the broken shopping list: "plop." The shopping list reassembled itself in roughly the wrong order. The duck applauded the wrong order. The show was now better. Off to the side, a pizza sat there, mostly forgotten, definitely still part of the day. A puff of dragon breath happened. Nobody had a dragon.
+ Later, Cole replayed the whole disaster. The duck was already asleep. "glorp," said Cole to nobody, retroactively naming the whole thing. Some sign-offs are just for you.
+
+--- age 12 #2 (rule_loophole_v3, move=swayed, mood="snack-motivated") ---
+Title: Cole and the Dragon's Rule
+ Over by the bedroom, Cole was doing the bare minimum. So was the duck. Suspiciously calm energy. Things were technically fine. They would not stay fine.
+ A wall of "no" landed between Cole and the pizza. Cole went very snack-motivated. The dragon sensed escalation.
+ Cole held up the hallway pass like a permit. The angle was specific. The angle was correct. The rule, as written, had nothing to say about the angle. Cole simply executed.
+ The dragon watched Cole hold the hallway pass and felt outmaneuvered by precisely one inch of vocabulary. Bureaucracy is just words. Cole had the right ones. Cole swayed one more time, just to make a point. A stripe of midnight blue appeared on the floor and pointed the wrong way.
+ "snorble!" went Cole. The dragon heard a code word it apparently knew, mumbled "ah, the snorble clause," and waved Cole through with the pizza. There was no snorble clause. "glorp," went somebody. Nobody asked who.
+ On the walk home, Cole filed the loophole for future use. The duck was definitely going to use it back on Cole eventually. "snorble," said Cole one more time, quietly. The duck saved it.
+
+--- age 12 #3 (goal_spine_v3, move=crawled, mood="heroically mediocre") ---
+Title: Cole and the Duck Try to Build the Perfect Hideout
+ One objective today, at the bedroom: build the perfect hideout. The duck knew it. Cole knew it. Everybody else would find out shortly.
+ The dragon stood between Cole and victory. Cole felt heroically mediocre about it. The dragon did not look like it was going to move on its own.
+ Cole crawled like a professional who had committed to a specific kind of unhinged. The dragon had not budgeted for this. Cole did not break eye contact.
+ The dragon tried to introduce a pizza into the negotiation. It was a stretch. Cole did not negotiate. Cole kept moving.
+ Cole said "wubba" once. The dragon found somewhere else to be and Cole built the perfect hideout through the gap with the duck. A stripe of apple red appeared on the floor and pointed the wrong way.
+ On the way home, Cole played it back. The duck kept bouncing along. "glorp," said Cole, filing it. The duck heard and stamped its approval, which is a thing the duck can apparently do now.
+
+--- age 12 #4 (show_wrong_v3, move=zoomed, mood="minorly iconic") ---
+Title: Cole and the Duck Take the Stage
+ The bit: Cole, the duck, the mystery coupon, one bedroom. Nobody had asked. Cole was doing it anyway.
+ The mystery coupon fell over in front of everyone, in slow motion, like it had timing. Cole had to commit to something immediately.
+ The mystery coupon failed exactly on cue. Cole zoomed across the stage like that had been the plan all along. The audience was, technically, into it. Mostly. Cole's sleeves turned electric blue. Nobody explained this.
+ A dragon in the audience filmed the whole thing on a phone. The duck noticed and started playing to the camera. Cole decided this was now content. It might even go viral. Somebody had brought pizza. Nobody knew when. Nobody minded.
+ "bonk!" yelled Cole at the broken mystery coupon. The mystery coupon twitched, then did exactly what it had refused to do five minutes ago. Pillows lost it. And one of them, very quietly, said "glorp." For three whole seconds, Cole was visibly minorly iconic. Then back to baseline.
+ Walking out, Cole was already rewriting the encore. "bonk," they said with the duck, like a band name. Apparently they had a band.
+
+--- age 12 #5 (show_wrong_v3, move=bounced, mood="weirdly invested") ---
+Title: Cole and the Duck Take the Stage
+ Cole had been workshopping the wobbly telescope thing all week — the duck was reluctantly co-starring at the bedroom.
+ The wobbly telescope fell over in front of everyone, in slow motion, like it had timing. Cole had to commit to something immediately.
+ The wobbly telescope failed exactly on cue. Cole bounced across the stage like that had been the plan all along. The audience was, technically, into it. Mostly. Cole's shoes briefly turned rainbow. Briefly. Just then a "glorp" cracked the silence. Nobody admitted to it. Cole kept feeling weirdly invested about the whole thing.
+ A dragon in the audience filmed the whole thing on a phone. The duck noticed and started playing to the camera. Cole decided this was now content. It might even go viral. Somebody had brought pizza. Nobody knew when. Nobody minded.
+ "flumpy!" yelled Cole at the broken wobbly telescope. The wobbly telescope twitched, then did exactly what it had refused to do five minutes ago. Pillows lost it.
+ Walking out, Cole was already rewriting the encore. "flumpy," they said with the duck, like a band name. Apparently they had a band.
