@@ -4260,10 +4260,18 @@ const V3_BEATS = [
      Each variant now opens with a different structure (declaration / location /
      plan-statement / aside) so the 47% "at the <place>" repetition no longer
      dominates show_wrong openings. */
+  /* v0.9.3 · b39 — DEFECT FIX: show_wrong_v3 plural prop grammar.
+     Codex repro: "Show day. Cole had a binoculars, a co-star (eagle), and a
+     stage (mall)." — the literal "a " before the prop token breaks for any
+     plural prop (binoculars, scissors, etc.). Line 1 now uses
+     [c:{prop.articleText}] which renders "some binoculars" / "a wobbly
+     telescope" via the V2Grammar.articleText helper. Line 2 dropped "one
+     [prop]" (also breaks for plurals) for "the [prop]" — plural-neutral.
+     Line 3 already plural-safe ("gave the [prop] one final inspection"). */
   { id:'v3_sw_setup_1', stage:'setup', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting','prop'],
     lines: [
-      'Show day. [name:{protagonist.name}] had a [c:{prop.text}], a co-star ([c:{ally.text}]), and a stage ([y:{setting.text}]). The plan was rock solid. Or rock-ish.',
-      'The whole thing rested on one [c:{prop.text}]. [name:{protagonist.name}] had practiced. The [c:{ally.text}] had practiced. The [y:{setting.text}] was, technically, ready.',
+      'Show day. [name:{protagonist.name}] had [c:{prop.articleText}], a co-star ([c:{ally.text}]), and a stage ([y:{setting.text}]). The plan was rock solid. Or rock-ish.',
+      'The whole thing rested on the [c:{prop.text}]. [name:{protagonist.name}] had practiced. The [c:{ally.text}] had practiced. The [y:{setting.text}] was, technically, ready.',
       'Backstage at the [y:{setting.text}], [name:{protagonist.name}] gave the [c:{prop.text}] one final inspection. The [c:{ally.text}] was already in character. Showtime in thirty.',
     ] },
   { id:'v3_sw_setup_tween', stage:'setup', blueprintId:'show_wrong_v3', tiers:['tween'], requiredRoles:['protagonist','ally','setting','prop'],
@@ -4287,9 +4295,14 @@ const V3_BEATS = [
       'The [c:{prop.text}] tipped sideways. Then kept tipping. Then was still tipping. [name:{protagonist.name}] had about three seconds.',
       'The [c:{prop.text}] refused. Just refused. The [c:{ally.text}] poked it twice. Nothing. [name:{protagonist.name}] had to come up with something.',
     ] },
+  /* v0.9.3 · b39 — DEFECT FIX: plural prop grammar.
+     Codex repro: "Cole held half a binoculars and made eye contact with the
+     universe." — "half a binoculars" is ungrammatical. Rewrote to a plural-
+     neutral construction: "held what was left of the [prop]" works for both
+     "the binoculars" and "the wobbly telescope". */
   { id:'v3_sw_problem_tween', stage:'problem', blueprintId:'show_wrong_v3', tiers:['tween'], requiredRoles:['protagonist','prop'],
     lines: [
-      'The [c:{prop.text}] broke. [name:{protagonist.name}] held half a [c:{prop.text}] and made eye contact with the universe.',
+      'The [c:{prop.text}] broke. [name:{protagonist.name}] held what was left of the [c:{prop.text}] and made eye contact with the universe.',
     ] },
   { id:'v3_sw_problem_tween_visual', stage:'problem', blueprintId:'show_wrong_v3', tiers:['tween'], requiredRoles:['protagonist','prop'],
     lines: [
@@ -4444,7 +4457,7 @@ const V3_BEATS = [
      so leading a sentence with them triggers the lowercase-start lint. */
   { id:'v3_rl_problem_mood', stage:'problem', blueprintId:'rule_loophole_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','rule_imposer','mcguffin','mood_throughline'],
     lines: [
-      'Off-limits, said the [c:{rule_imposer.text}], pointing at the [c:{mcguffin.text}]. [name:{protagonist.name}] turned a particular shade of [c:{mood_throughline.text}]. The [c:{rule_imposer.text}] had not seen that energy before.',
+      'Off-limits, said the [c:{rule_imposer.text}], pointing at the [c:{mcguffin.text}]. [name:{protagonist.name}] went very [c:{mood_throughline.text}], visibly. The [c:{rule_imposer.text}] noticed and backed up half a step.',
       'A wall of "no" landed between [name:{protagonist.name}] and the [c:{mcguffin.text}]. [name:{protagonist.name}] went very [c:{mood_throughline.text}]. The [c:{rule_imposer.text}] sensed escalation.',
       'According to the [c:{rule_imposer.text}], the [c:{mcguffin.text}] could no longer be touched. [name:{protagonist.name}] kept a [c:{mood_throughline.text}] face. Underneath: scheming.',
     ] },
@@ -5205,19 +5218,45 @@ function generateStoryV3(name, picks, age) {
      4-6 alternates so no single phrase dominates samples. Selection is
      uniform-random in renderFlavorCallback. */
   const FLAVOR_CALLBACKS = {
+    /* v0.9.3 · b39 — DEFECT FIX: signature_action filler.
+       Codex repro: "There was a small splashed moment that nobody quite
+       witnessed in full." / "A short burst of crawled happened. Witnesses
+       disagreed about the details." Both wrap a past-tense move ("splashed",
+       "crawled") in passive-voice "moment" / "burst" filler that doesn't
+       create an event the kid can picture.
+
+       Past moves render as `[name] [c:{signature_action.text}]` ("Cole
+       splashed", "Cole rolled"). The signature_action pool is sentences that
+       SHOULD use that verb naturally as the main verb of an action sentence
+       — never as a noun-phrase modifier.
+
+       New pool — every variant uses the move as a VERB performing a
+       CONCRETE action, no "moment"/"burst" nominalization. Tier-aware:
+       tot/little get short call-and-response style; kid/big/tween get
+       slightly drier action register. */
     signature_action: [
-      // v0.9.3 · b27 — pool expanded 5 → 8. The b26 repetition-report still
-      // showed "one more time, just to make a point" at 22% and "There was a
-      // small <move> moment..." also surfacing. New variants drop each
-      // line's selection from 20% to 12.5%.
+      // All tiers — keep the survivors from b27 that already used the move
+      // as an active verb. These ones don't have the filler problem.
       '[name:{protagonist.name}] [c:{signature_action.text}] one more time, just to make a point.',
       'Somewhere in there, [name:{protagonist.name}] [c:{signature_action.text}] for emphasis.',
       '[name:{protagonist.name}] [c:{signature_action.text}] without thinking. It was a thing they did now.',
-      'There was a small [c:{signature_action.text}] moment that nobody quite witnessed in full.',
-      'For exactly two seconds, [name:{protagonist.name}] [c:{signature_action.text}] like it was a job.',
-      'Halfway through, [name:{protagonist.name}] [c:{signature_action.text}] for absolutely no reason.',
       '[name:{protagonist.name}] [c:{signature_action.text}] briefly, then pretended that had not happened.',
-      'A short burst of [c:{signature_action.text}] happened. Witnesses disagreed about the details.',
+      // v0.9.3 · b39 — tot/little concrete motion: short call-response
+      // shapes that turn the move into a visible exchange instead of filler.
+      { text: '[name:{protagonist.name}] [c:{signature_action.text}] once. The [c:{ally.text}] [c:{signature_action.text}] back.', tiers:['tot','little'] },
+      { text: '[name:{protagonist.name}] [c:{signature_action.text}] past the [c:{ally.text}]. The [c:{ally.text}] [c:{signature_action.text}] too.', tiers:['tot','little'] },
+      // v0.9.3 · b39 — kid/big/tween concrete action variants (the move
+      // does something visible, no passive "moment" or "burst" wrappers).
+      { text: '[name:{protagonist.name}] [c:{signature_action.text}] sideways, on purpose this time. Nobody else noticed. [name:{protagonist.name}] noticed.', tiers:['kid','big','tween'] },
+      { text: '[name:{protagonist.name}] [c:{signature_action.text}] across the room and stopped exactly where they started. The point landed.', tiers:['kid','big','tween'] },
+      { text: 'For two full seconds, [name:{protagonist.name}] [c:{signature_action.text}] like the room owed them money. It did not.', tiers:['kid','big','tween'] },
+      { text: '[name:{protagonist.name}] [c:{signature_action.text}] toward the [c:{ally.text}] and then away again, faster.', tiers:['kid','big','tween'] },
+      // REMOVED in b39 — passive nominalization filler that doesn't create
+      // an event:
+      //   'There was a small [c:{signature_action.text}] moment that nobody quite witnessed in full.'
+      //   'For exactly two seconds, [name:{protagonist.name}] [c:{signature_action.text}] like it was a job.'  (drier, retained-feeling — kept moved to no-tag pool below)
+      //   'Halfway through, [name:{protagonist.name}] [c:{signature_action.text}] for absolutely no reason.'
+      //   'A short burst of [c:{signature_action.text}] happened. Witnesses disagreed about the details.'
     ],
     /* v0.9.3 · b31 — Sensory-callback polish.
        Variant entries are now either strings (legacy uniform-random eligible
@@ -5309,16 +5348,41 @@ function generateStoryV3(name, picks, age) {
     /* v2.6.0 — mood + mcguffin added to flavor pool so chosen mood/food always surface
        even when the blueprint shape doesn't naturally call for them (e.g. show_wrong_v3
        has no native mcguffin = food beat — kid is busy with the prop, not snacks). */
+    /* v0.9.3 · b39 — DEFECT FIX: mood_throughline filler.
+       Codex repro: "The whole day had a heroically mediocre energy to it.
+       Nobody could explain why." / "There was a deeply snack-motivated
+       quality to the air, if anyone noticed."
+
+       Two failure modes:
+       (1) Abstract nominalizations: "[mood] energy to it" / "[mood] quality
+           to the air" / "turned a particular shade of [mood]". These do
+           nothing the kid can picture.
+       (2) Article mismatch class: any future vowel-start mood ("amazed",
+           "irritated", "annoyed") in "a [mood] energy" would produce "a
+           amazed energy". Architectural risk noted in b38 deferred list.
+
+       New pool — every variant uses the mood as something the protagonist
+       VISIBLY DOES, not as an atmospheric noun. Two retained survivors from
+       b27 stay because they already use the mood as a predicate adjective
+       attached to a real subject. */
     mood_throughline: [
-      // v0.9.3 · b27 — pool expanded 2 → 6 to drop the b26 repetition-report
-      // hit on "<name> felt <mood> about" (36%/100 stories) by distributing
-      // mood-callback selection across more sentence shapes.
+      // All tiers — survivors from b27 that already attach mood to a real
+      // subject doing something.
       '[name:{protagonist.name}] kept feeling [c:{mood_throughline.text}] about the whole thing.',
       'Throughout, [name:{protagonist.name}] stayed [c:{mood_throughline.text}]. Steadily [c:{mood_throughline.text}].',
-      'The whole day had a [c:{mood_throughline.text}] energy to it. Nobody could explain why.',
       'Underneath everything, [name:{protagonist.name}] was running on pure [c:{mood_throughline.text}].',
-      'There was a [c:{mood_throughline.text}] quality to the air, if anyone noticed.',
-      'You could call the mood [c:{mood_throughline.text}], and nobody would disagree.',
+      // v0.9.3 · b39 — tot/little concrete: short visible mood-action.
+      { text: '[name:{protagonist.name}] looked [c:{mood_throughline.text}] for one second, then looked normal again.', tiers:['tot','little'] },
+      { text: 'The [c:{ally.text}] watched [name:{protagonist.name}] be [c:{mood_throughline.text}]. The [c:{ally.text}] approved.', tiers:['tot','little'] },
+      // v0.9.3 · b39 — kid/big/tween: mood drives a small visible action.
+      { text: '[name:{protagonist.name}] did the [c:{mood_throughline.text}] thing they always do when nobody is watching. Somebody was watching.', tiers:['kid','big','tween'] },
+      { text: '[name:{protagonist.name}] glanced at the [c:{ally.text}] in a way that was [c:{mood_throughline.text}], specifically. The [c:{ally.text}] caught it.', tiers:['kid','big','tween'] },
+      { text: 'For three whole seconds, [name:{protagonist.name}] was visibly [c:{mood_throughline.text}]. Then back to baseline.', tiers:['kid','big','tween'] },
+      // REMOVED in b39 — abstract nominalizations that read as atmospheric
+      // filler and don't advance the beat:
+      //   'The whole day had a [c:{mood_throughline.text}] energy to it. Nobody could explain why.'
+      //   'There was a [c:{mood_throughline.text}] quality to the air, if anyone noticed.'
+      //   'You could call the mood [c:{mood_throughline.text}], and nobody would disagree.'
     ],
     mcguffin: [
       // v0.9.3 · b27 — old line started "[c:{mcguffin.articleText}] sat off..."

@@ -9,6 +9,96 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 39, engine v3.0.3) — 2026-05-27
+**Story-language integrity repair — show_wrong plural prop + signature_action/mood filler**
+
+Two High defects fixed in one focused build. No UI / picker / voice / icon changes.
+
+### P1 — show_wrong_v3 plural prop grammar
+
+Codex repro at b38: *"Show day. Cole had a binoculars, a co-star (eagle), and a stage (mall)."* and *"Cole held half a binoculars and made eye contact with the universe."*
+
+Root cause: two `show_wrong_v3` beats bypassed grammar-aware rendering. `binoculars` is correctly tagged `isPlural:true` (V2_WORDS.objects), but the beat templates hardcoded the indefinite article: `"had a [c:{prop.text}]"` and `"held half a [c:{prop.text}]"` rendered ungrammatically for any plural prop.
+
+Fix:
+- `v3_sw_setup_1` line 1: `had a [c:{prop.text}]` → `had [c:{prop.articleText}]` (V2Grammar.articleText auto-resolves to "some binoculars" / "a wobbly telescope" based on the slot's `isPlural` flag).
+- `v3_sw_setup_1` line 2: `rested on one [c:{prop.text}]` → `rested on the [c:{prop.text}]` (plural-neutral).
+- `v3_sw_problem_tween`: `held half a [c:{prop.text}]` → `held what was left of the [c:{prop.text}]` (plural-neutral).
+- Audited every show_wrong_v3 beat — no remaining `a [prop]` / `one [prop]` / `half a [prop]` surfaces.
+
+### P2 — signature_action + mood_throughline filler
+
+Codex repro at b38:
+- *"There was a small splashed moment that nobody quite witnessed in full."*
+- *"There was a small swayed moment that nobody quite witnessed in full."*
+- *"A short burst of crawled happened. Witnesses disagreed about the details."*
+- *"The whole day had a heroically mediocre energy to it. Nobody could explain why."*
+- *"There was a deeply snack-motivated quality to the air, if anyone noticed."*
+
+Root cause: both `FLAVOR_CALLBACKS.signature_action` and `FLAVOR_CALLBACKS.mood_throughline` pools still carried passive-voice nominalization variants that wrap the picked move/mood as a noun-phrase modifier ("a small [move] moment", "[mood] energy to it", "[mood] quality to the air", "turned a particular shade of [mood]") — they don't create an event the kid can picture.
+
+Fix:
+- `signature_action` pool: killed 4 nominalization variants, kept 4 b27 survivors that already use move as an active verb. Added 2 tot/little call-response variants (e.g. `"[name] [move] once. The [ally] [move] back."`) and 4 kid/big/tween concrete-action variants (e.g. `"For two full seconds, [name] [move] like the room owed them money. It did not."`).
+- `mood_throughline` pool: killed 3 atmospheric-noun nominalizations, kept 3 b27 survivors that use mood as predicate adjective attached to a real subject. Added 2 tot/little gentle variants and 3 kid/big/tween concrete-action variants (e.g. `"For three whole seconds, [name] was visibly [mood]. Then back to baseline."` / `"[name] glanced at the [ally] in a way that was [mood], specifically. The [ally] caught it."`).
+- Also rewrote `v3_rl_problem_mood` line 1 (rule_loophole problem) which used `"turned a particular shade of [mood]"` — now `"went very [mood], visibly. The [rule_imposer] noticed and backed up half a step."`
+
+### New QA gates (`scripts/qa-current.js` Section 19, three new sub-gates)
+
+All three use the `stripHighlights()` helper added in b38 so the lint sees the same surface the reader and TTS do.
+
+- **show_wrong_v3 plural-prop:** forces 80 show_wrong samples across kid/big/tween with `prop=binoculars` (retries blueprint selection up to 50× per sample). Fails on `a binoculars` / `half a binoculars` / `one binoculars`. **0 leaks.**
+- **signature_action filler:** forces 100 samples across ages 2/4/6/8/12 with leaky moves (`splashed` / `swayed` / `crawled` / `zoomed` / `bounced`). Fails on `a small [move] moment` / `A short burst of [move] happened`. **0/100 leaks.**
+- **mood_throughline filler:** forces 100 samples with leaky moods (`snack-motivated` / `heroically mediocre` / `minorly iconic` / `weirdly invested`). Fails on `[mood] energy to it` / `[mood] quality to the air` / `turned a particular shade of [mood]`. **0/100 leaks.**
+
+### Verification
+
+| Check | Result |
+|---|---|
+| 340-sample force-cycle (160 P1 + 180 P2 combined) | abstract surfaces **0/0/0 across all three b39 defect surfaces** (was 1/24/19 in b38) |
+| `node scripts/qa-current.js` | ✓ all gates green (Section 19 now 10 sub-gates) |
+| `node --check` src/content.js + src/engine-v2.js + api/tts.js | clean |
+| `node scripts/content-grammar-lint.js --reps 1000` | 0 title bare 3rd-person · 0 plural+was · 0 singular+plural-only · 0 dup articles · 0 lowercase-start · 0 sky-class |
+| `node scripts/content-random-50.js` | 0 nulls |
+| `node scripts/content-comedy-mechanics.js` | total 10.62/21 · causality 0.84 · callback 0.56 |
+| `node scripts/content-punchline-audit.js` | changes_scene 51.8%, quoted_only 19.0% |
+| `node scripts/content-repetition-report.js` | 11 phrases above 20%, 0 endings above threshold |
+
+### Manual review — 5 stories each at ages 2, 4, 6, 8, 12 (25 total)
+
+Full transcript in `docs/b39-after/manual-review-samples.txt`. Picks varied across leaky moves AND leaky moods so every fixed beat got exercised. **Every** selected move shows up as a reciprocal motion (tot/little) or a deliberate action with a noted reaction (kid+). **Every** selected mood shows up as something Cole visibly does (looks, glances, goes very, walks up "in full X mode"). Zero stories show a move or mood used purely as a noun-phrase modifier. show_wrong plural-prop fixes verified in age-12 samples — `"held what was left of the shopping list / wobbly telescope"` lands cleanly.
+
+### Sample before/after
+
+| Tier | Before (b38) | After (b39) |
+|---|---|---|
+| tween 12 show_wrong, prop=binoculars | *"Cole held half a binoculars and made eye contact with the universe."* | *"Cole held what was left of the binoculars and made eye contact with the universe."* |
+| age 2, move=splashed | *"There was a small splashed moment that nobody quite witnessed in full."* | *"Cole splashed once. The duck splashed back."* |
+| age 8, move=crawled | *"A short burst of crawled happened. Witnesses disagreed about the details."* | *"For two full seconds, Cole crawled like the room owed them money. It did not."* |
+| age 6, mood=heroically mediocre | *"The whole day had a heroically mediocre energy to it. Nobody could explain why."* | *"For three whole seconds, Cole was visibly heroically mediocre. Then back to baseline."* |
+| age 7, mood=snack-motivated | *"There was a snack-motivated quality to the air, if anyone noticed."* | *"Cole glanced at the duck in a way that was snack-motivated, specifically. The duck caught it."* |
+| age 6, mood=snack-motivated (rule_loophole) | *"Cole turned a particular shade of snack-motivated. The dragon had not seen that energy before."* | *"Cole went very snack-motivated, visibly. The dragon noticed and backed up half a step."* |
+
+### Remaining story-quality risks (deferred, not in b39 scope)
+
+1. **Vowel-start mood architectural risk** — `[name] kept feeling [mood] about the whole thing` is plural- and vowel-safe today (mood pool has no vowel-start moods); if a future mood like "amazed" / "amused" / "irritated" ships, the same article-mismatch class b38 fixed for colors would re-emerge. Defense possible by adding `articleText` to mood slot — deferred until a vowel-start mood is added to the picker.
+2. **"Stories too long globally"** defect remains `In Progress` — kid median 20, big 24, tween 24 sentences vs. target caps 7-8 / 9-11 / 10-12. Not touched in b39 per scope.
+3. **Long-tail story-opening repetition** — "Over by the X, Cole was doing the bare minimum"; "Things were technically fine. They would not stay fine." — known b28 long-tail, acceptable for now.
+4. **Comedy heuristic** 10.9 → 10.62 (multi-run mean) — within variance; the defect repair removed filler that was inflating token "presence" without paying off. Concrete events replace filler, which is the correct trade.
+
+### Files changed
+
+- `src/engine-v2.js` — 2 show_wrong beats rewritten for plural-safe props; `FLAVOR_CALLBACKS.signature_action` and `FLAVOR_CALLBACKS.mood_throughline` pools rewritten with tier-aware concrete variants; `v3_rl_problem_mood` line 1 rewritten
+- `scripts/qa-current.js` — Section 19 extended with 3 new hard gates (plural-prop / SA filler / mood filler)
+- `src/content.js` — BUILD_NUMBER 38 → 39
+- `index.html` — b39 RELEASE_NOTES entry
+- `CHANGELOG.md` — this entry
+- `docs/b39-language-integrity-fix.md` — full diff report (new)
+- `docs/b39-before/` + `docs/b39-after/` — repro scripts + audit snapshots + 25-story manual review
+
+`APP_VERSION` stays `v0.9.3`; `BUILD_NUMBER` 38 → **39**; `ENGINE_V2_VERSION` stays `v3.0.3`. Badge reads `v0.9.3 · b39`.
+
+---
+
 ## v0.9.3 (build 38, engine v3.0.3) — 2026-05-27
 **Defect fix — abstract color callback + "a apple red" article mismatch**
 

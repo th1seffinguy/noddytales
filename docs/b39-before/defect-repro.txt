@@ -1,0 +1,22 @@
+=== P1: show_wrong_v3 plural prop (binoculars) ===
+
+  total show_wrong samples: 160
+  plural-prop grammar hits: 1 (0.6%)
+  age 12:  Cole held half a binoculars and made eye contact with the universe.
+
+=== P2: signature_action + mood_throughline filler ===
+
+  total samples: 180
+  signature_action filler hits: 24 (13.3%)
+  mood_throughline filler hits: 19 (10.6%)
+  SAMPLES:
+  age 2 SA:  There was a small splashed moment that nobody quite witnessed in full.
+  age 2 SA:  A short burst of splashed happened. Witnesses disagreed about the details.
+  age 2 SA:  There was a small splashed moment that nobody quite witnessed in full.
+  age 2 SA:  A short burst of splashed happened. Witnesses disagreed about the details.
+  age 2 SA:  A short burst of splashed happened. Witnesses disagreed about the details.
+  age 6 MOOD:  Cole turned a particular shade of snack-motivated. The dragon had not seen that energy before.
+  age 6 MOOD:  There was a snack-motivated quality to the air, if anyone noticed.
+  age 7 MOOD:  Cole turned a particular shade of snack-motivated. The dragon had not seen that energy before.
+  age 7 MOOD:  The whole day had a snack-motivated energy to it. Nobody could explain why.
+  age 7 MOOD:  There was a snack-motivated quality to the air, if anyone noticed.
