@@ -1,0 +1,132 @@
+NoddyTales v0.9.3 · b41 BEFORE proof — 4 High-severity defects logged 2026-05-27
+
+============================================================
+D1: Apostrophe word boundary breaks Speak highlight (RECURRING)
+============================================================
+Title containing apostrophe ("Cole's Big Show") + body containing possessives + contractions
+causes the highlight to fall one word behind. Reported across multiple sessions; previous
+fix attempts regressed.
+
+Investigation findings (b41):
+- wrapStoryWords (index.html:3940) splits text-node content on /(\s+)/ — preserves apostrophes
+- buildAlignmentTimings (index.html:3998) uses /\S+/g — preserves apostrophes
+- Both filter pure-punctuation tokens via [a-zA-Z0-9] test
+- Both *should* produce 1:1 token counts
+- The defect notes the fix keeps regressing — no single source of truth for "what is a word
+  in a NoddyTales story?". Two parallel implementations diverge under future edits.
+
+b41 architectural fix: extract shared tokenizeStoryText(s) → returns array of word-with-
+punctuation tokens. Both wrap + alignment paths consume it. Unit test covers possessives,
+contractions, hyphens, leading/trailing punct. Document as recurring class in CLAUDE.md.
+
+============================================================
+D2: Story quality failure (Cole's Big Show) — 6 sub-defects
+============================================================
+Generated story body (verbatim):
+
+  Cole's Big Show
+
+  Backstage at the bakery, Cole gave the noisy spoon one final inspection.
+  The lynx was already in character. Showtime in thirty.
+
+  The noisy spoon snapped. Right in the middle. Cole and the lynx stared
+  at each half.
+
+  Out came the only word that fit: "SPLAT!." Cole wobbled for emphasis. The
+  bit was a different bit now. Somebody had brought hot dogs. Nobody knew
+  when. Nobody minded.
+
+  Cole pointed at the broken noisy spoon: "SPLAT!." The noisy spoon
+  reassembled itself in roughly the wrong order. The lynx applauded the
+  wrong order. The show was now better. Cole's sleeves turned watermelon
+  pink. Nobody explained this. The backpack said "SPLAT!." Cole did not
+  open it. Cole kept feeling snacky about the whole thing. Off to the
+  side, the lunch wizard was processing all of this with visible
+  difficulty. A burnt toast smell drifted in. Nobody was making toast.
+
+  Backstage, Cole high-fived the lynx. The show was unrepeatable, which
+  felt right. Time to pack up and find the next thing.
+
+  ✦ The End ✦
+
+Sub-defects:
+  2a. "SPLAT!." — double-terminal-punctuation. Templates like '"[y:{chant.text}]."'
+      append a period after the chant token. When chant.text already ends in '!' (user
+      entered "SPLAT!"), result is '"SPLAT!."'. Multiple templates affected:
+      - engine-v2.js:4051 v3_ls_payoff_chant_suspect_caves
+      - engine-v2.js:4395 v3_sw_attempt_move (the "Out came the only word that fit" line)
+      - engine-v2.js:4457 v3_sw_payoff_chant_prop_unbreaks
+      - engine-v2.js:4498 v3_sw_landing_chant_callback
+      - engine-v2.js:4621 v3_rl_payoff_tool_chant
+      - engine-v2.js:5450 FLAVOR_CALLBACKS.payoff_word "The backpack said..."
+      - And ~3 more.
+
+  2b. "The noisy spoon reassembled itself in roughly the wrong order. The lynx
+      applauded the wrong order. The show was now better." (engine-v2.js:4457)
+      — visual gag without a comedic direction. Prop fixes itself "in roughly the wrong
+      order" reads as filler. Needs rewrite to a directed consequence.
+
+  2c. "Cole's sleeves turned watermelon pink. Nobody explained this. The backpack said
+      'SPLAT!.' Cole did not open it. Cole kept feeling snacky about the whole thing.
+      Off to the side, the lunch wizard was processing all of this with visible
+      difficulty. A burnt toast smell drifted in. Nobody was making toast."
+      — SIX FLAVOR_CALLBACKS in a single paragraph: visual_signature (sleeves),
+      payoff_word (backpack), mood_throughline (kept feeling snacky), companion-extension
+      (lunch wizard), smell. Callback-stacking inflates the paragraph past coherence.
+      No per-paragraph cap currently exists.
+
+  2d. "Cole kept feeling snacky about the whole thing." (engine-v2.js:5497) — survives
+      from a mood_throughline filler pool. b39 cleared "energy to it / quality to the
+      air / turned a particular shade of [mood]" but this variant slipped through.
+
+  2e. "Somebody had brought hot dogs. Nobody knew when. Nobody minded." — comes from a
+      mcguffin/companion FLAVOR_CALLBACK that injects an unrelated food noun. Disconnected
+      from the kid's picks.
+
+  2f. Story length: 5 paragraphs but P4 is bloated by callbacks (~10 sentences) — total
+      story ~17 sentences for a kid/big tier. Length defect remains In Progress globally;
+      callback cap will incidentally help.
+
+============================================================
+D3: Bedtime mode selected but anytime ending fired
+============================================================
+The reported ending — "Backstage, Cole high-fived the lynx. The show was unrepeatable,
+which felt right. Time to pack up and find the next thing." — is verbatim
+v3_sw_landing_any at engine-v2.js:4487, which is tagged mode:'anytime'.
+
+This beat ONLY fires when picks.storyMode === 'anytime' (engine-v2.js:5242). For the user
+to receive this ending despite "bedtime selected", picks.storyMode must have been 'anytime'
+at story-build time. Likely causes:
+  a) Stale Profile.storyMode from a prior session (nt_story_mode='anytime' persisted)
+  b) The storyMode picker step was not surfaced for the returning user, so the previously-
+     persisted value silently applied
+  c) UI tile selection didn't update state.storyMode (timing race / event-handler bug)
+
+Engineering response: the architecture must make storyMode determinism testable and
+visible. b41 adds:
+  - Audit/tag every V3 landing beat with explicit mode:'bedtime' or mode:'anytime'
+  - Rewrite untagged landings whose content isn't actually bedtime to include bedtime
+    closure (yawning, going to sleep, tucked in)
+  - QA Section 21 gate: generate 60 stories per kid/big/tween with picks.storyMode=
+    'bedtime' → final paragraph must contain bedtime lexicon; 0 leaks across all 180.
+
+============================================================
+D4: Secondary character (sidekick) added but never appeared in story
+============================================================
+Engine flow:
+  - state.sidekicks (Profile, persisted) → buildStory passes through → generateStoryV3
+  - engine-v2.js:3091-3092: picks one name from state.sidekicks if non-empty, else null
+  - Renders as slots.sidekick = { name, cap, lc } only when present
+  - V3 beats use {sidekick.cap}/{sidekick.lc} tokens — but only ONE V3 beat
+    (V2 only: h3 at engine-v2.js:1726) actually references sidekick
+
+V3 kid/big/tween blueprints reference 'ally' (companion pick) extensively, not 'sidekick'.
+So when state.sidekicks has a name (e.g., "Riley"), the engine picks Riley as sidekickName
+but no V3 beat uses {sidekick.*} tokens, and the rendered story never mentions Riley.
+
+Fix: when state.sidekicks is non-empty AND the rendered story body does not contain the
+sidekick name, append a 1-sentence sidekick cameo to the landing paragraph. New
+ensureSidekickAppears post-pass in generateStoryV3.
+
+Section 21 gate: state.sidekicks=['Riley'] → rendered body contains 'Riley' across all
+4 V3 blueprints × 3 tiers × 20 reps = 240 stories. 0 leaks.

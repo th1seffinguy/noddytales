@@ -117,6 +117,62 @@ When the user asks any short form of "QA", "QA current state", "audit current st
    - next recommended action
    - `Notion:` line
 
+## Recurring-Defect Guardrails
+
+These bug classes have shipped + regressed multiple times. Read before changing
+adjacent code.
+
+### Apostrophe word boundary in Speak highlight (recurring; b41 architectural fix)
+Symptom: the karaoke highlight falls one word behind when the story contains a
+possessive or contraction (Cole's, dragon's, don't, it's, can't). Most visible
+when the title contains an apostrophe — the highlight is off from the first
+word.
+
+Root cause: bracketed highlight tokens like `[name:Cole]` followed by `'s` in
+source render as a `<span>Cole</span>'s` pair in the DOM. The wrapStoryWords
+walker then produces TWO `.kw` spans (Cole, 's) while the TTS alignment from
+ElevenLabs returns ONE word timing for `Cole's`. Every word after the title
+runs one index ahead.
+
+The b41 architectural fix lives in **two** mirrored places — both MUST stay in
+sync or the bug returns:
+
+1. **`parseStoryLine`** in `index.html` — its bracket regex is
+   `/\[(name|c|y):([^\]]+)\]([’']s\b)?/g`. The optional `[’']s\b` group
+   absorbs any trailing `'s` (straight or curly) into the highlight span.
+2. **TTS `strip`** in `index.html` (`TTSManager.speak`) — keeps trailing `'s`
+   in the outgoing TTS text exactly where the source put it, so the
+   ElevenLabs alignment also sees `Cole's` as one word.
+
+Never:
+- Add a parallel tokenizer that splits story text on punctuation.
+- Make `wrapStoryWords` tokenize differently from the `[name|c|y:X]'s` regex
+  shape.
+- Strip apostrophes from highlight-token inner text.
+
+Test: `scripts/qa-current.js` Section 21 generates stories whose title contains
+an apostrophe + body containing contractions, and asserts wrap word count ==
+TTS alignment word count.
+
+### Phantom sidekick names
+The DEFAULT_SIDEKICKS pool was REMOVED in v1.19.1 (commit 80079d3). NEVER
+re-introduce invented sidekick names. If `state.sidekicks` is empty, the
+template uses the chip-styled `their pal` fallback.
+
+### Sidekick visibility in V3 (b41 fix)
+V3 blueprints have no `sidekick` slot. When `state.sidekicks` is non-empty,
+the engine APPENDS a 1-sentence cameo to the landing paragraph wrapped in
+`[name:X]` — see the b41 block in `generateStoryV3` (right after the smell
+callback). If you add a new V3 stage, do not break the post-render cameo
+injection — it walks the final paragraph only.
+
+### Bedtime mode determinism (b41 fix)
+The V3 engine appends a tier-appropriate bedtime closer sentence to the final
+paragraph when `picks.storyMode === 'bedtime'` AND no bedtime lexicon is
+already present. This makes bedtime mode produce bedtime endings regardless
+of which landing beat fires. Don't bypass this post-pass when adding new
+landing beats.
+
 ## Release Hygiene
 
 For shipped code changes:

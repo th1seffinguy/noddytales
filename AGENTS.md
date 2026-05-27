@@ -76,3 +76,10 @@ The prompt should tell Claude to:
 - Do not rely only on the repo without checking Notion for roadmap/UAT/product status.
 - Do not claim Notion was updated unless a Notion tool call succeeded.
 - Do not mark a build ready based only on automated QA when story quality or mobile UX is in scope.
+
+## Recurring-Defect Guardrails (b41+)
+
+Apostrophe word boundary in Speak highlight: see `CLAUDE.md` → "Recurring-Defect Guardrails".
+The fix lives in `parseStoryLine` (regex absorbs trailing `'s` into the highlight span) and
+must stay aligned with the TTS `strip` in `TTSManager.speak`. Section 21 of `qa-current.js`
+enforces wrap-word-count == TTS-alignment-word-count for titles containing apostrophes.

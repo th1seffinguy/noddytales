@@ -3061,7 +3061,10 @@ function generateStoryV2(name, picks, age) {
   const food      = mapPickToWord(picks.food?.w,     V2_WORDS.foods);
   // Object: bias to setting-appropriate objects when no explicit user pick.
   const object    = pickWithBias(V2_WORDS.objects, setting.objectBias);
-  const sound     = picks.freeword?.w ? { text: picks.freeword.w } : rawPick(V2_WORDS.sounds);
+  // v0.9.3 · b41 — strip terminal !/?/./, from user-entered freewords to
+  // prevent double terminal punctuation ('SPLAT!.') when templates append
+  // a period. Same fix applied to V3 path (~line 5119).
+  const sound     = picks.freeword?.w ? { text: picks.freeword.w.replace(/[!?.,]+$/, '') } : rawPick(V2_WORDS.sounds);
   const adverb    = rawPick(V2_WORDS.adverbs);
   const number    = rawPick(V2_WORDS.numbers);
   const liquid    = rawPick(V2_WORDS.liquids);
@@ -3073,7 +3076,8 @@ function generateStoryV2(name, picks, age) {
   const color = picks.color?.w ? { text: picks.color.w } : null;
   const move  = picks.move?.w  ? { text: picks.move.w }  : null;
   const mood  = picks.mood?.w  ? { text: picks.mood.w }  : null;
-  const freeword2 = picks.freeword2?.w ? { text: picks.freeword2.w } : null;
+  // v0.9.3 · b41 — strip terminal punctuation from user-entered freeword2 too.
+  const freeword2 = picks.freeword2?.w ? { text: picks.freeword2.w.replace(/[!?.,]+$/, '') } : null;
   /* v2.4.7 — weather is collected by the little-tier weather round (and any future tier
      that adds a weather round) but was unread until now. Treated as a free-string slot
      just like color/move/mood — beats can reference {weather.text} when relevant, and
@@ -4454,7 +4458,7 @@ const V3_BEATS = [
      reaction → catchphrase callback). */
   { id:'v3_sw_payoff_chant_prop_unbreaks', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','prop','chant'], jokeJob:'absurd_consequence',
     lines: [
-      '[name:{protagonist.name}] pointed at the broken [c:{prop.text}]: "[y:{chant.text}]." The [c:{prop.text}] reassembled itself in roughly the wrong order. The [c:{ally.text}] applauded the wrong order. The show was now better.',
+      '[name:{protagonist.name}] pointed at the broken [c:{prop.text}]: "[y:{chant.text}]!" The [c:{prop.text}] snapped back together — upside down, but together. The [c:{ally.text}] hit the right note at the exact wrong moment. Curtain.',
     ] },
   { id:'v3_sw_payoff_payword_audience_chants', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','payoff_word'], jokeJob:'absurd_consequence',
     lines: [
@@ -5116,7 +5120,18 @@ function generateStoryV3(name, picks, age) {
   } else {
     object = rawPick(V2_WORDS.objects);
   }
-  const sound     = picks.freeword?.w ? { text: picks.freeword.w } : rawPick(V2_WORDS.sounds);
+  /* v0.9.3 · b41 — DEFECT FIX: chant/payoff_word terminal punctuation.
+     Codex repro: 'Cole pointed at the broken noisy spoon: "SPLAT!."' — double
+     terminal punctuation when the user-entered freeword ends in !/?/. and a
+     template appends '."'. Root cause: templates render `"[y:{chant.text}]."`
+     and `"[y:{payoff_word.text}]."` expecting bare-word tokens; user input
+     like "SPLAT!" already carries terminal punctuation. Fix: normalize the
+     sound slot at construction by stripping ALL trailing punctuation in the
+     [!?.,]+ class. Templates control the closing punctuation; the picker
+     value supplies only the word. */
+  const stripTerminalPunct = (s) => typeof s === 'string' ? s.replace(/[!?.,]+$/, '') : s;
+  const soundRaw  = picks.freeword?.w ? picks.freeword.w : null;
+  const sound     = soundRaw ? { text: stripTerminalPunct(soundRaw) } : rawPick(V2_WORDS.sounds);
   // v0.9.3 · b38 — color slot gains articleText so beats can render correct
   // a/an grammar when leading with the color ("an apple red dot" not "a apple
   // red dot"). Existing beats that lead with bare [c:{visual_signature.text}]
@@ -5144,7 +5159,8 @@ function generateStoryV3(name, picks, age) {
      Previously v3 only covered kid/big/tween where sky isn't a picker round.
      `cap` is set for capitalized-exclamation positions in tl_silly_repeat beats. */
   const sky       = picks.sky?.w ? { text: picks.sky.w, cap: V2Grammar.capitalize(picks.sky.w) } : null;
-  const freeword2 = picks.freeword2?.w ? { text: picks.freeword2.w } : null;
+  // v0.9.3 · b41 — strip terminal punctuation from user-entered freeword2 too.
+  const freeword2 = picks.freeword2?.w ? { text: picks.freeword2.w.replace(/[!?.,]+$/, '') } : null;
   /* v2.7.0 — concrete goal slot. Mirrors v2's pickGoal() so goal_spine_v3 stories
      state what the protagonist is actually trying to do, instead of "something
      had to get done." Includes a titleText variant for title patterns since
@@ -5324,11 +5340,54 @@ function generateStoryV3(name, picks, age) {
     const re = new RegExp('\\[(?:name|c|y):[^\\]]*\\b' + esc + '\\b[^\\]]*\\]', 'i');
     return paragraphs.some(p => re.test(p));
   }
+  /* v0.9.3 · b41 — DEFECT FIX: callback density per paragraph.
+     Codex repro (Cole's Big Show): paragraph 4 had six FLAVOR_CALLBACKS
+     stacked back-to-back (sleeves turn color + backpack-said-chant + mood +
+     visitor reaction + smell + ...). Reads as incoherent dump rather than
+     scene.
+     Fix: cap callbacks per paragraph at 2. When the strict-middle range
+     (paragraphs 2..length-2) fills up, expand outward to also accept
+     paragraph 1 and the second-to-last paragraph. Coverage stays intact
+     because the FLAVOR_KEYS loop only calls appendToMiddle for picks NOT
+     already in the body — dropping these breaks coverage. So we never drop;
+     we just spread wider when needed. The final paragraph (landing) stays
+     callback-free so the punchline reads cleanly. */
+  const CALLBACKS_PER_PARAGRAPH_MAX = 2;
+  const paragraphCallbackCount = {};
   function appendToMiddle(sentence) {
-    const targetIdx = paragraphs.length >= 4
-      ? 2 + Math.floor(Math.random() * Math.max(1, paragraphs.length - 3))
-      : Math.max(0, paragraphs.length - 2);
+    if (paragraphs.length < 2) return;
+    // Strict middle: paragraphs 2..length-2 (excludes first opening + final landing).
+    // If full, widen to 1..length-2 (include paragraph 1 as overflow target).
+    // Final paragraph (length-1) is never used so the punchline reads cleanly.
+    const strictLo = 2;
+    const strictHi = Math.max(strictLo, paragraphs.length - 2);
+    const wideLo = Math.max(1, 0);
+    const wideHi = Math.max(wideLo, paragraphs.length - 2);
+    function eligibleIn(lo, hi) {
+      const out = [];
+      for (let i = lo; i <= hi; i++) {
+        if ((paragraphCallbackCount[i] || 0) < CALLBACKS_PER_PARAGRAPH_MAX) out.push(i);
+      }
+      return out;
+    }
+    let pool = eligibleIn(strictLo, strictHi);
+    if (!pool.length) pool = eligibleIn(wideLo, wideHi);
+    if (!pool.length) {
+      // Last resort: append to the paragraph with the fewest callbacks so far
+      // (excluding the final landing). Coverage > density.
+      let bestIdx = -1; let bestCount = Infinity;
+      for (let i = wideLo; i <= wideHi; i++) {
+        const c = paragraphCallbackCount[i] || 0;
+        if (c < bestCount) { bestCount = c; bestIdx = i; }
+      }
+      if (bestIdx < 0) return;
+      paragraphs[bestIdx] = paragraphs[bestIdx].trimEnd() + ' ' + sentence;
+      paragraphCallbackCount[bestIdx] = bestCount + 1;
+      return;
+    }
+    const targetIdx = pool[Math.floor(Math.random() * pool.length)];
     paragraphs[targetIdx] = paragraphs[targetIdx].trimEnd() + ' ' + sentence;
+    paragraphCallbackCount[targetIdx] = (paragraphCallbackCount[targetIdx] || 0) + 1;
   }
   /* Each flavor role has a short, role-aware safety-net sentence. These mirror v2's
      coverage callbacks but emit highlight tokens directly so they highlight too. */
@@ -5493,8 +5552,8 @@ function generateStoryV3(name, picks, age) {
        attached to a real subject. */
     mood_throughline: [
       // All tiers — survivors from b27 that already attach mood to a real
-      // subject doing something.
-      '[name:{protagonist.name}] kept feeling [c:{mood_throughline.text}] about the whole thing.',
+      // subject doing something. (b41: "kept feeling X about the whole thing"
+      // removed — passive non-event flagged by Codex in Cole's Big Show.)
       'Throughout, [name:{protagonist.name}] stayed [c:{mood_throughline.text}]. Steadily [c:{mood_throughline.text}].',
       'Underneath everything, [name:{protagonist.name}] was running on pure [c:{mood_throughline.text}].',
       // v0.9.3 · b39 — tot/little concrete: short visible mood-action.
@@ -5516,8 +5575,12 @@ function generateStoryV3(name, picks, age) {
       // appends this after a period+space, it produces "...whatever it was. some
       // donuts sat..." flagging the grammar-lint lowercase-sentence-start. Reworded
       // to start with a capital so the sentence-start is grammatical.
+      // v0.9.3 · b41 — "Somebody had brought hot dogs. Nobody knew when. Nobody
+      // minded." removed: it injected unrelated food into stories where the food
+      // wasn't part of the plot (e.g., show_wrong has prop, not food). The
+      // remaining two variants tie mcguffin to the scene rather than appearing
+      // mid-air.
       'Off to the side, [c:{mcguffin.articleText}] sat there, mostly forgotten, definitely still part of the day.',
-      'Somebody had brought [c:{mcguffin.text}]. Nobody knew when. Nobody minded.',
       'Meanwhile, [c:{mcguffin.articleText}] waited patiently for its moment.',
     ],
     /* v2.6.1 — obstacle added as a safety net. show_wrong_v3 tween escalation didn't
@@ -5625,6 +5688,70 @@ function generateStoryV3(name, picks, age) {
     }
     const smellLine = smellPool[Math.floor(Math.random() * smellPool.length)];
     appendToMiddle(renderV3Line(smellLine));
+  }
+
+  /* v0.9.3 · b41 — DEFECT FIX: secondary character (sidekick) cameo.
+     Codex repro: user added a second person to the session, but the rendered
+     story never mentioned them. Investigation: V3 (the production engine)
+     never reads state.sidekicks — only V2 does. V3 blueprints use 'ally'
+     (companion pick) extensively but have no slot for a user-entered
+     sidekick name.
+     Fix: pull state.sidekicks from the picks bag (plumbed through buildStory
+     for b41). When non-empty AND the rendered body does not already contain
+     a sidekick name, append a 1-sentence cameo to the landing paragraph
+     wrapped in [name:X] so the name highlights too. Picker preserves
+     existing chip styling. */
+  const v3SidekickNames = (picks && Array.isArray(picks.sidekicks))
+    ? picks.sidekicks.filter(n => typeof n === 'string' && n.trim().length > 0)
+    : [];
+  if (v3SidekickNames.length > 0 && paragraphs.length > 0) {
+    const bodyText = paragraphs.join(' ');
+    const missing = v3SidekickNames.filter(name => {
+      const re = new RegExp('\\b' + name.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&') + '\\b', 'i');
+      return !re.test(bodyText);
+    });
+    if (missing.length > 0) {
+      // Cameo line — tier-aware. Sidekick is brought into the closing paragraph
+      // with a small reactive moment that doesn't disrupt the existing beat.
+      const sidekick = missing[0]; // first missing sidekick
+      const tierCameos = {
+        tot:    ' [name:' + sidekick + '] showed up at the very end and wanted in on the hug.',
+        little: ' [name:' + sidekick + '] came running up at the end. "I want to do that too!" said [name:' + sidekick + '].',
+        kid:    ' [name:' + sidekick + '] showed up right at the end, demanding a full play-by-play.',
+        big:    ' [name:' + sidekick + '] showed up right at the end, demanding a full recap. [name:' + sidekick + '] got one.',
+        tween:  ' [name:' + sidekick + '] showed up at the end, already calling dibs on the sequel.',
+      };
+      const cameoLine = tierCameos[tier] || tierCameos.kid;
+      const targetIdx = paragraphs.length - 1;
+      paragraphs[targetIdx] = (paragraphs[targetIdx].trimEnd() + cameoLine).trim();
+    }
+  }
+
+  /* v0.9.3 · b41 — DEFECT FIX: bedtime mode determinism.
+     Codex repro (Cole's Big Show): user reported "bedtime selected but story
+     did not produce a bedtime ending." Investigation found that 28 of 37 V3
+     landing beats are untagged (defaulting to bedtime by engine contract) but
+     their CONTENT contains no bedtime closure language. Result: bedtime
+     stories can end with non-bedtime prose.
+     Fix: after the final landing beat renders, scan the final paragraph for
+     bedtime lexicon. If absent AND storyMode='bedtime', append a bedtime-
+     closer sentence (tier-appropriate). Keeps existing landing content intact;
+     guarantees every bedtime story actually ends bedtime-y. */
+  if (v3StoryMode === 'bedtime' && paragraphs.length > 0) {
+    const BEDTIME_LEXICON = /\b(bedtime|tucked in|tucked them in|asleep|fell asleep|going to sleep|sleepy|goodnight|good night|pajamas|pyjamas|yawned|yawning|drift(ed|ing)? off|sweet dreams|lights out|bunked? down|under the covers|night-night|nighty night|head(ed)? to bed|climb(ed|ing)? into bed|crawl(ed|ing)? into bed|bedroom|under the blanket|cozy and warm|cuddled up)\b/i;
+    const lastIdx = paragraphs.length - 1;
+    const lastParagraph = paragraphs[lastIdx] || '';
+    if (!BEDTIME_LEXICON.test(lastParagraph)) {
+      const tierClosers = {
+        tot:    'Then it was bedtime. Lights low. Goodnight, [name:{protagonist.name}].',
+        little: 'Then it was bedtime. The [c:{ally.text}] curled up next to [name:{protagonist.name}]. Lights out.',
+        kid:    'Then [name:{protagonist.name}] yawned, climbed into bed, and pulled up the covers. Goodnight, everyone.',
+        big:    '[name:{protagonist.name}] yawned, climbed into bed, and pulled the covers up. Lights out.',
+        tween:  '[name:{protagonist.name}] flopped onto the bed. Sleep was inevitable. Goodnight.',
+      };
+      const closer = tierClosers[tier] || tierClosers.kid;
+      paragraphs[lastIdx] = (lastParagraph.trimEnd() + ' ' + renderV3Line(closer)).trim();
+    }
   }
 
   const titleLine = blueprint.titlePatterns[Math.floor(Math.random() * blueprint.titlePatterns.length)];
