@@ -5034,6 +5034,190 @@ const V3_BEATS = [
     lines: [
       'By the end of the day, [name:{protagonist.name}] and the [c:{ally.text}] were happy and ready for whatever came next. They high-fived and headed home.',
     ] },
+
+  /* ============================================================
+     v0.9.3 · b42 — COMEDY ARCHITECTURE PHASE A
+     ============================================================
+     Phase A of the story-quality lift identified in the b41 50-story manual
+     review. Three classes of new content (kid + big tier focus):
+
+     (1) PREMISE-STATEMENT SETUPS (16 beats: 4 per blueprint)
+         — P1 now names a SPECIFIC, ridiculous goal so the kid + ally
+         enter the story with comic intent, not just exposition.
+
+     (2) OBSTACLE-ESCALATION BEATS (16 beats: 4 per blueprint)
+         — The obstacle/visitor/false_suspect/rule_imposer now does something
+         specific that makes the situation worse. Replaces "watches and
+         offers no comment" passivity that dominated the b41 sample.
+
+     The beats stage as `setup` or `problem`/`escalation` to slot into the
+     existing pickStageBeat routing. Tier is kid+big (where reading-level
+     and comic structure both support the new register).
+
+     Companion FLAVOR_CALLBACKS rewrites (b42 P3) live in the
+     FLAVOR_CALLBACKS map below, replacing the three Codex-flagged wear-out
+     lines:
+       - mood_throughline: "Throughout, X stayed Y. Steadily Y." (kill)
+       - obstacle:         "processing all of this with visible difficulty" (kill)
+       - mcguffin:         "waited patiently for its moment" (kill)
+     ============================================================ */
+
+  /* lost_snack_v3 — PREMISE setups (4 new; requiredRoles=4 to match
+     v3_ls_setup_1's [protagonist,ally,setting,mcguffin] dominant pool). */
+  { id:'v3_ls_setup_premise_moment', stage:'setup', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting','mcguffin'], jokeJob:'setup',
+    lines: [
+      'At the [y:{setting.text}], it was almost the [c:{mcguffin.text}] moment. [name:{protagonist.name}] had practiced. The [c:{ally.text}] had practiced. Then the [c:{mcguffin.text}] had vanished, and the moment had a hole in it.',
+    ] },
+  { id:'v3_ls_setup_premise_schedule', stage:'setup', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting','mcguffin'], jokeJob:'setup',
+    lines: [
+      '[name:{protagonist.name}] had built the entire [y:{setting.text}] afternoon around one [c:{mcguffin.text}]. The [c:{ally.text}] knew the schedule. The [c:{mcguffin.text}] had been on schedule, too — right up until it wasn\'t.',
+    ] },
+  { id:'v3_ls_setup_premise_deal', stage:'setup', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting','mcguffin'], jokeJob:'setup',
+    lines: [
+      'The deal at the [y:{setting.text}] was: [name:{protagonist.name}] would handle the [c:{mcguffin.text}], the [c:{ally.text}] would handle moral support. The deal was now off.',
+    ] },
+  { id:'v3_ls_setup_premise_spot', stage:'setup', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting','mcguffin'], jokeJob:'setup',
+    lines: [
+      'There was supposed to be [c:{mcguffin.articleText}] right here at the [y:{setting.text}]. [name:{protagonist.name}] checked. The [c:{ally.text}] checked. The spot where the [c:{mcguffin.text}] had been remained extremely empty.',
+    ] },
+
+  /* lost_snack_v3 — ESCALATION beats (4 new; requiredRoles=3 to match
+     v3_ls_escalation_1's [protagonist,ally,mcguffin] dominant pool). */
+  { id:'v3_ls_escalation_suspect_helps', stage:'escalation', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','false_suspect','mcguffin'], jokeJob:'escalation',
+    lines: [
+      'The [c:{false_suspect.text}] offered to help find the [c:{mcguffin.text}], which was either generous or extremely suspicious. The [c:{false_suspect.text}] kept saying "I would never." Nobody had accused them yet.',
+    ] },
+  { id:'v3_ls_escalation_suspect_committee', stage:'escalation', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','false_suspect'], jokeJob:'escalation',
+    lines: [
+      'The [c:{false_suspect.text}] organized a search committee. The committee consisted of: the [c:{false_suspect.text}]. The search committee searched in only one direction. Away from the [c:{ally.text}].',
+    ] },
+  { id:'v3_ls_escalation_suspect_podium', stage:'escalation', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','false_suspect'], jokeJob:'escalation',
+    lines: [
+      'The [c:{false_suspect.text}] held a brief press conference. There was no press. There was, however, a small podium that hadn\'t been there a minute ago. The [c:{ally.text}] sat in the front row.',
+    ] },
+  { id:'v3_ls_escalation_suspect_chart', stage:'escalation', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','false_suspect'], jokeJob:'escalation',
+    lines: [
+      'The [c:{false_suspect.text}] launched a formal investigation by drawing a chart. The chart had only one name on it: not theirs. The [c:{ally.text}] noted the omission.',
+    ] },
+
+  /* goal_spine_v3 — PREMISE setups (4 new; requiredRoles=3 to match
+     v3_gs_setup_1's [protagonist,ally,setting] dominant pool). All beats
+     reference setting + ally + goal where possible while keeping 3 roles. */
+  { id:'v3_gs_setup_premise_announce', stage:'setup', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting','goal'], jokeJob:'setup',
+    lines: [
+      'At the [y:{setting.text}], the goal was simple. [name:{protagonist.name}] would {goal.text} before the day was over. The [c:{ally.text}] had been told. The [c:{ally.text}] was now telling everyone else, slightly louder than necessary.',
+    ] },
+  { id:'v3_gs_setup_premise_brief', stage:'setup', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting','goal'], jokeJob:'setup',
+    lines: [
+      'At the [y:{setting.text}], [name:{protagonist.name}] announced the day\'s mission to the [c:{ally.text}]: {goal.text}. The [c:{ally.text}] nodded. The [c:{ally.text}] had no idea what it meant. The [c:{ally.text}] nodded anyway.',
+    ] },
+  { id:'v3_gs_setup_premise_plan', stage:'setup', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting','goal'], jokeJob:'setup',
+    lines: [
+      'The plan had three parts. Step one: get to the [y:{setting.text}]. Step two: {goal.text}. Step three: don\'t get caught. [name:{protagonist.name}] briefed the [c:{ally.text}]. The [c:{ally.text}] mostly remembered step three.',
+    ] },
+  { id:'v3_gs_setup_premise_gestures', stage:'setup', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting','goal'], jokeJob:'setup',
+    lines: [
+      'At the [y:{setting.text}], [name:{protagonist.name}] explained the plan to the [c:{ally.text}] using exactly two hand gestures. The [c:{ally.text}] understood completely. The [c:{ally.text}] had no questions. This was concerning.',
+    ] },
+
+  /* goal_spine_v3 — OBSTACLE-ACTION beats (4 new). STAGE='problem' because
+     kid skips the escalation stage; problem is where the obstacle appears
+     for kid+big. requiredRoles=3 to match v3_gs_problem_goal/mood max. */
+  { id:'v3_gs_problem_obstacle_clipboard', stage:'problem', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','obstacle','goal'], jokeJob:'escalation',
+    lines: [
+      'The [c:{obstacle.text}] produced a clipboard. The clipboard had policies on it. The policies were now relevant. None of them said {goal.text}.',
+    ] },
+  { id:'v3_gs_problem_obstacle_arms', stage:'problem', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','obstacle'], jokeJob:'escalation',
+    lines: [
+      'The [c:{obstacle.text}] crossed their arms in a way that was technically against [name:{protagonist.name}] specifically. [name:{protagonist.name}] noted this. The [c:{ally.text}] noted this. The [c:{ally.text}] also crossed their arms, for solidarity. They unfolded one paw at a time.',
+    ] },
+  { id:'v3_gs_problem_obstacle_throat', stage:'problem', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','obstacle','goal'], jokeJob:'escalation',
+    lines: [
+      'The [c:{obstacle.text}] cleared their throat in a way that meant "no." Then they did it again, in case [name:{protagonist.name}] hadn\'t heard it the first time. [name:{protagonist.name}] had heard it. [name:{protagonist.name}] had simply chosen not to react.',
+    ] },
+  { id:'v3_gs_problem_obstacle_sidestep', stage:'problem', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','obstacle','goal'], jokeJob:'escalation',
+    lines: [
+      'The [c:{obstacle.text}] stepped left. [name:{protagonist.name}] stepped left. The [c:{obstacle.text}] stepped right. [name:{protagonist.name}] stepped right. This continued for one more full step than was reasonable.',
+    ] },
+
+  /* show_wrong_v3 — PREMISE setups (4 new; requiredRoles=4 to match
+     v3_sw_setup_1's [protagonist,ally,setting,prop] dominant pool). */
+  { id:'v3_sw_setup_premise_billing', stage:'setup', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting','prop'], jokeJob:'setup',
+    lines: [
+      'Tonight\'s show, at the [y:{setting.text}]: [name:{protagonist.name}] versus the [c:{prop.text}]. The [c:{ally.text}] was on lighting. There were no lights. The [c:{ally.text}] was on it.',
+    ] },
+  { id:'v3_sw_setup_premise_warning', stage:'setup', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting','prop'], jokeJob:'setup',
+    lines: [
+      'Five-minute warning at the [y:{setting.text}]. [name:{protagonist.name}] checked the [c:{prop.text}]. The [c:{prop.text}] looked confident, which was a lie. The [c:{ally.text}] looked confident too. The [c:{ally.text}] was technically asleep.',
+    ] },
+  { id:'v3_sw_setup_premise_bit', stage:'setup', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting','prop'], jokeJob:'setup',
+    lines: [
+      'The bit, at the [y:{setting.text}]: [name:{protagonist.name}], the [c:{ally.text}], and the [c:{prop.text}]. Nobody had asked. [name:{protagonist.name}] was doing it anyway. The [c:{ally.text}] was contractually obligated.',
+    ] },
+  { id:'v3_sw_setup_premise_rehearsed', stage:'setup', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting','prop'], jokeJob:'setup',
+    lines: [
+      'At the [y:{setting.text}], [name:{protagonist.name}] had been rehearsing the [c:{prop.text}] move for a week. The [c:{ally.text}] had also been rehearsing — though they had been rehearsing a different move, in a different show, in [name:{protagonist.name}]\'s head.',
+    ] },
+
+  /* show_wrong_v3 — OBSTACLE-ACTION beats (4 new). STAGE='problem' because
+     kid skips escalation; problem stage carries the prop-fails + audience
+     beat for kid+big. requiredRoles=3 to match v3_sw_problem_1 dominant. */
+  { id:'v3_sw_problem_obstacle_filming', stage:'problem', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','obstacle'], jokeJob:'escalation',
+    lines: [
+      'A [c:{obstacle.text}] in the front row pulled out a phone and started filming. The phone made an old camera shutter sound. Nobody had asked for that either. [name:{protagonist.name}] absorbed it. The [c:{ally.text}] mouthed something diplomatic. [name:{protagonist.name}] kept going.',
+    ] },
+  { id:'v3_sw_problem_obstacle_heckle', stage:'problem', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','obstacle','prop'], jokeJob:'escalation',
+    lines: [
+      'The [c:{obstacle.text}] heckled. The heckle was technically a question. The question was about the [c:{prop.text}]. [name:{protagonist.name}] did not have a good answer. [name:{protagonist.name}] had an answer anyway.',
+    ] },
+  { id:'v3_sw_problem_obstacle_snacks', stage:'problem', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','obstacle'], jokeJob:'escalation',
+    lines: [
+      'The [c:{obstacle.text}] left the room. The [c:{obstacle.text}] came back with snacks. The snacks were not for sharing. [name:{protagonist.name}] made eye contact and did not stop the bit. The [c:{ally.text}] respected the commitment.',
+    ] },
+  { id:'v3_sw_problem_obstacle_slowclap', stage:'problem', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','obstacle'], jokeJob:'escalation',
+    lines: [
+      'The [c:{obstacle.text}] tried to start a slow clap. The slow clap was, technically, on beat. The slow clap was also, technically, sarcastic. [name:{protagonist.name}] accepted the slow clap as applause. The [c:{ally.text}] bowed.',
+    ] },
+
+  /* rule_loophole_v3 — PREMISE setups (4 new; requiredRoles=3 to match
+     v3_rl_setup_1's [protagonist,ally,setting] dominant pool). */
+  { id:'v3_rl_setup_premise_loophole_in2', stage:'setup', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting'], jokeJob:'setup',
+    lines: [
+      'It was a normal day at the [y:{setting.text}] for [name:{protagonist.name}] and the [c:{ally.text}] right up until the rule got read out loud. [name:{protagonist.name}] listened carefully. There was a loophole in sentence two. [name:{protagonist.name}] kept that information private.',
+    ] },
+  { id:'v3_rl_setup_premise_3paragraphs', stage:'setup', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting'], jokeJob:'setup',
+    lines: [
+      'At the [y:{setting.text}], a new rule went up. It had three paragraphs. The first paragraph said no. The second paragraph said also no. The third paragraph contradicted the first two. [name:{protagonist.name}] read the third paragraph carefully. The [c:{ally.text}] watched.',
+    ] },
+  { id:'v3_rl_setup_premise_chartbox', stage:'setup', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting'], jokeJob:'setup',
+    lines: [
+      'Someone at the [y:{setting.text}] tried to explain the rule using a chart. The chart was complicated. [name:{protagonist.name}] found one box on the chart that nobody had filled in. The [c:{ally.text}] noticed too. [name:{protagonist.name}] decided to live in that box.',
+    ] },
+  { id:'v3_rl_setup_premise_tool_unmentioned', stage:'setup', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting'], jokeJob:'setup',
+    lines: [
+      'At the [y:{setting.text}], there was a rule. [name:{protagonist.name}] respected the rule. The [c:{ally.text}] respected the rule. [name:{protagonist.name}] also respected one specific small thing the rule had forgotten to mention.',
+    ] },
+
+  /* rule_loophole_v3 — RULE-IMPOSER-ACTION beats (4 new). STAGE='problem'
+     because kid skips escalation; problem stage already carries the
+     imposer-states-the-rule beat for kid+big. requiredRoles=3 to match
+     v3_rl_problem_1's [protagonist,rule_imposer,mcguffin] dominant pool. */
+  { id:'v3_rl_problem_imposer_slow', stage:'problem', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','rule_imposer','mcguffin'], jokeJob:'escalation',
+    lines: [
+      'The [c:{rule_imposer.text}] read the rule about the [c:{mcguffin.text}] out loud, slowly, in case [name:{protagonist.name}] had missed a word. [name:{protagonist.name}] had missed zero words. [name:{protagonist.name}] had been counting them.',
+    ] },
+  { id:'v3_rl_problem_imposer_secondrule', stage:'problem', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','rule_imposer','mcguffin'], jokeJob:'escalation',
+    lines: [
+      'The [c:{rule_imposer.text}] consulted a second rule about the [c:{mcguffin.text}]. The second rule was also no. [name:{protagonist.name}] asked to see the rule. The [c:{rule_imposer.text}] declined. The decline was, itself, a rule.',
+    ] },
+  { id:'v3_rl_problem_imposer_sign', stage:'problem', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','rule_imposer','mcguffin'], jokeJob:'escalation',
+    lines: [
+      'The [c:{rule_imposer.text}] held up a sign next to the [c:{mcguffin.text}]. The sign said NO. The sign was, somehow, both correctly spelled and slightly misaligned. [name:{protagonist.name}] noticed the misalignment first.',
+    ] },
+  { id:'v3_rl_problem_imposer_mic', stage:'problem', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','rule_imposer','mcguffin'], jokeJob:'escalation',
+    lines: [
+      'The [c:{rule_imposer.text}] reread the rule into a small microphone they had produced from somewhere. The small microphone was off. The [c:{mcguffin.text}] sat there, technically unaffected. [name:{protagonist.name}] did not point this out.',
+    ] },
 ];
 
 /* generateStoryV3 — role-based story generation. Mirrors v2's slot construction
@@ -5551,43 +5735,58 @@ function generateStoryV3(name, picks, age) {
        b27 stay because they already use the mood as a predicate adjective
        attached to a real subject. */
     mood_throughline: [
-      // All tiers — survivors from b27 that already attach mood to a real
-      // subject doing something. (b41: "kept feeling X about the whole thing"
-      // removed — passive non-event flagged by Codex in Cole's Big Show.)
-      'Throughout, [name:{protagonist.name}] stayed [c:{mood_throughline.text}]. Steadily [c:{mood_throughline.text}].',
-      'Underneath everything, [name:{protagonist.name}] was running on pure [c:{mood_throughline.text}].',
-      // v0.9.3 · b39 — tot/little concrete: short visible mood-action.
+      // v0.9.3 · b42 — KILLED: "Throughout, X stayed Y. Steadily Y." +
+      // "Underneath everything, X was running on pure Y." Both flagged
+      // by manual b41 review as recurring wear-out: mood as decorative
+      // adjective, not action driver. Replaced with mood-as-driver
+      // variants below (kid/big new pool) where the mood causes Cole to
+      // do something specific in the scene.
+      //
+      // v0.9.3 · b39 tot/little survivors — short visible mood-action.
       { text: '[name:{protagonist.name}] looked [c:{mood_throughline.text}] for one second, then looked normal again.', tiers:['tot','little'] },
       { text: 'The [c:{ally.text}] watched [name:{protagonist.name}] be [c:{mood_throughline.text}]. The [c:{ally.text}] approved.', tiers:['tot','little'] },
       // v0.9.3 · b39 — kid/big/tween: mood drives a small visible action.
       { text: '[name:{protagonist.name}] did the [c:{mood_throughline.text}] thing they always do when nobody is watching. Somebody was watching.', tiers:['kid','big','tween'] },
       { text: '[name:{protagonist.name}] glanced at the [c:{ally.text}] in a way that was [c:{mood_throughline.text}], specifically. The [c:{ally.text}] caught it.', tiers:['kid','big','tween'] },
       { text: 'For three whole seconds, [name:{protagonist.name}] was visibly [c:{mood_throughline.text}]. Then back to baseline.', tiers:['kid','big','tween'] },
-      // REMOVED in b39 — abstract nominalizations that read as atmospheric
-      // filler and don't advance the beat:
-      //   'The whole day had a [c:{mood_throughline.text}] energy to it. Nobody could explain why.'
-      //   'There was a [c:{mood_throughline.text}] quality to the air, if anyone noticed.'
-      //   'You could call the mood [c:{mood_throughline.text}], and nobody would disagree.'
+      // v0.9.3 · b42 — new mood-as-driver variants (kid/big focus).
+      // Each variant makes mood CAUSE a specific action with a reaction.
+      { text: '[name:{protagonist.name}] went briefly [c:{mood_throughline.text}], which made the [c:{ally.text}] suspicious of nothing in particular.', tiers:['kid','big','tween'] },
+      { text: 'There was a [c:{mood_throughline.text}] sigh from [name:{protagonist.name}]. The [c:{ally.text}] copied it. The sigh was now a chorus.', tiers:['kid','big','tween'] },
+      { text: '[name:{protagonist.name}] folded their arms [c:{mood_throughline.text}]-ly. The [c:{ally.text}] folded their arms too. Nothing got resolved, but the body language was clear.', tiers:['kid','big','tween'] },
     ],
     mcguffin: [
-      // v0.9.3 · b27 — old line started "[c:{mcguffin.articleText}] sat off..."
-      // which renders "some donuts sat off..." (lowercase 's'). When appendToMiddle
-      // appends this after a period+space, it produces "...whatever it was. some
-      // donuts sat..." flagging the grammar-lint lowercase-sentence-start. Reworded
-      // to start with a capital so the sentence-start is grammatical.
-      // v0.9.3 · b41 — "Somebody had brought hot dogs. Nobody knew when. Nobody
-      // minded." removed: it injected unrelated food into stories where the food
-      // wasn't part of the plot (e.g., show_wrong has prop, not food). The
-      // remaining two variants tie mcguffin to the scene rather than appearing
-      // mid-air.
+      // v0.9.3 · b42 — KILLED: "Meanwhile, X waited patiently for its
+      // moment." Flagged by manual b41 review as recurring wear-out;
+      // mcguffin was inert, not part of the scene. Replaced with
+      // active-mcguffin variants that put the food/object in motion or
+      // give it a small reaction.
+      //
+      // v0.9.3 · b27 retained — opening capital, plural-safe via articleText.
       'Off to the side, [c:{mcguffin.articleText}] sat there, mostly forgotten, definitely still part of the day.',
-      'Meanwhile, [c:{mcguffin.articleText}] waited patiently for its moment.',
+      // v0.9.3 · b42 — active mcguffin variants (kid/big).
+      { text: 'Across the room, [c:{mcguffin.articleText}] tipped over. Nobody had touched anything. The [c:{ally.text}] looked at the ceiling.', tiers:['kid','big','tween'] },
+      { text: 'Someone, somewhere, was thinking about [c:{mcguffin.articleText}] very loudly. [name:{protagonist.name}] could feel it.', tiers:['kid','big','tween'] },
+      { text: 'The [c:{mcguffin.text}] situation was, technically, ongoing. Nobody had called it that yet. Now they would.', tiers:['kid','big','tween'] },
+      // Tot/little safe: simple presence callback.
+      { text: 'The [c:{mcguffin.text}] was right there the whole time. Cole noticed last.', tiers:['tot','little'] },
     ],
-    /* v2.6.1 — obstacle added as a safety net. show_wrong_v3 tween escalation didn't
-       always reference the chosen creature even though it was in the role map. */
+    /* v0.9.3 · b42 — REPLACED both wear-out obstacle variants ("watched
+       and offered no comment" / "processing with visible difficulty").
+       Manual b41 review: obstacle was structurally inert across 8 of 10
+       kid/big show_wrong stories. New pool makes the obstacle DO
+       something small but specific. Coverage gate still satisfied. */
     obstacle: [
-      'A [c:{obstacle.text}] watched the whole thing happen and offered no comment.',
-      'Off to the side, the [c:{obstacle.text}] was processing all of this with visible difficulty.',
+      // Kid/big new pool — obstacle does a small specific action.
+      { text: 'The [c:{obstacle.text}] in the corner started taking notes. The notes were not for anyone. The [c:{obstacle.text}] kept taking them.', tiers:['kid','big'] },
+      { text: 'The [c:{obstacle.text}] cleared their throat once, like a comment was coming. No comment came. The throat-clear was the comment.', tiers:['kid','big'] },
+      { text: 'The [c:{obstacle.text}] mimed slow applause. The mime was visible. The applause was not. [name:{protagonist.name}] absorbed it as feedback.', tiers:['kid','big'] },
+      { text: 'The [c:{obstacle.text}] gave a small, sharp head-shake. Then a smaller one. Then a nod, like even they had lost track of the position.', tiers:['kid','big'] },
+      // Tween register — drier.
+      { text: 'The [c:{obstacle.text}] made the small sound people make when they want to comment but won\'t. [name:{protagonist.name}] heard it. [name:{protagonist.name}] did not respond.', tiers:['tween'] },
+      { text: 'The [c:{obstacle.text}] was, at this point, less of an obstacle and more of a witness with strong opinions.', tiers:['tween'] },
+      // Tot/little safe — short observable beat.
+      { text: 'The [c:{obstacle.text}] watched. The [c:{obstacle.text}] tilted its head. The [c:{obstacle.text}] tilted it the other way.', tiers:['tot','little'] },
     ],
   };
   /* v0.9.3 · b31 — Sensory-callback polish.
