@@ -2272,6 +2272,42 @@ console.log('\n=== 23. b43 grammar regression gate — "one" + plural-only food/
     }
   }
   gate('"a/A" + vowel-start creature never renders (forced vowel creatures across kid/big/tween)', aVowelCreatureHits === 0, aVowelCreatureHits + '/' + creatureForcedSamples + ' forced-vowel-creature samples leaked "a/A <vowel-creature>"' + (aVowelCreatureDetail.length ? ' (' + aVowelCreatureDetail.join('; ') + ')' : ''));
+
+  // b44 — hyphen-"ly" mood artifact. Codex found a b42 mood callback appended a
+  // literal "-ly" to the mood token: "[mood]-ly" → "clumsy-ly" /
+  // "professionally unhinged-ly" / "deeply over it-ly". mood is an adjective or
+  // multi-word phrase, never an adverb stem. b44 rewrote the beat to "looking
+  // [mood]". Force single-word, vowel-start, AND multi-word moods and assert no
+  // "<letter>-ly" artifact anywhere in the rendered body. No legitimate
+  // hyphenated -ly adverb exists in the content, so the match is unambiguous.
+  const ARTIFACT_MOODS = ['clumsy', 'legendary', 'puzzled', 'overexcited', 'thoughtfully menacing', 'professionally unhinged', 'deeply over it', 'aggressively normal'];
+  const HYPHEN_LY_RX = /[a-z]-ly\b/i;
+  let hyphenLyHits = 0;
+  let moodLyForcedSamples = 0;
+  const hyphenLyDetail = [];
+  for (const mood of ARTIFACT_MOODS) {
+    for (const age of [6, 9, 12]) {
+      for (let i = 0; i < 25; i++) {
+        const picks = {
+          setting: { id: 'at_home', place: 'kitchen', visitorBias: 'safe', objectBias: 'safe' },
+          mood: { w: mood },
+          move: { w: 'hopped' },
+          creature: { w: 'wizard' },
+          storyMode: 'bedtime',
+          pottyMode: false,
+        };
+        let s; try { s = ctx.generateStoryV3('Cole', picks, age); } catch (e) { s = null; }
+        if (!s) continue;
+        moodLyForcedSamples++;
+        const text = stripB([s.title, ...(s.paragraphs || [])].join(' '));
+        if (HYPHEN_LY_RX.test(text)) {
+          hyphenLyHits++;
+          if (hyphenLyDetail.length < 3) hyphenLyDetail.push(text.match(/[a-z ]*-ly\b/i)[0].trim());
+        }
+      }
+    }
+  }
+  gate('no hyphen-"ly" mood artifact ("clumsy-ly" / "professionally unhinged-ly") — forced single + multi-word moods', hyphenLyHits === 0, hyphenLyHits + '/' + moodLyForcedSamples + ' forced-mood samples leaked "<word>-ly"' + (hyphenLyDetail.length ? ' (' + hyphenLyDetail.join('; ') + ')' : ''));
 }
 
 /* === 20. SETTING-BIAS COVERAGE GATE (added v0.9.3 · b36) ===

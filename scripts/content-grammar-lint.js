@@ -96,6 +96,16 @@ const CHECKS = [
   { id:'a_vowel_mood', label:'"a" + vowel-start mood (a overexcited-class article mismatch)',
     scope:'both',
     rx: /\ba (overexcited|accidentally heroic|aggressively normal|extra brave|extremely unconvinced|enthusiastic|indignant|annoyed|amazed|astonished|excited|impatient|elated|uneasy|exhausted|overjoyed|awkward|embarrassed|irritated|outraged|underwhelmed|unimpressed|inconsolable|eager|earnest|elegant|electric|icy|odd|extra|aggressively|extremely|accidentally|overwhelmed)\b/i },
+  // v0.9.3 · b44 — hyphen-"ly" artifact. Found by Codex after b43: a b42 mood
+  // callback appended a literal "-ly" to the mood token ("[mood]-ly"), but
+  // mood is an adjective / multi-word phrase, producing "clumsy-ly",
+  // "professionally unhinged-ly", "deeply over it-ly". No legitimate
+  // hyphenated -ly adverb exists in the content, so any "<letter>-ly" is an
+  // artifact. Catches single-word, vowel-start, and multi-word-phrase moods
+  // (the regex anchors on the char immediately before "-ly").
+  { id:'hyphen_ly_artifact', label:'hyphen-"ly" adverb artifact ("clumsy-ly" / "professionally unhinged-ly")',
+    scope:'both',
+    rx: /[a-z]-ly\b/i },
   // Duplicate articles
   { id:'duplicate_article', label:'Duplicate article ("the the", "a a", "an an")',
     scope:'both',

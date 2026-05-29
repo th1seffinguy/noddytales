@@ -17,7 +17,7 @@
    labeling: product is in late beta (v0.9.x), engine is still v3 internally. The
    historical v3.0.0-v3.0.3 CHANGELOG entries stay as-is for traceability. */
 const APP_VERSION  = 'v0.9.3';
-const BUILD_NUMBER = 43;
+const BUILD_NUMBER = 44;
 
 /* v0.9.3 · b8 — Narrator Voice Selector MVP.
    v0.9.3 · b16 — lineup refresh.

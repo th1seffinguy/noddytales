@@ -5776,7 +5776,11 @@ function generateStoryV3(name, picks, age) {
       // Each variant makes mood CAUSE a specific action with a reaction.
       { text: '[name:{protagonist.name}] went briefly [c:{mood_throughline.text}], which made the [c:{ally.text}] suspicious of nothing in particular.', tiers:['kid','big','tween'] },
       { text: '[name:{protagonist.name}] let out one [c:{mood_throughline.text}] sigh. The [c:{ally.text}] copied it. The sigh was now a chorus.', tiers:['kid','big','tween'] },
-      { text: '[name:{protagonist.name}] folded their arms [c:{mood_throughline.text}]-ly. The [c:{ally.text}] folded their arms too. Nothing got resolved, but the body language was clear.', tiers:['kid','big','tween'] },
+      // v0.9.3 · b44 — DEFECT FIX: removed the literal "-ly" suffix. mood_throughline
+      // is an adjective / multi-word phrase ("clumsy", "professionally unhinged",
+      // "deeply over it"), not an adverb stem, so "[mood]-ly" rendered "clumsy-ly"
+      // / "professionally unhinged-ly". "looking [mood]" takes an adjective naturally.
+      { text: '[name:{protagonist.name}] folded their arms, looking [c:{mood_throughline.text}]. The [c:{ally.text}] folded their arms too. Nothing got resolved, but the body language was clear.', tiers:['kid','big','tween'] },
     ],
     mcguffin: [
       // v0.9.3 · b42 — KILLED: "Meanwhile, X waited patiently for its
