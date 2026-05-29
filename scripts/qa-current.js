@@ -2153,6 +2153,127 @@ console.log('\n=== 22. b42 comedy architecture gates — wear-out kill + new bea
   }
 }
 
+/* === 23. b43 GRAMMAR REGRESSION GATE — "one" + plural-only food/mcguffin ===
+ *
+ * Codex QA after b42 found a High grammar defect: v3_ls_setup_premise_schedule
+ * hardcoded "around one {mcguffin.text}" → rendered "around one cupcakes" /
+ * "one donuts" / "one fries" whenever the lost-snack mcguffin (food slot) was
+ * a plural-only noun. b43 rewrote the beat to "around the {mcguffin.text}"
+ * (plural-neutral, the b39 precedent for the same "one [X]" class).
+ *
+ * This gate forces plural-only foods into the lost_snack mcguffin slot and
+ * asserts the rendered body never contains "one <plural-food>". Hard fail.
+ * It complements content-grammar-lint.js check `one_plural_food` (diagnostic);
+ * this is the release gate.
+ */
+console.log('\n=== 23. b43 grammar regression gate — "one" + plural-only food/mcguffin ===');
+{
+  function stripB(text) {
+    return text.replace(/\[c:([^\]]*)\]/g, '$1').replace(/\[y:([^\]]*)\]/g, '$1').replace(/\[name:([^\]]*)\]/g, '$1');
+  }
+  // Plural-only foods to force into the mcguffin slot. Pulled from the same
+  // set content-grammar-lint tracks. Each must be a real V2_WORDS.foods entry.
+  const PLURAL_FOODS = ['cupcakes', 'donuts', 'fries', 'tacos', 'pretzels', 'noodles', 'dumplings', 'grapes'];
+  const ONE_PLURAL_RX = /\bone (cupcakes|donuts|fries|tacos|pretzels|noodles|dumplings|grapes|cookies|waffles|pancakes|burritos|nachos|jellybeans|hot dogs|chips|leftovers|snacks)\b/i;
+  let onePluralHits = 0;
+  let forcedSamples = 0;
+  const onePluralDetail = [];
+  // lost_snack_v3 maps mcguffin → food; force each plural food across kid+big.
+  for (const food of PLURAL_FOODS) {
+    for (const age of [6, 7, 9, 10]) {
+      for (let i = 0; i < 30; i++) {
+        const picks = {
+          setting: { id: 'food_place', place: 'bakery', visitorBias: 'safe', objectBias: 'safe' },
+          food: { w: food },
+          __v3BlueprintId: 'lost_snack_v3',  // force the blueprint that uses the new premise beats
+          move: { w: 'hopped' },
+          creature: { w: 'wizard' },
+          storyMode: 'bedtime',
+          pottyMode: false,
+        };
+        let s; try { s = ctx.generateStoryV3('Cole', picks, age); } catch (e) { s = null; }
+        if (!s) continue;
+        forcedSamples++;
+        const text = stripB([s.title, ...(s.paragraphs || [])].join(' '));
+        if (ONE_PLURAL_RX.test(text)) {
+          onePluralHits++;
+          if (onePluralDetail.length < 3) onePluralDetail.push(food + ': ' + text.match(ONE_PLURAL_RX)[0]);
+        }
+      }
+    }
+  }
+  gate('"one" + plural-only food never renders (lost_snack mcguffin forced plural across kid+big)', onePluralHits === 0, onePluralHits + '/' + forcedSamples + ' forced-plural samples leaked "one <plural-food>"' + (onePluralDetail.length ? ' (' + onePluralDetail.join('; ') + ')' : ''));
+
+  // b43 — "a" + vowel-start mood article mismatch. Found during manual review:
+  // "Cole kept a accidentally heroic face" / "a overexcited sigh". Force
+  // vowel-start moods across all 4 blueprints (mood_throughline is a shared
+  // role) and assert no "a <vowel-mood>" leak in rendered body.
+  const VOWEL_MOODS = ['overexcited', 'accidentally heroic', 'aggressively normal', 'extremely unconvinced', 'annoyed', 'awkward', 'enthusiastic', 'indignant'];
+  const A_VOWEL_MOOD_RX = /\ba (overexcited|accidentally heroic|aggressively normal|extremely unconvinced|annoyed|awkward|enthusiastic|indignant|amazed|excited|exhausted|eager|elegant|odd|icy)\b/i;
+  let aVowelMoodHits = 0;
+  let moodForcedSamples = 0;
+  const aVowelMoodDetail = [];
+  for (const mood of VOWEL_MOODS) {
+    for (const age of [6, 9, 12]) {
+      for (let i = 0; i < 25; i++) {
+        const picks = {
+          setting: { id: 'at_home', place: 'kitchen', visitorBias: 'safe', objectBias: 'safe' },
+          mood: { w: mood },
+          move: { w: 'hopped' },
+          creature: { w: 'wizard' },
+          storyMode: 'bedtime',
+          pottyMode: false,
+        };
+        let s; try { s = ctx.generateStoryV3('Cole', picks, age); } catch (e) { s = null; }
+        if (!s) continue;
+        moodForcedSamples++;
+        const text = stripB([s.title, ...(s.paragraphs || [])].join(' '));
+        if (A_VOWEL_MOOD_RX.test(text)) {
+          aVowelMoodHits++;
+          if (aVowelMoodDetail.length < 3) aVowelMoodDetail.push(text.match(A_VOWEL_MOOD_RX)[0]);
+        }
+      }
+    }
+  }
+  gate('"a" + vowel-start mood never renders (forced vowel moods across kid/big/tween)', aVowelMoodHits === 0, aVowelMoodHits + '/' + moodForcedSamples + ' forced-vowel-mood samples leaked "a <vowel-mood>"' + (aVowelMoodDetail.length ? ' (' + aVowelMoodDetail.join('; ') + ')' : ''));
+
+  // b43 — "a/A" + vowel-start creature (obstacle/false_suspect/visitor)
+  // article mismatch. Found during manual review: "A indignant mushroom in the
+  // audience laughed too loudly". 4 beats hardcoded leading "A [creature]";
+  // b43 rewrote them to [c:{...articleText}]. Force vowel-start creatures into
+  // the visitor slot and assert no "a/A <vowel-creature>" leak.
+  const VOWEL_CREATURES = ['indignant mushroom', 'anxious hedgehog', 'ancient tortoise', 'overconfident raccoon', 'axolotl', 'octopus', 'eagle', 'owl'];
+  const A_VOWEL_CREATURE_RX = /\b[Aa] (indignant|anxious|ancient|overconfident|axolotl|octopus|eagle|owl|otter|elephant|orange|igloo|umbrella|astronaut|accordion|emu|ostrich|iguana|antelope)\b/;
+  let aVowelCreatureHits = 0;
+  let creatureForcedSamples = 0;
+  const aVowelCreatureDetail = [];
+  for (const creature of VOWEL_CREATURES) {
+    for (const age of [6, 9, 12]) {
+      for (let i = 0; i < 25; i++) {
+        const picks = {
+          setting: { id: 'at_school', place: 'cafeteria', visitorBias: 'safe', objectBias: 'safe' },
+          creature: { w: creature },
+          move: { w: 'hopped' },
+          storyMode: 'bedtime',
+          pottyMode: false,
+        };
+        let s; try { s = ctx.generateStoryV3('Cole', picks, age); } catch (e) { s = null; }
+        if (!s) continue;
+        creatureForcedSamples++;
+        const text = stripB([s.title, ...(s.paragraphs || [])].join(' '));
+        // Exclude legitimate "a" before a non-creature vowel word by requiring
+        // the matched word to be in our forced vowel-creature adjective set.
+        const m = text.match(A_VOWEL_CREATURE_RX);
+        if (m) {
+          aVowelCreatureHits++;
+          if (aVowelCreatureDetail.length < 3) aVowelCreatureDetail.push(m[0]);
+        }
+      }
+    }
+  }
+  gate('"a/A" + vowel-start creature never renders (forced vowel creatures across kid/big/tween)', aVowelCreatureHits === 0, aVowelCreatureHits + '/' + creatureForcedSamples + ' forced-vowel-creature samples leaked "a/A <vowel-creature>"' + (aVowelCreatureDetail.length ? ' (' + aVowelCreatureDetail.join('; ') + ')' : ''));
+}
+
 /* === 20. SETTING-BIAS COVERAGE GATE (added v0.9.3 · b36) ===
  *
  * Phase 2 of Selection Joy Pass: WORD_BANK kid options carry an optional `s: ['flavor']`
