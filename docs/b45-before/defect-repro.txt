@@ -1,0 +1,20 @@
+NoddyTales v0.9.3 · b45 BEFORE — decorative callback frequency/repetition
+
+Assessment (post-b44): b42 lifted P1 setups + P2 obstacle action, but three
+force-injected "coverage callbacks" (color / move / mood) are the dominant
+remaining repetition and read as disconnected filler.
+
+Measured over 1800 stories (ages 6/9/12, color/move/mood forced):
+  • color ambient callback present .................... 1587/1800  (88%)
+      "The wall blinked X" / "lamp glowed X" / "tiny spot of X on Cole's hand"
+      / "sleeves turned X" / "stripe of X on the floor" — never tied to plot.
+  • move glue "stopped exactly where they started. The point landed" ... 87 (5%)
+      verbatim repeat when it fires (1 of ~12 move variants).
+  • mood glue (went very X / X like a tiny detective / suspicious of nothing
+      in particular) ................................... 516/1800  (29%)
+
+Coverage constraint (qa-current Section 3): color (rainbow), move (bounced),
+mood (silly) are all in expectedWords — every story MUST surface them. So the
+fix de-glues + scene-connects the pools and threads color into plot beats so
+the ambient callback auto-skips (bodyHasHighlight guard) — frequency drops
+without breaking coverage.

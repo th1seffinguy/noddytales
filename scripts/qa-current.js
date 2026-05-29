@@ -2310,6 +2310,67 @@ console.log('\n=== 23. b43 grammar regression gate — "one" + plural-only food/
   gate('no hyphen-"ly" mood artifact ("clumsy-ly" / "professionally unhinged-ly") — forced single + multi-word moods', hyphenLyHits === 0, hyphenLyHits + '/' + moodLyForcedSamples + ' forced-mood samples leaked "<word>-ly"' + (hyphenLyDetail.length ? ' (' + hyphenLyDetail.join('; ') + ')' : ''));
 }
 
+/* === 24. b45 CALLBACK DE-GLUE GATES — killed phrases + ambient-color ceiling ===
+ *
+ * The b45 assessment found three force-injected coverage callbacks (color /
+ * move / mood) dominating story prose as disconnected filler. b45 de-glued
+ * them: killed the worst phrasings, scene-connected the variants, and routed
+ * color through plot beats (lost_snack clue + show_wrong prop-feature) so the
+ * ambient color callback auto-skips. These gates lock that in:
+ *
+ * (a) Killed glue phrases must never reappear (hard fail):
+ *     - move:  "stopped exactly where they started. The point landed"
+ *     - mood:  "suspicious of nothing in particular"
+ *     - mood:  "went very <X>" (the rule_loophole double-repeat)
+ *     - color: 4 dropped wallpaper lines (ceiling flashed / wall blinked /
+ *              lamp glowed / tiny spot of X on the back of <name>'s hand)
+ *
+ * (b) Ambient-color WALLPAPER ceiling: across forced color+move+mood samples,
+ *     the remaining ambient color lines must appear in < 55% of stories
+ *     (was ~88% pre-b45; measured ~38% after). Guards against the callback
+ *     creeping back to always-on filler. Color still appears every story for
+ *     choice-coverage — this only caps the *ambient/disconnected* phrasings.
+ */
+console.log('\n=== 24. b45 callback de-glue gates — killed phrases + ambient-color ceiling ===');
+{
+  function stripB24(text) {
+    return text.replace(/\[c:([^\]]*)\]/g, '$1').replace(/\[y:([^\]]*)\]/g, '$1').replace(/\[name:([^\]]*)\]/g, '$1');
+  }
+  const KILLED = [
+    { label: 'move "stopped exactly where they started. The point landed"', rx: /stopped exactly where they started\. The point landed/i },
+    { label: 'mood "suspicious of nothing in particular"', rx: /suspicious of nothing in particular/i },
+    { label: 'mood "went very <X>" duplicate frame', rx: /\bwent very [a-z]/i },
+    { label: 'color wallpaper "ceiling flashed <X>"', rx: /ceiling flashed [a-z]/i },
+    { label: 'color wallpaper "wall blinked <X>"', rx: /wall blinked [a-z]/i },
+    { label: 'color wallpaper "lamp glowed <X>"', rx: /lamp glowed [a-z]/i },
+    { label: 'color wallpaper "tiny spot of <X> on the back of <name>\'s hand"', rx: /tiny spot of .* on the back of \w+'s hand/i },
+  ];
+  const AMBIENT_COLOR_RX = /stripe of .* appeared on the floor|sleeves turned [a-z]|shoes briefly turned|streak of .* across the wall|mirror went [a-z]|shadow on the wall briefly turned|small light went|window went [a-z].* for one second|socks looked [a-z].* for a blink/i;
+  const killedHits = KILLED.map(() => 0);
+  let ambientColorHits = 0;
+  let total24 = 0;
+  for (let i = 0; i < 220; i++) {
+    for (const age of [6, 9, 12]) {
+      const picks = {
+        setting: { id: 'at_home', place: 'kitchen', visitorBias: 'safe', objectBias: 'safe' },
+        color: { w: 'teal' }, move: { w: 'hopped' }, mood: { w: 'curious' }, creature: { w: 'goblin' },
+        storyMode: 'bedtime', pottyMode: false,
+      };
+      let s; try { s = ctx.generateStoryV3('Cole', picks, age); } catch (e) { s = null; }
+      if (!s) continue;
+      total24++;
+      const text = stripB24((s.paragraphs || []).join(' '));
+      KILLED.forEach((k, idx) => { if (k.rx.test(text)) killedHits[idx]++; });
+      if (AMBIENT_COLOR_RX.test(text)) ambientColorHits++;
+    }
+  }
+  KILLED.forEach((k, idx) => {
+    gate('killed callback phrase never reappears: ' + k.label, killedHits[idx] === 0, killedHits[idx] + '/' + total24 + ' rendered hits');
+  });
+  const ambientPct = total24 ? (100 * ambientColorHits / total24) : 0;
+  gate('ambient color wallpaper stays below 55% (was ~88% pre-b45)', ambientPct < 55, ambientColorHits + '/' + total24 + ' (' + ambientPct.toFixed(0) + '%) ambient color lines');
+}
+
 /* === 20. SETTING-BIAS COVERAGE GATE (added v0.9.3 · b36) ===
  *
  * Phase 2 of Selection Joy Pass: WORD_BANK kid options carry an optional `s: ['flavor']`
