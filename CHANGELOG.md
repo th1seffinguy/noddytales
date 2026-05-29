@@ -9,6 +9,60 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 42, engine v3.0.3) — 2026-05-29
+**Comedy Architecture Phase A — premise-statement setups + obstacle-action escalations + wear-out kills (kid+big focus)**
+
+Phase A of the multi-build comedy lift identified in the 50-story b41 manual review. Stories were grammatically correct + on-theme but flat: kid had no stake, obstacles never acted, FLAVOR_CALLBACKS decorated without escalating. This build fixes the structural symptoms; b43+ will add character traits and callback architecture.
+
+### What changed
+
+**32 new beats** (16 premise-statement setups + 16 obstacle-action escalations), 4 per blueprint × 4 blueprints (lost_snack_v3, goal_spine_v3, show_wrong_v3, rule_loophole_v3):
+
+- **Premise-statement setups (P1):** name a SPECIFIC, ridiculous stake in the first paragraph instead of generic exposition. Examples:
+  - `v3_ls_setup_premise_moment` — *"At the bakery, it was almost the croissant moment. Cole had practiced. The koala had practiced. Then the croissant had vanished, and the moment had a hole in it."*
+  - `v3_gs_setup_premise_brief` — *"At the puddle street, Cole announced the day's mission to the hedgehog: fix the broken contraption. The hedgehog nodded. The hedgehog had no idea what it meant. The hedgehog nodded anyway."*
+  - `v3_sw_setup_premise_warning` — *"Five-minute warning at the ice cream truck. Cole checked the jar of buttons. The jar of buttons looked confident, which was a lie."*
+  - `v3_rl_setup_premise_loophole_in2` — *"It was a normal day at the kitchen for Cole and the wizard right up until the rule got read out loud. Cole listened carefully. There was a loophole in sentence two."*
+
+- **Obstacle-action escalations (P2 for kid):** the obstacle/false_suspect/rule_imposer now DOES something specific that makes the situation worse, instead of just witnessing. Examples:
+  - `v3_ls_escalation_suspect_committee` — *"The mermaid organized a search committee. The committee consisted of: the mermaid. The search committee searched in only one direction. Away from the koala."*
+  - `v3_gs_problem_obstacle_clipboard` — *"The wizard produced a clipboard. The clipboard had policies on it. The policies were now relevant. None of them said fix the broken contraption."*
+  - `v3_sw_problem_obstacle_slowclap` — *"The troll tried to start a slow clap. The slow clap was, technically, on beat. The slow clap was also, technically, sarcastic. Cole accepted the slow clap as applause."*
+  - `v3_rl_problem_imposer_secondrule` — *"The wizard consulted a second rule. The second rule was also no. Cole asked to see the rule. The wizard declined. The decline was, itself, a rule."*
+
+  Beats for goal_spine, show_wrong, rule_loophole use `stage:'problem'` (because kid skips `escalation`); lost_snack keeps `stage:'escalation'`. requiredRoles match the dominant pool of existing beats so the new ones actually fire (not filtered out by the maxRoles selector).
+
+**3 wear-out phrases killed** (Codex-flagged in the b41 manual review) + replaced with narrative-functional variants:
+
+- `mood_throughline`: removed *"Throughout, X stayed Y. Steadily Y."* and *"Underneath everything, X was running on pure Y."* — mood as decorative adjective, not action driver. Added 3 new variants where mood CAUSES a small visible behavior (mood-driven sigh, mood-folded arms, mood-makes-ally-suspicious).
+- `obstacle`: removed *"watched the whole thing happen and offered no comment"* and *"processing all of this with visible difficulty"* — obstacle structurally inert. Added 7 new variants (kid/big: take notes / clear throat / mime slow applause / small head-shake; tween: refused-comment / "witness with strong opinions"; tot/little: tilt head).
+- `mcguffin`: removed *"Meanwhile, X waited patiently for its moment"* — mcguffin inert. Added 4 new variants that put the mcguffin in motion or give it scene presence (tipped over / someone thinking about it loudly / "situation was ongoing" / tot-safe "right there the whole time").
+
+### Verification
+
+- `scripts/qa-current.js` — **all 25+ gates green**, including new **Section 22 (11 sub-gates)**:
+  - All 3 wear-out phrases: 0/100 rendered hits across kid-tier samples
+  - Premise-setup coverage: ≥55 hits per blueprint across 400 forced samples (4 of 4 blueprints)
+  - Obstacle-escalation coverage: ≥53 hits per blueprint across 400 forced samples (4 of 4 blueprints)
+- `node --check` on `src/content.js` + `src/engine-v2.js` + `api/tts.js` + `scripts/qa-current.js` — clean
+- `content-grammar-lint --reps 1000` — 0 hits on every check
+- `content-comedy-mechanics` — **10.86/21 (was 10.34 b41, +0.52)** · causality 0.82 · callback 0.62 · coherence 1.24
+- `content-punchline-audit` — green
+- 50-story manual review across all 5 tiers: kid + big stories now visibly have stakes (premise-statement setups), obstacles do specific things (escalation beats), and middle paragraphs are less callback-heavy (b41 cap + new functional callbacks).
+
+### What's still on the list (Phase B/C — b43+)
+
+- **Cole character traits:** Cole still has no defined personality. Future build adds 3-4 trait presets (theatrical / sneaky-fair / stubborn / quietly chaotic) that bias beat selection so each kid feels distinct.
+- **Ally character traits:** ditto for the companion (e.g., the eagle is glamorous; the koala is unimpressed).
+- **Callback architecture:** P1 picks should be recontextualized in P5 (currently FLAVOR_CALLBACKS fire mid-story and don't pay off). Architectural change, deferred.
+- **Tot/little length + escalation:** the call-and-response works for ages 2-3 but doesn't BUILD. b43+ adds 3-act tot/little structure with escalating stakes.
+
+### Versions
+
+APP_VERSION stays `v0.9.3`; BUILD_NUMBER 41 → 42; ENGINE_V2_VERSION stays `v3.0.3`. Badge reads `v0.9.3 · b42`.
+
+---
+
 ## v0.9.3 (build 41, engine v3.0.3) — 2026-05-27
 **Apostrophe Speak-highlight + Cole's Big Show quality + bedtime determinism + sidekick visibility**
 
