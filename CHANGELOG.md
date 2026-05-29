@@ -9,6 +9,47 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 44, engine v3.0.3) — 2026-05-28
+**Story-quality prose hotfix — mood "-ly" artifact + lint gate**
+
+Codex QA after b43 found automated gates green but story-quality QA not clean: a b42 `mood_throughline` callback appended a literal `-ly` to the mood token.
+
+### The defect
+`src/engine-v2.js` ~line 5779 (a b42 mood-as-driver variant) rendered:
+> *"[name] folded their arms [c:{mood_throughline.text}]-ly. ..."*
+
+`mood_throughline.text` is an **adjective or multi-word phrase**, not an adverb stem, so the `-ly` suffix produced broken adverbs:
+- *"Cole folded their arms clumsy-ly."*
+- *"...legendary-ly."* / *"...puzzled-ly."*
+- *"...thoughtfully menacing-ly."*
+- *"...professionally unhinged-ly."*
+- *"...deeply over it-ly."*
+
+Reproduced at **95/2100** forced-mood samples (7 moods × 300 reps, age 9; detector `/[a-z]-ly\b/i`).
+
+### Fix
+Removed the `-ly` suffix; rewrote to a construction that takes an adjective naturally:
+> *"[name] folded their arms, looking [c:{mood_throughline.text}]. The [ally] folded their arms too. Nothing got resolved, but the body language was clear."*
+
+`"looking clumsy"` / `"looking professionally unhinged"` / `"looking deeply over it"` all read cleanly. 95 → **0/2100** after.
+
+### QA hardening (so this class can't return)
+- **`content-grammar-lint.js`**: new hard check `hyphen_ly_artifact` (`/[a-z]-ly\b/i`). No legitimate hyphenated `-ly` adverb exists in the content, so any `<letter>-ly` is an artifact. Catches single-word, vowel-start, and multi-word-phrase moods.
+- **`qa-current.js` Section 23**: new release sub-gate — forces 8 moods (single-word + vowel-start + multi-word: clumsy / legendary / puzzled / overexcited / thoughtfully menacing / professionally unhinged / deeply over it / aggressively normal) across kid/big/tween and asserts no `<word>-ly`. 0/600.
+
+### Verification
+- `scripts/qa-current.js` — all gates green, Section 23 now 4 sub-gates (incl. new hyphen-ly).
+- `node --check` on src/content.js + src/engine-v2.js + api/tts.js + scripts/qa-current.js — clean.
+- `content-grammar-lint --reps 2000` — 0 hits on all 9 checks (incl. `hyphen_ly_artifact`).
+- `content-random-50` — 0 nulls. `content-comedy-mechanics` — 10.68/21 (causality 0.70, callback 0.70; within normal sampling band vs b43's 11.24). `content-punchline-audit` — changes_scene 48.8%. `content-repetition-report` — 1 ending above threshold (soft signal, sampling variance; watch).
+- `sentence-count-snapshot 120` — V3 medians tot 17 / little 18 / kid 25 / big 26 / tween 27 (consistent with b43; "Stories too long globally" remains In Progress, unchanged).
+- `audit-stories.js` — sample pack clean, no `-ly` artifacts.
+
+### Versions
+APP_VERSION stays `v0.9.3`; BUILD_NUMBER 43 → 44; ENGINE_V2_VERSION stays `v3.0.3`. Badge reads `v0.9.3 · b44`. Pure content/QA hotfix — no Phase B character-trait work.
+
+---
+
 ## v0.9.3 (build 43, engine v3.0.3) — 2026-05-28
 **Story-quality hotfix + grammar QA hardening after b42**
 
