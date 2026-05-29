@@ -9,6 +9,44 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 45, engine v3.0.3) — 2026-05-28
+**Story-quality de-glue — color / move / mood coverage callbacks**
+
+Story-quality assessment after b44 found grammar clean but the prose still flat in a specific, measurable way: the three *force-injected* "coverage callbacks" (color / move / mood) were the dominant remaining repetition and read as decorative filler disconnected from the plot. This build de-glues all three at the source while staying inside the coverage contract.
+
+### The problem (measured, b45 BEFORE, 1800 stories, ages 6/9/12)
+- **color** ambient callback present in **88%** (1587/1800) — *"the wall blinked X" / "lamp glowed X" / "tiny spot of X on Cole's hand" / "sleeves turned X"* — never tied to what was happening in the story.
+- **move** glue *"stopped exactly where they started. The point landed"* — **5%** (87/1800), a verbatim repeat whenever that 1-of-~12 move variant fired.
+- **mood** glue family (*"went very X" / "suspicious of nothing in particular"*) — **29%** (516/1800).
+
+### The coverage constraint (why this isn't just "fire less often")
+`qa-current.js` Section 3 requires every story to surface the golden picks, and color (rainbow), move (bounced), and mood (silly) are all in `expectedWords`. So the callbacks can't simply be made probabilistic — every story MUST still surface each. The fix de-glues + scene-connects the pools **and threads color into plot beats** so the ambient color callback auto-skips via the existing `bodyHasHighlight` guard — frequency drops without breaking coverage.
+
+### Fixes (all in `src/engine-v2.js`)
+- **Color threaded into plot, not wallpaper.** Two new color-as-clue plot beats so the color earns its place in the story: `v3_ls_problem_color_clue` (lost_snack — *"The only clue: a smear of [color] on the floor, leading exactly nowhere helpful"*) and `v3_sw_problem_color` (show_wrong — *"The prop broke down the middle, and the crack glowed [color]. Props are not supposed to glow."*). When a plot beat already surfaces the color, the ambient callback's `bodyHasHighlight` guard skips it. Ambient color pool also rewritten: dropped the abstract "ceiling/wall/lamp flashed" frames; kept concrete stripe-on-floor/sleeves/shoes + big-tier mirror/streak; added 3 scene-connected variants that react to the room and the ally.
+- **Move glue killed.** Removed *"stopped exactly where they started. The point landed"*; replaced with 2 load-bearing `motion`-class variants (slow circle around the ally; timing-when-it-lands-best) that describe the actual motion instead of cancelling it out.
+- **Mood glue killed.** Removed *"went briefly X, which made the ally suspicious of nothing in particular"* and the rule_loophole *"went very X"* double; replaced with variants where the mood drives behavior the ally reacts to (*"Whatever Cole did next, it was going to be [mood]. The ally could tell. The ally got comfortable."*).
+
+### Results (b45 AFTER)
+- ambient color wallpaper **88% → 36%** (Section 24 ceiling 55%; coverage still 100% via plot beats + remaining ambient).
+- mood glue family **29% → 3%**; move glue **5% → 0%**.
+- `content-comedy-mechanics` **11.0/21** (b44 10.68; causality 0.9, callback 0.66 — normal sampling band).
+
+### QA hardening (so the glue can't return)
+- **`qa-current.js` Section 24** (new): 7 killed-phrase gates (each 0/660 rendered) for every retired move/mood/color frame, plus a hard ceiling asserting ambient color wallpaper stays **below 55%** (was ~88%).
+- One b45 grammar regression caught + fixed pre-ship: the new lost_snack color-clue beat first read *"The [mcguffin] was gone"*, which broke on plural mcguffins (27 lint hits) — changed to *"had vanished"* (the b39/b42 plural-neutral precedent). 0 hits after.
+
+### Verification
+- `scripts/qa-current.js` — all acceptance gates green, incl. new Section 24 (7 killed-phrase + ambient-color ceiling).
+- `node --check` on src/content.js + src/engine-v2.js + scripts/qa-current.js — clean.
+- `content-grammar-lint --reps 2000` — **0 hits on all 9 checks**.
+- Manual read ages 6/8/10 — color now arrives as a plot clue/prop feature, not wallpaper (e.g., *"The map covered in crumbs broke down the middle, and the crack glowed scarlet. Props are not supposed to glow."*).
+
+### Versions
+APP_VERSION stays `v0.9.3`; BUILD_NUMBER 44 → 45; ENGINE_V2_VERSION stays `v3.0.3`. Badge reads `v0.9.3 · b45`. Pure content/QA de-glue — no Phase B character-trait work (held per directive until comedy fundamentals are clean).
+
+---
+
 ## v0.9.3 (build 44, engine v3.0.3) — 2026-05-28
 **Story-quality prose hotfix — mood "-ly" artifact + lint gate**
 

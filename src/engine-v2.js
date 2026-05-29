@@ -3955,6 +3955,21 @@ const V3_BEATS = [
       'The [c:{mcguffin.text}] had vanished. [name:{protagonist.name}] turned [c:{mood_throughline.text}] in a way the [c:{false_suspect.text}] could feel from across the room. The [c:{false_suspect.text}] coughed for no reason.',
       'No [c:{mcguffin.text}] anywhere. [name:{protagonist.name}] went [c:{mood_throughline.text}] like a tiny detective. The [c:{false_suspect.text}] hummed a song nobody had asked for.',
     ] },
+  /* v0.9.3 · b45 — COLOR-AS-CLUE. The kid's picked color now surfaces through
+     the PLOT in lost_snack (a mystery — color is literally a clue) instead of
+     as a free-floating ambient callback. requiredRoles includes
+     visual_signature so it competes at 4-role parity with v3_ls_problem_mood;
+     when color is picked it fires a meaningful share of the time, color appears
+     in the body via story, and the ambient visual_signature callback then
+     auto-skips (bodyHasHighlight guard) — reducing the ~88% ambient color rate
+     without breaking choice-coverage (color still always appears). Grammar-safe:
+     color sits mid-phrase ("a smear of [color]" / "one [color] smudge"), never
+     "a [color]". */
+  { id:'v3_ls_problem_color_clue', stage:'problem', blueprintId:'lost_snack_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','mcguffin','false_suspect','visual_signature'],
+    lines: [
+      'The [c:{mcguffin.text}] had vanished. The only clue: a smear of [c:{visual_signature.text}] on the floor, leading exactly nowhere helpful. [name:{protagonist.name}] studied it anyway. The [c:{false_suspect.text}] studied the ceiling.',
+      'Whoever took the [c:{mcguffin.text}] left one [c:{visual_signature.text}] smudge behind. A bold choice, leaving evidence that specific. [name:{protagonist.name}] photographed it with their eyes. The [c:{false_suspect.text}] suddenly needed to be elsewhere.',
+    ] },
   { id:'v3_ls_problem_tween', stage:'problem', blueprintId:'lost_snack_v3', tiers:['tween'], requiredRoles:['protagonist','mcguffin','false_suspect'],
     lines: [
       'The [c:{mcguffin.text}]: gone. The [c:{false_suspect.text}]: present, suspiciously well-rehearsed. [name:{protagonist.name}] did not love this development.',
@@ -4381,6 +4396,17 @@ const V3_BEATS = [
       'The [c:{prop.text}] snapped. Right in the middle. [name:{protagonist.name}] and the [c:{ally.text}] stared at each half.',
       'The [c:{ally.text}] blanked. The [c:{prop.text}] hit the floor a second later. Two crises at once.',
     ] },
+  /* v0.9.3 · b45 — COLOR-AS-PROP-FEATURE. Surfaces the kid's picked color
+     through the PLOT (the prop visibly turns the color as it fails) instead of
+     a free-floating ambient callback. requiredRoles includes visual_signature
+     so when color is picked it competes for the show_wrong problem stage; color
+     appears in-story and the ambient visual_signature callback auto-skips
+     (bodyHasHighlight). Grammar-safe: color mid-phrase, never "a [color]". */
+  { id:'v3_sw_problem_color', stage:'problem', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','prop','visual_signature'],
+    lines: [
+      'The [c:{prop.text}] failed — and as it did, it flushed bright [c:{visual_signature.text}], like it was embarrassed. The [c:{ally.text}] gasped. [name:{protagonist.name}] had about three seconds.',
+      'The [c:{prop.text}] broke down the middle, and the crack glowed [c:{visual_signature.text}]. Props are not supposed to glow. [name:{protagonist.name}] and the [c:{ally.text}] looked at each other.',
+    ] },
   /* v2.7.0 — physically silly prop disasters with vivid imagery a kid can picture. */
   { id:'v3_sw_problem_visual', stage:'problem', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','prop'],
     lines: [
@@ -4556,8 +4582,11 @@ const V3_BEATS = [
      so leading a sentence with them triggers the lowercase-start lint. */
   { id:'v3_rl_problem_mood', stage:'problem', blueprintId:'rule_loophole_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','rule_imposer','mcguffin','mood_throughline'],
     lines: [
-      'Off-limits, said the [c:{rule_imposer.text}], pointing at the [c:{mcguffin.text}]. [name:{protagonist.name}] went very [c:{mood_throughline.text}], visibly. The [c:{rule_imposer.text}] noticed and backed up half a step.',
-      'A wall of "no" landed between [name:{protagonist.name}] and the [c:{mcguffin.text}]. [name:{protagonist.name}] went very [c:{mood_throughline.text}]. The [c:{rule_imposer.text}] sensed escalation.',
+      // v0.9.3 · b45 — de-glued the "went very [mood]" repeat (was 2 of 3
+      // variants). Each line now frames the mood differently (became / radiated
+      // / kept their face) so rule_loophole stories don't all open the same way.
+      'Off-limits, said the [c:{rule_imposer.text}], pointing at the [c:{mcguffin.text}]. [name:{protagonist.name}] became, very visibly, [c:{mood_throughline.text}]. The [c:{rule_imposer.text}] noticed and backed up half a step.',
+      'A wall of "no" landed between [name:{protagonist.name}] and the [c:{mcguffin.text}]. [name:{protagonist.name}] radiated [c:{mood_throughline.text}] energy with no warning. The [c:{rule_imposer.text}] sensed escalation.',
       'According to the [c:{rule_imposer.text}], the [c:{mcguffin.text}] could no longer be touched. [name:{protagonist.name}] kept their face [c:{mood_throughline.text}]. Underneath: scheming.',
     ] },
   { id:'v3_rl_problem_tween', stage:'problem', blueprintId:'rule_loophole_v3', tiers:['tween'], requiredRoles:['protagonist','rule_imposer','mcguffin'],
@@ -5643,8 +5672,12 @@ function generateStoryV3(name, picks, age) {
       { text: '[name:{protagonist.name}] [c:{signature_action.text}] past the [c:{ally.text}]. The [c:{ally.text}] [c:{signature_action.text}] too.', tiers:['tot','little'], requiresMoveClass:'motion' },
       // kid/big/tween directional variants — all tagged motion-only.
       { text: '[name:{protagonist.name}] [c:{signature_action.text}] sideways, on purpose this time. Nobody else noticed. [name:{protagonist.name}] noticed.', tiers:['kid','big','tween'], requiresMoveClass:'motion' },
-      { text: '[name:{protagonist.name}] [c:{signature_action.text}] across the room and stopped exactly where they started. The point landed.', tiers:['kid','big','tween'], requiresMoveClass:'motion' },
+      // v0.9.3 · b45 — KILLED "[move] across the room and stopped exactly where
+      // they started. The point landed." (verbatim glue flagged in b44 review).
+      // New motion variants connect the move to the ally or the moment.
       { text: '[name:{protagonist.name}] [c:{signature_action.text}] toward the [c:{ally.text}] and then away again, faster.', tiers:['kid','big','tween'], requiresMoveClass:'motion' },
+      { text: '[name:{protagonist.name}] [c:{signature_action.text}] in a slow circle around the [c:{ally.text}], who turned to keep watching. It was a lot of turning.', tiers:['kid','big','tween'], requiresMoveClass:'motion' },
+      { text: '[name:{protagonist.name}] [c:{signature_action.text}] right when it would land best. Timing is a skill. [name:{protagonist.name}] has it sometimes.', tiers:['kid','big','tween'], requiresMoveClass:'motion' },
       // v0.9.3 · b40 — NEW gesture-friendly kid/big/tween variants so
       // gesture/state moves still get visible flavor callbacks.
       { text: 'Without warning, [name:{protagonist.name}] [c:{signature_action.text}]. The room noticed. [name:{protagonist.name}] did not explain.', tiers:['kid','big','tween'] },
@@ -5679,14 +5712,27 @@ function generateStoryV3(name, picks, age) {
        "the X went [color]" / "X turned [color]" / "stripe of [color]" patterns
        to keep grammar safe regardless of which color the kid picked). */
     visual_signature: [
-      // --- kid/big/tween — concrete physical events, no "a [color]" hazards ---
-      { text: 'The ceiling flashed [c:{visual_signature.text}] for exactly two seconds.', tiers:['kid','big','tween'] },
+      // v0.9.3 · b45 — DE-GLUE. The b45 assessment found this callback fired in
+      // ~88% of kid/big stories with interchangeable "inanimate thing briefly
+      // turns [color]" lines that read as wallpaper. DROPPED the 4 blandest
+      // (ceiling flashed / wall blinked / lamp glowed / spot on hand). KEPT the
+      // 3 most concrete. ADDED 5 scene-connected variants where the color does
+      // something slightly characterful or ties to the ally/scene — so when the
+      // callback DOES fire it reads as part of the moment, not ambient filler.
+      // (Frequency reduction itself comes from the new lost_snack color-clue
+      // beat surfacing color via plot, which makes this callback auto-skip via
+      // the bodyHasHighlight guard. Color is a required-coverage pick, so it
+      // must still appear every story — see CHANGELOG.)
+      //
+      // --- kid/big/tween — concrete + scene-connected, no "a [color]" hazards ---
       { text: 'A stripe of [c:{visual_signature.text}] appeared on the floor and pointed the wrong way.', tiers:['kid','big','tween'] },
       { text: '[name:{protagonist.name}]\'s sleeves turned [c:{visual_signature.text}]. Nobody explained this.', tiers:['kid','big','tween'] },
-      { text: 'The wall blinked [c:{visual_signature.text}], then pretended it had not.', tiers:['kid','big','tween'] },
-      { text: 'For two seconds the lamp glowed [c:{visual_signature.text}]. Then back to normal.', tiers:['kid','big','tween'] },
       { text: '[name:{protagonist.name}]\'s shoes briefly turned [c:{visual_signature.text}]. Briefly.', tiers:['kid','big','tween'] },
-      { text: 'A tiny spot of [c:{visual_signature.text}] appeared on the back of [name:{protagonist.name}]\'s hand. Blinked once. Gone.', tiers:['kid','big','tween'] },
+      // b45 — new scene-connected variants (color attaches to the ally or to a
+      // beat the reader just watched, so it's not free-floating).
+      { text: 'For one second the [c:{ally.text}] went completely [c:{visual_signature.text}]. The [c:{ally.text}] denied it afterward.', tiers:['kid','big','tween'] },
+      { text: 'Everything [name:{protagonist.name}] was touching turned [c:{visual_signature.text}] for a beat. [name:{protagonist.name}] kept touching things, just to check.', tiers:['kid','big','tween'] },
+      { text: 'The light in the room picked one color and committed: [c:{visual_signature.text}]. Then it got embarrassed and stopped.', tiers:['kid','big','tween'] },
       // --- big/tween only — drier register, still concrete ---
       { text: '[name:{protagonist.name}] noticed a streak of [c:{visual_signature.text}] across the wall. Or did they.', tiers:['big','tween'] },
       { text: 'The mirror went [c:{visual_signature.text}] for a beat. Mirrors are not supposed to do that.', tiers:['big','tween'] },
@@ -5772,9 +5818,13 @@ function generateStoryV3(name, picks, age) {
       { text: '[name:{protagonist.name}] did the [c:{mood_throughline.text}] thing they always do when nobody is watching. Somebody was watching.', tiers:['kid','big','tween'] },
       { text: '[name:{protagonist.name}] glanced at the [c:{ally.text}] in a way that was [c:{mood_throughline.text}], specifically. The [c:{ally.text}] caught it.', tiers:['kid','big','tween'] },
       { text: 'For three whole seconds, [name:{protagonist.name}] was visibly [c:{mood_throughline.text}]. Then back to baseline.', tiers:['kid','big','tween'] },
-      // v0.9.3 · b42 — new mood-as-driver variants (kid/big focus).
-      // Each variant makes mood CAUSE a specific action with a reaction.
-      { text: '[name:{protagonist.name}] went briefly [c:{mood_throughline.text}], which made the [c:{ally.text}] suspicious of nothing in particular.', tiers:['kid','big','tween'] },
+      // v0.9.3 · b42 — mood-as-driver variants (kid/big focus). Each makes mood
+      // CAUSE a specific action with a reaction.
+      // v0.9.3 · b45 — KILLED "went briefly [mood], which made the [ally]
+      // suspicious of nothing in particular" (29%-of-stories "went [mood]" glue
+      // family flagged in the b45 assessment). Replaced with a mood-as-decision
+      // variant that doesn't reuse the "went [mood]" frame.
+      { text: 'Whatever [name:{protagonist.name}] did next, it was going to be [c:{mood_throughline.text}]. The [c:{ally.text}] could tell. The [c:{ally.text}] got comfortable.', tiers:['kid','big','tween'] },
       { text: '[name:{protagonist.name}] let out one [c:{mood_throughline.text}] sigh. The [c:{ally.text}] copied it. The sigh was now a chorus.', tiers:['kid','big','tween'] },
       // v0.9.3 · b44 — DEFECT FIX: removed the literal "-ly" suffix. mood_throughline
       // is an adjective / multi-word phrase ("clumsy", "professionally unhinged",
