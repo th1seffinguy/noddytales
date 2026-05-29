@@ -3032,7 +3032,16 @@ function generateStoryV2(name, picks, age) {
     if (KNOWN_PLURALS.has(pv)) derivedIsPlural = true;
     else if (pv.endsWith('s') && !INVARIANT_PLURAL.has(pv) && !pv.endsWith('ss')) derivedIsPlural = true;
     const fallback = rawPick(lib);
-    return Object.assign({}, fallback, { text: pickValue, id: pickValue, isPlural: derivedIsPlural });
+    // v0.9.3 · b43 — DEFECT FIX: article inheritance. The random donor carries
+    // an `article` field ('a'/'an') tuned for ITS text. Copying it onto a
+    // user-picked word (e.g. "anxious hedgehog") produced "a anxious hedgehog".
+    // Strip donor-specific fields (article, plural, emoji) so articleText
+    // recomputes the correct a/an from the new text's first letter.
+    const synth = Object.assign({}, fallback, { text: pickValue, id: pickValue, isPlural: derivedIsPlural });
+    delete synth.article;
+    delete synth.plural;
+    delete synth.emoji;
+    return synth;
   }
 
   // Bias helper: prefer items from biasIds when present, fall back to full library.
@@ -3075,7 +3084,11 @@ function generateStoryV2(name, picks, age) {
   // and the coverage validator below ensures any user-selected value surfaces in the body.
   const color = picks.color?.w ? { text: picks.color.w } : null;
   const move  = picks.move?.w  ? { text: picks.move.w }  : null;
-  const mood  = picks.mood?.w  ? { text: picks.mood.w }  : null;
+  // v0.9.3 · b43 — mood gains articleText (parallel to b38 color) so vowel-start
+  // moods (overexcited / accidentally heroic / awkward / annoyed) resolve a/an
+  // correctly anywhere a future beat needs it. b43 also rewrote the two "a [mood]"
+  // beats to avoid the article entirely.
+  const mood  = picks.mood?.w  ? { text: picks.mood.w, articleText: V2Grammar.articleText({ text: picks.mood.w }) }  : null;
   // v0.9.3 · b41 — strip terminal punctuation from user-entered freeword2 too.
   const freeword2 = picks.freeword2?.w ? { text: picks.freeword2.w.replace(/[!?.,]+$/, '') } : null;
   /* v2.4.7 — weather is collected by the little-tier weather round (and any future tier
@@ -3926,7 +3939,7 @@ const V3_BEATS = [
 
   { id:'v3_ls_problem_1', stage:'problem', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','mcguffin','false_suspect'],
     lines: [
-      'When [name:{protagonist.name}] turned back, the [c:{mcguffin.text}] had VANISHED. A [c:{false_suspect.text}] stood nearby looking WAY too innocent.',
+      'When [name:{protagonist.name}] turned back, the [c:{mcguffin.text}] had VANISHED. Nearby, [c:{false_suspect.articleText}] stood looking WAY too innocent.',
       'The [c:{mcguffin.text}] had vanished. The [c:{false_suspect.text}] was right there, suspiciously casual.',
     ] },
   /* v0.9.3 · b24 — variant expansion. Pre-b24 this beat had one line and
@@ -4414,7 +4427,7 @@ const V3_BEATS = [
      to break out of the heckler-only pattern. */
   { id:'v3_sw_escalation_1', stage:'escalation', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','obstacle'],
     lines: [
-      'A [c:{obstacle.text}] in the audience laughed too loudly. The [c:{ally.text}] mistook it for applause and bowed. [name:{protagonist.name}] rolled with it. Different show now.',
+      'Out in the audience, [c:{obstacle.articleText}] laughed too loudly. The [c:{ally.text}] mistook it for applause and bowed. [name:{protagonist.name}] rolled with it. Different show now.',
       'The [c:{obstacle.text}] heckled, genuinely. The [c:{ally.text}] hissed. [name:{protagonist.name}] kept going. The conflict made the bit.',
       'The [c:{obstacle.text}] tried to leave. The [c:{ally.text}] blocked the exit, on purpose, somehow. [name:{protagonist.name}] now had a captive audience.',
     ] },
@@ -4422,7 +4435,7 @@ const V3_BEATS = [
      always lands in body for show_wrong_v3 at ages 11-13. Two variants. */
   { id:'v3_sw_escalation_tween', stage:'escalation', blueprintId:'show_wrong_v3', tiers:['tween'], requiredRoles:['protagonist','ally','obstacle'],
     lines: [
-      'A [c:{obstacle.text}] in the audience filmed the whole thing on a phone. The [c:{ally.text}] noticed and started playing to the camera. [name:{protagonist.name}] decided this was now content. It might even go viral.',
+      'Out in the audience, [c:{obstacle.articleText}] filmed the whole thing on a phone. The [c:{ally.text}] noticed and started playing to the camera. [name:{protagonist.name}] decided this was now content. It might even go viral.',
       'The [c:{obstacle.text}] critiqued the show out loud. The [c:{ally.text}] glared. [name:{protagonist.name}] absorbed the feedback in real time and kept going. The bit improved.',
     ] },
   { id:'v3_sw_escalation_tween_alt', stage:'escalation', blueprintId:'show_wrong_v3', tiers:['tween'], requiredRoles:['protagonist','ally'],
@@ -4545,7 +4558,7 @@ const V3_BEATS = [
     lines: [
       'Off-limits, said the [c:{rule_imposer.text}], pointing at the [c:{mcguffin.text}]. [name:{protagonist.name}] went very [c:{mood_throughline.text}], visibly. The [c:{rule_imposer.text}] noticed and backed up half a step.',
       'A wall of "no" landed between [name:{protagonist.name}] and the [c:{mcguffin.text}]. [name:{protagonist.name}] went very [c:{mood_throughline.text}]. The [c:{rule_imposer.text}] sensed escalation.',
-      'According to the [c:{rule_imposer.text}], the [c:{mcguffin.text}] could no longer be touched. [name:{protagonist.name}] kept a [c:{mood_throughline.text}] face. Underneath: scheming.',
+      'According to the [c:{rule_imposer.text}], the [c:{mcguffin.text}] could no longer be touched. [name:{protagonist.name}] kept their face [c:{mood_throughline.text}]. Underneath: scheming.',
     ] },
   { id:'v3_rl_problem_tween', stage:'problem', blueprintId:'rule_loophole_v3', tiers:['tween'], requiredRoles:['protagonist','rule_imposer','mcguffin'],
     lines: [
@@ -5070,7 +5083,7 @@ const V3_BEATS = [
     ] },
   { id:'v3_ls_setup_premise_schedule', stage:'setup', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting','mcguffin'], jokeJob:'setup',
     lines: [
-      '[name:{protagonist.name}] had built the entire [y:{setting.text}] afternoon around one [c:{mcguffin.text}]. The [c:{ally.text}] knew the schedule. The [c:{mcguffin.text}] had been on schedule, too — right up until it wasn\'t.',
+      '[name:{protagonist.name}] had built the entire [y:{setting.text}] afternoon around the [c:{mcguffin.text}]. The [c:{ally.text}] knew the schedule. The [c:{mcguffin.text}] had been on schedule, too — right up until it wasn\'t.',
     ] },
   { id:'v3_ls_setup_premise_deal', stage:'setup', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','setting','mcguffin'], jokeJob:'setup',
     lines: [
@@ -5164,7 +5177,7 @@ const V3_BEATS = [
      beat for kid+big. requiredRoles=3 to match v3_sw_problem_1 dominant. */
   { id:'v3_sw_problem_obstacle_filming', stage:'problem', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','obstacle'], jokeJob:'escalation',
     lines: [
-      'A [c:{obstacle.text}] in the front row pulled out a phone and started filming. The phone made an old camera shutter sound. Nobody had asked for that either. [name:{protagonist.name}] absorbed it. The [c:{ally.text}] mouthed something diplomatic. [name:{protagonist.name}] kept going.',
+      'Out in the front row, [c:{obstacle.articleText}] pulled out a phone and started filming. The phone made an old camera shutter sound. Nobody had asked for that either. [name:{protagonist.name}] absorbed it. The [c:{ally.text}] mouthed something diplomatic. [name:{protagonist.name}] kept going.',
     ] },
   { id:'v3_sw_problem_obstacle_heckle', stage:'problem', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','obstacle','prop'], jokeJob:'escalation',
     lines: [
@@ -5279,7 +5292,16 @@ function generateStoryV3(name, picks, age) {
     if (KNOWN_PLURALS.has(pv)) derivedIsPlural = true;
     else if (pv.endsWith('s') && !INVARIANT_PLURAL.has(pv) && !pv.endsWith('ss')) derivedIsPlural = true;
     const fallback = rawPick(lib);
-    return Object.assign({}, fallback, { text: pickValue, id: pickValue, isPlural: derivedIsPlural });
+    // v0.9.3 · b43 — DEFECT FIX: article inheritance. The random donor carries
+    // an `article` field ('a'/'an') tuned for ITS text. Copying it onto a
+    // user-picked word (e.g. "anxious hedgehog") produced "a anxious hedgehog".
+    // Strip donor-specific fields (article, plural, emoji) so articleText
+    // recomputes the correct a/an from the new text's first letter.
+    const synth = Object.assign({}, fallback, { text: pickValue, id: pickValue, isPlural: derivedIsPlural });
+    delete synth.article;
+    delete synth.plural;
+    delete synth.emoji;
+    return synth;
   }
   function rawPick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
@@ -5337,7 +5359,8 @@ function generateStoryV3(name, picks, age) {
      (work for both). Default for unknown moves is 'motion' (kid pool is all
      locomotion, so the kid path is unchanged). */
   const move      = picks.move?.w  ? { text: picks.move.w, class: (MOVE_CLASS[picks.move.w] || 'motion') } : null;
-  const mood      = picks.mood?.w  ? { text: picks.mood.w }  : null;
+  // v0.9.3 · b43 — mood gains articleText (parallel to b38 color). See V2 path.
+  const mood      = picks.mood?.w  ? { text: picks.mood.w, articleText: V2Grammar.articleText({ text: picks.mood.w }) }  : null;
   const weather   = picks.weather?.w ? { text: picks.weather.w } : null;
   /* v2.10.0 — sky slot wired into v3 so tot_sky_v3 (wonder_object = sky) can resolve.
      Previously v3 only covered kid/big/tween where sky isn't a picker round.
@@ -5752,7 +5775,7 @@ function generateStoryV3(name, picks, age) {
       // v0.9.3 · b42 — new mood-as-driver variants (kid/big focus).
       // Each variant makes mood CAUSE a specific action with a reaction.
       { text: '[name:{protagonist.name}] went briefly [c:{mood_throughline.text}], which made the [c:{ally.text}] suspicious of nothing in particular.', tiers:['kid','big','tween'] },
-      { text: 'There was a [c:{mood_throughline.text}] sigh from [name:{protagonist.name}]. The [c:{ally.text}] copied it. The sigh was now a chorus.', tiers:['kid','big','tween'] },
+      { text: '[name:{protagonist.name}] let out one [c:{mood_throughline.text}] sigh. The [c:{ally.text}] copied it. The sigh was now a chorus.', tiers:['kid','big','tween'] },
       { text: '[name:{protagonist.name}] folded their arms [c:{mood_throughline.text}]-ly. The [c:{ally.text}] folded their arms too. Nothing got resolved, but the body language was clear.', tiers:['kid','big','tween'] },
     ],
     mcguffin: [

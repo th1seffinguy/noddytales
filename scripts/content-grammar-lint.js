@@ -81,6 +81,21 @@ const CHECKS = [
   { id:'a_plural_noun', label:'Singular article + plural-only noun (a binoculars-class)',
     scope:'both',
     rx: /\ba (binoculars|scissors|pants|shorts|jeans|glasses|tongs|tweezers|pliers|sunglasses)\b/i },
+  // v0.9.3 · b43 — "one [plural food]" grammar break. Codex repro at b42:
+  // v3_ls_setup_premise_schedule hardcoded "around one {mcguffin.text}" →
+  // "around one cupcakes". Any "one " immediately before a plural food noun
+  // is ungrammatical. Same plural-food list as plural_noun_was.
+  { id:'one_plural_food', label:'"one" + plural-only food/mcguffin noun (one cupcakes-class)',
+    scope:'both',
+    rx: /\bone (pretzels|taquitos|fries|donuts|cookies|waffles|pancakes|tacos|burritos|grapes|peas|noodles|dumplings|nachos|cupcakes|jellybeans|hot dogs|cheese puffs|fruit snacks|blueberries|strawberries|apple slices|pickles|enchanted pickles|thunder pancakes|suspicious sandwiches|bewildering cookies|haunted scones|mysterious leftovers|forbidden waffles|emergency noodles|ceremonial nachos|vending machine chips|cafeteria fries|mystery chips|gas station nachos|gas station taquitos|chips|leftovers|snacks)\b/i },
+  // v0.9.3 · b43 — "a" + vowel-start mood article mismatch. Found during b43
+  // manual review: v3_rl_problem_mood + a b42 mood callback hardcoded "a
+  // [mood]", rendering "a accidentally heroic face" / "a overexcited sigh".
+  // Vowel-start moods need "an"; b43 rewrote both beats to avoid the article
+  // and added articleText to the mood slot. This guards reintroduction.
+  { id:'a_vowel_mood', label:'"a" + vowel-start mood (a overexcited-class article mismatch)',
+    scope:'both',
+    rx: /\ba (overexcited|accidentally heroic|aggressively normal|extra brave|extremely unconvinced|enthusiastic|indignant|annoyed|amazed|astonished|excited|impatient|elated|uneasy|exhausted|overjoyed|awkward|embarrassed|irritated|outraged|underwhelmed|unimpressed|inconsolable|eager|earnest|elegant|electric|icy|odd|extra|aggressively|extremely|accidentally|overwhelmed)\b/i },
   // Duplicate articles
   { id:'duplicate_article', label:'Duplicate article ("the the", "a a", "an an")',
     scope:'both',

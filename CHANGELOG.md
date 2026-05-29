@@ -9,7 +9,45 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
-## v0.9.3 (build 42, engine v3.0.3) — 2026-05-29
+## v0.9.3 (build 43, engine v3.0.3) — 2026-05-28
+**Story-quality hotfix + grammar QA hardening after b42**
+
+Codex QA after b42 found acceptance gates passing but story-quality QA not clean: a High grammar regression in a b42 premise beat. Fixed that, then the required manual read + QA hardening surfaced two more article-mismatch leaks of the same class. All three fixed at root cause; three new regression gates added. No Phase B character-trait work — strictly the grammar regression + QA gap.
+
+### P1 (the reported defect) — "one" + plural food
+`v3_ls_setup_premise_schedule` (a b42 beat) hardcoded *"around one {mcguffin.text}"*, rendering *"around one cupcakes"* / *"one donuts"* / *"one fries"* whenever the lost-snack mcguffin (food slot) was a plural-only noun. Reproduced at 44/800 forced-plural samples. FIX: rewrote to *"around the {mcguffin.text}"* (plural-neutral — the b39 precedent for the "one [X]" class). 0/800 after.
+
+### P2 (found during manual review) — "a" + vowel-start mood
+Reading age-8 samples surfaced *"Cole kept a accidentally heroic face"*. Two beats hardcoded *"a {mood_throughline.text}"* — `v3_rl_problem_mood` (pre-existing) and a b42 mood callback (*"There was a {mood} sigh..."*). Vowel-start moods (overexcited, accidentally heroic, awkward, annoyed, enthusiastic, ...) need "an". FIX: rewrote both beats to avoid the article (*"kept their face [mood]"* / *"let out one [mood] sigh"*) AND added `articleText` to the mood slot (parallel to the b38 color fix) as permanent defense — closes the vowel-start-mood risk deferred since b39/b40.
+
+### P3 (found during manual review) — "a/A" + vowel-start creature  + ROOT CAUSE
+The lint then caught *"A indignant mushroom in the audience laughed too loudly"*. Three pre-existing beats + one b42 beat hardcoded leading *"A {obstacle/false_suspect.text}"*. Rewriting those to `{...articleText}` surfaced the TRUE root cause: **`mapPickToWord`'s fallback synthesis** (both V2 + V3 entry points) copied a random donor word's `article` field onto a user-picked word not in the curated pool. "anxious hedgehog" (a WORD_BANK creature absent from `V2_WORDS.visitors`) inherited a donor's `article:'a'` → "a anxious hedgehog". FIX (root cause): the fallback now strips the donor's `article`, `plural`, and `emoji` fields so `articleText` recomputes the correct a/an from the new word. This fixes article mismatches for EVERY user-picked vowel-start word across all slots, not just the four beats. Verified 0/600 forced vowel-creature samples after.
+
+### QA hardening (the "QA gap")
+New regression coverage so this class can't silently return:
+- **`content-grammar-lint.js`**: 2 new diagnostic checks — `one_plural_food` ("one cupcakes"-class) + `a_vowel_mood` ("a overexcited"-class). 2000-rep sample: 0 hits on every check.
+- **`qa-current.js` new Section 23** (release gate, 3 sub-gates):
+  - "one" + plural-only food never renders (lost_snack mcguffin forced plural across kid+big) — 0/960
+  - "a" + vowel-start mood never renders (forced vowel moods kid/big/tween) — 0/600
+  - "a/A" + vowel-start creature never renders (forced vowel creatures kid/big/tween) — 0/600
+
+### Other
+- Corrected b42 CHANGELOG date drift (2026-05-29 → 2026-05-28; the UTC clock had rolled past midnight while the EDT session date was the 28th).
+
+### Verification
+- `scripts/qa-current.js` — all gates green incl. Section 23 (3 new).
+- `node --check` on src/content.js + src/engine-v2.js + api/tts.js + scripts/qa-current.js — clean.
+- `content-grammar-lint --reps 2000` — 0 hits on all 8 checks.
+- `content-comedy-mechanics` — 11.24/21 (was 10.86 b42; causality 0.98). `content-punchline-audit` changes_scene 50.0%. `content-repetition-report` — 2 endings above threshold (soft signal, sampling variance; not a gate; watch).
+- Sentence medians (advisory): tot 18 / little 18 / kid 25 / big 26 / tween 27 — elevated vs the defect-proposed caps; "Stories too long globally" remains In Progress (unchanged by b43).
+- Manual read ages 6/8/10 — fixed beats render naturally ("around the hot dogs"); no "one [plural]" / "a [vowel]" leaks.
+
+### Versions
+APP_VERSION stays `v0.9.3`; BUILD_NUMBER 42 → 43; ENGINE_V2_VERSION stays `v3.0.3`. Badge reads `v0.9.3 · b43`. Phase B (character traits) NOT started — held until this grammar regression + QA gap were closed, per the b43 directive.
+
+---
+
+## v0.9.3 (build 42, engine v3.0.3) — 2026-05-28
 **Comedy Architecture Phase A — premise-statement setups + obstacle-action escalations + wear-out kills (kid+big focus)**
 
 Phase A of the multi-build comedy lift identified in the 50-story b41 manual review. Stories were grammatically correct + on-theme but flat: kid had no stake, obstacles never acted, FLAVOR_CALLBACKS decorated without escalating. This build fixes the structural symptoms; b43+ will add character traits and callback architecture.
