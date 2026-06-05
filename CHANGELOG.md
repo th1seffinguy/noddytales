@@ -9,6 +9,44 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 46, engine v3.0.3) — 2026-06-04
+**Length, endings, and tot/little call-response trim**
+
+Codex QA on 2026-06-04 found acceptance gates green and the b45 de-glue holding, but story quality still not clean: stories too long, the bedtime ending family dominating repetition, tot/little call-response over-repeating, and a punchline scene-change dip. b46 targets all four without breaking Section 3 coverage or any b43-b45 regression gate.
+
+### 1. Endings — the biggest win
+The bedtime post-pass appended ONE fixed closer string per tier, so `lights out` and `yawned, climbed into bed, and pulled up the covers` each dominated ~24% of the repetition report (the single largest repeated ending). Converted each tier closer into a **4-variant pool** chosen at random; every variant keeps a bedtime-lexicon word so the Section 21 bedtime-ending guarantee can't break.
+- Repeated story endings **1 → 0**. Above-threshold n-grams **21 → 9-15** (multi-run). Top single bedtime closer **~100%/tier → 18%**.
+
+### 2. Length (materially improved; defect stays In Progress)
+Trimmed ~20 verbose beats from 4-6 sentences to 3 across the priority blueprints (show_wrong_v3, lost_snack_v3, goal_spine_v3) + rule_loophole's 7-sentence outlier — preserving every protagonist/ally/mcguffin/setting/picked-word token and the core joke.
+- V3 medians: tot 18→**17**, kid 25→**24**, tween 28→**27**. Blueprints: goal_spine 25→**22-23**, rule_loophole 23→**21**.
+- The proposed caps (kid 7-8) remain structurally unreachable without dropping the 5-6 paragraph count (breaks the Section 3 paragraph gate). "Stories too long globally" stays **In Progress** — improved, not closed.
+
+### 3. Tot/little call-response
+`"X!" said Cole … said the <pet>` was ~25% of the repetition report. Added 2 non-call-response action variants per tier (tot: boop / show-off; little: inspect / parade) to dilute the non-chant pool while preserving the intentional cozy twice-told rhythm and the HIGH_IMPACT chant beats.
+
+### 4. Punchline scene-change recovery
+`changes_scene` 44.3% → **44-48%** (toward b44's 48.8%). Added recognized-scene-verb payoff variants to lost_snack / show_wrong and to goal_spine's genuinely-weak `ally_adopts` beat (was a pure quoted echo with no scene change). Root cause of the dip was partly heuristic — the audit's SCENE_VERBS list misses `slid`/`folded`/`collapsed`/`dropped`/`rolled`.
+
+### Bug found + fixed mid-build (systematic debugging)
+Manual read surfaced a **double bedtime closer** (`"…curled up. Then Cole yawned and curled up small."`). Root cause: the engine `BEDTIME_LEXICON` didn't recognize "curled up" / "went to bed", so landings that already close bedtime-y triggered a redundant post-pass closer. Fixed by adding those terms to all THREE parallel bedtime regexes (engine + qa Section 21 + qa Section 25). 0 double-closers after.
+
+### QA hardening
+- **`qa-current.js` Section 25** (new): bedtime-closer variety (no single closing sentence ≥40% of bedtime stories, was 100%/tier) + lexicon invariant (100% of bedtime stories end bedtime-y).
+
+### Verification
+- `scripts/qa-current.js` — **ALL ACCEPTANCE GATES PASSED**, incl. new Section 25 and all b43-b45 regression gates (article/quantity, hyphen-ly, apostrophe parity, Section 24 killed-phrase + ambient color).
+- `node --check` on src/content.js + src/engine-v2.js + api/tts.js + scripts/qa-current.js — clean.
+- `content-grammar-lint --reps 2000` — **0 hits on all 9 checks**.
+- `content-random-50` — 0 nulls. `content-golden-audit` — 0 nulls. `content-comedy-mechanics` — 11.0/21 (coherence 1.18→1.30). `content-punchline-audit` — changes_scene 44-48%. `content-repetition-report` — 0 repeated endings, 9-15 n-grams (was 21). `sentence-count-snapshot 120` — V3 tot 17 / little 17 / kid 24 / big 25 / tween 27. `content-blueprint-health` — priority blueprints down 1-3 sentences.
+- Manual read ages 2/6/10 — trims read naturally; bedtime endings vary; 0 double-closers.
+
+### Versions
+APP_VERSION stays `v0.9.3`; BUILD_NUMBER 45 → 46; ENGINE_V2_VERSION stays `v3.0.3`. Badge reads `v0.9.3 · b46`. No Phase B character-trait work — held until the length/repetition baseline materially improved (it now has).
+
+---
+
 ## v0.9.3 (build 45, engine v3.0.3) — 2026-05-28
 **Story-quality de-glue — color / move / mood coverage callbacks**
 

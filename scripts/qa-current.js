@@ -1932,7 +1932,11 @@ console.log('\n=== 21. b41 determinism gates — apostrophe / punctuation / bedt
   // --- (c) Bedtime mode determinism ----------------------------------------
   // Every kid/big/tween story with storyMode='bedtime' must end with bedtime
   // lexicon in the final paragraph.
-  const BEDTIME_RX = /\b(bedtime|tucked in|asleep|fell asleep|going to sleep|sleepy|goodnight|good night|pajamas|pyjamas|yawned|yawning|drift(ed|ing)? off|sweet dreams|lights out|under the covers|night-night|nighty night|head(ed)? to bed|climb(ed|ing)? into bed|crawl(ed|ing)? into bed|bedroom|under the blanket|cuddled up)\b/i;
+  /* v0.9.3 · b46 — kept in sync with engine BEDTIME_LEXICON. Added "curl(ed) up",
+     "went/off to bed", "snuggled" so tot/little/kid landings that close bedtime-y
+     via those words (e.g. "That night, Cole curled up... Then sleep.") are
+     recognized — the engine now suppresses the redundant post-pass closer for them. */
+  const BEDTIME_RX = /\b(bedtime|tucked in|asleep|fell asleep|going to sleep|sleepy|goodnight|good night|pajamas|pyjamas|yawned|yawning|drift(ed|ing)? off|sweet dreams|lights out|under the covers|night-night|nighty night|head(ed)? to bed|went to bed|off to bed|climb(ed|ing)? into bed|crawl(ed|ing)? into bed|curl(ed|ing)? up|snuggled|bedroom|under the blanket|cuddled up)\b/i;
   const BED_TIERS = [[6, 'kid'], [9, 'big'], [12, 'tween']];
   let bedtimeLeaks = 0;
   const bedtimeDetail = [];
@@ -2369,6 +2373,55 @@ console.log('\n=== 24. b45 callback de-glue gates — killed phrases + ambient-c
   });
   const ambientPct = total24 ? (100 * ambientColorHits / total24) : 0;
   gate('ambient color wallpaper stays below 55% (was ~88% pre-b45)', ambientPct < 55, ambientColorHits + '/' + total24 + ' (' + ambientPct.toFixed(0) + '%) ambient color lines');
+}
+
+/* === 25. b46 BEDTIME-CLOSER VARIETY + LEXICON INVARIANT ===
+ *
+ * Before b46 the bedtime post-pass appended ONE fixed closer string per tier,
+ * so "lights out" and "yawned, climbed into bed, and pulled up the covers"
+ * each dominated ~24% of the repetition report (the single biggest repeated
+ * ending). b46 turned each tier closer into a 4-variant POOL chosen at random.
+ *
+ * Two invariants:
+ * (a) VARIETY — across forced-bedtime kid/big/tween stories, no single closing
+ *     sentence may appear in ≥ 40% of bedtime stories (was 100% per tier).
+ * (b) LEXICON — every bedtime closer variant must still contain a bedtime word
+ *     so the Section 21 bedtime-ending guarantee can never silently break when
+ *     a new variant is added. 100% of forced-bedtime stories must end bedtime-y.
+ */
+console.log('\n=== 25. b46 bedtime-closer variety + lexicon invariant ===');
+{
+  function stripB25(text) {
+    return text.replace(/\[c:([^\]]*)\]/g, '$1').replace(/\[y:([^\]]*)\]/g, '$1').replace(/\[name:([^\]]*)\]/g, '$1');
+  }
+  const BEDTIME_LEXICON = /\b(bedtime|tucked in|asleep|fell asleep|going to sleep|sleepy|goodnight|good night|pajamas|drift(ed|ing)? off|sweet dreams|lights out|under the covers|night-night|head(ed)? to bed|went to bed|off to bed|climb(ed|ing)? into bed|crawl(ed|ing)? into bed|curl(ed|ing)? up|snuggled|under the blanket|cuddled up|yawned)\b/i;
+  const closerCounts = {};
+  let total25 = 0, missingLexicon = 0;
+  for (let i = 0; i < 200; i++) {
+    for (const age of [6, 9, 12]) {
+      const picks = {
+        setting: { id: 'at_home', place: 'kitchen', visitorBias: 'safe', objectBias: 'safe' },
+        color: { w: 'teal' }, move: { w: 'hopped' }, mood: { w: 'curious' }, creature: { w: 'goblin' },
+        storyMode: 'bedtime', pottyMode: false,
+      };
+      let s; try { s = ctx.generateStoryV3('Cole', picks, age); } catch (e) { s = null; }
+      if (!s || !s.paragraphs || !s.paragraphs.length) continue;
+      total25++;
+      const last = stripB25(s.paragraphs[s.paragraphs.length - 1]);
+      if (!BEDTIME_LEXICON.test(last)) missingLexicon++;
+      // closing sentence = final sentence of the final paragraph, name-normalized
+      const sentences = last.split(/(?<=[.!?])\s+/).filter(Boolean);
+      const closing = (sentences[sentences.length - 1] || '').replace(/\bCole\b/g, '<name>').trim();
+      closerCounts[closing] = (closerCounts[closing] || 0) + 1;
+    }
+  }
+  let topCloser = '', topCount = 0;
+  for (const k in closerCounts) { if (closerCounts[k] > topCount) { topCount = closerCounts[k]; topCloser = k; } }
+  const topPct = total25 ? (100 * topCount / total25) : 0;
+  gate('bedtime closer variety — no single closing sentence ≥ 40% of bedtime stories (was 100%/tier pre-b46)',
+       topPct < 40, 'top closer ' + topPct.toFixed(0) + '% (' + topCount + '/' + total25 + '): "' + topCloser.slice(0, 48) + '..."');
+  gate('every bedtime story still ends with bedtime lexicon (closer-pool lexicon invariant)',
+       missingLexicon === 0, missingLexicon + '/' + total25 + ' bedtime stories missing bedtime lexicon in final paragraph');
 }
 
 /* === 20. SETTING-BIAS COVERAGE GATE (added v0.9.3 · b36) ===
