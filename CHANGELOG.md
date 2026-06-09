@@ -9,6 +9,26 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 49, engine v3.0.3) — 2026-06-09
+**Selection-mode bottom-left Back control**
+
+Small UX polish on the b48 escape hatch. The word-selection Back control now sits in the bottom-left action area instead of the header.
+
+### What changed
+- Tap-card selection rounds now render `← back` as a pill immediately to the left of `Show me different ones`.
+- The shuffle pill sits slightly right as part of the same lower action row, and both lower pills share the same fixed height for a balanced pair near the parent thumb.
+- Free-text selection rounds keep the same bottom-left Back placement, while the setup chip remains in the header for changing age/profile.
+- The word-screen header uses a compact one-line setup chip (for example, `QA · 10`) so the logo, gear, and setup control stay clean on 320px-wide phones.
+- Narrow-screen styling keeps the two pills fitting cleanly on small mobile widths.
+
+### QA hardening
+- `qa-current.js` Section 27 now verifies the lower action row, the back-pill styling, the shared action height, and that the word Back control is no longer in the header action cluster.
+
+### Versions
+APP_VERSION stays `v0.9.3`; BUILD_NUMBER 48 → 49; ENGINE_V2_VERSION stays `v3.0.3`. Badge reads `v0.9.3 · b49`.
+
+---
+
 ## v0.9.3 (build 48, engine v3.0.3) — 2026-06-09
 **Story-flow navigation escape hatch**
 
