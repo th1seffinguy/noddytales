@@ -106,6 +106,14 @@ const CHECKS = [
   { id:'hyphen_ly_artifact', label:'hyphen-"ly" adverb artifact ("clumsy-ly" / "professionally unhinged-ly")',
     scope:'both',
     rx: /[a-z]-ly\b/i },
+  // v0.9.3 · b47 — plural noun + singular "by itself" ("the peas tipped over
+  // by itself"). Found in the b46 manual read: two tot/little chant beats
+  // closed with "tipped/flipped over by itself", which breaks whenever the
+  // wonder_object is a plural-only food. The beats were rewritten
+  // plural-neutral; this catches the class returning via any future beat.
+  { id:'plural_by_itself', label:'Plural noun + singular "by itself" ("the peas tipped over by itself")',
+    scope:'body',
+    rx: /\b(peas|waffles|grapes|noodles|pancakes|bubbles|fries|crackers|blueberries|apple slices|cookies|cupcakes|dumplings|strawberries|sprinkles|nachos)\b[^.!?]{0,50}\bby itself\b/i },
   // Duplicate articles
   { id:'duplicate_article', label:'Duplicate article ("the the", "a a", "an an")',
     scope:'both',

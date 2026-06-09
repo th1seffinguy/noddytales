@@ -1,0 +1,16 @@
+b47 BEFORE decorative-insert + signature-line measurement (300 kid/big/tween stories)
+  fw2_throwaway    17/300 (6%)
+  smell            23/300 (8%)
+  mood_announce    0/300 (0%)
+  color_ambient    91/300 (30%)
+  sig_confessed    17/300 (6%)
+  sig_gravity      21/300 (7%)
+  sig_diffmove     8/300 (3%)
+  sig_bedearned    7/300 (2%)
+  sig_filed        4/300 (1%)
+  sig_showname     12/300 (4%)
+  sig_smear        9/300 (3%)
+  tell_funny       0/300 (0%)
+  decorative inserts/story avg=0.44  dist 0/1/2/3/4+: 180/110/9/1/0
+tot/little (200): which-was-funny 0 | hummed-along 0 | "Time for a hug" ending 21 | plural+"by itself" 0
+little weather renders: 100/100

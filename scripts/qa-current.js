@@ -385,7 +385,7 @@ function endingAudit(storyMode, age, samples) {
      35-40/60 instead of the expected ~57/60 because show_wrong tween (25% of stories)
      used "Walking out" which had no match. Coverage gate added below (Section 5b)
      prevents new anytime beats from shipping with non-matching phrases. */
-  const ANYTIME_RX  = /\b(walking home|walking back|walking out|walked back|walked home|walk home|walk back|onto the next|see you|tomorrow|onward|head home|heading home|headed back|headed home|heading off|next thing|next caper|next show|what to do next|do next|home base|find the next|back home|on the way home|on the way back|retell this|retelling|replayed|deploy it later)\b/i;
+  const ANYTIME_RX  = /\b(walking home|walking back|walking out|walked back|walked home|walk home|walk back|onto the next|see you|tomorrow|onward|head home|heading home|headed back|headed home|heading off|next thing|next caper|next show|next time|next morning|what to do next|do next|home base|find the next|back home|on the way home|on the way back|retell this|retelling|replayed|deploy it later)\b/i;
   for (let i = 0; i < samples; i++) {
     const picks = randomPicks(tier);
     picks.storyMode = storyMode;
@@ -440,7 +440,7 @@ gate('tween (age 12) storyMode=anytime stories use day-ending language (≥60%)'
  * not as a Section 5 flake.
  */
 console.log('\n=== 5b. Anytime beat coverage (every anytime beat must hit ANYTIME_RX) ===');
-const ANYTIME_RX_GATE = /\b(walking home|walking back|walking out|walked back|walked home|walk home|walk back|onto the next|see you|tomorrow|onward|head home|heading home|headed back|headed home|heading off|next thing|next caper|next show|what to do next|do next|home base|find the next|back home|on the way home|on the way back|retell this|retelling|replayed|deploy it later)\b/i;
+const ANYTIME_RX_GATE = /\b(walking home|walking back|walking out|walked back|walked home|walk home|walk back|onto the next|see you|tomorrow|onward|head home|heading home|headed back|headed home|heading off|next thing|next caper|next show|next time|next morning|what to do next|do next|home base|find the next|back home|on the way home|on the way back|retell this|retelling|replayed|deploy it later)\b/i;
 const v3AnytimeLanding = ctx.V3_BEATS.filter(b => b.stage === 'landing' && b.mode === 'anytime');
 const V2_ANYTIME_BEAT_TYPES = new Set(['bedtime_landing','tot_cozy_end','little_cozy_end']);
 const v2AnytimeEnding   = ctx.V2_BEATS.filter(b => b.mode === 'anytime' && V2_ANYTIME_BEAT_TYPES.has(b.beatType));
@@ -1936,7 +1936,7 @@ console.log('\n=== 21. b41 determinism gates — apostrophe / punctuation / bedt
      "went/off to bed", "snuggled" so tot/little/kid landings that close bedtime-y
      via those words (e.g. "That night, Cole curled up... Then sleep.") are
      recognized — the engine now suppresses the redundant post-pass closer for them. */
-  const BEDTIME_RX = /\b(bedtime|tucked in|asleep|fell asleep|going to sleep|sleepy|goodnight|good night|pajamas|pyjamas|yawned|yawning|drift(ed|ing)? off|sweet dreams|lights out|under the covers|night-night|nighty night|head(ed)? to bed|went to bed|off to bed|climb(ed|ing)? into bed|crawl(ed|ing)? into bed|curl(ed|ing)? up|snuggled|bedroom|under the blanket|cuddled up)\b/i;
+  const BEDTIME_RX = /\b(bedtime|tucked in|asleep|fell asleep|going to sleep|sleepy|goodnight|good night|pajamas|pyjamas|yawned|yawning|drift(ed|ing)? off|sweet dreams|lights out|under the covers|night-night|nighty night|head(ed)? to bed|went to bed|off to bed|climb(ed|ing)? into bed|crawl(ed|ing)? into bed|curl(ed|ing)? up|snuggled|bedroom|under the blanket|cuddled up|into the dark|that night)\b/i;
   const BED_TIERS = [[6, 'kid'], [9, 'big'], [12, 'tween']];
   let bedtimeLeaks = 0;
   const bedtimeDetail = [];
@@ -2394,7 +2394,7 @@ console.log('\n=== 25. b46 bedtime-closer variety + lexicon invariant ===');
   function stripB25(text) {
     return text.replace(/\[c:([^\]]*)\]/g, '$1').replace(/\[y:([^\]]*)\]/g, '$1').replace(/\[name:([^\]]*)\]/g, '$1');
   }
-  const BEDTIME_LEXICON = /\b(bedtime|tucked in|asleep|fell asleep|going to sleep|sleepy|goodnight|good night|pajamas|drift(ed|ing)? off|sweet dreams|lights out|under the covers|night-night|head(ed)? to bed|went to bed|off to bed|climb(ed|ing)? into bed|crawl(ed|ing)? into bed|curl(ed|ing)? up|snuggled|under the blanket|cuddled up|yawned)\b/i;
+  const BEDTIME_LEXICON = /\b(bedtime|tucked in|asleep|fell asleep|going to sleep|sleepy|goodnight|good night|pajamas|drift(ed|ing)? off|sweet dreams|lights out|under the covers|night-night|head(ed)? to bed|went to bed|off to bed|climb(ed|ing)? into bed|crawl(ed|ing)? into bed|curl(ed|ing)? up|snuggled|under the blanket|cuddled up|yawned|into the dark|that night)\b/i;
   const closerCounts = {};
   let total25 = 0, missingLexicon = 0;
   for (let i = 0; i < 200; i++) {
@@ -2422,6 +2422,141 @@ console.log('\n=== 25. b46 bedtime-closer variety + lexicon invariant ===');
        topPct < 40, 'top closer ' + topPct.toFixed(0) + '% (' + topCount + '/' + total25 + '): "' + topCloser.slice(0, 48) + '..."');
   gate('every bedtime story still ends with bedtime lexicon (closer-pool lexicon invariant)',
        missingLexicon === 0, missingLexicon + '/' + total25 + ' bedtime stories missing bedtime lexicon in final paragraph');
+}
+
+/* === 26. b47 FILLER KILLED-PHRASES + VARIETY CEILINGS + LITTLE-WEATHER GATE ===
+ *
+ * The b46 human assessment found the remaining quality gap was (a) always-on
+ * decorative coverage callbacks reading as AI filler, (b) single-variant
+ * signature lines repeating across re-rolls of the same blueprint, (c)
+ * tot/little joke-announcing filler + a plural "by itself" grammar break, and
+ * (d) the little weather pick never rendering (orphaned in V3). b47 fixed all
+ * four; these gates lock them in:
+ *
+ * (a) KILLED FILLER PHRASES never reappear (hard 0):
+ *     payoff_word throwaways, mood state-announcements, joke-announcers,
+ *     plural-unsafe "over by itself".
+ * (b) SMELL ceiling — ambient smell callback < 18% of stories (rate cut
+ *     0.25 → 0.12 in b47; measured ~5-10% after).
+ * (c) SIGNATURE-LINE share ceilings — per forced blueprint, each previously
+ *     dominant line < 40% of that blueprint's stories (was up to ~60%).
+ * (d) LITTLE WEATHER renders — forced weather pick appears in story body
+ *     100% of the time (was 0% pre-b47; role 'pressure' wiring).
+ */
+console.log('\n=== 26. b47 filler killed-phrases + variety ceilings + little-weather gate ===');
+{
+  function stripB26(text) {
+    return text.replace(/\[c:([^\]]*)\]/g, '$1').replace(/\[y:([^\]]*)\]/g, '$1').replace(/\[name:([^\]]*)\]/g, '$1');
+  }
+  const KILLED26 = [
+    { label: 'payoff_word "went somebody. Nobody asked who"', rx: /went somebody\. Nobody asked who/i },
+    { label: 'payoff_word "hung in the air for a second longer"', rx: /hung in the air for a second longer/i },
+    { label: 'payoff_word "in the rafters"', rx: /in the rafters/i },
+    { label: 'payoff_word "cracked the silence"', rx: /cracked the silence/i },
+    { label: 'payoff_word "Somewhere upstairs, somebody said"', rx: /Somewhere upstairs, somebody said/i },
+    { label: 'payoff_word "And one of them, very quietly, said"', rx: /And one of them, very quietly, said/i },
+    { label: 'mood announce "For three whole seconds"', rx: /For three whole seconds/i },
+    { label: 'mood announce "thing they always do when nobody is watching"', rx: /thing they always do when nobody is watching/i },
+    { label: 'mood announce "radiated <mood> energy with no warning"', rx: /radiated .{1,40} energy with no warning/i },
+    { label: 'mood announce "became, very visibly,"', rx: /became, very visibly,/i },
+    { label: 'joke-announcer "which was funny"', rx: /which was funny/i },
+    { label: 'joke-announcer "hummed along, kind of"', rx: /hummed along, kind of/i },
+    { label: 'joke-announcer "The bit was working"', rx: /The bit was working/i },
+    { label: 'joke-announcer "All of it landed"', rx: /All of it landed\./i },
+    { label: 'plural-unsafe "over by itself"', rx: /over by itself/i },
+    // b47 verification-round kills (adversarial critics found these surviving
+    // re-skins of the same families):
+    { label: 'mcguffin throwaway "Someone, somewhere, was thinking about"', rx: /Someone, somewhere, was thinking about/i },
+    { label: 'mood announce "Whatever <name> did next, it was going to be"', rx: /did next, it was going to be/i },
+    { label: 'weather-colliding magic "No hands. No wind."', rx: /No hands\. No wind\./i },
+    { label: 'dangling setup "away for the exact right moment. The moment was coming"', rx: /right moment\. The .{1,40} twitched, sensing it\. The moment was coming/i },
+  ];
+  const SMELL_RX = /(smell rolled through|smelled briefly like|smelled like the laundry|smelled like yesterday|waft of|farts entered the room|skunk smell|burnt toast smell|whiff of wet dog|dragon breath happened|Mystery cheese, somewhere|pickle burps moment|Gym bag fog)/i;
+  const killedHits26 = KILLED26.map(() => 0);
+  let smellHits = 0, total26 = 0, smellDenDirect = 0;
+  // Sample across all 5 tiers (killed phrases must be gone everywhere).
+  for (let i = 0; i < 110; i++) {
+    for (const age of [2, 4, 6, 9, 12]) {
+      const picks = {
+        setting: { id: 'at_home', place: 'kitchen', visitorBias: 'safe', objectBias: 'safe' },
+        pet: { w: 'bunny' }, food: { w: 'waffles' },
+        color: { w: 'teal' }, move: { w: 'hopped' }, mood: { w: 'curious' }, creature: { w: 'goblin' },
+        freeword: { w: 'KABLAM', subtype: 'shout' }, freeword2: { w: 'BOINGO' }, sound: { w: 'glorp' },
+        storyMode: 'bedtime', pottyMode: false,
+      };
+      let s; try { s = ctx.generateStoryV3('Cole', picks, age); } catch (e) { s = null; }
+      if (!s) continue;
+      total26++;
+      const text = stripB26((s.paragraphs || []).join(' '));
+      KILLED26.forEach((k, idx) => { if (k.rx.test(text)) killedHits26[idx]++; });
+      if (age >= 6) { smellDenDirect++; if (SMELL_RX.test(text)) smellHits++; }
+    }
+  }
+  // Guard against vacuous passes: if generation ever starts nulling out, the
+  // killed-phrase 0-hit gates would pass on an empty sample.
+  gate('Section 26 sample actually generated (min-sample guard)', total26 >= 400, total26 + ' stories generated (need ≥ 400)');
+  KILLED26.forEach((k, idx) => {
+    gate('killed filler phrase never reappears: ' + k.label, killedHits26[idx] === 0, killedHits26[idx] + '/' + total26 + ' rendered hits');
+  });
+  const smellPct = smellDenDirect ? (100 * smellHits / smellDenDirect) : 0;
+  gate('ambient smell callback stays below 18% (rate cut 0.25 → 0.12 in b47)', smellPct < 18, smellHits + '/' + smellDenDirect + ' (' + smellPct.toFixed(0) + '%) smell lines');
+
+  // (c) Signature-line share ceilings — force each blueprint, 200 stories,
+  // assert each previously single-variant line < 40% of that blueprint's
+  // stories (pre-b47: "A different move!" hit ~60% of rule_loophole).
+  const SIG_CEILINGS = [
+    { bp: 'lost_snack_v3',    label: '"confessed immediately. To a different crime"', rx: /confessed immediately\. To a different crime/i },
+    { bp: 'lost_snack_v3',    label: '"Case closed by gravity"', rx: /Case closed by gravity/i },
+    { bp: 'lost_snack_v3',    label: '"smear of <color> ... nowhere helpful"', rx: /leading exactly nowhere helpful/i },
+    { bp: 'rule_loophole_v3', label: '"A different move! The rule said nothing back"', rx: /A different move! The rule said nothing back/i },
+    { bp: 'rule_loophole_v3', label: '"Bedtime: earned"', rx: /Bedtime: earned/i },
+    { bp: 'goal_spine_v3',    label: '"He filed it anyway"', rx: /He filed it anyway/i },
+    { bp: 'show_wrong_v3',    label: '"the show\'s name now, apparently"', rx: /the show's name now, apparently/i },
+  ];
+  const sigCounts = SIG_CEILINGS.map(() => 0);
+  const bpTotals = {};
+  for (const bp of ['lost_snack_v3', 'rule_loophole_v3', 'goal_spine_v3', 'show_wrong_v3']) {
+    bpTotals[bp] = 0;
+    for (let i = 0; i < 200; i++) {
+      const age = [7, 9, 12][i % 3];
+      const picks = {
+        setting: { id: 'at_home', place: 'kitchen', visitorBias: 'safe', objectBias: 'safe' },
+        pet: { w: 'bunny' }, food: { w: 'waffles' },
+        color: { w: 'teal' }, move: { w: 'hopped' }, mood: { w: 'curious' }, creature: { w: 'goblin' },
+        freeword: { w: 'KABLAM', subtype: 'shout' }, freeword2: { w: 'BOINGO' }, sound: { w: 'glorp' },
+        storyMode: 'bedtime', pottyMode: false, __v3BlueprintId: bp,
+      };
+      let s; try { s = ctx.generateStoryV3('Cole', picks, age); } catch (e) { s = null; }
+      if (!s) continue;
+      bpTotals[bp]++;
+      const text = stripB26((s.paragraphs || []).join(' '));
+      SIG_CEILINGS.forEach((c, idx) => { if (c.bp === bp && c.rx.test(text)) sigCounts[idx]++; });
+    }
+  }
+  SIG_CEILINGS.forEach((c, idx) => {
+    const den = bpTotals[c.bp] || 1;
+    const pct = 100 * sigCounts[idx] / den;
+    gate('signature line stays below 40% of ' + c.bp + ' re-rolls: ' + c.label, pct < 40, sigCounts[idx] + '/' + den + ' (' + pct.toFixed(0) + '%)');
+  });
+
+  // (d) Little weather renders — was 0% pre-b47 (orphaned pick defect).
+  let wTotal = 0, wMissing = 0;
+  const WEATHERS = ['sunny', 'snowy', 'windy', 'rainy', 'stormy', 'glittery'];
+  for (let i = 0; i < 50; i++) {
+    for (const w of WEATHERS) {
+      const picks = {
+        setting: { id: 'at_home', place: 'kitchen', visitorBias: 'safe', objectBias: 'safe' },
+        pet: { w: 'bunny' }, food: { w: 'grapes' }, weather: { w: w }, sound: { w: 'glorp' },
+        storyMode: 'bedtime', pottyMode: false,
+      };
+      let s; try { s = ctx.generateStoryV3('Cole', picks, 4); } catch (e) { s = null; }
+      if (!s) continue;
+      wTotal++;
+      const body = stripB26((s.paragraphs || []).join(' ')).toLowerCase();
+      if (!body.includes(w)) wMissing++;
+    }
+  }
+  gate('little weather pick always renders in story body (was 0% — orphaned-pick defect)', wMissing === 0, wMissing + '/' + wTotal + ' weather-missing little stories');
 }
 
 /* === 20. SETTING-BIAS COVERAGE GATE (added v0.9.3 · b36) ===

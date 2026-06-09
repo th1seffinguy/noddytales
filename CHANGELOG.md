@@ -9,6 +9,51 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 47, engine v3.0.3) — 2026-06-09
+**Coverage-callback cleanup + cross-story variety + tot/little stakes + weather-pick fix**
+
+Implements the b46 human-quality assessment plan (Story Test Log Entry 016): the core arcs were good, but every kid/big/tween story carried 2-4 disconnected "coverage callback" inserts reading as AI filler, small per-stage pools made re-rolls near-identical, tot/little had no stakes plus joke-announcing filler, and the little weather pick never rendered (orphaned in V3). Built with a scout workflow + an adversarial verification workflow (3 per-tier prose critics, a grammar hunter, and a diff reviewer) whose findings drove a second fix round before ship.
+
+### 1. De-cluttered coverage callbacks (the #1 "AI-prose" driver)
+- **payoff_word (freeword2):** killed the 6 "somebody, somewhere" throwaways (*"went somebody. Nobody asked who"* / *"in the rafters"* / *"hung in the air"* / *"cracked the silence"* / *"Somewhere upstairs"* / *"And one of them, very quietly"*); new variants tie the word to the protagonist/ally **with a physical reaction** (mouthed-back + bow, confirm + spin, inside-joke + cheer, a filed-away that pays off in-line). Radiator + closet survive — concrete gags, not atmosphere.
+- **mood:** killed the state-announcers (*"For three whole seconds…"*, *"the thing they always do when nobody is watching"*, *"Whatever Cole did next, it was going to be X"*, rule_loophole's *"became, very visibly"* / *"radiated X energy with no warning"*) → visible behavior (*"cracked their knuckles the [mood] way"*, *"said 'okay' in the least okay, most [mood] voice ever recorded"*).
+- **mcguffin:** *"Someone, somewhere, was thinking about X very loudly"* → scene-connected.
+- **smell:** rate 0.25 → **0.12** (pottyMode keeps 0.25 — the kid asked for gross).
+- **Measured:** decorative inserts/story **1.13 → 0.49**; stories with 2+ inserts **30% → 4%**; mood-announce family **31% → 0%**; fw2-throwaway family **38% → 9%**.
+
+### 2. Cross-story variety (re-rolls no longer identical)
+Widened the single-variant signature beats: lost_snack color-clue 2→4, suspect-caves payoff 3→5, rule_loophole "A different move!" 1→4, both rule_loophole landings ("Bedtime: earned") 1→3, goal_spine parent coda ("He filed it anyway") 1→3, tween sleep codas +1 each, show_wrong backstage +1. *"A different move!"* dropped from ~60% to **24%** of rule_loophole re-rolls; every tracked signature line now 2-7% of all stories (was 7-15%).
+
+### 3. Tot/little stakes + filler kill
+- 4 new **tiny-problem chant beats** (wonder rolls away / goes missing / gust grabs it / it slips — the kid fixes it): the b46 assessment's weakest axis (substance 2.0) gets a mid-story problem the kid resolves.
+- Killed *"which was funny"* (35%→0), *"hummed along, kind of"* (35%→0), *"The bit was working"*, *"All of it landed"*; fixed the plural break *"the peas tipped over by itself"* (new lint check #10 `plural_by_itself`); ending pools tot 3+2→5+4, little 3+2→5+4.
+
+### 4. Little weather pick wired (defect fix — was rendering 0%)
+The pick mapped to role `pressure` in the little roleMaps but no beat consumed it. Weather slot gains `cap`; 4 weather-aware setups (*"Outside it was frosty — very frosty."* / *"The morning came up thundery. Cole put on the right boots for it."*) on `requiredRoles ['protagonist','ally','pressure']` — the maxRoles selector guarantees the pick **always renders when made** (0% → **100%**, gated) and the beats never fire otherwise.
+
+### 5. Adversarial verification round (workflow) — found + fixed before ship
+Per-tier critics + grammar hunter caught: *"No hands. No wind."* colliding with windy-weather openers and the new gust beat (→ *"No strings."*); *"the whole sky had gone windy"* (→ *"gone completely [weather] out"*); bubbles-unsafe *"tipped/flipped right over"* (→ tiny jump / slow spin); the **"next morning at breakfast" landing getting a bedtime closer appended after breakfast** (temporal contradiction → beat tagged `mode:'anytime'`; ANYTIME_RX + its 5b gate copy synced); a **double bedtime closer** after *"said X into the dark"* landings (→ "into the dark"/"that night" added to all 3 bedtime lexicons); *"broken broken compass"* (prop named "broken X" + "broken [prop]" template → *"what was left of the [prop]"*); *"A stripe of iridescent"* (→ *"One [color] stripe"*); *"vending machine pretzels crumbs"* (→ *"trail of [food] evidence"*); a dangling *"the moment was coming"* setup that never paid off (→ pays off in-line); *"tried X one more time"* presuming prior use (→ *"aimed one word at the room"*).
+
+### Known issues logged (structural, deferred with Defect Log entries)
+- **lost_snack culprit contradiction** (pre-existing, systemic): evidence beats can pin character A while the payoff has character B produce the snack. Needs evidence↔payoff compatibility (story-state), not more variants.
+- **Setting-agnostic inserts** (pre-existing): closet/radiator/room lines can fire outdoors. Rate now low; class logged.
+
+### QA hardening
+- **`qa-current.js` Section 26** (new): min-sample guard (≥400), **19 killed-phrase gates** (0/497 each, incl. the verification-round kills), smell ceiling <18% (at 12%), **7 per-blueprint signature-share ceilings** <40% (at 6-24%), little-weather-renders 0/300 missing.
+- **`content-grammar-lint.js` check #10** `plural_by_itself`.
+
+### Verification
+- `scripts/qa-current.js` — **ALL ACCEPTANCE GATES PASSED** (incl. all b43-b46 gates).
+- `node --check` content.js / engine-v2.js / api/tts.js / qa-current.js / content-grammar-lint.js — clean.
+- `content-grammar-lint --reps 2000` — **0 hits on all 10 checks**.
+- punchline changes_scene **44-48%** (3 runs — recovered after the first payoff_word rewrite dipped it to 32%; physical reactions restored it); comedy 10.8-11.2/21; repetition **9 n-grams / 0 repeated endings** (b45: 21); random-50 + golden 0 nulls.
+- Length: tot 18 / little 19 / kid 22-24 / big 24-25 / tween 26. Little +2 vs b46 is the deliberate substance trade (weather opener + stakes).
+
+### Versions
+APP_VERSION stays `v0.9.3`; BUILD_NUMBER 46 → 47; ENGINE_V2_VERSION stays `v3.0.3`. Badge reads `v0.9.3 · b47`. Phase B character traits remain unstarted — next build is the picker icon/emoji accuracy QA + option expansion (b48, planned).
+
+---
+
 ## v0.9.3 (build 46, engine v3.0.3) — 2026-06-04
 **Length, endings, and tot/little call-response trim**
 
