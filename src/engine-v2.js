@@ -3969,6 +3969,11 @@ const V3_BEATS = [
     lines: [
       'The [c:{mcguffin.text}] had vanished. The only clue: a smear of [c:{visual_signature.text}] on the floor, leading exactly nowhere helpful. [name:{protagonist.name}] studied it anyway. The [c:{false_suspect.text}] studied the ceiling.',
       'Whoever took the [c:{mcguffin.text}] left one [c:{visual_signature.text}] smudge behind. A bold choice, leaving evidence that specific. [name:{protagonist.name}] photographed it with their eyes. The [c:{false_suspect.text}] suddenly needed to be elsewhere.',
+      /* v0.9.3 · b47 — 2 more variants; this beat's first line ("smear of...
+         studied the ceiling") was firing in ~27% of lost_snack stories. Keep
+         each line mcguffin-plural-safe (no "was gone", no "its place"). */
+      'The [c:{mcguffin.text}] had vanished. Left behind: one [c:{visual_signature.text}] fingerprint, very small, very guilty. [name:{protagonist.name}] leaned in. The [c:{false_suspect.text}] leaned away.',
+      'The scene of the crime: no [c:{mcguffin.text}], one tipped-over cup, and one [c:{visual_signature.text}] streak heading toward the door. [name:{protagonist.name}] followed the streak. The [c:{false_suspect.text}] began humming.',
     ] },
   { id:'v3_ls_problem_tween', stage:'problem', blueprintId:'lost_snack_v3', tiers:['tween'], requiredRoles:['protagonist','mcguffin','false_suspect'],
     lines: [
@@ -4005,7 +4010,7 @@ const V3_BEATS = [
     ] },
   { id:'v3_ls_attempt_tween_move', stage:'attempt', blueprintId:'lost_snack_v3', tiers:['tween'], requiredRoles:['protagonist','false_suspect','signature_action'], requiresMoveClass:'motion',
     lines: [
-      '[name:{protagonist.name}] [c:{signature_action.text}] past the [c:{false_suspect.text}] with theatrical timing. None of it was on purpose. All of it landed.',
+      '[name:{protagonist.name}] [c:{signature_action.text}] past the [c:{false_suspect.text}] with theatrical timing. None of it was on purpose. The [c:{false_suspect.text}] flinched anyway. Noted.',
     ] },
   /* v0.9.3 · b40 — gesture-class companion for tween lost_snack attempt.
      Fires when the picked move is a gesture/state phrase ("nodded knowingly",
@@ -4045,7 +4050,7 @@ const V3_BEATS = [
     ] },
   { id:'v3_ls_escalation_tween_eyes', stage:'escalation', blueprintId:'lost_snack_v3', tiers:['tween'], requiredRoles:['protagonist','ally','mcguffin'],
     lines: [
-      'The [c:{ally.text}] was avoiding eye contact, which was, frankly, suspicious. Also there were [c:{mcguffin.text}] crumbs on the floor in a perfect trail leading right to the [c:{ally.text}]. [name:{protagonist.name}] connected the dots without saying a word.',
+      'The [c:{ally.text}] was avoiding eye contact, which was, frankly, suspicious. Also there was a perfect trail of [c:{mcguffin.text}] evidence on the floor, leading right to the [c:{ally.text}]. [name:{protagonist.name}] connected the dots without saying a word.',
     ] },
 
   /* v3_ls_payoff_chant — b18 length pass: weak terminal flourish
@@ -4083,7 +4088,14 @@ const V3_BEATS = [
     lines: [
       '[name:{protagonist.name}] looked straight at the [c:{false_suspect.text}] and said one word: "[y:{chant.text}]." The [c:{false_suspect.text}] confessed immediately. To a different crime. [name:{protagonist.name}] noted it for later.',
       '"[y:{chant.text}]!" said [name:{protagonist.name}]. The [c:{false_suspect.text}] froze mid-bite and the [c:{mcguffin.text}] dropped out of its mouth, landing perfectly on [name:{protagonist.name}]\'s plate. Case closed by gravity.',
-      '[name:{protagonist.name}] tried "[y:{chant.text}]" one more time. The [c:{false_suspect.text}]\'s elaborate hiding spot collapsed in three pieces. The [c:{mcguffin.text}] rolled out, blinking in the light.',
+      // b47 verification pass: "tried X one more time" presumed the chant had
+      // already been used in the story, which beat selection can't guarantee.
+      '[name:{protagonist.name}] aimed one word at the room: "[y:{chant.text}]." The [c:{false_suspect.text}]\'s elaborate hiding spot collapsed in three pieces. The [c:{mcguffin.text}] rolled out, blinking in the light.',
+      /* v0.9.3 · b47 — 2 more variants; "confessed to a different crime" and
+         "Case closed by gravity" were each landing in ~1/3 of lost_snack
+         re-rolls and reading as the same story twice. */
+      '"[y:{chant.text}]!" said [name:{protagonist.name}]. The [c:{false_suspect.text}] held the silence for one heroic second, then produced the [c:{mcguffin.text}] from under its hat. Nobody asked about the hat.',
+      '[name:{protagonist.name}] said "[y:{chant.text}]" and waited. The waiting did it. The [c:{false_suspect.text}] returned the [c:{mcguffin.text}] in visibly used condition and requested that no questions be asked.',
     ] },
   { id:'v3_ls_payoff_payword_crumb_reveal', stage:'payoff', blueprintId:'lost_snack_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','mcguffin','payoff_word'], jokeJob:'absurd_consequence',
     lines: [
@@ -4141,6 +4153,9 @@ const V3_BEATS = [
   { id:'v3_ls_landing_chant_callback_tween', stage:'landing', blueprintId:'lost_snack_v3', tiers:['tween'], requiredRoles:['protagonist','ally','chant'], jokeJob:'callback',
     lines: [
       'Later, [name:{protagonist.name}] replayed the whole case in their head. The [c:{ally.text}] was already asleep, technically guilty, deeply unbothered. "[y:{chant.text}]," whispered [name:{protagonist.name}], for the record. Nobody overruled them.',
+      // v0.9.3 · b47 — second variant; the "technically guilty... for the
+      // record" coda repeated across tween lost_snack re-rolls.
+      'The case file (mental) closed itself. The [c:{ally.text}] snored once, like a gavel. "[y:{chant.text}]," said [name:{protagonist.name}]. Court adjourned.',
     ] },
   { id:'v3_ls_landing_payword_callback_tween', stage:'landing', blueprintId:'lost_snack_v3', tiers:['tween'], requiredRoles:['protagonist','ally','payoff_word'], jokeJob:'callback',
     lines: [
@@ -4152,7 +4167,11 @@ const V3_BEATS = [
      four beats make the chant/payword become a category, a household
      vocabulary item, a graffito, or shared shorthand — so the word ends
      the story meaning something it didn't mean at the start. */
-  { id:'v3_ls_landing_chant_recontext_kid', stage:'landing', blueprintId:'lost_snack_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','chant'], jokeJob:'callback',
+  // v0.9.3 · b47 — tagged mode:'anytime'. This landing is a NEXT-MORNING
+  // scene; untagged it defaulted to bedtime mode, where the b41 bedtime
+  // post-pass then appended a closer ("...Cole flopped into bed") right after
+  // breakfast — a temporal contradiction caught by the b47 verification pass.
+  { id:'v3_ls_landing_chant_recontext_kid', stage:'landing', blueprintId:'lost_snack_v3', mode:'anytime', tiers:['kid','big'], requiredRoles:['protagonist','ally','chant'], jokeJob:'callback',
     lines: [
       'The next morning at breakfast, [name:{protagonist.name}]\'s mom asked what was for snack. "[y:{chant.text}] crackers," said [name:{protagonist.name}], totally normal. Mom nodded. The [c:{ally.text}] approved. It was just a word that meant something now.',
     ] },
@@ -4345,6 +4364,8 @@ const V3_BEATS = [
   { id:'v3_gs_landing_chant_callback_tween', stage:'landing', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','ally','chant'], jokeJob:'callback',
     lines: [
       'In bed that night, [name:{protagonist.name}] catalogued the day. The [c:{ally.text}] was already asleep, technically a co-conspirator. "[y:{chant.text}]," said [name:{protagonist.name}], one last time. Quietly, but on the record.',
+      // v0.9.3 · b47 — second variant for re-roll variety.
+      'Tomorrow had no idea what was coming. [name:{protagonist.name}] said "[y:{chant.text}]" to the ceiling and let that be the closing statement. The [c:{ally.text}] did not object.',
     ] },
   { id:'v3_gs_landing_payword_callback_tween', stage:'landing', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','ally','payoff_word'], jokeJob:'callback',
     lines: [
@@ -4356,6 +4377,10 @@ const V3_BEATS = [
   { id:'v3_gs_landing_chant_recontext_kid', stage:'landing', blueprintId:'goal_spine_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','chant'], jokeJob:'callback',
     lines: [
       'After dinner, [name:{protagonist.name}]\'s dad asked how the day went. "It was a [c:{chant.text}] kind of day," said [name:{protagonist.name}]. Dad nodded like he understood. He did not understand. He filed it anyway.',
+      // v0.9.3 · b47 — 2 more variants; the dad "He filed it anyway" coda was
+      // the only line in this beat and repeated across goal_spine re-rolls.
+      'After dinner, [name:{protagonist.name}]\'s mom asked what the best part was. "[c:{chant.text}]," said [name:{protagonist.name}], with total confidence. Mom repeated it back wrong. Close enough.',
+      'On the way home, [name:{protagonist.name}] taught the [c:{ally.text}] to say "[c:{chant.text}]" with the right attitude. By the door, the [c:{ally.text}] had it down.',
     ] },
   { id:'v3_gs_landing_chant_recontext_tween', stage:'landing', blueprintId:'goal_spine_v3', tiers:['tween'], requiredRoles:['protagonist','ally','chant'], jokeJob:'callback',
     lines: [
@@ -4436,7 +4461,7 @@ const V3_BEATS = [
   { id:'v3_sw_attempt_move_chant', stage:'attempt', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','signature_action','chant'],
     lines: [
       '[name:{protagonist.name}] improvised. "[y:{chant.text}]!" Then [c:{signature_action.text}]. Then "[y:{chant.text}]!" again, louder. The pillows were INTO IT.',
-      '[name:{protagonist.name}] [c:{signature_action.text}] and shouted "[y:{chant.text}]!" The pillows leaned forward. One actually fell over from leaning. The bit was working.',
+      '[name:{protagonist.name}] [c:{signature_action.text}] and shouted "[y:{chant.text}]!" The pillows leaned forward. One actually fell over from leaning.',
       'Out came the only word that fit: "[y:{chant.text}]." [name:{protagonist.name}] [c:{signature_action.text}] for emphasis. The bit was a different bit now.',
     ] },
   /* v0.9.3 · b40 — split: motion-tagged stage-crossing line stays here;
@@ -4484,7 +4509,7 @@ const V3_BEATS = [
      name, or the ally treats the payoff word as the new cue. */
   { id:'v3_sw_payoff_chant_prop_revives', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','prop','chant'], jokeJob:'absurd_consequence',
     lines: [
-      '"[y:{chant.text}]!" yelled [name:{protagonist.name}] at the broken [c:{prop.text}]. The [c:{prop.text}] twitched, then did exactly what it had refused to do five minutes ago. Pillows lost it.',
+      '"[y:{chant.text}]!" yelled [name:{protagonist.name}] at what was left of the [c:{prop.text}]. The [c:{prop.text}] twitched, then did exactly what it had refused to do five minutes ago. Pillows lost it.',
     ] },
   { id:'v3_sw_payoff_chant_crowd_chants', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','chant'], jokeJob:'absurd_consequence',
     lines: [
@@ -4500,7 +4525,7 @@ const V3_BEATS = [
      reaction → catchphrase callback). */
   { id:'v3_sw_payoff_chant_prop_unbreaks', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','prop','chant'], jokeJob:'absurd_consequence',
     lines: [
-      '[name:{protagonist.name}] pointed at the broken [c:{prop.text}]: "[y:{chant.text}]!" The [c:{prop.text}] snapped back together — upside down, but together. The [c:{ally.text}] hit the right note at the exact wrong moment. Curtain.',
+      '[name:{protagonist.name}] pointed at what was left of the [c:{prop.text}]: "[y:{chant.text}]!" The [c:{prop.text}] snapped back together — upside down, but together. The [c:{ally.text}] hit the right note at the exact wrong moment. Curtain.',
     ] },
   { id:'v3_sw_payoff_payword_audience_chants', stage:'payoff', blueprintId:'show_wrong_v3', tiers:['kid','big','tween'], requiredRoles:['protagonist','ally','payoff_word'], jokeJob:'absurd_consequence',
     lines: [
@@ -4542,6 +4567,9 @@ const V3_BEATS = [
   { id:'v3_sw_landing_chant_callback', stage:'landing', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','chant'], jokeJob:'callback',
     lines: [
       'Backstage, [name:{protagonist.name}] and the [c:{ally.text}] looked at each other and at the exact same moment said "[y:{chant.text}]." That was the show\'s name now, apparently. Forever.',
+      // v0.9.3 · b47 — second variant; "the show's name now, apparently.
+      // Forever." repeated across show_wrong re-rolls.
+      'Backstage, the [c:{ally.text}] was still buzzing. "[y:{chant.text}]," said [name:{protagonist.name}], and the [c:{ally.text}] did a full lap of the room. Encore booked for tomorrow.',
     ] },
   { id:'v3_sw_landing_payword_callback', stage:'landing', blueprintId:'show_wrong_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','payoff_word'], jokeJob:'callback',
     lines: [
@@ -4588,8 +4616,13 @@ const V3_BEATS = [
       // v0.9.3 · b45 — de-glued the "went very [mood]" repeat (was 2 of 3
       // variants). Each line now frames the mood differently (became / radiated
       // / kept their face) so rule_loophole stories don't all open the same way.
-      'Off-limits, said the [c:{rule_imposer.text}], pointing at the [c:{mcguffin.text}]. [name:{protagonist.name}] became, very visibly, [c:{mood_throughline.text}]. The [c:{rule_imposer.text}] noticed and backed up half a step.',
-      'A wall of "no" landed between [name:{protagonist.name}] and the [c:{mcguffin.text}]. [name:{protagonist.name}] radiated [c:{mood_throughline.text}] energy with no warning. The [c:{rule_imposer.text}] sensed escalation.',
+      // v0.9.3 · b47 — replaced "became, very visibly, [mood]" + "radiated
+      // [mood] energy with no warning" (both state-announcements flagged by
+      // the b46 assessment) with mood-as-visible-behavior lines. The
+      // "kept their face [mood]. Underneath: scheming." survivor stays — it
+      // shows the mood doing work.
+      'Off-limits, said the [c:{rule_imposer.text}], pointing at the [c:{mcguffin.text}]. [name:{protagonist.name}] said "okay" in the least okay, most [c:{mood_throughline.text}] voice ever recorded. The [c:{rule_imposer.text}] backed up half a step.',
+      'A wall of "no" landed between [name:{protagonist.name}] and the [c:{mcguffin.text}]. [name:{protagonist.name}] nodded slowly, went quiet, and started pacing the [c:{mood_throughline.text}] pace. The [c:{rule_imposer.text}] sensed escalation.',
       'According to the [c:{rule_imposer.text}], the [c:{mcguffin.text}] could no longer be touched. [name:{protagonist.name}] kept their face [c:{mood_throughline.text}]. Underneath: scheming.',
     ] },
   { id:'v3_rl_problem_tween', stage:'problem', blueprintId:'rule_loophole_v3', tiers:['tween'], requiredRoles:['protagonist','rule_imposer','mcguffin'],
@@ -4617,7 +4650,13 @@ const V3_BEATS = [
     ] },
   { id:'v3_rl_attempt_tool_move', stage:'attempt', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','loophole_tool','signature_action'], requiresMoveClass:'motion',
     lines: [
+      // v0.9.3 · b47 — 2 more variants; the single "A different move!" line
+      // was firing in ~60% of rule_loophole stories (only 1 variant in the
+      // dominant attempt pool). All variants stay motion-class safe.
       '[name:{protagonist.name}] [c:{signature_action.text}] sideways while holding the [c:{loophole_tool.text}]. This was a different move than the one the rule said no to. A different move! The rule said nothing back.',
+      '[name:{protagonist.name}] [c:{signature_action.text}] backward while holding the [c:{loophole_tool.text}]. Backward! The rule had only imagined forward. The rule needed a minute.',
+      'Holding the [c:{loophole_tool.text}] high, [name:{protagonist.name}] [c:{signature_action.text}] in a perfect circle around the rule. The rule covered the middle. It said nothing about the circle.',
+      '[name:{protagonist.name}] [c:{signature_action.text}] very, very slowly while holding the [c:{loophole_tool.text}]. The rule had been written for normal speeds. This was not a normal speed.',
     ] },
   /* v0.9.3 · b30 — added a second variant. "located the loophole" was firing
      repeatedly in tween rule_loophole stories and reading as the same
@@ -4695,7 +4734,11 @@ const V3_BEATS = [
 
   { id:'v3_rl_landing_1', stage:'landing', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally'],
     lines: [
+      // v0.9.3 · b47 — 2 more variants; "Bedtime: earned" closed BOTH
+      // rule_loophole landing beats, so it dominated re-rolls.
       'The [c:{ally.text}] watched the loophole work and looked impressed — definitely trying that later. Bedtime: earned.',
+      'The [c:{ally.text}] made [name:{protagonist.name}] explain the loophole twice, then once more slowly. Some knowledge is too good to rush.',
+      '[name:{protagonist.name}] taught the [c:{ally.text}] the loophole on the way home. By the front door, the [c:{ally.text}] had it memorized. The world was not ready.',
     ] },
   { id:'v3_rl_landing_tween', stage:'landing', blueprintId:'rule_loophole_v3', tiers:['tween'], requiredRoles:['protagonist','ally'],
     lines: [
@@ -4716,6 +4759,9 @@ const V3_BEATS = [
   { id:'v3_rl_landing_chant_callback', stage:'landing', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','chant'], jokeJob:'callback',
     lines: [
       'In bed, [name:{protagonist.name}] thought about the loophole and quietly said "[y:{chant.text}]" one more time, just to seal it. The [c:{ally.text}] said "[y:{chant.text}]" too, like a co-signature. Bedtime: earned.',
+      // v0.9.3 · b47 — 2 more closers so "Bedtime: earned" stops double-dipping.
+      'That night [name:{protagonist.name}] said "[y:{chant.text}]" into the dark, once, like signing a form. The [c:{ally.text}] stamped it with a snore. Filed under: wins.',
+      '"[y:{chant.text}]," said [name:{protagonist.name}] at the ceiling. The loophole would still be there tomorrow. So would [name:{protagonist.name}].',
     ] },
   { id:'v3_rl_landing_payword_callback', stage:'landing', blueprintId:'rule_loophole_v3', tiers:['kid','big'], requiredRoles:['protagonist','ally','payoff_word'], jokeJob:'callback',
     lines: [
@@ -4944,11 +4990,27 @@ const V3_BEATS = [
     ] },
   { id:'v3_tl_tot_repeat_chant_tip', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object','chant'], jokeJob:'physical_gag',
     lines: [
-      '"[y:{chant.text}]?" whispered [name:{protagonist.name}]. "[y:{chant.text}]?" whispered the [c:{ally.text}]. The [c:{wonder_object.text}] tipped over by itself.',
+      // v0.9.3 · b47 — "tipped over by itself" broke for plural wonders
+      // ("the peas tipped over by itself"). Plural-neutral close, no pronoun.
+      '"[y:{chant.text}]?" whispered [name:{protagonist.name}]. "[y:{chant.text}]?" whispered the [c:{ally.text}]. The [c:{wonder_object.text}] jumped! Just a tiny jump. Nobody had touched anything.',
     ] },
   { id:'v3_tl_tot_repeat_chant_dance', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object','chant'], jokeJob:'physical_gag',
     lines: [
       '[name:{protagonist.name}] sang "[y:{chant.text}]." The [c:{ally.text}] sang it too. The [c:{wonder_object.text}] joined in.',
+    ] },
+  /* v0.9.3 · b47 — tiny-problem beats. The b46 assessment scored tot/little
+     substance 2.0: greet → call-response → hug-bed with no stakes. These give
+     the middle a 3-sentence problem the kid SOLVES (something goes briefly
+     wrong, the chant fixes it). 4 requiredRoles incl. chant so they join the
+     dominant chant pool (maxRoles) and dilute pure call-response. Plural-safe:
+     no "by itself", no bare "it" after the wonder token. */
+  { id:'v3_tl_tot_repeat_chant_roll', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object','chant'], jokeJob:'physical_gag',
+    lines: [
+      'The [c:{wonder_object.text}] started to roll away! "[y:{chant.text}]!" yelled [name:{protagonist.name}]. The [c:{wonder_object.text}] stopped. Phew.',
+    ] },
+  { id:'v3_tl_tot_repeat_chant_hide', stage:'tl_silly_repeat', tiers:['tot'], requiredRoles:['protagonist','ally','wonder_object','chant'], jokeJob:'physical_gag',
+    lines: [
+      'Uh-oh. The [c:{wonder_object.text}] went missing. [name:{protagonist.name}] looked low. The [c:{ally.text}] looked high. "[y:{chant.text}]!" yelled [name:{protagonist.name}] — and there! Hiding!',
     ] },
 
   /* --- TOT COZY END — bedtime (3 variants) ---
@@ -4968,6 +5030,16 @@ const V3_BEATS = [
     lines: [
       'Now [name:{protagonist.name}] is sleepy. The [c:{ally.text}] is sleepy too. Good night, [c:{ally.text}]. Good night, [name:{protagonist.name}].',
     ] },
+  /* v0.9.3 · b47 — 2 more tot bedtime closers; "Time for a hug..." ended 3 of
+     5 tot sample stories in the b46 manual read. */
+  { id:'v3_tl_tot_end_bed_4', stage:'tl_cozy_end', tiers:['tot'], mode:'bedtime', requiredRoles:['protagonist','ally'],
+    lines: [
+      'One more look at the [c:{ally.text}]. One more squeeze. Then [name:{protagonist.name}] curled up, eyes already closing.',
+    ] },
+  { id:'v3_tl_tot_end_bed_5', stage:'tl_cozy_end', tiers:['tot'], mode:'bedtime', requiredRoles:['protagonist','ally'],
+    lines: [
+      'The [c:{ally.text}] got the soft spot. [name:{protagonist.name}] got the blanket. Goodnight, everyone.',
+    ] },
 
   /* --- TOT COZY END — anytime (2 variants) ---
      b18 story-length pass: drop tail closers ("See you soon!", "Yay!") —
@@ -4979,6 +5051,15 @@ const V3_BEATS = [
   { id:'v3_tl_tot_end_any_2', stage:'tl_cozy_end', tiers:['tot'], mode:'anytime', requiredRoles:['protagonist','ally'],
     lines: [
       '[name:{protagonist.name}] hugged the [c:{ally.text}] one more time. "Come back tomorrow?" said [name:{protagonist.name}]. The [c:{ally.text}] nodded.',
+    ] },
+  /* v0.9.3 · b47 — 2 more tot anytime closers (pool was only 2). */
+  { id:'v3_tl_tot_end_any_3', stage:'tl_cozy_end', tiers:['tot'], mode:'anytime', requiredRoles:['protagonist','ally'],
+    lines: [
+      '[name:{protagonist.name}] gave the [c:{ally.text}] a high five. A soft one. See you next time!',
+    ] },
+  { id:'v3_tl_tot_end_any_4', stage:'tl_cozy_end', tiers:['tot'], mode:'anytime', requiredRoles:['protagonist','ally'],
+    lines: [
+      'The [c:{ally.text}] did one more little dance. [name:{protagonist.name}] clapped. The end. For now!',
     ] },
 
   /* --- LITTLE SETUP (5 variants) ---
@@ -5004,6 +5085,32 @@ const V3_BEATS = [
   { id:'v3_tl_little_setup_5', stage:'tl_setup', tiers:['little'], requiredRoles:['protagonist','ally'],
     lines: [
       '[name:{protagonist.name}] told the [c:{ally.text}], "Today is going to be a big one." The [c:{ally.text}] agreed. They were ready.',
+    ] },
+
+  /* v0.9.3 · b47 — WEATHER-AWARE little setups (fixes the orphaned-weather
+     defect). The little weather pick maps to role 'pressure' (roleMap
+     pressure:'weather' — NOT role 'weather'; see little_quest_v3/little_food_v3
+     roleMaps). 3 requiredRoles means the maxRoles selector routes EVERY
+     weather-picked little story through this pool (the pick always pays off),
+     and none fire when weather wasn't picked (role null → filtered). 4
+     variants so the setup paragraph still varies. Weather words are lowercase
+     adjectives (sunny/stormy/glittery) — never "a [pressure]", never start a
+     sentence with {pressure.text}; {pressure.cap} exists for openings. */
+  { id:'v3_tl_little_setup_weather_1', stage:'tl_setup', tiers:['little'], requiredRoles:['protagonist','ally','pressure'],
+    lines: [
+      'Outside it was [c:{pressure.text}] — very [c:{pressure.text}]. "Perfect," said [name:{protagonist.name}], grabbing the [c:{ally.text}]. Off they went.',
+    ] },
+  { id:'v3_tl_little_setup_weather_2', stage:'tl_setup', tiers:['little'], requiredRoles:['protagonist','ally','pressure'],
+    lines: [
+      'The morning came up [c:{pressure.text}]. [name:{protagonist.name}] put on the right boots for it and called the [c:{ally.text}]. The [c:{ally.text}] came running.',
+    ] },
+  { id:'v3_tl_little_setup_weather_3', stage:'tl_setup', tiers:['little'], requiredRoles:['protagonist','ally','pressure'],
+    lines: [
+      '"Look," said [name:{protagonist.name}] — it had gone completely [c:{pressure.text}] out. The [c:{ally.text}] looked too. Adventure weather.',
+    ] },
+  { id:'v3_tl_little_setup_weather_4', stage:'tl_setup', tiers:['little'], requiredRoles:['protagonist','ally','pressure'],
+    lines: [
+      '[name:{protagonist.name}] checked the window: [c:{pressure.text}], excellent. "Come on, [c:{ally.text}]!" said [name:{protagonist.name}]. The [c:{ally.text}] was already at the door.',
     ] },
 
   /* --- LITTLE SILLY REPEAT (8 variants, fires twice per story) ---
@@ -5060,15 +5167,31 @@ const V3_BEATS = [
      a gentle physical reaction — no irony, ages 4-5 friendly. */
   { id:'v3_tl_little_repeat_chant_call', stage:'tl_silly_repeat', tiers:['little'], requiredRoles:['protagonist','ally','wonder_object','chant'], jokeJob:'physical_gag',
     lines: [
-      '"[y:{chant.text}]!" said [name:{protagonist.name}]. The [c:{ally.text}] said it back. Then they said it together. The [c:{wonder_object.text}] hummed along, kind of.',
+      '"[y:{chant.text}]!" said [name:{protagonist.name}]. The [c:{ally.text}] said it back. Then they said it together, louder. The [c:{wonder_object.text}] stayed put. Crowd of two, very pleased.',
     ] },
   { id:'v3_tl_little_repeat_chant_spell', stage:'tl_silly_repeat', tiers:['little'], requiredRoles:['protagonist','ally','wonder_object','chant'], jokeJob:'physical_gag',
     lines: [
-      '"[y:{chant.text}]," whispered [name:{protagonist.name}], like it was a spell. The [c:{wonder_object.text}] flipped over by itself. The [c:{ally.text}] looked impressed.',
+      // v0.9.3 · b47 — "flipped over by itself" broke for plural wonders
+      // ("the waffles flipped over by itself"); "looked impressed" told the
+      // reaction instead of showing it.
+      // b47 verification pass: "No wind" collided with weather=windy openers
+      // and the new gust beat; "flipped right over" was physically odd for
+      // bubbles/grapes. "Slow spin" + "no strings" are safe for every wonder.
+      '"[y:{chant.text}]," whispered [name:{protagonist.name}], like it was a spell. The [c:{wonder_object.text}] did one slow spin. No hands. No strings. Magic, probably. The [c:{ally.text}] stepped back.',
+    ] },
+  /* v0.9.3 · b47 — tiny-problem beats (see tot note): a 3-sentence wobble in
+     the middle that the kid actively fixes, so little stories get stakes. */
+  { id:'v3_tl_little_repeat_chant_gust', stage:'tl_silly_repeat', tiers:['little'], requiredRoles:['protagonist','ally','wonder_object','chant'], jokeJob:'physical_gag',
+    lines: [
+      'A big gust grabbed at the [c:{wonder_object.text}]. "[y:{chant.text}]!" shouted [name:{protagonist.name}], holding on while the [c:{ally.text}] held onto [name:{protagonist.name}]. The wind gave up.',
+    ] },
+  { id:'v3_tl_little_repeat_chant_slip', stage:'tl_silly_repeat', tiers:['little'], requiredRoles:['protagonist','ally','wonder_object','chant'], jokeJob:'physical_gag',
+    lines: [
+      'Disaster: the [c:{wonder_object.text}] slipped! "[y:{chant.text}]!" yelled [name:{protagonist.name}], diving — caught! The [c:{ally.text}] scored the catch: ten out of ten.',
     ] },
   { id:'v3_tl_little_repeat_chant_button', stage:'tl_silly_repeat', tiers:['little'], requiredRoles:['protagonist','ally','wonder_object','chant'], jokeJob:'physical_gag',
     lines: [
-      '[name:{protagonist.name}] tapped the [c:{wonder_object.text}] like a button. "[y:{chant.text}]!" said [name:{protagonist.name}]. "[y:{chant.text}]!" said the [c:{ally.text}]. The [c:{wonder_object.text}] did exactly nothing, which was funny.',
+      '[name:{protagonist.name}] tapped the [c:{wonder_object.text}] like a button. "[y:{chant.text}]!" said [name:{protagonist.name}]. "[y:{chant.text}]!" said the [c:{ally.text}]. The [c:{wonder_object.text}] did exactly nothing. [name:{protagonist.name}] tried again anyway. Twice.',
     ] },
 
   /* --- LITTLE COZY END — bedtime (3 variants) ---
@@ -5088,6 +5211,15 @@ const V3_BEATS = [
     lines: [
       '[name:{protagonist.name}] tucked the [c:{ally.text}] in first, then climbed in too. "Same time tomorrow?" said [name:{protagonist.name}]. The [c:{ally.text}] was already half asleep.',
     ] },
+  /* v0.9.3 · b47 — 2 more little bedtime closers for pool variety. */
+  { id:'v3_tl_little_end_bed_4', stage:'tl_cozy_end', tiers:['little'], mode:'bedtime', requiredRoles:['protagonist','ally'],
+    lines: [
+      'Last stop: bed. [name:{protagonist.name}] flopped. The [c:{ally.text}] flopped on top. Perfect. Goodnight.',
+    ] },
+  { id:'v3_tl_little_end_bed_5', stage:'tl_cozy_end', tiers:['little'], mode:'bedtime', requiredRoles:['protagonist','ally'],
+    lines: [
+      '[name:{protagonist.name}] told the [c:{ally.text}] one more tiny story about today. Halfway through, both were asleep.',
+    ] },
 
   /* --- LITTLE COZY END — anytime (2 variants) ---
      b18 story-length pass: drop trailing brag flourishes ("Big plans for
@@ -5101,6 +5233,15 @@ const V3_BEATS = [
   { id:'v3_tl_little_end_any_2', stage:'tl_cozy_end', tiers:['little'], mode:'anytime', requiredRoles:['protagonist','ally'],
     lines: [
       'By the end of the day, [name:{protagonist.name}] and the [c:{ally.text}] were happy and ready for whatever came next. They high-fived and headed home.',
+    ] },
+  /* v0.9.3 · b47 — 2 more little anytime closers for pool variety. */
+  { id:'v3_tl_little_end_any_3', stage:'tl_cozy_end', tiers:['little'], mode:'anytime', requiredRoles:['protagonist','ally'],
+    lines: [
+      '"Best day," said [name:{protagonist.name}]. The [c:{ally.text}] agreed with its whole face. Time to head home.',
+    ] },
+  { id:'v3_tl_little_end_any_4', stage:'tl_cozy_end', tiers:['little'], mode:'anytime', requiredRoles:['protagonist','ally'],
+    lines: [
+      '[name:{protagonist.name}] and the [c:{ally.text}] shook on it: same adventure next time, but bigger. Deal.',
     ] },
 
   /* ============================================================
@@ -5416,7 +5557,14 @@ function generateStoryV3(name, picks, age) {
   const move      = picks.move?.w  ? { text: picks.move.w, class: (MOVE_CLASS[picks.move.w] || 'motion') } : null;
   // v0.9.3 · b43 — mood gains articleText (parallel to b38 color). See V2 path.
   const mood      = picks.mood?.w  ? { text: picks.mood.w, articleText: V2Grammar.articleText({ text: picks.mood.w }) }  : null;
-  const weather   = picks.weather?.w ? { text: picks.weather.w } : null;
+  // v0.9.3 · b47 — cap added so weather-aware beats can open a sentence with
+  // the weather word. Until b47 this slot was ORPHANED in V3: little roleMaps
+  // mapped pressure:'weather' but no V3 beat consumed it, so the child's
+  // little-tier weather pick never rendered (Defect: "Little-tier weather
+  // pick is orphaned"). The b47 tl_setup weather beats fix that.
+  const weather   = picks.weather?.w
+    ? { text: picks.weather.w, cap: picks.weather.w.charAt(0).toUpperCase() + picks.weather.w.slice(1) }
+    : null;
   /* v2.10.0 — sky slot wired into v3 so tot_sky_v3 (wonder_object = sky) can resolve.
      Previously v3 only covered kid/big/tween where sky isn't a picker round.
      `cap` is set for capitalized-exclamation positions in tl_silly_repeat beats. */
@@ -5751,7 +5899,7 @@ function generateStoryV3(name, picks, age) {
       // must still appear every story — see CHANGELOG.)
       //
       // --- kid/big/tween — concrete + scene-connected, no "a [color]" hazards ---
-      { text: 'A stripe of [c:{visual_signature.text}] appeared on the floor and pointed the wrong way.', tiers:['kid','big','tween'] },
+      { text: 'One [c:{visual_signature.text}] stripe appeared on the floor and pointed the wrong way.', tiers:['kid','big','tween'] },
       { text: '[name:{protagonist.name}]\'s sleeves turned [c:{visual_signature.text}]. Nobody explained this.', tiers:['kid','big','tween'] },
       { text: '[name:{protagonist.name}]\'s shoes briefly turned [c:{visual_signature.text}]. Briefly.', tiers:['kid','big','tween'] },
       // b45 — new scene-connected variants (color attaches to the ally or to a
@@ -5795,19 +5943,26 @@ function generateStoryV3(name, picks, age) {
       //   'Somewhere down the hall a tiny "[y:{chant.text}]" happened.'  (too vague)
     ],
     payoff_word: [
-      // Gentle / vocal — all tiers.
-      'And one of them, very quietly, said "[y:{payoff_word.text}]."',
-      '"[y:{payoff_word.text}]," went somebody. Nobody asked who.',
-      // v0.9.3 · b31 — physical sound callbacks for payoff_word, mirror the
-      // chant changes. Specific place + physical reaction.
+      /* v0.9.3 · b47 — KILLED the disconnected "somebody, somewhere" family
+         flagged by the b46 assessment as the #1 AI-filler driver (38% of
+         kid/big/tween stories carried one): "went somebody. Nobody asked who",
+         "Somewhere upstairs ... too loudly", "in the rafters", "cracked the
+         silence", "hung in the air", "And one of them, very quietly". New
+         variants tie the word to the protagonist/ally so it lands as a shared
+         in-joke instead of ambient noise. Radiator + closet survive — they're
+         concrete physical gags, not vague atmosphere. payoff_word only resolves
+         for kid/big/tween blueprints, so all entries are tier-tagged. */
+      { text: '[name:{protagonist.name}] mouthed "[y:{payoff_word.text}]" at the [c:{ally.text}]. The [c:{ally.text}] mouthed it back, then bowed. It was official.', tiers:['kid','big','tween'] },
+      { text: '"[y:{payoff_word.text}]?" asked the [c:{ally.text}]. "[y:{payoff_word.text}]," confirmed [name:{protagonist.name}]. The [c:{ally.text}] nodded and spun once. That settled that.', tiers:['kid','big','tween'] },
+      { text: 'The [c:{ally.text}] tried out "[y:{payoff_word.text}]" under its breath, then hiccuped. A real word now. Definitely.', tiers:['kid','big','tween'] },
       { text: 'The radiator said "[y:{payoff_word.text}]," which radiators do not usually do.', tiers:['kid','big','tween'] },
       { text: 'A "[y:{payoff_word.text}]" came out of the closet. The closet stayed closed.', tiers:['kid','big','tween'] },
-      { text: 'Somewhere upstairs, somebody said "[y:{payoff_word.text}]" too loudly.', tiers:['kid','big','tween'] },
-      // Big/tween retain the drier "in the rafters" / "cracked the silence"
-      // shapes; these stay tier-gated so they don't run at kid.
-      { text: 'Later someone would swear they heard "[y:{payoff_word.text}]" in the rafters.', tiers:['big','tween'] },
-      { text: 'Just then a "[y:{payoff_word.text}]" cracked the silence. Nobody admitted to it.', tiers:['big','tween'] },
-      { text: 'A "[y:{payoff_word.text}]" hung in the air for a second longer than expected.', tiers:['big','tween'] },
+      { text: 'Somewhere between then and bedtime, "[y:{payoff_word.text}]" became an inside joke. The [c:{ally.text}] cheered every time. Nobody voted on it. It just won.', tiers:['big','tween'] },
+      // b47 verification pass: the "moment was coming" version was a dangling
+      // setup that never paid off (the callback can't guarantee a later beat
+      // uses the word). The moment now arrives inside the line.
+      { text: '[name:{protagonist.name}] filed "[y:{payoff_word.text}]" away for the exact right moment. The moment arrived eleven seconds later. "[y:{payoff_word.text}]!" Worth it.', tiers:['big','tween'] },
+      { text: 'The [c:{ally.text}] adopted "[y:{payoff_word.text}]" on the spot and chanted it twice. No takebacks.', tiers:['big','tween'] },
     ],
     /* v2.6.0 — mood + mcguffin added to flavor pool so chosen mood/food always surface
        even when the blueprint shape doesn't naturally call for them (e.g. show_wrong_v3
@@ -5841,16 +5996,26 @@ function generateStoryV3(name, picks, age) {
       { text: '[name:{protagonist.name}] looked [c:{mood_throughline.text}] for one second, then looked normal again.', tiers:['tot','little'] },
       { text: 'The [c:{ally.text}] watched [name:{protagonist.name}] be [c:{mood_throughline.text}]. The [c:{ally.text}] approved.', tiers:['tot','little'] },
       // v0.9.3 · b39 — kid/big/tween: mood drives a small visible action.
-      { text: '[name:{protagonist.name}] did the [c:{mood_throughline.text}] thing they always do when nobody is watching. Somebody was watching.', tiers:['kid','big','tween'] },
+      /* v0.9.3 · b47 — KILLED two state-announcement frames flagged by the b46
+         assessment ("did the [mood] thing they always do when nobody is
+         watching" — vague, picturable by nobody; "For three whole seconds,
+         [name] was visibly [mood]. Then back to baseline." — announces the
+         mood instead of showing it). Replaced with mood-drives-behavior
+         variants. NOTE: never "a [mood]" (vowel-start moods) — use "the
+         [mood] way" / "their best [mood] voice". */
       { text: '[name:{protagonist.name}] glanced at the [c:{ally.text}] in a way that was [c:{mood_throughline.text}], specifically. The [c:{ally.text}] caught it.', tiers:['kid','big','tween'] },
-      { text: 'For three whole seconds, [name:{protagonist.name}] was visibly [c:{mood_throughline.text}]. Then back to baseline.', tiers:['kid','big','tween'] },
+      { text: '[name:{protagonist.name}] went about it the [c:{mood_throughline.text}] way, which took longer but looked better. The [c:{ally.text}] respected the choice.', tiers:['kid','big','tween'] },
+      { text: '[name:{protagonist.name}] narrated the next part in their best [c:{mood_throughline.text}] voice. The [c:{ally.text}] rated it four stars.', tiers:['kid','big','tween'] },
       // v0.9.3 · b42 — mood-as-driver variants (kid/big focus). Each makes mood
       // CAUSE a specific action with a reaction.
       // v0.9.3 · b45 — KILLED "went briefly [mood], which made the [ally]
       // suspicious of nothing in particular" (29%-of-stories "went [mood]" glue
       // family flagged in the b45 assessment). Replaced with a mood-as-decision
       // variant that doesn't reuse the "went [mood]" frame.
-      { text: 'Whatever [name:{protagonist.name}] did next, it was going to be [c:{mood_throughline.text}]. The [c:{ally.text}] could tell. The [c:{ally.text}] got comfortable.', tiers:['kid','big','tween'] },
+      // b47 verification pass: "Whatever Cole did next, it was going to be X"
+      // flagged by 2 critics as the same announce-the-mood family. Replaced
+      // with a visible action.
+      { text: '[name:{protagonist.name}] cracked their knuckles the [c:{mood_throughline.text}] way. The [c:{ally.text}] braced.', tiers:['kid','big','tween'] },
       { text: '[name:{protagonist.name}] let out one [c:{mood_throughline.text}] sigh. The [c:{ally.text}] copied it. The sigh was now a chorus.', tiers:['kid','big','tween'] },
       // v0.9.3 · b44 — DEFECT FIX: removed the literal "-ly" suffix. mood_throughline
       // is an adjective / multi-word phrase ("clumsy", "professionally unhinged",
@@ -5869,7 +6034,10 @@ function generateStoryV3(name, picks, age) {
       'Off to the side, [c:{mcguffin.articleText}] sat there, mostly forgotten, definitely still part of the day.',
       // v0.9.3 · b42 — active mcguffin variants (kid/big).
       { text: 'Across the room, [c:{mcguffin.articleText}] tipped over. Nobody had touched anything. The [c:{ally.text}] looked at the ceiling.', tiers:['kid','big','tween'] },
-      { text: 'Someone, somewhere, was thinking about [c:{mcguffin.articleText}] very loudly. [name:{protagonist.name}] could feel it.', tiers:['kid','big','tween'] },
+      // v0.9.3 · b47 verification pass — replaced "Someone, somewhere, was
+      // thinking about X very loudly" (same disconnected "somebody, somewhere"
+      // genus as the killed payoff_word throwaways; flagged by 2 of 3 critics).
+      { text: 'Somewhere nearby, the [c:{mcguffin.text}] waited. [name:{protagonist.name}] had plans.', tiers:['kid','big','tween'] },
       { text: 'The [c:{mcguffin.text}] situation was, technically, ongoing. Nobody had called it that yet. Now they would.', tiers:['kid','big','tween'] },
       // Tot/little safe: simple presence callback.
       { text: 'The [c:{mcguffin.text}] was right there the whole time. Cole noticed last.', tiers:['tot','little'] },
@@ -5973,13 +6141,18 @@ function generateStoryV3(name, picks, age) {
     if (!line) continue;
     appendToMiddle(renderV3Line(line));
   }
-  // v0.9.3 · b31 — smell callback. Fires ~25% of stories.
+  // v0.9.3 · b31 — smell callback. Fired ~25% of stories.
   // v0.9.3 · b33 — tier-aware pool selection. potty pool overrides tier when
   // pottyMode is on. Otherwise: tot/little/kid get the kid-friendly pool
   // (smells a young kid has a sensory reference for); big/tween get the
   // drier OLDER pool (gym bag fog / pickle burps / mystery cheese).
+  // v0.9.3 · b47 — rate cut 0.25 → 0.12. The b46 assessment flagged the smell
+  // line as one of the always-on decorative inserts making stories read
+  // overstuffed; smell is pure ambient flavor (not a user pick), so unlike the
+  // coverage callbacks it can simply fire less. pottyMode keeps the old rate —
+  // the kid asked for gross, give them gross.
   const v3PottyMode = !!(picks && picks.pottyMode);
-  if (Math.random() < 0.25) {
+  if (Math.random() < (v3PottyMode ? 0.25 : 0.12)) {
     let smellPool;
     if (v3PottyMode) {
       smellPool = SMELL_CALLBACKS_POTTY;
@@ -6045,7 +6218,13 @@ function generateStoryV3(name, picks, age) {
        "Then they went to bed.") are recognized and DON'T trigger a redundant
        second post-pass closer (was producing "...curled up. ...curled up
        small." double-enders). Keep in sync with qa-current Section 25 regex. */
-    const BEDTIME_LEXICON = /\b(bedtime|tucked in|tucked them in|asleep|fell asleep|going to sleep|sleepy|goodnight|good night|pajamas|pyjamas|yawned|yawning|drift(ed|ing)? off|sweet dreams|lights out|bunked? down|under the covers|night-night|nighty night|head(ed)? to bed|went to bed|off to bed|climb(ed|ing)? into bed|crawl(ed|ing)? into bed|curl(ed|ing)? up|snuggled|bedroom|under the blanket|cozy and warm|cuddled up)\b/i;
+    /* v0.9.3 · b47 — added "into the dark" + "that night": the "That night
+       [name] said X into the dark" landings are already night closers, but
+       the lexicon missed them, so the post-pass appended a SECOND closer
+       ("...into the dark. The day was over... Sweet dreams.") — double-ender
+       caught by the b47 verification pass. Keep in sync with qa-current
+       Section 21 BEDTIME_RX and Section 25 BEDTIME_LEXICON. */
+    const BEDTIME_LEXICON = /\b(bedtime|tucked in|tucked them in|asleep|fell asleep|going to sleep|sleepy|goodnight|good night|pajamas|pyjamas|yawned|yawning|drift(ed|ing)? off|sweet dreams|lights out|bunked? down|under the covers|night-night|nighty night|head(ed)? to bed|went to bed|off to bed|climb(ed|ing)? into bed|crawl(ed|ing)? into bed|curl(ed|ing)? up|snuggled|bedroom|under the blanket|cozy and warm|cuddled up|into the dark|that night)\b/i;
     const lastIdx = paragraphs.length - 1;
     const lastParagraph = paragraphs[lastIdx] || '';
     if (!BEDTIME_LEXICON.test(lastParagraph)) {
