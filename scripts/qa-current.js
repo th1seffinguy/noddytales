@@ -2724,6 +2724,30 @@ while ((scriptMatch = scriptBlockRx.exec(html)) !== null) {
 gate('all inline <script> blocks parse cleanly', syntaxErrors === 0, blockCount + ' blocks scanned, ' + syntaxErrors + ' errors');
 if (syntaxErrorDetail.length) syntaxErrorDetail.forEach(d => console.log('    ' + d));
 
+/* === 27. STORY-FLOW NAVIGATION ESCAPE HATCH (added v0.9.3 · b48) ===
+ *
+ * User-reported UX defect: once a parent starts the story flow with the wrong
+ * age selected, the app offered no obvious way back to age/setup without
+ * finishing the whole story. This structural smoke gate ensures the controls
+ * and handlers for the escape hatch remain present.
+ */
+console.log('\n=== 27. Story-flow navigation escape hatch (v0.9.3 · b48) ===');
+const navChecks = [
+  ['word screen back control exists', /id="btn-words-back"/.test(html)],
+  ['word screen setup control exists', /id="btn-words-setup"/.test(html)],
+  ['story screen make-another control exists', /id="btn-make-another"/.test(html)],
+  ['story screen change-setup control exists', /id="btn-change-setup"/.test(html)],
+  ['word back handler exists', /function backFromWords\(\)/.test(html) && /btnBack\.addEventListener\('click', backFromWords\)/.test(html)],
+  ['change setup helper clears story progress', /function changeSetup\(/.test(html) && /clearStorySession\(\)/.test(html)],
+  ['discard confirmation protects in-progress picks', /function confirmDiscardProgress\(\)/.test(html) && /window\.confirm\('Leave this story and change setup\?/.test(html)],
+];
+let navMisses = 0;
+for (const [label, ok] of navChecks) {
+  if (!ok) navMisses++;
+  gate(label, ok);
+}
+gate('all story-flow navigation escape hatch checks pass', navMisses === 0, navMisses + ' misses');
+
 /* === SUMMARY === */
 console.log('\n=== SUMMARY ===');
 if (failures === 0) {

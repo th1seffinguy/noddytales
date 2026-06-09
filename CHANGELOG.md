@@ -9,6 +9,28 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 48, engine v3.0.3) — 2026-06-09
+**Story-flow navigation escape hatch**
+
+User-reported UX defect: a parent started a story with age 10 selected by mistake and could not go back to change age without pushing through the whole story flow. This build adds the common guided-creation escape hatch pattern.
+
+### What changed
+- Word rounds now show a compact `← back` control plus a setup chip showing the current child + age.
+- Back inside word rounds undoes the previous word pick and returns to that round.
+- Back/setup from the first word round returns to setup with a light discard confirmation.
+- The story screen now separates two intents:
+  - `Make Another` — keeps the same setup and starts fresh word picks.
+  - `Change Setup` — returns to the age/setup flow so parent can change age, setting, story mode, or profile details.
+- Saved profile values remain intact unless the user explicitly changes them in the existing setup screens.
+
+### QA hardening
+- `qa-current.js` Section 27 verifies the story-flow navigation controls and handlers stay present.
+
+### Versions
+APP_VERSION stays `v0.9.3`; BUILD_NUMBER 47 → 48; ENGINE_V2_VERSION stays `v3.0.3`. Badge reads `v0.9.3 · b48`.
+
+---
+
 ## v0.9.3 (build 47, engine v3.0.3) — 2026-06-09
 **Coverage-callback cleanup + cross-story variety + tot/little stakes + weather-pick fix**
 
