@@ -5429,6 +5429,12 @@ const V3_BEATS = [
     ] },
 ];
 
+/* R1 — BEDTIME_LEXICON is the canonical bedtime-detection regex.
+   Single source of truth: engine post-pass reads it here; qa-current loads it
+   via the harness return object (ctx.BEDTIME_LEXICON) instead of re-defining.
+   When you update this regex, nothing else needs to change. */
+const BEDTIME_LEXICON = /\b(bedtime|tucked in|tucked them in|asleep|fell asleep|going to sleep|sleepy|goodnight|good night|pajamas|pyjamas|yawned|yawning|drift(ed|ing)? off|sweet dreams|lights out|bunked? down|under the covers|night-night|nighty night|head(ed)? to bed|went to bed|off to bed|climb(ed|ing)? into bed|crawl(ed|ing)? into bed|curl(ed|ing)? up|snuggled|bedroom|under the blanket|cozy and warm|cuddled up|into the dark|that night)\b/i;
+
 /* generateStoryV3 — role-based story generation. Mirrors v2's slot construction
    then applies the blueprint's role map. Each stage picks an eligible beat
    whose required roles are all present. Lines are rendered with role-aware
@@ -5458,12 +5464,49 @@ function generateStoryV3(name, picks, age) {
   // engine forces that specific blueprint instead of random selection.
   const blueprints = Object.values(V3_BLUEPRINTS).filter(bp => bp.tiers.includes(tier));
   if (!blueprints.length) return null;
+
+  /* R0 (b51) — blueprint viability pre-filter.
+     Before picking a blueprint at random, exclude any whose stage-required roles
+     can't be satisfied by the current picks. The canonical failure case is
+     tot_sky_v3: its tl_silly_repeat stage requires 'wonder_object', which maps
+     to the 'sky' slot — if the user didn't pick a sky word, sky=null and the
+     blueprint would return null during role validation. The pre-filter steers the
+     random pick away from unviable blueprints so V3 never returns null in normal
+     operation. Slots that always have a fallback (kid, companion, visitor, etc.)
+     are marked true; optional user-picks are true only when present. */
+  const slotFilled = {
+    kid: true, companion: true, visitor: true, place: true, food: true,
+    object: true, sound: true, goal: true,
+    color:    !!(picks.color?.w),
+    move:     !!(picks.move?.w),
+    mood:     !!(picks.mood?.w),
+    sky:      !!(picks.sky?.w),
+    weather:  !!(picks.weather?.w),
+    freeword2:!!(picks.freeword2?.w),
+  };
+  const viable = blueprints.filter(bp => {
+    const stagesCheck = (tier === 'kid' && bp.skipStagesForKid?.length)
+      ? bp.stages.filter(s => !bp.skipStagesForKid.includes(s.name))
+      : bp.stages;
+    const required = new Set();
+    for (const stage of stagesCheck) {
+      for (const r of (stage.requiredRoles || [])) required.add(r);
+    }
+    return [...required].every(r => {
+      const slotName = bp.roleMap[r];
+      return slotName && slotFilled[slotName];
+    });
+  });
+  // Paranoia fallback: if somehow all blueprints are filtered out, use full pool
+  // (role validation below will still catch it, but we'd rather never hit that path).
+  const selectFrom = viable.length ? viable : blueprints;
+
   let blueprint;
   if (picks && picks.__v3BlueprintId) {
     blueprint = blueprints.find(bp => bp.id === picks.__v3BlueprintId);
     if (!blueprint) return null;
   } else {
-    blueprint = blueprints[Math.floor(Math.random() * blueprints.length)];
+    blueprint = selectFrom[Math.floor(Math.random() * selectFrom.length)];
   }
 
   // Reuse v2's slot construction by calling the helpers directly. We build slots
@@ -6217,14 +6260,8 @@ function generateStoryV3(name, picks, age) {
        end_bed beats that already close bedtime-y ("Then Cole curled up." /
        "Then they went to bed.") are recognized and DON'T trigger a redundant
        second post-pass closer (was producing "...curled up. ...curled up
-       small." double-enders). Keep in sync with qa-current Section 25 regex. */
-    /* v0.9.3 · b47 — added "into the dark" + "that night": the "That night
-       [name] said X into the dark" landings are already night closers, but
-       the lexicon missed them, so the post-pass appended a SECOND closer
-       ("...into the dark. The day was over... Sweet dreams.") — double-ender
-       caught by the b47 verification pass. Keep in sync with qa-current
-       Section 21 BEDTIME_RX and Section 25 BEDTIME_LEXICON. */
-    const BEDTIME_LEXICON = /\b(bedtime|tucked in|tucked them in|asleep|fell asleep|going to sleep|sleepy|goodnight|good night|pajamas|pyjamas|yawned|yawning|drift(ed|ing)? off|sweet dreams|lights out|bunked? down|under the covers|night-night|nighty night|head(ed)? to bed|went to bed|off to bed|climb(ed|ing)? into bed|crawl(ed|ing)? into bed|curl(ed|ing)? up|snuggled|bedroom|under the blanket|cozy and warm|cuddled up|into the dark|that night)\b/i;
+       small." double-enders). R1 (b51): BEDTIME_LEXICON is now module-level
+       above generateStoryV3 — single source shared with qa-current. */
     const lastIdx = paragraphs.length - 1;
     const lastParagraph = paragraphs[lastIdx] || '';
     if (!BEDTIME_LEXICON.test(lastParagraph)) {
@@ -6338,6 +6375,7 @@ if (typeof window !== 'undefined') {
   window.V3_VERSION = V3_VERSION;
   window.V3_BLUEPRINTS = V3_BLUEPRINTS;
   window.V3_BEATS = V3_BEATS;
+  window.BEDTIME_LEXICON = BEDTIME_LEXICON; // R1 — qa-current reads ctx.BEDTIME_LEXICON
 
   /* v2.4.1 — DevTools helpers to inspect and reset the recent-beat memory.
      Usage:

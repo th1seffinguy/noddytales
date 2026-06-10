@@ -54,6 +54,7 @@ return {
   HIGH_IMPACT_ROLES,                 // v0.9.3 · b23
   HIGH_IMPACT_PICKER_CATEGORIES,     // v0.9.3 · b23
   FREE_TEXT_ROUNDS,                  // v0.9.3 · b23 — needed to audit static freetext examples
+  BEDTIME_LEXICON,                   // v0.9.3 · b51 (R1) — canonical bedtime regex; Sections 21+25 read from here
 };
 `;
 const ctx = (new Function(harness))();
@@ -346,6 +347,12 @@ if (pluralSamples.length) pluralSamples.forEach(s => console.log('    ' + s));
 if (oneHugePluralSamples.length) oneHugePluralSamples.forEach(s => console.log('    ' + s));
 if (titleSamples.length)  titleSamples.forEach(s => console.log('    ' + s));
 
+/* R1 (b51) — ANYTIME_RX module-level single source. Replaces the duplicate local
+   definition inside endingAudit AND the identical ANYTIME_RX_GATE below (Section 5b).
+   v3.0.2-stability rationale preserved in the comment; see git history for the
+   step-by-step expansion. When adding a new anytime beat, add its marker phrase here. */
+const ANYTIME_RX = /\b(walking home|walking back|walking out|walked back|walked home|walk home|walk back|onto the next|see you|tomorrow|onward|head home|heading home|headed back|headed home|heading off|next thing|next caper|next show|next time|next morning|what to do next|do next|home base|find the next|back home|on the way home|on the way back|retell this|retelling|replayed|deploy it later)\b/i;
+
 /* === 5. STORY MODE (bedtime vs anytime) ===
  *
  * v2.10.2 — endingAudit now scans only the FINAL paragraph for bedtime/anytime
@@ -368,24 +375,10 @@ function endingAudit(storyMode, age, samples) {
   /* Strict bedtime-ending phrases. "sleep"/"sleepy"/"asleep" as bare words removed:
      they appear in non-ending contexts (sleepy gecko, sleepy moon) and skewed the
      count. Phrase forms ("fell asleep", "time to sleep", "going to sleep") only
-     fire at actual sleep endings. */
+     fire at actual sleep endings. NOTE: intentionally stricter than BEDTIME_LEXICON
+     — Section 5 checks story endings; BEDTIME_LEXICON checks whether to append a closer. */
   const BEDTIME_RX  = /\b(goodnight|good night|bedtime|fell asleep|going to sleep|time to sleep|going to bed|sweet dreams|tucked in)\b/i;
-  /* v3.0.2-stability — expanded to cover every valid day-ending phrase used by
-     shipping v3 anytime landing beats. Previously the regex missed:
-       - "walking out"   (v3_sw_landing_any_tween) — kid/big tween show_wrong
-       - "heading home"  (v3_rl_landing_any) — kid/big rule_loophole
-       - "back home"     (v3_ls_landing_any) — used as opener of kid/big lost_snack
-       - "on the way home" (v3_gs_landing_any) — kid/big goal_spine
-       - "walk back"     (defensive — variants of walking back)
-       - "next show"     (v3_sw_landing_any_tween) — show-ending future marker
-       - "replayed"      (v3_ls_landing_tween_replay) — used as anytime marker in tween
-       - "deploy it later" (v3_rl_landing_any) — kid/big rule_loophole
-     These weren't a content problem (the beats read as clearly day-ending to humans)
-     — they were a regex coverage problem. Tween age 12 anytime gate was hitting
-     35-40/60 instead of the expected ~57/60 because show_wrong tween (25% of stories)
-     used "Walking out" which had no match. Coverage gate added below (Section 5b)
-     prevents new anytime beats from shipping with non-matching phrases. */
-  const ANYTIME_RX  = /\b(walking home|walking back|walking out|walked back|walked home|walk home|walk back|onto the next|see you|tomorrow|onward|head home|heading home|headed back|headed home|heading off|next thing|next caper|next show|next time|next morning|what to do next|do next|home base|find the next|back home|on the way home|on the way back|retell this|retelling|replayed|deploy it later)\b/i;
+  // ANYTIME_RX is now module-level (defined above endingAudit). No local re-definition needed.
   for (let i = 0; i < samples; i++) {
     const picks = randomPicks(tier);
     picks.storyMode = storyMode;
@@ -440,7 +433,7 @@ gate('tween (age 12) storyMode=anytime stories use day-ending language (≥60%)'
  * not as a Section 5 flake.
  */
 console.log('\n=== 5b. Anytime beat coverage (every anytime beat must hit ANYTIME_RX) ===');
-const ANYTIME_RX_GATE = /\b(walking home|walking back|walking out|walked back|walked home|walk home|walk back|onto the next|see you|tomorrow|onward|head home|heading home|headed back|headed home|heading off|next thing|next caper|next show|next time|next morning|what to do next|do next|home base|find the next|back home|on the way home|on the way back|retell this|retelling|replayed|deploy it later)\b/i;
+// R1 (b51): ANYTIME_RX_GATE removed — use module-level ANYTIME_RX (identical, single source).
 const v3AnytimeLanding = ctx.V3_BEATS.filter(b => b.stage === 'landing' && b.mode === 'anytime');
 const V2_ANYTIME_BEAT_TYPES = new Set(['bedtime_landing','tot_cozy_end','little_cozy_end']);
 const v2AnytimeEnding   = ctx.V2_BEATS.filter(b => b.mode === 'anytime' && V2_ANYTIME_BEAT_TYPES.has(b.beatType));
@@ -451,7 +444,7 @@ for (const beat of allAnytimeBeats) {
   const lines = beat.lines || [];
   for (let i = 0; i < lines.length; i++) {
     const cleaned = strip(lines[i]);
-    if (!ANYTIME_RX_GATE.test(cleaned)) {
+    if (!ANYTIME_RX.test(cleaned)) {
       anytimeMisses++;
       if (anytimeMissDetail.length < 5) {
         anytimeMissDetail.push(`${beat.id} line ${i}: "${cleaned.slice(0, 110)}..."`);
@@ -1932,11 +1925,8 @@ console.log('\n=== 21. b41 determinism gates — apostrophe / punctuation / bedt
   // --- (c) Bedtime mode determinism ----------------------------------------
   // Every kid/big/tween story with storyMode='bedtime' must end with bedtime
   // lexicon in the final paragraph.
-  /* v0.9.3 · b46 — kept in sync with engine BEDTIME_LEXICON. Added "curl(ed) up",
-     "went/off to bed", "snuggled" so tot/little/kid landings that close bedtime-y
-     via those words (e.g. "That night, Cole curled up... Then sleep.") are
-     recognized — the engine now suppresses the redundant post-pass closer for them. */
-  const BEDTIME_RX = /\b(bedtime|tucked in|asleep|fell asleep|going to sleep|sleepy|goodnight|good night|pajamas|pyjamas|yawned|yawning|drift(ed|ing)? off|sweet dreams|lights out|under the covers|night-night|nighty night|head(ed)? to bed|went to bed|off to bed|climb(ed|ing)? into bed|crawl(ed|ing)? into bed|curl(ed|ing)? up|snuggled|bedroom|under the blanket|cuddled up|into the dark|that night)\b/i;
+  // R1 (b51) — derived from ctx.BEDTIME_LEXICON (single source in engine-v2.js). No manual sync.
+  const BEDTIME_RX = ctx.BEDTIME_LEXICON;
   const BED_TIERS = [[6, 'kid'], [9, 'big'], [12, 'tween']];
   let bedtimeLeaks = 0;
   const bedtimeDetail = [];
@@ -2394,7 +2384,7 @@ console.log('\n=== 25. b46 bedtime-closer variety + lexicon invariant ===');
   function stripB25(text) {
     return text.replace(/\[c:([^\]]*)\]/g, '$1').replace(/\[y:([^\]]*)\]/g, '$1').replace(/\[name:([^\]]*)\]/g, '$1');
   }
-  const BEDTIME_LEXICON = /\b(bedtime|tucked in|asleep|fell asleep|going to sleep|sleepy|goodnight|good night|pajamas|drift(ed|ing)? off|sweet dreams|lights out|under the covers|night-night|head(ed)? to bed|went to bed|off to bed|climb(ed|ing)? into bed|crawl(ed|ing)? into bed|curl(ed|ing)? up|snuggled|under the blanket|cuddled up|yawned|into the dark|that night)\b/i;
+  const BEDTIME_LEXICON = ctx.BEDTIME_LEXICON; // R1 (b51) — single source in engine-v2.js
   const closerCounts = {};
   let total25 = 0, missingLexicon = 0;
   for (let i = 0; i < 200; i++) {
@@ -2753,6 +2743,44 @@ for (const [label, ok] of navChecks) {
   gate(label, ok);
 }
 gate('all story-flow navigation escape hatch checks pass', navMisses === 0, navMisses + ' misses');
+
+/* === 27. R0 — V3 NEVER-NULL (blueprint viability filter) ===
+ *
+ * R0 (b51): Before picking a blueprint at random, generateStoryV3 now filters to
+ * blueprints whose stage-required roles can all be filled by the current picks.
+ * The canonical failure case was tot_sky_v3: its tl_silly_repeat stage requires
+ * 'wonder_object' → sky slot, which is null when the user didn't pick a sky word.
+ * This gate proves the fix holds: all ages × no-optional-picks produce 0 nulls.
+ *
+ * 12 ages × 5 pick variants × 25 stories = 1,500 stories.
+ */
+console.log('\n=== 27. R0 V3 never-null — blueprint viability filter ===');
+{
+  const ages27 = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+  const pickVariants27 = [
+    {},                                                               // no optional picks (worst case)
+    { sky: { w: 'rainbow' } },                                        // sky only
+    { move: { w: 'bounced' }, color: { w: 'blue' } },                 // move + color
+    { weather: { w: 'stormy' }, sky: { w: 'moon' } },                 // weather + sky
+    { freeword2: { w: 'BOINGO' }, mood: { w: 'curious' } },           // freeword2 + mood
+  ];
+  let nullCount27 = 0;
+  const nullDetail27 = [];
+  let total27 = 0;
+  for (const age of ages27) {
+    for (const picks of pickVariants27) {
+      for (let i = 0; i < 25; i++) {
+        total27++;
+        const result = ctx.generateStoryV3('Cole', picks, age);
+        if (!result) {
+          nullCount27++;
+          if (nullDetail27.length < 5) nullDetail27.push('age=' + age + ' picks=' + JSON.stringify(Object.keys(picks)));
+        }
+      }
+    }
+  }
+  gate('V3 never-null — all ages × no-optional-picks (R0 viability filter)', nullCount27 === 0, nullCount27 + '/' + total27 + ' nulls' + (nullDetail27.length ? ' (' + nullDetail27.join('; ') + ')' : ''));
+}
 
 /* === SUMMARY === */
 console.log('\n=== SUMMARY ===');

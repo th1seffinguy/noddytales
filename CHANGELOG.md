@@ -9,6 +9,24 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 51, engine v3.0.3) — 2026-06-10
+**R0+R1 — Blueprint viability filter + lexicon single-source-of-truth**
+
+R0: `generateStoryV3` now pre-filters blueprints to those whose stage-required roles can all be satisfied by the current picks before selecting one at random. The canonical failure case was `tot_sky_v3`: its `tl_silly_repeat` stage requires `wonder_object` → sky slot, which is null when the user didn't pick a sky word, causing the function to return null. R1: `BEDTIME_LEXICON` and `ANYTIME_RX` each had 2–3 parallel copies with diverging content (the root cause of QA failures in b46–b47). Both are now a single module-level definition; all downstream reads (engine post-pass, qa-current Sections 21 + 25 + 5b) derive from the one source.
+
+### What changed
+- **`src/engine-v2.js`** — R0: `slotFilled` viability map + `viable` pre-filter + `selectFrom` paranoia fallback inserted in blueprint selection block. R1: `BEDTIME_LEXICON` lifted to module-level const before `generateStoryV3`, old in-function definition removed, exported on `window.BEDTIME_LEXICON`. `ANYTIME_RX` promoted to module-level before `endingAudit`, local inline definition removed, `ANYTIME_RX_GATE` alias retired.
+- **`scripts/qa-current.js`** — R1: `BEDTIME_LEXICON` added to harness return (`ctx.BEDTIME_LEXICON`); Sections 21 + 25 collapsed to `ctx.BEDTIME_LEXICON`. `ANYTIME_RX` defined once at module level; local copy inside `endingAudit` removed; `ANYTIME_RX_GATE` in Section 5b replaced with module-level `ANYTIME_RX`. Section 27 (R0 never-null gate): 12 ages × 5 pick variants × 25 stories = 1,500 stories, all ages with no-optional-picks, 0 nulls required.
+- **`src/content.js`** — BUILD_NUMBER 50 → 51.
+
+### QA hardening
+- Section 27: R0 viability filter gate — 1,500 stories across all ages × no-optional-picks must produce 0 V3 nulls.
+
+### Versions
+APP_VERSION stays `v0.9.3`; BUILD_NUMBER 50 → 51; ENGINE_V2_VERSION stays `v3.0.3`. Badge reads `v0.9.3 · b51`.
+
+---
+
 ## v0.9.3 (build 50, engine v3.0.3) — 2026-06-09
 **Centered selection action pills**
 
