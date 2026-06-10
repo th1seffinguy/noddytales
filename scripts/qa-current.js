@@ -2731,11 +2731,13 @@ if (syntaxErrorDetail.length) syntaxErrorDetail.forEach(d => console.log('    ' 
  * finishing the whole story. This structural smoke gate ensures the controls
  * and handlers for the escape hatch remain present.
  */
-console.log('\n=== 27. Story-flow navigation escape hatch (v0.9.3 · b48-b49) ===');
+console.log('\n=== 27. Story-flow navigation escape hatch (v0.9.3 · b48-b50) ===');
 const navChecks = [
   ['word screen back control exists', /id="btn-words-back"/.test(html)],
   ['word screen back control uses bottom-left pill styling', /class="word-back-pill" id="btn-words-back"/.test(html)],
   ['word screen back and shuffle pills share a fixed action height', /--selection-action-height:\s*42px/.test(html) && /\.word-back-pill\s*\{[\s\S]*?height:\s*var\(--selection-action-height\)/.test(html) && /\.shuffle-btn\s*\{[\s\S]*?height:\s*var\(--selection-action-height\)/.test(html)],
+  ['word screen action row centers the Back + shuffle pair', /\.word-action-row\s*\{[\s\S]*?justify-content:\s*center;/.test(html)],
+  ['shuffle wrapper does not override centered row alignment', !/\.shuffle-wrap\s*\{[\s\S]*?justify-content:\s*flex-start;/.test(html)],
   ['word screen back control shares lower action row with shuffle button', /<div class="shuffle-wrap word-action-row">\s*<button class="word-back-pill" id="btn-words-back"[\s\S]*?<button class="shuffle-btn" id="btn-shuffle"/.test(html)],
   ['word screen back control removed from header action cluster', !/<div class="word-header-actions">[\s\S]*?id="btn-words-back"[\s\S]*?<\/div>/.test(html)],
   ['word screen setup control exists', /id="btn-words-setup"/.test(html)],
