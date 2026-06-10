@@ -9,6 +9,24 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 50, engine v3.0.3) — 2026-06-09
+**Centered selection action pills**
+
+Follow-up polish on the b49 selection controls. The Back + `Show me different ones` pair now sits centered inside the card-width action row so the left and right visual margins match.
+
+### What changed
+- The selection action row now centers its child pills instead of left-justifying them.
+- The shuffle wrapper no longer overrides the shared row alignment.
+- The Back and shuffle pills keep their equal `42px` height and left-to-right order.
+
+### QA hardening
+- `qa-current.js` Section 27 now verifies the centered action-row alignment and confirms the shuffle wrapper does not force left alignment.
+
+### Versions
+APP_VERSION stays `v0.9.3`; BUILD_NUMBER 49 → 50; ENGINE_V2_VERSION stays `v3.0.3`. Badge reads `v0.9.3 · b50`.
+
+---
+
 ## v0.9.3 (build 49, engine v3.0.3) — 2026-06-09
 **Selection-mode bottom-left Back control**
 

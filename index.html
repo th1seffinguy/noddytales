@@ -1094,17 +1094,16 @@
   }
   .escape-hatch-btn:active { transform: translateY(1px); }
 
-  /* v0.9.3 · b49 — Bottom-left selection actions. Back sits beside the shuffle
-     pill so the escape hatch is where the parent's thumb is already working. */
+  /* v0.9.3 · b49-b50 — Selection actions. Back sits beside the shuffle pill;
+     the pair is centered inside the card-width row so left/right margins match. */
   .word-action-row {
     --selection-action-height: 42px;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     gap: 10px;
     width: 100%;
     margin-top: 16px;
-    padding-left: 2px;
   }
   .word-action-row--freetext {
     margin-top: 10px;
@@ -1172,7 +1171,6 @@
   }
   .shuffle-wrap {
     display: flex;
-    justify-content: flex-start;
   }
   @media (max-width: 360px) {
     .word-action-row { gap: 6px; }
@@ -1642,6 +1640,8 @@ const MAX_SHUFFLES = 2;
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest few entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v0.9.3 · b50', title: 'Centered selection action pills',
+    detail: 'Follow-up polish on the b49 selection controls: the Back + "Show me different ones" action pair is now centered inside the card-width row, giving the same visual space from the left and right edges of the selection area. The pills keep their equal 42px height and their left-to-right order. QA: Section 27 now verifies the action row is centered and that the shuffle wrapper no longer overrides it with left alignment.' },
   { v: 'v0.9.3 · b49', title: 'Bottom-left back control in selection mode',
     detail: 'Small UX polish on the b48 escape hatch: the word-selection Back control moved out of the header and into a bottom-left pill beside "Show me different ones". The two lower pills now share the same fixed height, and the shuffle pill sits slightly to the right as part of the same lower action row, so the controls read as a balanced pair near the parent thumb. Free-text selection rounds keep the same bottom-left Back placement. The word-screen header now uses a compact one-line setup chip (for example, "QA · 10") so the gear, logo, and setup control stay clean on 320px-wide phones. QA: Section 27 now verifies the lower action row, the back-pill class, shared action height, and that the header no longer owns the word Back control.' },
   { v: 'v0.9.3 · b48', title: 'Story-flow navigation escape hatch',
