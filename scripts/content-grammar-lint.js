@@ -30,13 +30,18 @@ const ROOT = path.resolve(__dirname, '..');
 function loadEngineContext() {
   const content  = fs.readFileSync(path.join(ROOT, 'src/content.js'),  'utf8');
   const engineV2 = fs.readFileSync(path.join(ROOT, 'src/engine-v2.js'), 'utf8');
+  // v0.9.3 · b52 — engine v4 (authored templates) lints alongside v3.
+  const storiesV4 = fs.readFileSync(path.join(ROOT, 'src/stories-v4.js'), 'utf8');
+  const engineV4  = fs.readFileSync(path.join(ROOT, 'src/engine-v4.js'),  'utf8');
   const harness = `
 global.window = global;
 global.localStorage = { getItem: () => null, setItem: () => {} };
 ${content}
 const state = { sidekicks: [], pottyMode: false, teenUnlocked: false, name: 'Cole', setting: 'surprise' };
 ${engineV2}
-return { generateStoryV3, generateStoryV2, WORD_BANK, absurdWordsForTier };
+${storiesV4}
+${engineV4}
+return { generateStoryV3, generateStoryV2, generateStoryV4, WORD_BANK, absurdWordsForTier };
 `;
   return (new Function(harness))();
 }
@@ -119,9 +124,13 @@ const CHECKS = [
     scope:'both',
     rx: /\b(the the|a a|an an)\b/i },
   // Lowercase sentence start after terminal punctuation
-  { id:'lowercase_sentence_start', label:'Lowercase letter starts a sentence after period/!/?',
+  // v0.9.3 · b52 — negative lookbehind for a preceding dot: "..." is a
+  // CONTINUATION (read-aloud pacing in v4 authored templates: "One crumb...
+  // two crumbs... three crumbs..."), not a sentence end. Real errors after a
+  // single terminal . ! ? still match. Was 249 false positives on v4 output.
+  { id:'lowercase_sentence_start', label:'Lowercase letter starts a sentence after period/!/? (ellipsis-aware)',
     scope:'body',
-    rx: /(?<=[.!?]\s)[a-z]/ },
+    rx: /(?<=(?<!\.)[.!?]\s)[a-z]/ },
   // Sky/wonder physicality — putting a sky thing on someone's head
   { id:'sky_on_head', label:'Sky-class noun placed on someone\'s head physically',
     scope:'body',
@@ -157,6 +166,30 @@ for (let i = 0; i < REPS; i++) {
     const target = c.scope === 'title' ? title : c.scope === 'body' ? body : full;
     const m = target.match(c.rx);
     if (m) checkHits[c.id].push({ age, tier, blueprint: s.__blueprint, snippet: target.slice(Math.max(0, target.indexOf(m[0]) - 20), target.indexOf(m[0]) + 80) });
+  }
+  for (const g of GLUE_PHRASES) if (g.rx.test(full)) glueHits[g.id]++;
+}
+
+/* v0.9.3 · b52 — engine v4 lint pass. Authored templates go through the SAME
+   checks as v3 output (plural/article/by-itself/hyphen-ly/etc.) so a template
+   authoring mistake fails lint exactly like an engine beat would. v4 covers
+   little (4-5) + kid (6-7) in this batch. */
+const V4_REPS = Math.max(100, Math.floor(REPS / 4));
+for (let i = 0; i < V4_REPS; i++) {
+  const age   = 4 + Math.floor(Math.random() * 4); // 4-7
+  const tier  = tierForAge(age);
+  const picks = randomPicks(tier);
+  picks.storyMode = (i % 2 === 0) ? 'bedtime' : 'anytime';
+  const s = ctx.generateStoryV4('Cole', picks, age);
+  if (!s) { totalNulls++; continue; }
+  totalStories++;
+  const title = STRIP(s.title || '');
+  const body  = STRIP((s.paragraphs || []).join('\n'));
+  const full  = title + '\n' + body;
+  for (const c of CHECKS) {
+    const target = c.scope === 'title' ? title : c.scope === 'body' ? body : full;
+    const m = target.match(c.rx);
+    if (m) checkHits[c.id].push({ age, tier, blueprint: s.__template, snippet: target.slice(Math.max(0, target.indexOf(m[0]) - 20), target.indexOf(m[0]) + 80) });
   }
   for (const g of GLUE_PHRASES) if (g.rx.test(full)) glueHits[g.id]++;
 }

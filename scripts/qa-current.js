@@ -27,6 +27,9 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 const content  = fs.readFileSync(path.join(ROOT, 'src/content.js'), 'utf8');
 const engineV2 = fs.readFileSync(path.join(ROOT, 'src/engine-v2.js'), 'utf8');
+// v0.9.3 · b52 — engine v4 (authored templates) under test via Section 27.
+const storiesV4 = fs.readFileSync(path.join(ROOT, 'src/stories-v4.js'), 'utf8');
+const engineV4  = fs.readFileSync(path.join(ROOT, 'src/engine-v4.js'),  'utf8');
 
 const harness = `
 global.window = global;
@@ -34,6 +37,8 @@ global.localStorage = { getItem: () => null, setItem: () => {} };
 ${content}
 const state = { sidekicks: [], pottyMode: false, teenUnlocked: false, name: 'Cole', setting: 'surprise' };
 ${engineV2}
+${storiesV4}
+${engineV4}
 return {
   generateStoryV2,
   generateStoryV3,
@@ -55,6 +60,8 @@ return {
   HIGH_IMPACT_PICKER_CATEGORIES,     // v0.9.3 · b23
   FREE_TEXT_ROUNDS,                  // v0.9.3 · b23 — needed to audit static freetext examples
   BEDTIME_LEXICON,                   // v0.9.3 · b51 (R1) — canonical bedtime regex; Sections 21+25 read from here
+  generateStoryV4,                   // v0.9.3 · b52 — engine v4 (authored templates), Section 27
+  V4_TEMPLATES,                      // v0.9.3 · b52 — Section 27 per-template matrix
 };
 `;
 const ctx = (new Function(harness))();
@@ -2549,6 +2556,115 @@ console.log('\n=== 26. b47 filler killed-phrases + variety ceilings + little-wea
   gate('little weather pick always renders in story body (was 0% — orphaned-pick defect)', wMissing === 0, wMissing + '/' + wTotal + ' weather-missing little stories');
 }
 
+/* === 29. b52 ENGINE V4 (AUTHORED TEMPLATES) GATES ===
+ *
+ * Phase 1 of the followability pivot (Story Test Log Entry 018). v4 is
+ * flag-only (?engine=v4), little + kid tiers. These gates protect the
+ * authored-template contracts:
+ *
+ * (a) PER-TEMPLATE MATRIX — every template × both story modes: 0 nulls,
+ *     0 unresolved tokens ('{', '}', or the renderer's '?' marker),
+ *     every template.requires slot renders in the body, and every
+ *     highlighted word in the TITLE also appears in the body (the
+ *     title-promise gate — "Cole and the Lost Mitten" with no mitten was
+ *     Exhibit A of the pivot diagnosis).
+ * (b) BEDTIME ENDINGS — bedtime mode always ends with bedtime lexicon
+ *     (reuses ctx.BEDTIME_LEXICON — the R1 single source).
+ * (c) NEVER-NULL — empty-picks fuzz can't null (defaults cover every slot);
+ *     out-of-range ages MUST return null (router fallthrough contract).
+ * (d) ROTATION — random sessions reach most of the per-tier pool (variety
+ *     comes from templates × branches × picks, not beat shuffle).
+ */
+console.log('\n=== 29. b52 engine v4 (authored templates) gates ===');
+{
+  const v4Age = t => (t.tier === 'little' ? 4 : 7);
+  const v4Picks = (mode) => ({
+    pet: { w: 'bunny' }, food: { w: 'waffles' },
+    setting: { id: 'at_home', place: 'kitchen', visitorBias: 'safe', objectBias: 'safe' },
+    sound: { w: 'glorp' }, freeword: { w: 'KABLAM!', subtype: 'shout' }, freeword2: { w: 'BOINGO' },
+    color: { w: 'teal' }, move: { w: 'hopped' }, mood: { w: 'curious' }, weather: { w: 'sunny' },
+    storyMode: mode, pottyMode: false,
+  });
+  // Slot pick-words used by the requires gate (mirror v4Picks + slot builder).
+  const SLOT_WORDS = { pet: 'bunny', food: 'waffles', place: 'kitchen', noise: 'glorp', bigword: 'KABLAM' };
+
+  let v4Total = 0, v4Nulls = 0, v4Unresolved = 0, v4RequireMisses = 0, v4TitleMisses = 0, v4BedtimeMisses = 0;
+  const missDetail = [];
+  for (const t of ctx.V4_TEMPLATES) {
+    for (const mode of ['bedtime', 'anytime']) {
+      for (let i = 0; i < 8; i++) {
+        const picks = { ...v4Picks(mode), __v4TemplateId: t.id };
+        let s; try { s = ctx.generateStoryV4('Cole', picks, v4Age(t)); } catch (e) { s = null; }
+        if (!s) { v4Nulls++; continue; }
+        v4Total++;
+        const rawFull = s.title + ' ' + s.paragraphs.join(' ');
+        const body = strip(s.paragraphs.join(' '));
+        if (/[{}]/.test(rawFull) || /(^| )\?( |$)/.test(strip(rawFull))) {
+          v4Unresolved++;
+          if (missDetail.length < 3) missDetail.push(`${t.id}: unresolved token`);
+        }
+        for (const req of (t.requires || [])) {
+          const w = SLOT_WORDS[req];
+          if (w && !wordRx(w).test(body)) {
+            v4RequireMisses++;
+            if (missDetail.length < 3) missDetail.push(`${t.id}: required slot '${req}' (${w}) missing from body`);
+          }
+        }
+        // Title-promise: every highlighted word in the title must appear in the body.
+        const titleTokens = [...String(s.title).matchAll(/\[(?:name|c|y):([^\]]+)\]/g)].map(m => m[1]);
+        for (const tok of titleTokens) {
+          if (!wordRx(tok).test(body)) {
+            v4TitleMisses++;
+            if (missDetail.length < 3) missDetail.push(`${t.id}: title word '${tok}' not in body`);
+            break;
+          }
+        }
+        if (mode === 'bedtime') {
+          const last = strip(s.paragraphs[s.paragraphs.length - 1]);
+          if (!ctx.BEDTIME_LEXICON.test(last)) {
+            v4BedtimeMisses++;
+            if (missDetail.length < 3) missDetail.push(`${t.id}: bedtime ending lacks lexicon`);
+          }
+        }
+      }
+    }
+  }
+  gate('v4 sample actually generated (min-sample guard)', v4Total >= 200, v4Total + ' stories (need ≥ 200)');
+  gate('v4 per-template matrix: 0 nulls (every template × both modes)', v4Nulls === 0, v4Nulls + '/' + (v4Total + v4Nulls) + ' nulls');
+  gate('v4 0 unresolved tokens ({, }, or ? marker)', v4Unresolved === 0, v4Unresolved + ' stories with unresolved tokens' + (missDetail.length ? ' (' + missDetail.join('; ') + ')' : ''));
+  gate('v4 required slots always render in body (template.requires contract)', v4RequireMisses === 0, v4RequireMisses + ' misses');
+  gate('v4 title-promise: every highlighted title word appears in the body', v4TitleMisses === 0, v4TitleMisses + ' title-promise misses');
+  gate('v4 bedtime mode always ends with bedtime lexicon (single-source R1 regex)', v4BedtimeMisses === 0, v4BedtimeMisses + ' misses');
+
+  // (c) Never-null fuzz with EMPTY picks (slot defaults must cover everything)
+  // + out-of-range ages return null so the router falls through to v3.
+  let fuzzNulls = 0;
+  for (let i = 0; i < 100; i++) {
+    if (!ctx.generateStoryV4('Cole', {}, 4)) fuzzNulls++;
+    if (!ctx.generateStoryV4('Cole', {}, 6)) fuzzNulls++;
+  }
+  gate('v4 never-null on empty picks (little + kid defaults)', fuzzNulls === 0, fuzzNulls + '/200 nulls');
+  const oob = [2, 3, 8, 12].filter(a => ctx.generateStoryV4('Cole', v4Picks('bedtime'), a) !== null);
+  gate('v4 returns null outside covered tiers (router fallthrough to v3)', oob.length === 0, oob.length ? 'unexpected v4 story at ages: ' + oob.join(',') : 'ages 2/3/8/12 → null');
+
+  // (d) Rotation reach: random sessions should surface most of each tier pool.
+  for (const tier of ['little', 'kid']) {
+    const seen = new Set();
+    const age = tier === 'little' ? 4 : 7;
+    const poolSize = ctx.V4_TEMPLATES.filter(t => t.tier === tier).length;
+    for (let i = 0; i < 300; i++) {
+      // Vary which slots are "picked" so the consumed-picks bias explores the pool.
+      const base = v4Picks(i % 2 ? 'bedtime' : 'anytime');
+      if (i % 3 === 0) delete base.food;
+      if (i % 4 === 0) { delete base.freeword; delete base.freeword2; }
+      if (i % 5 === 0) delete base.setting;
+      const s = ctx.generateStoryV4('Cole', base, age);
+      if (s) seen.add(s.__template);
+    }
+    gate(`v4 ${tier} rotation reaches ≥ 6 of ${poolSize} templates over 300 random sessions`, seen.size >= 6, seen.size + '/' + poolSize + ' distinct templates');
+  }
+}
+
 /* === 20. SETTING-BIAS COVERAGE GATE (added v0.9.3 · b36) ===
  *
  * Phase 2 of Selection Joy Pass: WORD_BANK kid options carry an optional `s: ['flavor']`
@@ -2744,7 +2860,7 @@ for (const [label, ok] of navChecks) {
 }
 gate('all story-flow navigation escape hatch checks pass', navMisses === 0, navMisses + ' misses');
 
-/* === 27. R0 — V3 NEVER-NULL (blueprint viability filter) ===
+/* === 28. R0 — V3 NEVER-NULL (blueprint viability filter) ===
  *
  * R0 (b51): Before picking a blueprint at random, generateStoryV3 now filters to
  * blueprints whose stage-required roles can all be filled by the current picks.
@@ -2754,7 +2870,7 @@ gate('all story-flow navigation escape hatch checks pass', navMisses === 0, navM
  *
  * 12 ages × 5 pick variants × 25 stories = 1,500 stories.
  */
-console.log('\n=== 27. R0 V3 never-null — blueprint viability filter ===');
+console.log('\n=== 28. R0 V3 never-null — blueprint viability filter ===');
 {
   const ages27 = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
   const pickVariants27 = [

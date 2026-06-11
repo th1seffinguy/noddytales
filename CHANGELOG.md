@@ -9,6 +9,31 @@ Entries from v0.9.3 forward use the four-part header `## vX.Y.Z (build N, engine
 
 ---
 
+## v0.9.3 (build 52, engine v3.0.3) — 2026-06-10
+**Engine v4 MVP — authored story templates (the followability pivot, Phase 1)**
+
+Implements Phase 1 of the strategic pivot approved 2026-06-09 ("go") after the followability verdict (Story Test Log Entry 018: *"silly has turned into unintelligible"* — random beat assembly has no causal spine; the word-coverage contract force-injects picks; the humor register was adult irony). v4 replaces beat-pool **assembly** with complete hand-authored **story templates**, so coherence is a property of the data, not a hope of the selector.
+
+### What shipped
+- **`src/stories-v4.js` (NEW)** — 16 complete templates in the taste-locked voice, each a real arc (*want → try → funny mishap → try differently → win → warm close*), retellable in one sentence, one-absurd-thing rule, bedtime + anytime endings:
+  - **little (4-5):** Pancake Flip (the approved sample), Hiccup Cure, Windy Picnic, Bath Escape, Tallest Tower, Who Ate the [food]?, Racing the Rain, Balloon in the Tree.
+  - **kid (6-7):** Santa's Cookies (the approved sample, tagged `pack:'christmas'`), Show-and-Tell Goes Wrong (Then Right), Fort with the Secret Password, Wobbliest Tooth in Town, The Great [food] Mountain, Lemonade Stand, Backwards Day, Treasure Swap.
+- **`src/engine-v4.js` (NEW)** — template renderer: picks become plot ingredients (pet = mishap-causer/fixer, food = the thing at stake, freeword/sound = **the punchline word at the payoff** — e.g. the fort password, Santa's cookie name, the tooth-pop yell). Rotation biases toward templates that consume more of the session's actual picks; no immediate repeats; NO coverage injection, callbacks, or smell lines of any kind. Never-null for little/kid (every slot defaults); returns null elsewhere so the router falls through to V3. Exact-match word lookup with raw-text fallback (deliberately no donor-entry synthesis — the b43 bug class). Same `[name|c|y]` tokens, so the b41 apostrophe tokenizer/TTS pipeline is untouched.
+- **Routing (`index.html`)** — **opt-in only via `?engine=v4`** (persists `nt_engine_v4`); V3 stays the production default for all ages. v4 covers ages 4-7 in this batch.
+- **QA Section 29 (new)** — per-template × both modes matrix: 0 nulls, 0 unresolved tokens, `template.requires` slots always render, **title-promise gate** (every highlighted title word appears in the body — "Cole and the Lost Mitten" with no mitten was Exhibit A of the diagnosis), bedtime endings via the R1 single-source lexicon, never-null on empty picks, null outside covered tiers, rotation reach ≥6/8 per tier. Also renumbered the b48/b51 duplicate "Section 27" headers (27/28/29).
+- **Grammar lint** — loader + a 500-story v4 pass through all 10 checks; `lowercase_sentence_start` made **ellipsis-aware** (negative lookbehind) — "One bit... two bits... three bits..." is read-aloud pacing, not a sentence-start error (was 249 false positives).
+
+### Verification
+- `scripts/qa-current.js` — **ALL ACCEPTANCE GATES PASSED** (Section 29 full matrix + every existing gate incl. b48-b51's).
+- `content-grammar-lint --reps 2000` (v3) **+ 500 v4 stories** — 0 hits on all 10 checks.
+- Manual retell test: **16/16 rendered stories** summarize in one sentence; sample pack at `docs/b52-v4/sample-pack.md`.
+- `node --check` clean on all touched files; index.html inline syntax gate green.
+
+### Next (per the pivot Build Idea)
+Phase 2: John + Cole playtest via `?engine=v4` → cutover little/kid to v4-default → big/tween/tot template batches → V2+V3 deletion at full cutover (engine v4.0.0). Phase 3: seasonal pack architecture (the Christmas template is the seed). BUILD_NUMBER 51 → 52; APP_VERSION stays v0.9.3; ENGINE_V2_VERSION stays v3.0.3 (v4 version constant is `v4.0.0-mvp`, flag-only).
+
+---
+
 ## v0.9.3 (build 51, engine v3.0.3) — 2026-06-10
 **R0+R1 — Blueprint viability filter + lexicon single-source-of-truth**
 

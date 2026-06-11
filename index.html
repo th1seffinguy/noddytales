@@ -1441,6 +1441,12 @@
 
 <script src="src/content.js"></script>
 <script src="src/engine-v2.js"></script>
+<!-- v0.9.3 · b52 — Engine v4 (authored story templates; the followability
+     pivot). Flag-only via ?engine=v4; V3 stays the production default.
+     Load order matters: engine-v4.js reads V2_WORDS from engine-v2.js and
+     V4_TEMPLATES from stories-v4.js. -->
+<script src="src/stories-v4.js"></script>
+<script src="src/engine-v4.js"></script>
 <script>
 /* ================================================================
    NODDYTALES — Vanilla JS app
@@ -1465,6 +1471,11 @@ if (typeof WORD_BANK === 'undefined') throw new Error('content.js must load befo
     if (urlEngine === 'v3') localStorage.setItem('nt_engine_v3', '1');
     if (urlEngine === 'v2' || urlEngine === 'v1') localStorage.setItem('nt_engine_v3', '0');
     if (localStorage.getItem('nt_engine_v3') === '1') window.NODDY_ENGINE = 'v3';
+    /* v0.9.3 · b52 — experimental v4 flag (authored-template engine).
+       ?engine=v4 persists nt_engine_v4=1; any other explicit ?engine= value
+       clears it so testers can flip back without clearing storage. */
+    if (urlEngine === 'v4') localStorage.setItem('nt_engine_v4', '1');
+    if (urlEngine === 'v3' || urlEngine === 'v2' || urlEngine === 'v1') localStorage.setItem('nt_engine_v4', '0');
   } catch {}
 })();
 function isEngineV2Enabled() {
@@ -1477,6 +1488,12 @@ function isEngineV3Enabled() {
   // buildStory tries v3 at every age. When falsy, buildStory still tries v3 for
   // ages 6+ by default. The flag is now an override, not a gate.
   try { return localStorage.getItem('nt_engine_v3') === '1'; } catch { return false; }
+}
+function isEngineV4Enabled() {
+  // v0.9.3 · b52 — v4 is OPT-IN ONLY while the authored-template batches land
+  // (little + kid first). When enabled, buildStory tries v4 before v3; v4
+  // returns null outside its covered tiers, so other ages fall through to v3.
+  try { return localStorage.getItem('nt_engine_v4') === '1'; } catch { return false; }
 }
 /* v2.9.0 — one-time console.warn deprecation notice for v1 template fallback.
    v1 is the legacy template-substitution engine retired as a default in v2.0.0
@@ -1640,6 +1657,8 @@ const MAX_SHUFFLES = 2;
 /* In-app release notes — kept in sync with CHANGELOG.md.
    Showing the latest few entries keeps the modal scannable; full history lives on GitHub. */
 const RELEASE_NOTES = [
+  { v: 'v0.9.3 · b52', title: 'Engine v4 MVP — authored story templates (followability pivot, Phase 1)',
+    detail: 'Phase 1 of the strategic pivot approved 2026-06-09 after the followability verdict (Story Test Log Entry 018: "silly has turned into unintelligible" — random beat assembly has no causal spine, the word-coverage contract force-injects picks, and the humor register was adult irony at every age). v4 replaces beat-pool ASSEMBLY with complete hand-authored story TEMPLATES, so coherence is a property of the data, not a hope of the selector. NEW src/stories-v4.js: 16 templates in the taste-locked voice — each a real arc (want → try → funny mishap → try differently → win → warm close), retellable in one sentence, one-absurd-thing rule, bedtime + anytime endings. Little (4-5): Pancake Flip (the approved sample), Hiccup Cure, Windy Picnic, Bath Escape, Tallest Tower, Who Ate the [food]?, Racing the Rain, Balloon in the Tree. Kid (6-7): Santa\'s Cookies (approved sample, tagged pack:christmas), Show-and-Tell Goes Wrong (Then Right), Fort with the Secret Password, Wobbliest Tooth in Town, The Great [food] Mountain, Lemonade Stand, Backwards Day, Treasure Swap. NEW src/engine-v4.js renderer: picks are plot ingredients (pet = mishap-causer/fixer, food = the thing at stake, freeword/sound = the punchline word AT the payoff — the fort password, Santa\'s cookie name, the tooth-pop yell); rotation biases toward templates consuming more of the session\'s actual picks; no immediate repeats; ZERO coverage injection / callbacks / smell lines; never-null for little+kid (slot defaults), null elsewhere so the router falls through to v3; exact-match word lookup with raw-text fallback (no donor-entry synthesis — the b43 bug class); same [name|c|y] tokens so the b41 apostrophe tokenizer/TTS pipeline is untouched. ROUTING: opt-in only via ?engine=v4 (persists nt_engine_v4) — V3 stays the production default for all ages; v4 covers ages 4-7 this batch. QA: new Section 29 (per-template × both modes: 0 nulls, 0 unresolved tokens, requires-slots render, TITLE-PROMISE gate — every highlighted title word appears in the body; "Cole and the Lost Mitten" with no mitten was Exhibit A — bedtime endings via the R1 single-source lexicon, never-null on empty picks, null outside covered tiers, rotation ≥6/8 per tier); b48/b51 duplicate "Section 27" headers renumbered 27/28/29; grammar lint gains a 500-story v4 pass and an ellipsis-aware lowercase_sentence_start check ("One bit... two bits..." is read-aloud pacing, not an error — was 249 false positives). VERIFICATION: qa-current ALL ACCEPTANCE GATES PASSED; lint 0 hits on all 10 checks (2000 v3 + 500 v4 stories); manual retell test 16/16; sample pack at docs/b52-v4/sample-pack.md. NEXT: John + Cole playtest via ?engine=v4 → cutover little/kid → big/tween/tot batches → V2+V3 deletion at full cutover (engine v4.0.0) → seasonal pack architecture (the Christmas template is the seed). BUILD_NUMBER 51 → 52; APP_VERSION stays v0.9.3; ENGINE_V2_VERSION stays v3.0.3 (v4 constant: v4.0.0-mvp, flag-only).' },
   { v: 'v0.9.3 · b51', title: 'R0+R1 — Blueprint viability filter + lexicon single-source-of-truth',
     detail: 'R0: generateStoryV3 now pre-filters blueprints to only those whose stage-required roles can be satisfied by the current picks before selecting one at random. The canonical failure case was tot_sky_v3 (wonder_object → sky slot) when the user skipped the sky pick — V3 returned null ~9% of the time at age 2 with no sky word. The pre-filter eliminates that class of null entirely. A paranoia fallback (use full pool if somehow all blueprints are filtered) ensures no hard crash from future blueprint misconfigs. R1: BEDTIME_LEXICON had three parallel copies (engine in-function, qa-current Section 21 BEDTIME_RX, qa-current Section 25 BEDTIME_LEXICON) with diverging content — root cause of the double-closer bug in b46. Now a single module-level const in engine-v2.js, exported on window, and read via ctx.BEDTIME_LEXICON in qa-current. ANYTIME_RX similarly had two copies (local inside endingAudit, ANYTIME_RX_GATE at module level) — now one module-level definition; both inline copies removed. QA: Section 27 (new) — 1,500 stories across 12 ages × 5 sparse pick variants assert 0 V3 nulls. APP_VERSION stays v0.9.3; BUILD_NUMBER 50 → 51; ENGINE_V2_VERSION stays v3.0.3. Badge reads v0.9.3 · b51.' },
   { v: 'v0.9.3 · b50', title: 'Centered selection action pills',
@@ -2228,6 +2247,24 @@ function buildStory(name, picks, age) {
   // for rollback.
   //
   // The ?engine=v2 / ?engine=v1 flags still work as testing overrides.
+
+  // v0.9.3 · b52 — Engine v4 (authored story templates), OPT-IN via ?engine=v4.
+  // Tries v4 first when the flag is set; v4 covers little+kid (ages 4-7) in
+  // this batch and returns null for other tiers, falling through to v3. The
+  // returned {title, paragraphs} carries the same [name|c|y] tokens, so the
+  // parseStoryLine / wrapStoryWords / TTS pipeline (b41 apostrophe guardrail)
+  // is untouched.
+  if (isEngineV4Enabled() && typeof generateStoryV4 === 'function') {
+    try {
+      const v4Result = generateStoryV4(name, picksWithSetting, age);
+      if (v4Result && v4Result.title && Array.isArray(v4Result.paragraphs) && v4Result.paragraphs.length > 0) {
+        return v4Result;
+      }
+    } catch (err) {
+      try { console.warn('[engine-v4] fallback to v3:', err); } catch {}
+    }
+  }
+
   const preferV3 = (typeof generateStoryV3 === 'function');
   if (preferV3) {
     try {
